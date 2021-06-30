@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 
 namespace SMPL
 {
@@ -62,7 +61,6 @@ namespace SMPL
 			get
 			{
 				Show();
-
 				SelectionEnable(true);
 				var result = System.Console.ReadLine();
 				SelectionEnable(false);

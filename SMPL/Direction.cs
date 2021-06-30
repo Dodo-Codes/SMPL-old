@@ -1,7 +1,7 @@
 ﻿using SFML.System;
 using System;
 
-namespace SMPL.Data
+namespace SMPL
 {
 	public struct Direction
 	{
@@ -26,21 +26,21 @@ namespace SMPL.Data
 			}
 		}
 
+		public static Direction Up { get { return new(0, -1); } }
+		public static Direction Down { get { return new(0, 1); } }
+		public static Direction Left { get { return new(-1, 0); } }
+		public static Direction Right { get { return new(1, 0); } }
+		public static Direction UpRight { get { return new(1, -1); } }
+		public static Direction UpLeft { get { return new(-1, -1); } }
+		public static Direction DownRight { get { return new(1, 1); } }
+		public static Direction DownLeft { get { return new(-1, 1); } }
+
 		public Direction(double x, double y)
 		{
 			this.x = 0;
 			this.y = 0;
 			X = x;
 			Y = y;
-		}
-		public Direction(Rotation.Sample rotationSample)
-		{
-			x = 0;
-			y = 0;
-
-			var dir = Rotation.SampleToDirection(rotationSample);
-			X = dir.X;
-			Y = dir.Y;
 		}
 		public Direction(double angle)
 		{

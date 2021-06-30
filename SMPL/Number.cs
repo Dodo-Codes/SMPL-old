@@ -1,23 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SMPL.Data
+namespace SMPL
 {
 	public static class Number
 	{
-		public enum TimeConvert
-		{
-			MillisecondsToSeconds,
-			SecondsToMilliseconds, SecondsToMinutes, SecondsToHours,
-			MinutesToMilliseconds, MinutesToSeconds, MinutesToHours, MinutesToDays,
-			HoursToSeconds, HoursToMinutes, HoursToDays, HoursToWeeks,
-			DaysToMinutes, DaysToHours, DaysToWeeks,
-			WeeksToHours, WeeksToDays
-		}
 		public enum Limitation
 		{
 			ClosestBound, Overflow
@@ -29,10 +17,6 @@ namespace SMPL.Data
 		public enum RoundWhen5
 		{
 			TowardEven, AwayFromZero, TowardZero, TowardNegativeInfinity, TowardPositiveInfinity
-		}
-		public enum TimeUnit
-		{
-			Tick, Second
 		}
 
 		public static double Limit(double number, Bounds bounds, Limitation limitType = Limitation.ClosestBound)
@@ -115,30 +99,6 @@ namespace SMPL.Data
 
 			return Math.Round(number, (int)precision, midpoint);
 		}
-		public static double ToTime(double number, TimeConvert convertType)
-		{
-			return convertType switch
-			{
-				TimeConvert.MillisecondsToSeconds => number / 1000,
-				TimeConvert.SecondsToMilliseconds => number * 1000,
-				TimeConvert.SecondsToMinutes => number / 60,
-				TimeConvert.SecondsToHours => number / 3600,
-				TimeConvert.MinutesToMilliseconds => number * 60000,
-				TimeConvert.MinutesToSeconds => number * 60,
-				TimeConvert.MinutesToHours => number / 60,
-				TimeConvert.MinutesToDays => number / 1440,
-				TimeConvert.HoursToSeconds => number * 3600,
-				TimeConvert.HoursToMinutes => number * 60,
-				TimeConvert.HoursToDays => number / 24,
-				TimeConvert.HoursToWeeks => number / 168,
-				TimeConvert.DaysToMinutes => number * 1440,
-				TimeConvert.DaysToHours => number * 24,
-				TimeConvert.DaysToWeeks => number / 7,
-				TimeConvert.WeeksToHours => number * 168,
-				TimeConvert.WeeksToDays => number * 7,
-				_ => 0,
-			};
-		}
 		public static double ToPercent(double number, Bounds bounds)
 		{
 			return (number - bounds.Lower) * 100.0 / (bounds.Upper - bounds.Lower);
@@ -169,16 +129,16 @@ namespace SMPL.Data
 			upper = inclusiveUpper ? bounds.Upper >= number : bounds.Upper > number;
 			return lower && upper;
 		}
-		public static double Move(double number, double speed, TimeUnit motion = TimeUnit.Second)
+		public static double Move(double number, double speed, Time.Unit motion = Time.Unit.Second)
 		{
-			if (motion == TimeUnit.Second)
+			if (motion == Time.Unit.Second)
 			{
-				var delta = Performance.Time.TickDeltaTime;
+				var delta = Time.TickDeltaTime;
 				speed *= delta;
 			}
 			return number + speed;
 		}
-		public static double MoveToward(double number, double targetNumber, double speed, TimeUnit motion = TimeUnit.Second)
+		public static double MoveToward(double number, double targetNumber, double speed, Time.Unit motion = Time.Unit.Second)
 		{
 			var goingPos = number < targetNumber;
 			var result = Move(number, goingPos ? Sign(speed, false) : Sign(speed, true), motion);

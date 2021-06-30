@@ -20,6 +20,7 @@ namespace SMPL
 		private static State currentState;
 		private static Type currentType;
 		private static bool resizable;
+		private static Color backgroundColor;
 
 		public static State CurrentState
 		{
@@ -60,6 +61,17 @@ namespace SMPL
 			get { return form.Text; }
 			set { window.SetTitle(value); }
 		}
+		public static bool ForceDraw { get; set; }
+		public static Color BackgroundColor
+		{
+			get { return backgroundColor; }
+			set
+			{
+				if (backgroundColor == value) return;
+				backgroundColor = value;
+				ForceDraw = true;
+			}
+		}
 
 		internal static Form form;
 		internal static RenderWindow window;
@@ -90,6 +102,11 @@ namespace SMPL
 			}
 		}
 
+		internal static void Draw()
+		{
+
+		}
+
 		internal void Initialize()
 		{
 			var w = (int)VideoMode.DesktopMode.Width;
@@ -101,13 +118,15 @@ namespace SMPL
 			Game.window = this;
 			window = new RenderWindow(form.Handle);
 			window.SetVisible(true);
-			window.SetTitle($"{nameof(SFML)} Game");
+			window.SetTitle($"{nameof(SMPL)} Game");
 
 			window.Closed += new EventHandler(OnClose);
 			window.GainedFocus += new EventHandler(OnFocus);
 			window.LostFocus += new EventHandler(OnUnfocus);
 			form.SizeChanged += new EventHandler(OnResize);
-			
+
+			BackgroundColor = Color.Black;
+			ForceDraw = true;
 		}
 		public virtual void OnClose() { }
 		public virtual void OnFocus() { }
@@ -115,6 +134,7 @@ namespace SMPL
 		public virtual void OnResize() { }
 		public virtual void OnMinimize() { }
 		public virtual void OnMaximize() { }
+		public virtual void OnDraw() { }
 
 		internal void OnClose(object sender, EventArgs e)
 		{

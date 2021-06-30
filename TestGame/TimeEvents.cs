@@ -2,7 +2,7 @@
 
 namespace TestGame
 {
-	public class Time : SMPL.Performance.Time
+	public class TimeEvents : Time
 	{
 		public override void OnEachTick()
 		{

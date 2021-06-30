@@ -1,39 +1,23 @@
-﻿using SFML.Graphics;
-using SFML.Audio;
-using SFML.System;
-using SFML.Window;
+﻿using SFML.Window;
 using System;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Globalization;
 using System.Threading;
-using Newtonsoft.Json;
-using System.Drawing.Design;
-using System.Collections.Generic;
-using TcpClient = NetCoreServer.TcpClient;
-using System.Net.Sockets;
-using System.Net;
-using System.Linq;
-using System.Text;
-using System.IO;
-using NetCoreServer;
 
 namespace SMPL
 {
 	public class Game
 	{
-		internal static SMPL.Window window;
-		internal static SMPL.Input.Keyboard keyboard;
-		internal static SMPL.Input.Mouse mouse;
-		internal static SMPL.Performance.Time time;
+		internal static Window window;
+		internal static Time time;
+
+		public static string Directory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
 		static void Main() { }
 
 		public static void Start(Window window,
-			Performance.Time time = null,
-			Input.Keyboard keyboard = null,
-			Input.Mouse mouse = null)
+			Time time = null,
+			Keyboard keyboard = null,
+			Mouse mouse = null)
 		{
 			if (window == null) return;
 			window.Initialize();
@@ -58,19 +42,36 @@ namespace SMPL
 				Application.DoEvents();
 				Window.window.DispatchEvents();
 
-				Performance.Time.tickDeltaTime = new();
-				Performance.Time.tickCount++;
+				Time.tickCount++;
 				time.OnEachTick();
+				Time.tickDeltaTime.Restart();
 
-				Window.window.Clear();
-				Draw();
+				if (Window.ForceDraw == false) continue;
+				Time.frameCount++;
+				var bg = Window.BackgroundColor;
+				Window.window.Clear(new SFML.Graphics.Color((byte)bg.Red, (byte)bg.Green, (byte)bg.Blue));
+				Window.Draw();
+				window.OnDraw();
 				Window.window.Display();
-				Performance.Time.frameDeltaTime = new();
+				Time.frameDeltaTime.Restart();
+				Window.ForceDraw = false;
 			}
 		}
-		internal static void Draw()
-		{
 
+		internal static string CreateDirectoryForFile(string filePath)
+		{
+			filePath = filePath.Replace('/', '\\');
+			var path = filePath.Split('\\');
+			var full = $"{Directory}{filePath}";
+			var curPath = Directory;
+			for (int i = 0; i < path.Length - 1; i++)
+			{
+				var p = $"{curPath}\\{path[i]}";
+				if (System.IO.Directory.Exists(p) == false) System.IO.Directory.CreateDirectory(p);
+
+				curPath = p;
+			}
+			return full;
 		}
 	}
 }

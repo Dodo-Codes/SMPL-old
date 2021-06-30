@@ -1,9 +1,8 @@
 ﻿using SFML.Window;
 using System;
 using System.Windows.Forms;
-using SMPL.Data;
 
-namespace SMPL.Input
+namespace SMPL
 {
 	public abstract class Mouse
 	{
@@ -15,11 +14,13 @@ namespace SMPL.Input
 		{
 			Vertical, Horizontal
 		}
+		public enum MouseWheelRoll
+		{
+
+		}
 
 		internal void Initialize()
 		{
-			Game.mouse = this;
-
 			Window.window.MouseButtonPressed += new EventHandler<MouseButtonEventArgs>(OnButtonPress);
 			Window.window.MouseButtonReleased += new EventHandler<MouseButtonEventArgs>(OnButtonRelease);
 			Window.form.MouseDoubleClick += new MouseEventHandler(OnButtonDoubleClick);
@@ -71,7 +72,7 @@ namespace SMPL.Input
 		{
 			var arguments = (MouseWheelScrollEventArgs)e;
 			var wheel = (MouseWheel)arguments.Wheel;
-			OnWheelScroll(arguments.Delta == 1 ? Rotation.Sample.Up : Rotation.Sample.Down, wheel);
+			OnWheelScroll(arguments.Delta, wheel);
 		}
 
 		public virtual void OnCursorMove() { }
@@ -80,6 +81,6 @@ namespace SMPL.Input
 		public virtual void OnButtonDoubleClick(MouseButton button) { }
 		public virtual void OnButtonPress(MouseButton button) { }
 		public virtual void OnButtonRelease(MouseButton button) { }
-		public virtual void OnWheelScroll(Rotation.Sample rotationSample, MouseWheel wheel) { }
+		public virtual void OnWheelScroll(double delta, MouseWheel wheel) { }
 	}
 }

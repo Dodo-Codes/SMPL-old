@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SMPL.Input
+namespace SMPL
 {
 	public abstract class Keyboard
 	{
@@ -56,8 +56,6 @@ namespace SMPL.Input
 
 		internal void Initialize()
 		{
-			Game.keyboard = this;
-
 			Window.window.KeyPressed += new EventHandler<SFML.Window.KeyEventArgs>(OnKeyPress);
 			Window.window.KeyReleased += new EventHandler<SFML.Window.KeyEventArgs>(OnKeyRelease);
 			Window.window.SetKeyRepeatEnabled(false);
