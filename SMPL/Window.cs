@@ -1,12 +1,14 @@
 ﻿using SFML.Graphics;
 using SFML.Window;
+using SFML.System;
 using System;
 using System.Security.Permissions;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace SMPL
 {
-	public abstract class Window
+	public static class Window
 	{
 		public enum State
 		{
@@ -72,6 +74,11 @@ namespace SMPL
 				ForceDraw = true;
 			}
 		}
+		public static Point Position
+		{
+			get { return new Point(window.Position.X, window.Position.Y); }
+			set { window.Position = new SFML.System.Vector2i((int)value.X, (int)value.Y); }
+		}
 
 		internal static Form form;
 		internal static RenderWindow window;
@@ -104,10 +111,35 @@ namespace SMPL
 
 		internal static void Draw()
 		{
+			while (window.IsOpen)
+			{
+				Thread.Sleep(1);
+				Application.DoEvents();
+				window.DispatchEvents();
 
+				if (ForceDraw == false) continue;
+				Time.frameCount++;
+				var bg = BackgroundColor;
+				window.Clear(new SFML.Graphics.Color((byte)bg.Red, (byte)bg.Green, (byte)bg.Blue));
+				WindowEvents.instance.OnDraw();
+
+				var vertex = new Vertex[]
+				{
+					new Vertex(new Vector2f(-100, 100), new SFML.Graphics.Color(255, 255, 255, 50)),
+					new Vertex(new Vector2f(100, 100), new SFML.Graphics.Color(255, 0, 0)),
+					new Vertex(new Vector2f(100, -100), new SFML.Graphics.Color(255, 0, 0)),
+					new Vertex(new Vector2f(-100, -100), new SFML.Graphics.Color(255, 0, 0)),
+				};
+				window.Draw(vertex, PrimitiveType.Quads);
+
+
+				window.Display();
+				Time.frameDeltaTime.Restart();
+				ForceDraw = false;
+			}
 		}
 
-		internal void Initialize()
+		internal static void Initialize()
 		{
 			var w = (int)VideoMode.DesktopMode.Width;
 			var h = (int)VideoMode.DesktopMode.Height;
@@ -115,42 +147,12 @@ namespace SMPL
 			form = new Form();
 			form.SetBounds(w, h, w / 2, h / 2);
 
-			Game.window = this;
 			window = new RenderWindow(form.Handle);
 			window.SetVisible(true);
 			window.SetTitle($"{nameof(SMPL)} Game");
 
-			window.Closed += new EventHandler(OnClose);
-			window.GainedFocus += new EventHandler(OnFocus);
-			window.LostFocus += new EventHandler(OnUnfocus);
-			form.SizeChanged += new EventHandler(OnResize);
-
 			BackgroundColor = Color.Black;
 			ForceDraw = true;
-		}
-		public virtual void OnClose() { }
-		public virtual void OnFocus() { }
-		public virtual void OnUnfocus() { }
-		public virtual void OnResize() { }
-		public virtual void OnMinimize() { }
-		public virtual void OnMaximize() { }
-		public virtual void OnDraw() { }
-
-		internal void OnClose(object sender, EventArgs e)
-		{
-			OnClose();
-			Game.Stop();
-		}
-		internal void OnFocus(object sender, EventArgs e) => OnFocus();
-		internal void OnUnfocus(object sender, EventArgs e) => OnUnfocus();
-		internal void OnResize(object sender, EventArgs e)
-		{
-			switch (currentState)
-			{
-				case State.Floating: OnResize(); break;
-				case State.Minimized: OnMinimize(); break;
-				case State.Maximized: OnMaximize(); break;
-			}
 		}
 	}
 }

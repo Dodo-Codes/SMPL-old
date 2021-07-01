@@ -1,6 +1,6 @@
 ﻿namespace TestGame
 {
-	public class MouseInput : SMPL.Mouse
+	public class MouseEvents : SMPL.MouseEvents
 	{
 		public override void OnCursorLeaveWindow()
 		{

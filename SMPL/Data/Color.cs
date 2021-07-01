@@ -74,21 +74,24 @@ namespace SMPL
 		{
 			color = TintRed(color, color.Red < targetRed ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Red - targetRed);
-			if (dist < speed * Time.TickDeltaTime * 2) color.Red = targetRed;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			if (dist < sp) color.Red = targetRed;
 			return color;
 		}
 		public static Color TintTowardGreen(Color color, double targetGreen, double speed, Time.Unit timeUnit)
 		{
 			color = TintGreen(color, color.Green < targetGreen ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Green - targetGreen);
-			if (dist < speed * Time.TickDeltaTime * 2) color.Green = targetGreen;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			if (dist < sp) color.Green = targetGreen;
 			return color;
 		}
 		public static Color TintTowardBlue(Color color, double targetBlue, double speed, Time.Unit timeUnit)
 		{
 			color = TintBlue(color, color.Blue < targetBlue ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Blue - targetBlue);
-			if (dist < speed * Time.TickDeltaTime * 2) color.Blue = targetBlue;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			if (dist < sp) color.Blue = targetBlue;
 			return color;
 		}
 		public static Color AppearTowardAlpha(Color color, double targeto, double speed, Time.Unit timeUnit)

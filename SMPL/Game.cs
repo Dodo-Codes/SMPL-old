@@ -7,71 +7,55 @@ namespace SMPL
 {
 	public class Game
 	{
-		internal static Window window;
-		internal static Time time;
+		public struct Events
+		{
+			public WindowEvents windowEvents;
+			public TimeEvents timeEvents;
+			public KeyboardEvents keyboardEvents;
+			public MouseEvents mouseEvents;
+			public FileEvents fileEvents;
+			public WorldCameraEvents worldCameraEvents;
+		}
 
-		public static string Directory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
+		internal static Thread resourceLoading;
+		internal static Thread code;
 
 		static void Main() { }
 
-		public static void Start(Window window,
-			Time time = null,
-			Keyboard keyboard = null,
-			Mouse mouse = null)
+		public static void Start(Events gameEvents)
 		{
-			if (window == null) return;
-			window.Initialize();
-			if (time != null) time.Initialize();
-			if (keyboard != null) keyboard.Initialize();
-			if (mouse != null) mouse.Initialize();
+			Time.Initialize();
+			Window.Initialize();
 			OS.Initialize();
+			File.Initialize();
 
-			Run();
+			if (gameEvents.windowEvents != null) gameEvents.windowEvents.Subscribe();
+			if (gameEvents.worldCameraEvents != null) gameEvents.worldCameraEvents.Subscribe();
+			if (gameEvents.timeEvents != null) gameEvents.timeEvents.Subscribe();
+			if (gameEvents.keyboardEvents != null) gameEvents.keyboardEvents.Subscribe();
+			if (gameEvents.mouseEvents != null) gameEvents.mouseEvents.Subscribe();
+			if (gameEvents.fileEvents != null) gameEvents.fileEvents.Subscribe();
+
+			StartThreads();
 		}
 		public static void Stop()
 		{
-			window.OnClose();
+			WindowEvents.instance.OnClose();
 			Window.window.Close();
 		}
 
-		internal static void Run()
+		internal static void StartThreads()
 		{
-			while (Window.window.IsOpen)
-			{
-				Thread.Sleep(1); // calming down the cpu
-				Application.DoEvents();
-				Window.window.DispatchEvents();
+			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
+			code = new Thread(new ThreadStart(Time.Run));
+			resourceLoading.Name = "ResourcesLoading";
+			code.Name = "Code";
+			resourceLoading.IsBackground = true;
+			code.IsBackground = true;
 
-				Time.tickCount++;
-				time.OnEachTick();
-				Time.tickDeltaTime.Restart();
-
-				if (Window.ForceDraw == false) continue;
-				Time.frameCount++;
-				var bg = Window.BackgroundColor;
-				Window.window.Clear(new SFML.Graphics.Color((byte)bg.Red, (byte)bg.Green, (byte)bg.Blue));
-				Window.Draw();
-				window.OnDraw();
-				Window.window.Display();
-				Time.frameDeltaTime.Restart();
-				Window.ForceDraw = false;
-			}
-		}
-
-		internal static string CreateDirectoryForFile(string filePath)
-		{
-			filePath = filePath.Replace('/', '\\');
-			var path = filePath.Split('\\');
-			var full = $"{Directory}{filePath}";
-			var curPath = Directory;
-			for (int i = 0; i < path.Length - 1; i++)
-			{
-				var p = $"{curPath}\\{path[i]}";
-				if (System.IO.Directory.Exists(p) == false) System.IO.Directory.CreateDirectory(p);
-
-				curPath = p;
-			}
-			return full;
+			resourceLoading.Start();
+			code.Start();
+			Window.Draw();
 		}
 	}
 }

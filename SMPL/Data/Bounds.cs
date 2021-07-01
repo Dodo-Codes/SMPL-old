@@ -35,10 +35,10 @@
 
 		public Bounds(double lower, double upper)
 		{
-			this.lower = 0;
-			this.upper = 0;
-			Lower = lower;
-			Upper = upper;
+			this.lower = lower;
+			this.upper = upper;
+			Lower = this.lower;
+			Upper = this.upper;
 		}
 	}
 }

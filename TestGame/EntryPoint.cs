@@ -1,10 +1,18 @@
-﻿namespace TestGame
+﻿using SMPL;
+
+namespace TestGame
 {
 	public class EntryPoint
 	{
-		public static void Main() => SMPL.Game.Start(
-			window: new WindowEvents(),
-			keyboard: new KeyboardInput(),
-			time: new TimeEvents());
+		public static void Main()
+		{
+			var events = new Game.Events()
+			{
+				windowEvents = new WindowEvents(),
+				worldCameraEvents = new WorldCameraEvents(),
+				timeEvents = new TimeEvents()
+			};
+			Game.Start(events);
+		}
 	}
 }

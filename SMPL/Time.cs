@@ -1,8 +1,10 @@
 ﻿using SFML.System;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace SMPL
 {
-	public abstract class Time
+	public static class Time
 	{
 		public struct UnitDisplay
 		{
@@ -46,17 +48,18 @@ namespace SMPL
 		public static double TickDeltaTime { get { return tickDeltaTime.ElapsedTime.AsSeconds(); } }
 		public static double FrameDeltaTime { get { return frameDeltaTime.ElapsedTime.AsSeconds(); } }
 		public static double TickCount { get { return tickCount; } }
-		private static double frameRateLimit;
-		public static double FrameRateLimit
+		private static uint frameRateLimit;
+		public static uint FrameRateLimit
 		{
 			get { return frameRateLimit; }
 			set
 			{
-				var n = Number.Limit(value, new Bounds(1, 60));
+				var n = (uint)Number.Limit(value, new Bounds(1, 60));
 				frameRateLimit = n;
-				Window.window.SetFramerateLimit((uint)n);
+				Window.window.SetFramerateLimit(n);
 			}
 		}
+		public static double Clock { get { return time.ElapsedTime.AsSeconds(); } }
 
 		public static string ToText(double timeInSeconds, Format format)
 		{
@@ -123,17 +126,25 @@ namespace SMPL
 		{
 			return averaged ? frameCount / time.ElapsedTime.AsSeconds() : 1 / frameDeltaTime.ElapsedTime.AsSeconds();
 		}
-
-		internal void Initialize()
+		internal static void Run()
 		{
-			Game.time = this;
+			while (Window.window.IsOpen)
+			{
+				Thread.Sleep(1);
 
+				tickCount++;
+				if (TimeEvents.instance != null) TimeEvents.instance.OnEachTick();
+				tickDeltaTime.Restart();
+
+				File.UpdateMainThreadAssets();
+			}
+		}
+
+		internal static void Initialize()
+		{
 			time = new();
 			tickDeltaTime = new();
 			frameDeltaTime = new();
-			OnStart();
 		}
-		public virtual void OnStart() { }
-		public virtual void OnEachTick() { }
 	}
 }

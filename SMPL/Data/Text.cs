@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Text;
 
 namespace SMPL
@@ -100,48 +99,6 @@ namespace SMPL
 				data[i] = (byte)(data[i] ^ amplifier);
 			}
 			return Encoding.UTF8.GetString(data);
-		}
-		/// <summary>
-		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="Load"/>.<br></br><br></br>
-		/// This is a slow operation - do not call frequently.
-		/// </summary>
-		public static void Save(string text, string filePath = "folder/file.extension")
-		{
-			var full = Game.CreateDirectoryForFile(filePath);
-
-			try
-			{
-				File.WriteAllText(full, text);
-			}
-			catch (Exception)
-			{
-				Debug.LogError(1, $"Could not save file '{full}'.");
-				return;
-			}
-		}
-		/// <summary>
-		/// Reads all the text from the file at <paramref name="filePath"/> and returns it as a <see cref="string"/> if successful. Returns <paramref name="null"/> otherwise. A text can be saved to a file with <see cref="Save"/>.<br></br><br></br>
-		/// This is a slow operation - do not call frequently.
-		/// </summary>
-		public static string Load(string filePath = "folder/file.extension")
-		{
-			filePath = filePath.Replace('/', '\\');
-			var full = $"{Game.Directory}\\{filePath}";
-
-			if (Directory.Exists(full) == false)
-			{
-				Console.Log($"Could not load file '{full}'. Directory/file not found.");
-				return default;
-			}
-			try
-			{
-				return File.ReadAllText(full);
-			}
-			catch (Exception)
-			{
-				Console.Log($"Could not load file '{full}'.");
-				return default;
-			}
 		}
 	}
 }
