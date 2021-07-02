@@ -2,8 +2,11 @@
 
 namespace TestGame
 {
-	public class WorldCameraEvents : SMPL.WorldCameraEvents
+	public class Minimap : Camera
 	{
+		public Minimap(Point position, Size size, Point viewPosition, Size viewSize) :
+			base(position, size, viewPosition, viewSize) { }
+
 		public override void OnDraw()
 		{
 			var line = new Line(new Point(0, 0), new Point(100, 0));

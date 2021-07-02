@@ -22,7 +22,6 @@ namespace SMPL
 		private static State currentState;
 		private static Type currentType;
 		private static bool resizable;
-		private static Color backgroundColor;
 
 		public static State CurrentState
 		{
@@ -62,15 +61,6 @@ namespace SMPL
 		{
 			get { return form.Text; }
 			set { window.SetTitle(value); }
-		}
-		public static Color BackgroundColor
-		{
-			get { return backgroundColor; }
-			set
-			{
-				if (backgroundColor == value) return;
-				backgroundColor = value;
-			}
 		}
 		public static Point Position
 		{
@@ -116,17 +106,8 @@ namespace SMPL
 				window.DispatchEvents();
 
 				Time.frameCount++;
-				var bg = BackgroundColor;
 				window.SetActive(true);
-				window.Clear(new SFML.Graphics.Color((byte)bg.Red, (byte)bg.Green, (byte)bg.Blue));
-				//var vertex = new Vertex[]
-				//{
-				//	new Vertex(new Vector2f(-100, 100), new SFML.Graphics.Color(255, 255, 255, 50)),
-				//	new Vertex(new Vector2f(100, 100), new SFML.Graphics.Color(255, 0, 0)),
-				//	new Vertex(new Vector2f(100, -100), new SFML.Graphics.Color(255, 0, 0)),
-				//	new Vertex(new Vector2f(-100, -100), new SFML.Graphics.Color(255, 0, 0)),
-				//};
-				//window.Draw(vertex, PrimitiveType.Quads);
+				window.Clear();
 				Camera.DrawCameras();
 				window.Display();
 				Time.frameDeltaTime.Restart();
@@ -145,8 +126,6 @@ namespace SMPL
 			window = new RenderWindow(form.Handle);
 			window.SetVisible(true);
 			window.SetTitle($"{nameof(SMPL)} Game");
-
-			BackgroundColor = Color.Black;
 		}
 	}
 }

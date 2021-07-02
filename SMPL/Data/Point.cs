@@ -3,7 +3,7 @@ using System;
 
 namespace SMPL
 {
-	public class Point
+	public struct Point
 	{
 		public double X { get; set; }
 		public double Y { get; set; }
@@ -13,19 +13,34 @@ namespace SMPL
 			X = x;
 			Y = y;
 		}
-		public static double GetDistance(Point positionA, Point positionB)
+		public static double GetDistance(Point pointA, Point pointB)
 		{
-			return Math.Sqrt(Math.Pow(positionB.X - positionA.X, 2) + Math.Pow(positionB.Y - positionA.Y, 2));
+			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
+		}
+		public static Point MoveAtAngle(Point point, double angle, double speed, Time.Unit timeUnit = Time.Unit.Second)
+		{
+			if (timeUnit == Time.Unit.Second) speed *= Time.TickDeltaTime;
+			var dir = Rotation.AngleToDirection(angle);
+
+			point.X += dir.X * speed;
+			point.Y += dir.Y * speed;
+			return point;
+		}
+		public static Point MoveTowardPoint(Point point, Point targetPoint, double speed,
+			Time.Unit timeUnit = Time.Unit.Second)
+		{
+			var ang = Rotation.AngleBetweenPoints(point, targetPoint);
+			return MoveAtAngle(point, ang, speed, timeUnit);
 		}
 
-		public static Point operator +(Point a, Point b) => new Point(a.X + b.Y, a.X + b.Y);
-		public static Point operator -(Point a, Point b) => new Point(a.X - b.X, a.Y - b.Y);
-		public static Point operator *(Point a, Point b) => new Point(a.X * b.X, a.Y * b.Y);
-		public static Point operator /(Point a, Point b) => new Point(a.X / b.X, a.Y / b.Y);
+		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
+		public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
+		public static Point operator *(Point a, Point b) => new(a.X * b.X, a.Y * b.Y);
+		public static Point operator /(Point a, Point b) => new(a.X / b.X, a.Y / b.Y);
 		public static bool operator ==(Point a, Point b) => a.X == b.X && a.Y == b.Y;
 		public static bool operator !=(Point a, Point b) => a.X != b.X && a.Y != b.Y;
-		public static Point operator /(Point a, float b) => new Point(a.X / b, a.Y / b);
-		public static Point operator *(Point a, float b) => new Point(a.X * b, a.Y * b);
+		public static Point operator /(Point a, float b) => new(a.X / b, a.Y / b);
+		public static Point operator *(Point a, float b) => new(a.X * b, a.Y * b);
 
 		/// <summary>
 		/// This default <see cref="object"/> method is not implemented.

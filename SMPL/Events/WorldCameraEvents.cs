@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System.Windows.Forms;
 
 namespace SMPL
 {
@@ -11,7 +12,10 @@ namespace SMPL
 		{
 			instance = this;
 
-			Camera.WorldCamera = new(new Point(0, 0), new Size(Window.window.Size.X, Window.window.Size.Y));
+			var scrSize = Screen.PrimaryScreen.Bounds;
+			var size = new Size(scrSize.Width, scrSize.Height);
+			var pixelSize = size / 2;
+			Camera.WorldCamera = new(new Point(0, 0), size, new Point(0, 0), pixelSize);
 			Window.window.SetView(Camera.WorldCamera.view);
 		}
 

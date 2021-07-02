@@ -39,6 +39,8 @@
 		public static Size operator -(Size a, Size b) =>	new(a.Width - b.Width, a.Height - b.Height);
 		public static Size operator *(Size a, Size b) =>	new(a.Width * b.Width, a.Height * b.Height);
 		public static Size operator /(Size a, Size b) =>	new(a.Width / b.Width, a.Height / b.Height);
+		public static bool operator ==(Size a, Size b) => a.Width == b.Width && a.Height == b.Height;
+		public static bool operator !=(Size a, Size b) => a.Width != b.Width && a.Height != b.Height;
 		public static Size operator *(Size a, float b) =>	new(a.Width * b,		  a.Height * b);
 		public static Size operator /(Size a, float b) =>	new(a.Width / b,		  a.Height / b);
 	}

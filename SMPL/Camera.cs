@@ -9,7 +9,8 @@ namespace SMPL
 		public static Camera WorldCamera { get; internal set; }
 
 		internal View view;
-		internal Size startingSize;
+		internal RenderTexture rendTexture;
+		internal Size maxSize;
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
 		private double depth;
@@ -21,15 +22,16 @@ namespace SMPL
 				var oldDepth = depth;
 				depth = value;
 				sortedCameras[oldDepth].Remove(this);
+				if (sortedCameras.ContainsKey(depth) == false) sortedCameras[depth] = new List<Camera>();
 				sortedCameras[depth].Add(this);
 			}
 		}
-		public Point Position
+		public Point ViewPosition
 		{
 			get { return new Point(view.Center.X, view.Center.Y); }
 			set { view.Center = new Vector2f((float)value.X, (float)value.Y); }
 		}
-		public double Angle
+		public double ViewAngle
 		{
 			get { return view.Rotation; }
 			set { view.Rotation = (float)value; }
@@ -41,9 +43,40 @@ namespace SMPL
 			set
 			{
 				zoom = Number.Limit(value, new Bounds(0.001, 500));
-				view.Size = new Vector2f((float)(startingSize.Width / zoom), (float)(startingSize.Height / zoom));
+				view.Size = new Vector2f((float)(maxSize.Width / zoom), (float)(maxSize.Height / zoom));
 			}
 		}
+		private Size size;
+		public Size Size
+		{
+			get { return size; }
+			set
+			{
+				if (WorldCamera == this) return;
+				size = value;
+			}
+		}
+		private Point position;
+		public Point Position
+		{
+			get { return position; }
+			set
+			{
+				if (WorldCamera == this) return;
+				position = value;
+			}
+		}
+		private double angle;
+		public double Angle
+		{
+			get { return angle; }
+			set
+			{
+				if (WorldCamera == this) return;
+				angle = value;
+			}
+		}
+		public Color BackgroundColor { get; set; }
 
 		internal static void DrawCameras()
 		{
@@ -58,39 +91,56 @@ namespace SMPL
 					camera.DrawCycle();
 				}
 			}
+			WorldCamera.EndDraw();
 		}
 		internal void DrawCycle()
 		{
-			var rendTexture = new RenderTexture((uint)view.Size.X, (uint)view.Size.Y);
 			rendTexture.SetView(view);
-
-			Window.window.SetView(view);
-			rendTexture.Clear(new SFML.Graphics.Color(255, 0, 0));
-			OnDraw();
-			EndDraw(rendTexture);
+			rendTexture.Clear(new SFML.Graphics.Color(
+				(byte)BackgroundColor.Red, (byte)BackgroundColor.Green, (byte)BackgroundColor.Blue, (byte)BackgroundColor.Alpha));
+			if (WorldCamera == this) WorldCameraEvents.instance.OnDraw();
+			else
+			{
+				OnDraw();
+				EndDraw();
+			}
 		}
-		internal void EndDraw(RenderTexture rendTexture)
+		internal void EndDraw()
 		{
 			rendTexture.Display();
+			var ms = maxSize / 2;
+			var s = Size / 2;
+			var tpos = new Vector2i((int)(ms.Width - s.Width * 2), (int)(ms.Height - s.Height * 2));
+			var pos = new Vector2f((float)(Position.X - Size.Width), (float)(Position.Y - Size.Height));
+			var sz = new Vector2i((int)Size.Width, (int)Size.Height) * 2;
 			var sprite = new Sprite(rendTexture.Texture)
 			{
 				Rotation = (float)Angle,
-				Position = new Vector2f((float)(Position.X - view.Size.X / 2), (float)(Position.Y - view.Size.Y / 2)),
+				Position = pos,
+				TextureRect = new IntRect(tpos, sz),
 			};
-			Window.window.SetView(WorldCamera.view);
-			Window.window.Draw(sprite);
+			if (WorldCamera == this)
+			{
+				rendTexture.Display();
+				Window.window.Draw(sprite);
+			}
+			else WorldCamera.rendTexture.Draw(sprite);
 			sprite.Dispose();
 		}
 
-		public Camera(Point position, Size viewSize)
+		public Camera(Point position, Size size, Point viewPosition, Size viewSize)
 		{
 			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
 			sortedCameras[0].Add(this);
 
-			var pos = new Vector2f((float)position.X, (float)position.Y);
+			var pos = new Vector2f((float)viewPosition.X, (float)viewPosition.Y);
 			view = new View(pos, new Vector2f((float)viewSize.Width, (float)viewSize.Height));
-			startingSize = viewSize;
+			rendTexture = new RenderTexture((uint)viewSize.Width, (uint)viewSize.Height);
+			maxSize = viewSize;
+			Position = position;
+			Size = size;
 			Zoom = 1;
+			BackgroundColor = Color.DarkGreen;
 		}
 		public bool TakePicture(string filePath = "folder/picture.png")
 		{
