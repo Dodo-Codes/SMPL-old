@@ -63,7 +63,6 @@ namespace SMPL
 			get { return form.Text; }
 			set { window.SetTitle(value); }
 		}
-		public static bool ForceDraw { get; set; }
 		public static Color BackgroundColor
 		{
 			get { return backgroundColor; }
@@ -71,7 +70,6 @@ namespace SMPL
 			{
 				if (backgroundColor == value) return;
 				backgroundColor = value;
-				ForceDraw = true;
 			}
 		}
 		public static Point Position
@@ -117,25 +115,22 @@ namespace SMPL
 				Application.DoEvents();
 				window.DispatchEvents();
 
-				if (ForceDraw == false) continue;
 				Time.frameCount++;
 				var bg = BackgroundColor;
+				window.SetActive(true);
 				window.Clear(new SFML.Graphics.Color((byte)bg.Red, (byte)bg.Green, (byte)bg.Blue));
-				WindowEvents.instance.OnDraw();
-
-				var vertex = new Vertex[]
-				{
-					new Vertex(new Vector2f(-100, 100), new SFML.Graphics.Color(255, 255, 255, 50)),
-					new Vertex(new Vector2f(100, 100), new SFML.Graphics.Color(255, 0, 0)),
-					new Vertex(new Vector2f(100, -100), new SFML.Graphics.Color(255, 0, 0)),
-					new Vertex(new Vector2f(-100, -100), new SFML.Graphics.Color(255, 0, 0)),
-				};
-				window.Draw(vertex, PrimitiveType.Quads);
-
-
+				//var vertex = new Vertex[]
+				//{
+				//	new Vertex(new Vector2f(-100, 100), new SFML.Graphics.Color(255, 255, 255, 50)),
+				//	new Vertex(new Vector2f(100, 100), new SFML.Graphics.Color(255, 0, 0)),
+				//	new Vertex(new Vector2f(100, -100), new SFML.Graphics.Color(255, 0, 0)),
+				//	new Vertex(new Vector2f(-100, -100), new SFML.Graphics.Color(255, 0, 0)),
+				//};
+				//window.Draw(vertex, PrimitiveType.Quads);
+				Camera.DrawCameras();
 				window.Display();
 				Time.frameDeltaTime.Restart();
-				ForceDraw = false;
+				window.SetActive(false);
 			}
 		}
 
@@ -152,7 +147,6 @@ namespace SMPL
 			window.SetTitle($"{nameof(SMPL)} Game");
 
 			BackgroundColor = Color.Black;
-			ForceDraw = true;
 		}
 	}
 }

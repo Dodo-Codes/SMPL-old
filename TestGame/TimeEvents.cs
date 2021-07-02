@@ -6,8 +6,7 @@ namespace TestGame
 	{
 		public override void OnEachTick()
 		{
-			Camera.WorldCamera.Zoom += 0.01;
-			Console.Log(Camera.WorldCamera.Zoom);
+			Camera.WorldCamera.Zoom -= 0.001;
 		}
 	}
 }

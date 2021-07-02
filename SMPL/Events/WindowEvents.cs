@@ -21,7 +21,6 @@ namespace SMPL
 		public virtual void OnResize() { }
 		public virtual void OnMinimize() { }
 		public virtual void OnMaximize() { }
-		public virtual void OnDraw() { }
 
 		internal void OnClose(object sender, EventArgs e)
 		{
@@ -32,7 +31,6 @@ namespace SMPL
 		internal void OnUnfocus(object sender, EventArgs e) => OnUnfocus();
 		internal void OnResize(object sender, EventArgs e)
 		{
-			Window.ForceDraw = true;
 			switch (Window.CurrentState)
 			{
 				case Window.State.Floating: OnResize(); break;
