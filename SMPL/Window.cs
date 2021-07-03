@@ -10,6 +10,9 @@ namespace SMPL
 {
 	public static class Window
 	{
+		internal delegate void DrawHandler();
+		internal static event DrawHandler DrawEvent;
+
 		public enum State
 		{
 			Floating = 0, Minimized = 1, Maximized = 2, Fullscreen = 3
@@ -108,7 +111,10 @@ namespace SMPL
 				Time.frameCount++;
 				window.SetActive(true);
 				window.Clear();
-				Camera.DrawCameras();
+
+				DrawEvent();
+				Camera.WorldCamera.EndDraw(); // starts first, ends last
+
 				window.Display();
 				Time.frameDeltaTime.Restart();
 				window.SetActive(false);

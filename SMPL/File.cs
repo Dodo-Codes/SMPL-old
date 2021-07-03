@@ -17,11 +17,11 @@ namespace SMPL
 		public static string Directory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
 		internal static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
-		internal static List<QueuedAsset> queuedAssets;
-		private static Dictionary<string, Texture> textures;
-		private static Dictionary<string, Font> fonts;
-		private static Dictionary<string, Sound> sounds;
-		private static Dictionary<string, Music> music;
+		internal static List<QueuedAsset> queuedAssets = new();
+		internal static Dictionary<string, Texture> textures = new();
+		internal static Dictionary<string, Font> fonts = new();
+		internal static Dictionary<string, Sound> sounds = new();
+		internal static Dictionary<string, Music> music = new();
 
 		internal static void Initialize()
 		{
@@ -97,11 +97,18 @@ namespace SMPL
 			}
 			return full;
 		}
-		internal class QueuedAsset
+		internal struct QueuedAsset
 		{
 			public string path;
 			public AssetType asset;
 			public string error;
+
+			public QueuedAsset(string path, AssetType asset, string error)
+			{
+				this.path = path;
+				this.asset = asset;
+				this.error = error;
+			}
 		}
 
 		/// <summary>
