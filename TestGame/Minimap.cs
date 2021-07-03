@@ -4,8 +4,8 @@ namespace TestGame
 {
 	public class Minimap : Camera
 	{
-		public Minimap(Point viewPosition, Size viewSize) :
-			base(viewPosition, viewSize) { }
+		public Minimap(Point position, Size size, Point viewPosition, Size viewSize) :
+			base(position, size, viewPosition, viewSize) { }
 
 		public override void OnDraw()
 		{

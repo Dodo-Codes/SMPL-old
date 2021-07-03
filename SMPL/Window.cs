@@ -112,13 +112,7 @@ namespace SMPL
 				Time.frameCount++;
 				window.SetActive(true);
 				window.Clear();
-
-				Camera.WorldCamera.DrawComponent.StartDraw();
-				DrawEvent();
-				WorldCameraEvents.instance.OnDraw();
-				Camera.WorldCamera.DrawComponent.EndDraw();
-				WorldCameraEvents.Display();
-
+				Camera.DrawCameras();
 				window.Display();
 				Time.frameDeltaTime.Restart();
 				window.SetActive(false);
