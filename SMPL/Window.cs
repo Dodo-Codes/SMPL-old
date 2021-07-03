@@ -5,6 +5,7 @@ using System;
 using System.Security.Permissions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace SMPL
 {
@@ -112,8 +113,11 @@ namespace SMPL
 				window.SetActive(true);
 				window.Clear();
 
+				Camera.WorldCamera.DrawComponent.StartDraw();
 				DrawEvent();
-				Camera.WorldCamera.EndDraw(); // starts first, ends last
+				WorldCameraEvents.instance.OnDraw();
+				Camera.WorldCamera.DrawComponent.EndDraw();
+				WorldCameraEvents.Display();
 
 				window.Display();
 				Time.frameDeltaTime.Restart();

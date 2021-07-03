@@ -3,9 +3,9 @@ using System;
 
 namespace SMPL
 {
-	public static class Rotation
+	public static class Angle
 	{
-		public static double DirectionToAngle(Direction direction)
+		internal static double DirectionToAngle(Vector2f direction)
 		{
 			//Vector2 to Radians: atan2(Vector2.y, Vector2.x)
 			//Radians to Angle: radians * (180 / Math.PI)
@@ -13,7 +13,7 @@ namespace SMPL
 			var rad = (double)Math.Atan2(direction.Y, direction.X);
 			return (float)(rad * (180 / Math.PI));
 		}
-		public static Direction AngleToDirection(double angle)
+		internal static Vector2f AngleToDirection(double angle)
 		{
 			//Angle to Radians : (Math.PI / 180) * angle
 			//Radians to Vector2 : Vector2.x = cos(angle) | Vector2.y = sin(angle)
@@ -21,12 +21,12 @@ namespace SMPL
 			var rad = Math.PI / 180 * angle;
 			var dir = new Vector2f((float)Math.Cos(rad), (float)Math.Sin(rad));
 
-			return new Direction(dir.X, dir.Y);
+			return new Vector2f(dir.X, dir.Y);
 		}
-		public static Direction DirectionBetweenPoints(Point point, Point targetPoint)
+		internal static Vector2f DirectionBetweenPoints(Point point, Point targetPoint)
 		{
 			var p = targetPoint - point;
-			return new Direction(p.X, p.Y);
+			return new Vector2f((float)p.X, (float)p.Y);
 		}
 		public static double AngleBetweenPoints(Point point, Point targetPoint)
 		{

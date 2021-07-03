@@ -2,7 +2,7 @@
 
 namespace SMPL
 {
-	public abstract class Identifiable<T>
+	public class IdentityComponent<T>
 	{
 		private static Dictionary<string, T> UniqueIDs { get; set; } = new();
 		private static Dictionary<string, List<T>> TagObjs { get; set; } = new();

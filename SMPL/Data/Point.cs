@@ -20,7 +20,7 @@ namespace SMPL
 		public static Point MoveAtAngle(Point point, double angle, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			if (timeUnit == Time.Unit.Second) speed *= Time.TickDeltaTime;
-			var dir = Rotation.AngleToDirection(angle);
+			var dir = Angle.AngleToDirection(angle);
 
 			point.X += dir.X * speed;
 			point.Y += dir.Y * speed;
@@ -29,7 +29,7 @@ namespace SMPL
 		public static Point MoveTowardPoint(Point point, Point targetPoint, double speed,
 			Time.Unit timeUnit = Time.Unit.Second)
 		{
-			var ang = Rotation.AngleBetweenPoints(point, targetPoint);
+			var ang = Angle.AngleBetweenPoints(point, targetPoint);
 			return MoveAtAngle(point, ang, speed, timeUnit);
 		}
 
@@ -39,8 +39,8 @@ namespace SMPL
 		public static Point operator /(Point a, Point b) => new(a.X / b.X, a.Y / b.Y);
 		public static bool operator ==(Point a, Point b) => a.X == b.X && a.Y == b.Y;
 		public static bool operator !=(Point a, Point b) => a.X != b.X && a.Y != b.Y;
-		public static Point operator /(Point a, float b) => new(a.X / b, a.Y / b);
-		public static Point operator *(Point a, float b) => new(a.X * b, a.Y * b);
+		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b);
+		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b);
 
 		/// <summary>
 		/// This default <see cref="object"/> method is not implemented.

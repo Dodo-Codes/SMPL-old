@@ -4,83 +4,26 @@ using System.Collections.Generic;
 
 namespace SMPL
 {
-	public class Camera : Identifiable<Camera>
+	public class Camera
 	{
 		public static Camera WorldCamera { get; internal set; }
-
-		internal View view;
-		internal RenderTexture rendTexture;
-		internal Size maxSize;
-
-		public Point Position
-		{
-			get { return new Point(view.Center.X, view.Center.Y); }
-			set { view.Center = new Vector2f((float)value.X, (float)value.Y); }
-		}
-		public double Angle
-		{
-			get { return view.Rotation; }
-			set { view.Rotation = (float)value; }
-		}
-		private double zoom;
-		public double Zoom
-		{
-			get { return zoom; }
-			set
-			{
-				zoom = Number.Limit(value, new Bounds(0.001, 500));
-				view.Size = new Vector2f((float)(maxSize.Width / zoom), (float)(maxSize.Height / zoom));
-			}
-		}
-		public Color BackgroundColor { get; set; }
-
-		internal void DrawCycle()
-		{
-			rendTexture.SetView(view);
-			rendTexture.Clear(new SFML.Graphics.Color(
-				(byte)BackgroundColor.Red, (byte)BackgroundColor.Green, (byte)BackgroundColor.Blue, (byte)BackgroundColor.Alpha));
-			if (WorldCamera == this) WorldCameraEvents.instance.OnDraw();
-			else
-			{
-				OnDraw();
-				EndDraw();
-			}
-		}
-		internal void EndDraw()
-		{
-			rendTexture.Display();
-			if (WorldCamera == this)
-			{
-				var ms = maxSize / 2;
-				var Size = view.Size / 2;
-				var s = Size / 2;
-				var tpos = new Vector2i((int)(ms.Width - s.X * 2), (int)(ms.Height - s.Y * 2));
-				var sz = new Vector2i((int)Size.X, (int)Size.Y) * 2;
-				var sprite = new Sprite(rendTexture.Texture)
-				{
-					Position = -Size,
-					TextureRect = new IntRect(tpos, sz)
-				};
-				Window.window.Draw(sprite);
-				sprite.Dispose();
-			}
-		}
+		public DrawComponent DrawComponent { get; internal set; }
 
 		public Camera(Point position, Size size)
 		{
-			Window.DrawEvent += new Window.DrawHandler(DrawCycle);
+			Window.DrawEvent += new Window.DrawHandler(OnDraw);
 
+			DrawComponent = new();
 			var pos = new Vector2f((float)position.X, (float)position.Y);
-			view = new View(pos, new Vector2f((float)size.Width, (float)size.Height));
-			rendTexture = new RenderTexture((uint)size.Width, (uint)size.Height);
-			maxSize = size;
-			Zoom = 1;
-			BackgroundColor = Color.DarkGreen;
+			DrawComponent.view = new View(pos, new Vector2f((float)size.Width, (float)size.Height));
+			DrawComponent.RendTexture = new RenderTexture((uint)size.Width, (uint)size.Height);
+			DrawComponent.startSize = size;
+			DrawComponent.BackgroundColor = Color.DarkGreen;
 		}
 
 		public bool Snap(string filePath = "folder/picture.png")
 		{
-			var img = rendTexture.Texture.CopyToImage();
+			var img = DrawComponent.RendTexture.Texture.CopyToImage();
 			var full = File.CreateDirectoryForFile(filePath);
 
 			if (img.SaveToFile(filePath)) img.Dispose();
@@ -92,8 +35,10 @@ namespace SMPL
 			return true;
 		}
 
+		public virtual void OnDraw() { }
 		public void DrawLines(params Line[] lines)
 		{
+			if (DrawComponent.RendTexture == null) return;
 			foreach (var line in lines)
 			{
 				var start = new Vector2f((float)line.StartPosition.X, (float)line.StartPosition.Y);
@@ -108,9 +53,8 @@ namespace SMPL
 					new(start, startColor),
 					new(end, endColor)
 				};
-				rendTexture.Draw(vert, PrimitiveType.Lines);
+				DrawComponent.RendTexture.Draw(vert, PrimitiveType.Lines);
 			}
 		}
-		public virtual void OnDraw() { }
 	}
 }
