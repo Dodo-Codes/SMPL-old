@@ -7,16 +7,17 @@ namespace TestGame
 		Camera camera;
 		public override void OnStart()
 		{
-			camera = new Minimap(new Point(0, 0), new Size(50, 50), new Point(0, 0), new Size(150, 150));
-			camera.BackgroundColor = Color.DarkRed;
-			camera.Zoom = 0.3;
-			camera.Position = new Point(300, 0);
+			camera = new Minimap(new Point(0, 0), new Size(150, 150));
+			camera.TransformComponent.Position = new Point(300, 0);
+			camera.ViewComponent.BackgroundColor = Color.DarkRed;
+			camera.ViewComponent.Angle = 45;
 		}
 		public override void OnEachTick()
 		{
-			camera.ViewAngle += 1;
-			Camera.WorldCamera.Zoom += 0.001;
-			Camera.WorldCamera.ViewAngle += 1;
+			camera.ViewComponent.Angle += 1;
+			//camera.TransformComponent.Position += new Point(1, 0);
+			//Camera.WorldCamera.DrawComponent.Zoom += 0.001;
+			//Camera.WorldCamera.DrawComponent.ViewAngle += 1;
 		}
 	}
 }

@@ -23,9 +23,9 @@ namespace SMPL
 				Debug.LogError(1, $"Cannot identify this instance ({instance}). The UniqueID '{uniqueID}' already exists.");
 				return;
 			}
+			Instance = instance;
 			UniqueID = uniqueID;
 			UniqueIDs.Add(uniqueID, Instance);
-			Instance = instance;
 			ObjTags[instance] = new();
 			AddTags(tags);
 		}
