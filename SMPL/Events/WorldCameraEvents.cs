@@ -14,13 +14,14 @@ namespace SMPL
 
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
-			var pixelSize = size / 2;
-			Camera.WorldCamera = new(new Point(0, 0), pixelSize);
+			Camera.WorldCamera = new(new Point(0, 0), size);
 			Camera.WorldCamera.TransformComponent.Size = size;
-			Window.window.SetView(Camera.WorldCamera.ViewComponent.view);
+			Window.window.SetView(Camera.WorldCamera.view);
 		}
 
 		public void DrawLines(params Line[] lines) => Camera.WorldCamera.DrawLines(lines);
+		public void DrawShapes(params Shape[] shapes) => Camera.WorldCamera.DrawShapes(shapes);
+		public void DrawPoints(params Point[] points) => Camera.WorldCamera.DrawPoints(points);
 		public virtual void OnDraw() { }
 	}
 }

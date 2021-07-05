@@ -25,13 +25,9 @@ namespace SMPL
 			}
 		}
 		public double Length { get; private set; }
-		public Color StartColor { get; set; }
-		public Color EndColor { get; set; }
 
 		public Line(Point startPosition, Point endPosition)
 		{
-			StartColor = Color.White;
-			EndColor = Color.White;
 			Length = 0;
 			this.startPosition = new Point(0, 0);
 			this.endPosition = new Point(0, 0);

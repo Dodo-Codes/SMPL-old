@@ -7,9 +7,12 @@ namespace SMPL
 	{
 		public double X { get; set; }
 		public double Y { get; set; }
+		public Color Color { get; set; }
+		public static Point NaN { get { return new(double.NaN, double.NaN); } }
 
 		public Point(double x, double y)
 		{
+			Color = Color.White;
 			X = x;
 			Y = y;
 		}
