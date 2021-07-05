@@ -6,8 +6,7 @@ namespace TestGame
 	{
 		public override void OnDraw()
 		{
-			var shape = new Shape(new Point(0.1, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100))
-			{ Filled = true };
+			var shape = new Shape(new Point(0.1, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100));
 
 			DrawShapes(shape);
 		}

@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System;
 using System.Collections.Generic;
 
 namespace SMPL
@@ -7,8 +8,9 @@ namespace SMPL
 	public class Camera
 	{
 		public static Camera WorldCamera { get; internal set; }
-		public IdentityComponent<Camera> IdentityComponent { get; internal set; }
+		public IdentityComponent<Camera> IdentityComponent { get; internal set; } = new();
 		public TransformComponent TransformComponent { get; internal set; }
+		public EffectComponent EffectComponent { get; internal set; } = new();
 
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
@@ -27,6 +29,7 @@ namespace SMPL
 		}
 		internal View view;
 		internal Sprite sprite = new();
+
 		internal RenderTexture rendTexture;
 		internal Size startSize;
 
@@ -85,9 +88,9 @@ namespace SMPL
 			rendTexture.Display();
 			var pos = new Vector2f((float)TransformComponent.Position.X, (float)TransformComponent.Position.Y);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
-			var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
-			var tsz = rendTexture.Size;
-			var sc = new Vector2f((float)tsz.X / (float)s.X, (float)tsz.Y / (float)s.Y);
+			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
+			//var tsz = rendTexture.Size;
+			//var sc = new Vector2f((float)tsz.X / (float)s.X, (float)tsz.Y / (float)s.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;
@@ -96,12 +99,21 @@ namespace SMPL
 			sprite.Position = pos;
 			sprite.TextureRect = new IntRect(new Vector2i(), sz);
 
+			//EffectComponent.image = new Image(sprite.Texture.CopyToImage());
+			//if (EffectComponent.MasksIn == false) EffectComponent.image.FlipVertically();
+			//EffectComponent.rawTextureData = EffectComponent.image.Pixels;
+			//EffectComponent.image.FlipVertically();
+			//EffectComponent.rawTexture = new Texture(EffectComponent.image);
+			//EffectComponent.shader.SetUniform("texture", Shader.CurrentTexture);
+			//EffectComponent.shader.SetUniform("raw_texture", EffectComponent.rawTexture);
+			//EffectComponent.shader.SetUniform("has_mask", true);
+			//EffectComponent.shader.SetUniform("mask_out", false);
+			//EffectComponent.shader.SetUniform("mask_red", 1);
+			//EffectComponent.shader.SetUniform("mask_green", 0);
+			//EffectComponent.shader.SetUniform("mask_blue", 0);
+
 			if (this == WorldCamera) Window.window.Draw(sprite);
-			else
-			{
-				//sprite.Scale = sc;
-				WorldCamera.rendTexture.Draw(sprite);
-			}
+			else WorldCamera.rendTexture.Draw(sprite);
 		}
 
 		public Camera(Point viewPosition, Size viewSize)
@@ -120,7 +132,9 @@ namespace SMPL
 			BackgroundColor = Color.DarkGreen;
 			startSize = viewSize;
 			Zoom = 1;
-			IdentityComponent = new();
+
+			//var effects = (EffectComponent.Type[])Enum.GetValues(typeof(EffectComponent.Type));
+			//foreach (var effect in effects) EffectComponent.effects.Add(effect, 0);
 		}
 		public bool Snap(string filePath = "folder/picture.png")
 		{
@@ -180,21 +194,15 @@ namespace SMPL
 			{
 				var points = new List<Point>() { shape.PointA, shape.PointB, shape.PointC, shape.PointD };
 				var vert = new Vertex[points.Count];
-				var type = PrimitiveType.Points;
-				var c = shape.EdgeCount;
-				for (int i = 0; i < c; i++)
+				for (int i = 0; i < points.Count ; i++)
 				{
 					var p = points[i];
 					vert[i] = new Vertex(
 						new Vector2f((float)p.X, (float)p.Y),
 						new SFML.Graphics.Color((byte)p.Color.Red, (byte)p.Color.Green, (byte)p.Color.Blue, (byte)p.Color.Alpha));
 				}
-				if (c == 1) type = PrimitiveType.Points;
-				else if (c == 2) type = PrimitiveType.Lines;
-				else if (c == 3) type = PrimitiveType.Triangles;
-				else if (c >= 4) type = PrimitiveType.Quads;
 
-				rendTexture.Draw(vert, shape.Filled ? PrimitiveType.Lines : type);
+				rendTexture.Draw(vert, PrimitiveType.Quads);
 			}
 		}
 	}

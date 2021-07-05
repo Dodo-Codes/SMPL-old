@@ -24,10 +24,10 @@ namespace SMPL
 
 		public static void Start(Events gameEvents)
 		{
+			File.Initialize();
 			Time.Initialize();
 			Window.Initialize();
 			OS.Initialize();
-			File.Initialize();
 
 			if (gameEvents.windowEvents != null) gameEvents.windowEvents.Subscribe();
 			if (gameEvents.worldCameraEvents != null) gameEvents.worldCameraEvents.Subscribe();
