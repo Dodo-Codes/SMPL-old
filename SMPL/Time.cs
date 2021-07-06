@@ -43,11 +43,9 @@ namespace SMPL
 			Tick, Second
 		}
 
-		internal static Clock time, tickDeltaTime, frameDeltaTime;
-		internal static uint tickCount, frameCount;
-		public static double TickDeltaTime { get { return tickDeltaTime.ElapsedTime.AsSeconds(); } }
-		public static double FrameDeltaTime { get { return frameDeltaTime.ElapsedTime.AsSeconds(); } }
-		public static double TickCount { get { return tickCount; } }
+		internal static Clock time, frameDeltaTime;
+		internal static uint frameCount;
+		public static double DeltaTime { get { return frameDeltaTime.ElapsedTime.AsSeconds(); } }
 		private static uint frameRateLimit;
 		public static uint FrameRateLimit
 		{
@@ -118,11 +116,7 @@ namespace SMPL
 				_ => 0,
 			};
 		}
-		public static double GetTickRate(bool averaged = true)
-		{
-			return averaged ? tickCount / time.ElapsedTime.AsSeconds() : 1 / tickDeltaTime.ElapsedTime.AsSeconds();
-		}
-		public static double GetFrameRate(bool averaged = true)
+		public static double GetFrameRate(bool averaged = false)
 		{
 			return averaged ? frameCount / time.ElapsedTime.AsSeconds() : 1 / frameDeltaTime.ElapsedTime.AsSeconds();
 		}
@@ -131,10 +125,14 @@ namespace SMPL
 			while (Window.window.IsOpen)
 			{
 				Thread.Sleep(1);
+				Application.DoEvents();
+				Window.window.DispatchEvents();
 
-				tickCount++;
+				frameCount++;
 				if (TimeEvents.instance != null) TimeEvents.instance.OnEachTick();
-				tickDeltaTime.Restart();
+
+				Window.Draw();
+				frameDeltaTime.Restart();
 
 				File.UpdateMainThreadAssets();
 			}
@@ -143,7 +141,6 @@ namespace SMPL
 		internal static void Initialize()
 		{
 			time = new();
-			tickDeltaTime = new();
 			frameDeltaTime = new();
 		}
 	}

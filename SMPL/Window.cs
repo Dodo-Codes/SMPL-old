@@ -43,7 +43,7 @@ namespace SMPL
 			}
 		}
 		public static bool HasFocus { get { return window.HasFocus(); } }
-		public static bool Hidden
+		public static bool IsHidden
 		{
 			get { return !form.Visible; }
 			set { form.Visible = !value; }
@@ -97,23 +97,15 @@ namespace SMPL
 				form.FormBorderStyle = style;
 			}
 		}
-
 		internal static void Draw()
 		{
-			while (window.IsOpen)
-			{
-				Thread.Sleep(1);
-				Application.DoEvents();
-				window.DispatchEvents();
+			if (IsHidden) return;
 
-				Time.frameCount++;
-				window.SetActive(true);
-				window.Clear();
-				Camera.DrawCameras();
-				window.Display();
-				Time.frameDeltaTime.Restart();
-				window.SetActive(false);
-			}
+			window.SetActive(true);
+			window.Clear();
+			Camera.DrawCameras();
+			window.Display();
+			window.SetActive(false);
 		}
 
 		internal static void Initialize()

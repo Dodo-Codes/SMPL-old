@@ -19,7 +19,7 @@
 		public static Size ResizeTowardTarget(Size size, Size targetSize, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			size = Resize(size, speed, timeUnit);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
 			var dist = Point.GetDistance(new Point(size.Width, size.Height), new Point(targetSize.Width, targetSize.Height));
 			if (dist < sp) size = targetSize;
 			return size;

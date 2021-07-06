@@ -12,10 +12,10 @@ namespace SMPL
 		internal struct QueuedAsset
 		{
 			public string path;
-			public AssetType asset;
+			public Asset asset;
 			public string error;
 
-			public QueuedAsset(string path, AssetType asset, string error)
+			public QueuedAsset(string path, Asset asset, string error)
 			{
 				this.path = path;
 				this.asset = asset;
@@ -23,7 +23,7 @@ namespace SMPL
 			}
 		}
 
-		public enum AssetType
+		public enum Asset
 		{
 			Texture, Font, Sound, Music
 		}
@@ -37,19 +37,17 @@ namespace SMPL
 		internal static Dictionary<string, Sound> sounds = new();
 		internal static Dictionary<string, Music> music = new();
 
-		internal static void Initialize()
-		{
-			CreateShaderFiles();
-		}
+		internal static void Initialize() => CreateShaderFiles();
 		internal static void UpdateMainThreadAssets()
 		{
+			if (FileEvents.instance == null) return;
+
 			if (assetLoadBegin) FileEvents.instance.OnLoadingStart();
-			assetLoadBegin = false;
-
 			if (assetLoadUpdate) FileEvents.instance.OnLoadingUpdate();
-			assetLoadUpdate = false;
-
 			if (assetLoadEnd) FileEvents.instance.OnLoadingEnd();
+
+			assetLoadBegin = false;
+			assetLoadUpdate = false;
 			assetLoadEnd = false;
 		}
 		// thread for loading resources
@@ -75,10 +73,10 @@ namespace SMPL
 					{
 						switch (asset)
 						{
-							case AssetType.Texture: textures[path] = new Texture(path); break;
-							case AssetType.Font: fonts[path] = new Font(path); break;
-							case AssetType.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
-							case AssetType.Music: music[path] = new Music(path); break;
+							case Asset.Texture: textures[path] = new Texture(path); break;
+							case Asset.Font: fonts[path] = new Font(path); break;
+							case Asset.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
+							case Asset.Music: music[path] = new Music(path); break;
 						}
 					}
 					catch (Exception)
@@ -112,11 +110,25 @@ namespace SMPL
 			return full;
 		}
 
+		public static bool AssetIsLoaded(string filePath = "folder/file.extension")
+		{
+			return textures.ContainsKey(filePath) || fonts.ContainsKey(filePath) ||
+				sounds.ContainsKey(filePath) || music.ContainsKey(filePath);
+		}
+		public static void LoadAsset(Asset asset, string filePath = "folder/file.extension")
+		{
+			queuedAssets.Add(new QueuedAsset()
+			{
+				asset = asset,
+				path = filePath,
+				error = $"Failed to load asset {asset} from file '{filePath}'."
+			});
+		}
 		/// <summary>
-		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="Load"/>.<br></br><br></br>
+		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="LoadText"/>.<br></br><br></br>
 		/// This is a slow operation - do not call frequently.
 		/// </summary>
-		public static void Save(string text, string filePath = "folder/file.extension")
+		public static void SaveText(string text, string filePath = "folder/file.extension")
 		{
 			var full = CreateDirectoryForFile(filePath);
 
@@ -131,10 +143,10 @@ namespace SMPL
 			}
 		}
 		/// <summary>
-		/// Reads all the text from the file at <paramref name="filePath"/> and returns it as a <see cref="string"/> if successful. Returns <paramref name="null"/> otherwise. A text can be saved to a file with <see cref="Save"/>.<br></br><br></br>
+		/// Reads all the text from the file at <paramref name="filePath"/> and returns it as a <see cref="string"/> if successful. Returns <paramref name="null"/> otherwise. A text can be saved to a file with <see cref="SaveText"/>.<br></br><br></br>
 		/// This is a slow operation - do not call frequently.
 		/// </summary>
-		public static string Load(string filePath = "folder/file.extension")
+		public static string LoadText(string filePath = "folder/file.extension")
 		{
 			filePath = filePath.Replace('/', '\\');
 			var full = $"{Directory}\\{filePath}";
@@ -163,77 +175,77 @@ namespace SMPL
 		internal static readonly string frag =
 @"
 uniform sampler2D texture;
-uniform sampler2D raw_texture;
+uniform sampler2D rawtexture;
 uniform float time;
 
-uniform bool has_mask;
-uniform bool mask_out;
-uniform float mask_red;
-uniform float mask_green;
-uniform float mask_blue;
+uniform bool hasmask;
+uniform bool maskout;
+uniform float maskred;
+uniform float maskgreen;
+uniform float maskblue;
 
-uniform float adjust_gamma;
-uniform float adjust_desaturation;
-uniform float adjust_inversion;
-uniform float adjust_contrast;
-uniform float adjust_brightness;
+uniform float Gamma;
+uniform float Desaturation;
+uniform float Inversion;
+uniform float Contrast;
+uniform float Brightness;
 
-uniform float blink_effect;
-uniform float blink_speed;
+uniform float BlinkOpacity;
+uniform float BlinkSpeed;
 
-uniform float blur_effect;
-uniform float blur_strength_x;
-uniform float blur_strength_y;
+uniform float BlurOpacity;
+uniform float BlurStrengthX;
+uniform float BlurStrengthY;
 
-uniform float earthquake_effect;
-uniform float earthquake_effect_x;
-uniform float earthquake_effect_y;
+uniform float EarthquakeOpacity;
+uniform float EarthquakeStrengthX;
+uniform float EarthquakeStrengthY;
 
-uniform float stretch_effect;
-uniform float stretch_effect_x;
-uniform float stretch_effect_y;
-uniform float stretch_speed_x;
-uniform float stretch_speed_y;
+uniform float StretchOpacity;
+uniform float StretchStrengthX;
+uniform float StretchStrengthY;
+uniform float StretchSpeedX;
+uniform float StretchSpeedY;
 
-uniform float outline_effect;
-uniform float outline_offset;
-uniform float outline_red;
-uniform float outline_green;
-uniform float outline_blue;
+uniform float OutlineOpacity;
+uniform float OutlineOffset;
+uniform float OutlineRed;
+uniform float OutlineGreen;
+uniform float OutlineBlue;
 
-uniform float water_effect;
-uniform float water_strength_x;
-uniform float water_strength_y;
-uniform float water_speed_x;
-uniform float water_speed_y;
+uniform float WaterOpacity;
+uniform float WaterStrengthX;
+uniform float WaterStrengthY;
+uniform float WaterSpeedX;
+uniform float WaterSpeedY;
 
-uniform float edge_effect;
-uniform float edge_threshold;
-uniform float edge_thickness;
-uniform float edge_red;
-uniform float edge_green;
-uniform float edge_blue;
+uniform float EdgeOpacity;
+uniform float EdgeThreshold;
+uniform float EdgeThickness;
+uniform float EdgeRed;
+uniform float EdgeGreen;
+uniform float EdgeBlue;
 
-uniform float pixel_effect;
-uniform float pixel_threshold;
+uniform float PixelateOpacity;
+uniform float PixelateThreshold;
 
-uniform float grid_effect_x;
-uniform float grid_effect_y;
-uniform float grid_thickness_x;
-uniform float grid_thickness_y;
-uniform float grid_spacing_x;
-uniform float grid_spacing_y;
-uniform float grid_x_red;
-uniform float grid_x_green;
-uniform float grid_x_blue;
-uniform float grid_y_red;
-uniform float grid_y_green;
-uniform float grid_y_blue;
+uniform float GridOpacityX;
+uniform float GridOpacityY;
+uniform float GridCellWidth;
+uniform float GridCellHeight;
+uniform float GridCellSpacingX;
+uniform float GridCellSpacingY;
+uniform float GridRedX;
+uniform float GridGreenX;
+uniform float GridBlueX;
+uniform float GridRedY;
+uniform float GridGreenY;
+uniform float GridBlueY;
 
-uniform float fill_effect;
-uniform float fill_red;
-uniform float fill_green;
-uniform float fill_blue;
+uniform float FillOpacity;
+uniform float FillRed;
+uniform float FillGreen;
+uniform float FillBlue;
 
 void main(void)
 {
@@ -241,39 +253,39 @@ void main(void)
 	float alpha = texture2D(texture, uv).a * gl_Color.a;
 	vec3 color = texture2D(texture, gl_TexCoord[0].xy);
 
-	float alphaR = texture2D(raw_texture, uv).a * gl_Color.a;
-	vec3 colorR = texture2D(raw_texture, gl_TexCoord[0].xy);
+	float alphaR = texture2D(rawtexture, uv).a * gl_Color.a;
+	vec3 colorR = texture2D(rawtexture, gl_TexCoord[0].xy);
 	// ==================================================================================================================
 	vec2 coord = gl_TexCoord[0].xy;
-	vec4 pixel_color = texture2D(texture, coord);
-	float blink_alpha = cos(time * (blink_speed));
-	alpha = mix(alpha, min(blink_alpha, pixel_color.w), blink_effect / 2);
+	vec4 pixelcolor = texture2D(texture, coord);
+	float blinkalpha = cos(time * (BlinkSpeed));
+	alpha = mix(alpha, min(blinkalpha, pixelcolor.w), BlinkOpacity / 2);
 	// ==================================================================================================================
-	if (stretch_effect > 0)
+	if (StretchOpacity > 0)
 	{
-		float factorx = sin(time * stretch_speed_x) * stretch_effect_x;
-		float factory = sin(time * stretch_speed_y) * stretch_effect_y;
+		float factorx = sin(time * StretchSpeedX) * StretchStrengthX;
+		float factory = sin(time * StretchSpeedY) * StretchStrengthY;
 		coord.x += factorx / (1 + 2 * factorx);
 		coord.y += factory / (1 + 2 * factory);
 	}
-	color = mix(vec4(color, alpha), texture2D(texture, coord), stretch_effect);
+	color = mix(vec4(color, alpha), texture2D(texture, coord), StretchOpacity);
 	// ==================================================================================================================
-	if (water_effect > 0)
+	if (WaterOpacity > 0)
 	{
-		coord.x += sin(radians(2000 * time * water_speed_x + coord.y * 250)) * 0.02 * water_strength_x;
-		coord.y += cos(radians(2000 * time * water_speed_y + coord.x * 500)) * 0.03 * water_strength_y;
+		coord.x += sin(radians(2000 * time * WaterSpeedX + coord.y * 250)) * 0.02 * WaterStrengthX;
+		coord.y += cos(radians(2000 * time * WaterSpeedY + coord.x * 500)) * 0.03 * WaterStrengthY;
 	}
-	color = mix(vec4(color, alpha), texture2D(texture, coord), water_effect);
+	color = mix(vec4(color, alpha), texture2D(texture, coord), WaterOpacity);
 	// ==================================================================================================================
-	if (earthquake_effect > 0)
+	if (EarthquakeOpacity > 0)
 	{
-		coord.x += sin(radians(3000 * time + coord.x * 0)) * cos(time) * earthquake_effect_x;
-		coord.y += cos(radians(3000 * time + coord.y * 0)) * sin(time) * earthquake_effect_y;
+		coord.x += sin(radians(3000 * time + coord.x * 0)) * cos(time) * EarthquakeStrengthX;
+		coord.y += cos(radians(3000 * time + coord.y * 0)) * sin(time) * EarthquakeStrengthY;
 	}
-	color = mix(vec4(color, alpha), texture2D(texture, coord), earthquake_effect);
+	color = mix(vec4(color, alpha), texture2D(texture, coord), EarthquakeOpacity);
 	// ==================================================================================================================
-	vec2 offx = vec2(blur_strength_x, 0.0);
-	vec2 offy = vec2(0.0, blur_strength_y);
+	vec2 offx = vec2(BlurStrengthX, 0.0);
+	vec2 offy = vec2(0.0, BlurStrengthY);
 	vec4 pixel = texture2D(texture, gl_TexCoord[0].xy) * 4.0 +
 					  texture2D(texture, gl_TexCoord[0].xy - offx) * 2.0 +
 					  texture2D(texture, gl_TexCoord[0].xy + offx) * 2.0 +
@@ -284,29 +296,29 @@ void main(void)
 					  texture2D(texture, gl_TexCoord[0].xy + offx - offy) * 1.0 +
 					  texture2D(texture, gl_TexCoord[0].xy + offx + offy) * 1.0;
 
-	color = mix(vec4(color, alpha), gl_Color * (pixel / 16.0), blur_effect);
+	color = mix(vec4(color, alpha), gl_Color * (pixel / 16.0), BlurOpacity);
 	// ==================================================================================================================
-	color = mix(color, vec3(fill_red, fill_green, fill_blue), fill_effect);
+	color = mix(color, vec3(FillRed, FillGreen, FillBlue), FillOpacity);
 	// ==================================================================================================================
-	vec2 v_texCoords = gl_TexCoord[0].xy;
-	vec4 col = texture2D(texture, v_texCoords);
+	vec2 vtexCoords = gl_TexCoord[0].xy;
+	vec4 col = texture2D(texture, vtexCoords);
 
 	if (col.a != 1)
 	{
-		float au = texture2D(texture, vec2(v_texCoords.x, v_texCoords.y - outline_offset)).a;
-		float ad = texture2D(texture, vec2(v_texCoords.x, v_texCoords.y + outline_offset)).a;
-		float al = texture2D(texture, vec2(v_texCoords.x - outline_offset, v_texCoords.y)).a;
-		float ar = texture2D(texture, vec2(v_texCoords.x + outline_offset, v_texCoords.y)).a;
+		float au = texture2D(texture, vec2(vtexCoords.x, vtexCoords.y - OutlineOffset)).a;
+		float ad = texture2D(texture, vec2(vtexCoords.x, vtexCoords.y + OutlineOffset)).a;
+		float al = texture2D(texture, vec2(vtexCoords.x - OutlineOffset, vtexCoords.y)).a;
+		float ar = texture2D(texture, vec2(vtexCoords.x + OutlineOffset, vtexCoords.y)).a;
 
 		if (au == 1.0 || ad == 1.0 || al == 1.0 || ar == 1.0)
 		{
-			color = mix(color, vec3(outline_red, outline_green, outline_blue), outline_effect);
-			alpha = mix(alpha, 1, outline_effect);
+			color = mix(color, vec3(OutlineRed, OutlineGreen, OutlineBlue), OutlineOpacity);
+			alpha = mix(alpha, 1, OutlineOpacity);
 		}
 	}
 	// ==================================================================================================================
-	vec2 offx2 = vec2(1.0 - edge_thickness, 0.0);
-	vec2 offy2 = vec2(0.0, 1.0 - edge_thickness);
+	vec2 offx2 = vec2(1.0 - EdgeThickness, 0.0);
+	vec2 offy2 = vec2(0.0, 1.0 - EdgeThickness);
 	vec4 hEdge = texture2D(texture, gl_TexCoord[0].xy - offy2) * -2.0 +
 				 texture2D(texture, gl_TexCoord[0].xy + offy2) * 2.0 +
 				 texture2D(texture, gl_TexCoord[0].xy - offx2 - offy2) * -1.0 +
@@ -323,35 +335,35 @@ void main(void)
 
 	vec3 result = sqrt(hEdge.rgb * hEdge.rgb + vEdge.rgb * vEdge.rgb);
 	float edge = length(result);
-	if (edge > (edge_threshold * 6.0)) color = mix(color, vec3(edge_red, edge_green, edge_blue), edge_effect);
+	if (edge > (EdgeThreshold * 6.0)) color = mix(color, vec3(EdgeRed, EdgeGreen, EdgeBlue), EdgeOpacity);
 	// ==================================================================================================================
-	if (mod(gl_FragCoord.x, round(grid_thickness_x + grid_spacing_x)) < round(grid_spacing_x))
+	if (mod(gl_FragCoord.x, round(GridCellWidth + GridCellSpacingX)) < round(GridCellSpacingX))
 	{
-		color = mix(vec4(color, alpha), vec4(grid_x_red, grid_x_green, grid_x_blue, alpha), grid_effect_x);
+		color = mix(vec4(color, alpha), vec4(GridRedX, GridGreenX, GridBlueX, alpha), GridOpacityX);
 	}
-	if (mod(gl_FragCoord.y, round(grid_thickness_y + grid_spacing_y)) < round(grid_spacing_y))
+	if (mod(gl_FragCoord.y, round(GridCellHeight + GridCellSpacingY)) < round(GridCellSpacingY))
 	{
-		color = mix(vec4(color, alpha), vec4(grid_y_red, grid_y_green, grid_y_blue, alpha), grid_effect_y);
+		color = mix(vec4(color, alpha), vec4(GridRedY, GridGreenY, GridBlueY, alpha), GridOpacityY);
 	}
 	// ==================================================================================================================
-	color = pow(color, vec3(1.0 / (1 - adjust_gamma)));
-	color = mix(color, vec3(0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b), clamp(adjust_desaturation, 0, 1));
-	color = mix(color, vec3(1.0) - color, clamp(adjust_inversion, 0, 1));
+	color = pow(color, vec3(1.0 / (1 - Gamma)));
+	color = mix(color, vec3(0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b), clamp(Desaturation, 0, 1));
+	color = mix(color, vec3(1.0) - color, clamp(Inversion, 0, 1));
 	color = color * gl_Color.rgb;
-	color = (color - vec3(0.5)) * ((adjust_contrast + 1) / (1 - adjust_contrast)) + 0.5;
+	color = (color - vec3(0.5)) * ((Contrast + 1) / (1 - Contrast)) + 0.5;
 	color = vec3(clamp(color.r, 0, 1), clamp(color.g, 0, 1), clamp(color.b, 0, 1));
-	color = color + vec3(adjust_brightness);
+	color = color + vec3(Brightness);
 	color = vec3(clamp(color.r, 0, 1), clamp(color.g, 0, 1), clamp(color.b, 0, 1));
 	// ==================================================================================================================
-	float factor = 1.0 / (pixel_threshold + 0.001);
+	float factor = 1.0 / (PixelateThreshold + 0.001);
 	vec2 pos = floor(gl_TexCoord[0].xy * factor + 0.5) / factor;
-	color = mix(vec4(color, alpha), gl_Color * texture2D(texture, pos), pixel_effect);
+	color = mix(vec4(color, alpha), gl_Color * texture2D(texture, pos), PixelateOpacity);
 	// ==================================================================================================================
-	if (has_mask)
+	if (hasmask)
 	{
-		vec3 mask = vec3(mask_red, mask_green, mask_blue);
+		vec3 mask = vec3(maskred, maskgreen, maskblue);
 
-		if (mask_out)
+		if (maskout)
 		{
 			if (color == mask) alpha = 0.0;
 		}
@@ -368,45 +380,45 @@ void main(void)
 @"
 uniform float time;
 
-uniform float wind_strength_x;
-uniform float wind_strength_y;
-uniform float wind_speed_x;
-uniform float wind_speed_y;
+uniform float windstrengthx;
+uniform float windstrengthy;
+uniform float windspeedx;
+uniform float windspeedy;
 
-uniform float vibrate_strength_x;
-uniform float vibrate_strength_y;
+uniform float vibratestrengthx;
+uniform float vibratestrengthy;
 
-uniform float sin_strength_x;
-uniform float sin_speed_x;
-uniform float sin_strength_y;
-uniform float sin_speed_y;
+uniform float sinstrengthx;
+uniform float sinspeedx;
+uniform float sinstrengthy;
+uniform float sinspeedy;
 
-uniform float cos_strength_x;
-uniform float cos_speed_x;
-uniform float cos_strength_y;
-uniform float cos_speed_y;
+uniform float cosstrengthx;
+uniform float cosspeedx;
+uniform float cosstrengthy;
+uniform float cosspeedy;
 
 void main()
 {
 	vec4 vertex = gl_Vertex;
 	// ==================================================================================================================
-	vertex.x += cos(gl_Vertex.y * 0.02 + (time * wind_speed_x) * 3.8) * wind_strength_x + sin(gl_Vertex.y * 0.02 +
-		(time * wind_speed_x) * 6.3) * wind_strength_x * 0.3;
-	vertex.y += sin(gl_Vertex.x * 0.02 + (time * wind_speed_y) * 2.4) * wind_strength_y + cos(gl_Vertex.x * 0.02 +
-		(time * wind_speed_y) * 5.2) * wind_strength_y * 0.3;
+	vertex.x += cos(gl_Vertex.y * 0.02 + (time * windspeedx) * 3.8) * windstrengthx + sin(gl_Vertex.y * 0.02 +
+		(time * windspeedx) * 6.3) * windstrengthx * 0.3;
+	vertex.y += sin(gl_Vertex.x * 0.02 + (time * windspeedy) * 2.4) * windstrengthy + cos(gl_Vertex.x * 0.02 +
+		(time * windspeedy) * 5.2) * windstrengthy * 0.3;
 	// ==================================================================================================================
-	vertex.x += cos(gl_Vertex.y * time) * vibrate_strength_x;
-	vertex.y += sin(gl_Vertex.x * time) * vibrate_strength_y;
+	vertex.x += cos(gl_Vertex.y * time) * vibratestrengthx;
+	vertex.y += sin(gl_Vertex.x * time) * vibratestrengthy;
 	// ==================================================================================================================
-	vertex.x += sin(time * sin_speed_x) * sin_strength_x;
-	vertex.y += sin(time * sin_speed_y) * sin_strength_y;
+	vertex.x += sin(time * sinspeedx) * sinstrengthx;
+	vertex.y += sin(time * sinspeedy) * sinstrengthy;
 	// ==================================================================================================================
-	vertex.x += cos(time * cos_speed_x) * cos_strength_x;
-	vertex.y += cos(time * cos_speed_y) * cos_strength_y;
+	vertex.x += cos(time * cosspeedx) * cosstrengthx;
+	vertex.y += cos(time * cosspeedy) * cosstrengthy;
 	// ==================================================================================================================
 	gl_Position = gl_ProjectionMatrix * vertex;
 	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 	gl_FrontColor = gl_Color;
-}";  
+}";
 	}
 }

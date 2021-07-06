@@ -8,7 +8,7 @@ namespace SMPL
 		/// <summary>
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>
-		public static bool IsActive { get { return !Debugger.IsAttached; } }
+		public static bool IsActive { get { return Debugger.IsAttached; } }
 
 		public static double GetCurrentLineNumber(uint depth = 0)
 		{
@@ -41,16 +41,19 @@ namespace SMPL
 			return method == default ? default : result;
 		}
 
-		public static void LogError(uint depth, string description)
+		public static void LogError(int depth, string description)
 		{
 			if (IsActive == false) return;
-			var sep = Text.Repeat("~", 50);
 
+			var sep = Text.Repeat("~", 50);
+			var d = (uint)depth;
+			var place = depth >= 0 ?
+				$"- At file: {GetCurrentFileName(d + 1)}\n" +
+				$"- At method: {GetCurrentMethodName(d + 1)}\n" +
+				$"- At line: {GetCurrentLineNumber(d + 1)} | {GetCurrentMethodName(d)}\n\n" : "";
 			var result =
 				$"{sep}\n" +
-				$"- At file: {GetCurrentFileName(depth + 1)}\n" +
-				$"- At method: {GetCurrentMethodName(depth + 1)}\n" +
-				$"- At line: {GetCurrentLineNumber(depth + 1)} | {GetCurrentMethodName(depth)}\n\n" +
+				$"{place}" +
 				$"{description}\n\n" +
 				$"(This message will not appear after the game is built)\n" +
 				$"{sep}";

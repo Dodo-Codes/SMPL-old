@@ -10,7 +10,8 @@ namespace TestGame
 			{
 				windowEvents = new WindowEvents(),
 				worldCameraEvents = new WorldCameraEvents(),
-				timeEvents = new TimeEvents()
+				timeEvents = new TimeEvents(),
+				fileEvents = new FileEvents()
 			};
 			Game.Start(events);
 		}

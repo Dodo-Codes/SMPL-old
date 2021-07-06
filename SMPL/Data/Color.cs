@@ -74,7 +74,7 @@ namespace SMPL
 		{
 			color = TintRed(color, color.Red < targetRed ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Red - targetRed);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
 			if (dist < sp) color.Red = targetRed;
 			return color;
 		}
@@ -82,7 +82,7 @@ namespace SMPL
 		{
 			color = TintGreen(color, color.Green < targetGreen ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Green - targetGreen);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
 			if (dist < sp) color.Green = targetGreen;
 			return color;
 		}
@@ -90,7 +90,7 @@ namespace SMPL
 		{
 			color = TintBlue(color, color.Blue < targetBlue ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Blue - targetBlue);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.TickDeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
 			if (dist < sp) color.Blue = targetBlue;
 			return color;
 		}
@@ -98,7 +98,7 @@ namespace SMPL
 		{
 			Appear(color, color.Alpha < targeto ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.Alpha - targeto);
-			if (dist < speed * Time.TickDeltaTime * 2) color.Alpha = targeto;
+			if (dist < speed * Time.DeltaTime * 2) color.Alpha = targeto;
 			return color;
 		}
 		public static Color TintTowardColor(Color color, Color targetColor, double speed, Time.Unit timeUnit)
@@ -111,7 +111,7 @@ namespace SMPL
 			var gDist = Math.Abs(targetColor.Green - color.Green);
 			var bDist = Math.Abs(targetColor.Blue - color.Blue);
 
-			speed *= Time.TickDeltaTime;
+			speed *= Time.DeltaTime;
 			if (rDist < speed * 2) color.Red = targetColor.Red;
 			if (gDist < speed * 2) color.Green = targetColor.Green;
 			if (bDist < speed * 2) color.Blue = targetColor.Blue;

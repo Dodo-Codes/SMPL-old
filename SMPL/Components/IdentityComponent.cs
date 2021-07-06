@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SMPL
 {
@@ -11,13 +12,8 @@ namespace SMPL
 
 		public string UniqueID { get; private set; }
 
-		public void Identify(T instance, string uniqueID, params string[] tags)
+		public IdentityComponent(T instance, string uniqueID, params string[] tags)
 		{
-			if (Instance != null)
-			{
-				Debug.LogError(1, $"This instance ({instance}) is already identified.");
-				return;
-			}
 			if (UniqueIDs.ContainsKey(uniqueID))
 			{
 				Debug.LogError(1, $"Cannot identify this instance ({instance}). The UniqueID '{uniqueID}' already exists.");
@@ -29,18 +25,9 @@ namespace SMPL
 			ObjTags[instance] = new();
 			AddTags(tags);
 		}
-		public bool IsIdentified()
-		{
-			if (Instance == null)
-			{
-				Debug.LogError(1, $"This instance ({Instance}) is not identified. Please do so before using its identity.");
-				return false;
-			}
-			return true;
-		}
+
 		public void AddTags(params string[] tags)
 		{
-			if (IsIdentified() == false) return;
 			foreach (var tag in tags)
 			{
 				if (ObjTags[Instance].Contains(tag)) continue;
@@ -51,7 +38,6 @@ namespace SMPL
 		}
 		public void RemoveTags(params string[] tags)
 		{
-			if (IsIdentified() == false) return;
 			foreach (var tag in tags)
 			{
 				if (ObjTags[Instance].Contains(tag) == false) continue;
@@ -62,15 +48,15 @@ namespace SMPL
 		}
 		public bool HasTags(params string[] tags)
 		{
-			if (IsIdentified() == false) return false;
 			foreach (var tag in tags)
 			{
 				if (ObjTags[Instance].Contains(tag) == false) return false;
 			}
 			return true;
 		}
-		public List<string> GetTags() => IsIdentified() == false ? new() : ObjTags[Instance];
+		public List<string> GetTags() => ObjTags[Instance];
 
+		public static string[] GetAllTags() => TagObjs.Keys.ToArray();
 		public static bool TagsExist(params string[] tags)
 		{
 			foreach (var tag in tags)

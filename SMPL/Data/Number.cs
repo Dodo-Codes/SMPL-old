@@ -131,11 +131,7 @@ namespace SMPL
 		}
 		public static double Move(double number, double speed, Time.Unit motion = Time.Unit.Second)
 		{
-			if (motion == Time.Unit.Second)
-			{
-				var delta = Time.TickDeltaTime;
-				speed *= delta;
-			}
+			if (motion == Time.Unit.Second) speed *= Time.DeltaTime;
 			return number + speed;
 		}
 		public static double MoveToward(double number, double targetNumber, double speed, Time.Unit motion = Time.Unit.Second)

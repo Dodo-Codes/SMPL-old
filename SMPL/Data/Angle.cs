@@ -43,10 +43,7 @@ namespace SMPL
 			// stops the rotation with an else when close enough
 			// prevents the rotation from staying behind after the stop
 			var checkedSpeed = speed;
-			if (timeUnit == Time.Unit.Second)
-			{
-				checkedSpeed *= Time.TickDeltaTime;
-			}
+			if (timeUnit == Time.Unit.Second) checkedSpeed *= Time.DeltaTime;
 			if (Math.Abs(difference) < checkedSpeed) angle = targetAngle;
 			else if (difference > 0 && difference < 180) Number.Move(angle, -speed, timeUnit);
 			else if (difference > -180 && difference < 0) Number.Move(angle, speed, timeUnit);

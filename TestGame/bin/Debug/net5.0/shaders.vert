@@ -1,41 +1,41 @@
 
 uniform float time;
 
-uniform float wind_strength_x;
-uniform float wind_strength_y;
-uniform float wind_speed_x;
-uniform float wind_speed_y;
+uniform float windstrengthx;
+uniform float windstrengthy;
+uniform float windspeedx;
+uniform float windspeedy;
 
-uniform float vibrate_strength_x;
-uniform float vibrate_strength_y;
+uniform float vibratestrengthx;
+uniform float vibratestrengthy;
 
-uniform float sin_strength_x;
-uniform float sin_speed_x;
-uniform float sin_strength_y;
-uniform float sin_speed_y;
+uniform float sinstrengthx;
+uniform float sinspeedx;
+uniform float sinstrengthy;
+uniform float sinspeedy;
 
-uniform float cos_strength_x;
-uniform float cos_speed_x;
-uniform float cos_strength_y;
-uniform float cos_speed_y;
+uniform float cosstrengthx;
+uniform float cosspeedx;
+uniform float cosstrengthy;
+uniform float cosspeedy;
 
 void main()
 {
 	vec4 vertex = gl_Vertex;
 	// ==================================================================================================================
-	vertex.x += cos(gl_Vertex.y * 0.02 + (time * wind_speed_x) * 3.8) * wind_strength_x + sin(gl_Vertex.y * 0.02 +
-		(time * wind_speed_x) * 6.3) * wind_strength_x * 0.3;
-	vertex.y += sin(gl_Vertex.x * 0.02 + (time * wind_speed_y) * 2.4) * wind_strength_y + cos(gl_Vertex.x * 0.02 +
-		(time * wind_speed_y) * 5.2) * wind_strength_y * 0.3;
+	vertex.x += cos(gl_Vertex.y * 0.02 + (time * windspeedx) * 3.8) * windstrengthx + sin(gl_Vertex.y * 0.02 +
+		(time * windspeedx) * 6.3) * windstrengthx * 0.3;
+	vertex.y += sin(gl_Vertex.x * 0.02 + (time * windspeedy) * 2.4) * windstrengthy + cos(gl_Vertex.x * 0.02 +
+		(time * windspeedy) * 5.2) * windstrengthy * 0.3;
 	// ==================================================================================================================
-	vertex.x += cos(gl_Vertex.y * time) * vibrate_strength_x;
-	vertex.y += sin(gl_Vertex.x * time) * vibrate_strength_y;
+	vertex.x += cos(gl_Vertex.y * time) * vibratestrengthx;
+	vertex.y += sin(gl_Vertex.x * time) * vibratestrengthy;
 	// ==================================================================================================================
-	vertex.x += sin(time * sin_speed_x) * sin_strength_x;
-	vertex.y += sin(time * sin_speed_y) * sin_strength_y;
+	vertex.x += sin(time * sinspeedx) * sinstrengthx;
+	vertex.y += sin(time * sinspeedy) * sinstrengthy;
 	// ==================================================================================================================
-	vertex.x += cos(time * cos_speed_x) * cos_strength_x;
-	vertex.y += cos(time * cos_speed_y) * cos_strength_y;
+	vertex.x += cos(time * cosspeedx) * cosstrengthx;
+	vertex.y += cos(time * cosspeedy) * cosstrengthy;
 	// ==================================================================================================================
 	gl_Position = gl_ProjectionMatrix * vertex;
 	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;

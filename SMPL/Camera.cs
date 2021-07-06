@@ -8,9 +8,8 @@ namespace SMPL
 	public class Camera
 	{
 		public static Camera WorldCamera { get; internal set; }
-		public IdentityComponent<Camera> IdentityComponent { get; internal set; } = new();
-		public TransformComponent TransformComponent { get; internal set; }
-		public EffectComponent EffectComponent { get; internal set; } = new();
+		public IdentityComponent<Camera> IdentityComponent { get; set; }
+		public TransformComponent TransformComponent { get; set; }
 
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
@@ -89,8 +88,10 @@ namespace SMPL
 			var pos = new Vector2f((float)TransformComponent.Position.X, (float)TransformComponent.Position.Y);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
-			//var tsz = rendTexture.Size;
-			//var sc = new Vector2f((float)tsz.X / (float)s.X, (float)tsz.Y / (float)s.Y);
+			var tsz = rendTexture.Size;
+			var sc = new Vector2f(
+				(float)TransformComponent.Size.Width / (float)tsz.X,
+				(float)TransformComponent.Size.Height / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;
@@ -99,21 +100,17 @@ namespace SMPL
 			sprite.Position = pos;
 			sprite.TextureRect = new IntRect(new Vector2i(), sz);
 
-			//EffectComponent.image = new Image(sprite.Texture.CopyToImage());
-			//if (EffectComponent.MasksIn == false) EffectComponent.image.FlipVertically();
-			//EffectComponent.rawTextureData = EffectComponent.image.Pixels;
-			//EffectComponent.image.FlipVertically();
-			//EffectComponent.rawTexture = new Texture(EffectComponent.image);
-			//EffectComponent.shader.SetUniform("texture", Shader.CurrentTexture);
-			//EffectComponent.shader.SetUniform("raw_texture", EffectComponent.rawTexture);
-			//EffectComponent.shader.SetUniform("has_mask", true);
-			//EffectComponent.shader.SetUniform("mask_out", false);
-			//EffectComponent.shader.SetUniform("mask_red", 1);
-			//EffectComponent.shader.SetUniform("mask_green", 0);
-			//EffectComponent.shader.SetUniform("mask_blue", 0);
-
-			if (this == WorldCamera) Window.window.Draw(sprite);
-			else WorldCamera.rendTexture.Draw(sprite);
+			if (this == WorldCamera)
+			{
+				sprite.Position = new Vector2f();
+				sprite.Rotation = 0;
+				Window.window.Draw(sprite);
+			}
+			else
+			{
+				sprite.Scale = sc;
+				WorldCamera.rendTexture.Draw(sprite);
+			}
 		}
 
 		public Camera(Point viewPosition, Size viewSize)
@@ -122,19 +119,12 @@ namespace SMPL
 			sortedCameras[0].Add(this);
 
 			var pos = new Vector2f((float)viewPosition.X, (float)viewPosition.Y);
-			TransformComponent = new()
-			{
-				Position = new Point(),
-				Size = new Size(100, 100)
-			};
+			TransformComponent = new(new Point(), 0, new Size(100, 100));
 			view = new View(pos, new Vector2f((float)viewSize.Width, (float)viewSize.Height));
 			rendTexture = new RenderTexture((uint)viewSize.Width, (uint)viewSize.Height);
 			BackgroundColor = Color.DarkGreen;
 			startSize = viewSize;
 			Zoom = 1;
-
-			//var effects = (EffectComponent.Type[])Enum.GetValues(typeof(EffectComponent.Type));
-			//foreach (var effect in effects) EffectComponent.effects.Add(effect, 0);
 		}
 		public bool Snap(string filePath = "folder/picture.png")
 		{
@@ -203,6 +193,20 @@ namespace SMPL
 				}
 
 				rendTexture.Draw(vert, PrimitiveType.Quads);
+			}
+		}
+		public void DrawSprites(params SpriteComponent[] spriteComponents)
+		{
+			foreach (var s in spriteComponents)
+			{
+				if (s == null || s.sprite == null || s.sprite.Texture == null || s.TransformComponent == null) continue;
+				s.sprite.Position = new Vector2f((float)s.TransformComponent.Position.X, (float)s.TransformComponent.Position.Y);
+				s.sprite.Rotation = (float)s.TransformComponent.Angle;
+				s.sprite.Scale = new Vector2f(
+					(float)s.TransformComponent.Size.Width / s.sprite.Texture.Size.X,
+					(float)s.TransformComponent.Size.Height / s.sprite.Texture.Size.Y);
+
+				rendTexture.Draw(s.sprite, new RenderStates(s.shader));
 			}
 		}
 	}

@@ -18,7 +18,6 @@ namespace SMPL
 		}
 
 		internal static Thread resourceLoading;
-		internal static Thread code;
 
 		static void Main() { }
 
@@ -36,26 +35,17 @@ namespace SMPL
 			if (gameEvents.mouseEvents != null) gameEvents.mouseEvents.Subscribe();
 			if (gameEvents.fileEvents != null) gameEvents.fileEvents.Subscribe();
 
-			StartThreads();
+			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
+			resourceLoading.Name = "ResourcesLoading";
+			resourceLoading.IsBackground = true;
+			resourceLoading.Start();
+
+			Time.Run();
 		}
 		public static void Stop()
 		{
 			WindowEvents.instance.OnClose();
 			Window.window.Close();
-		}
-
-		internal static void StartThreads()
-		{
-			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
-			code = new Thread(new ThreadStart(Time.Run));
-			resourceLoading.Name = "ResourcesLoading";
-			code.Name = "Code";
-			resourceLoading.IsBackground = true;
-			code.IsBackground = true;
-
-			resourceLoading.Start();
-			code.Start();
-			Window.Draw();
 		}
 	}
 }
