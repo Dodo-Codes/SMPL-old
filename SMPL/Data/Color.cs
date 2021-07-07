@@ -127,6 +127,11 @@ namespace SMPL
 			Blue = Number.Limit(Blue, new Bounds(0, 255));
 			Alpha = Number.Limit(Alpha, new Bounds(0, 255));
 		}
+		internal static Color To(SFML.Graphics.Color col) => new Color(col.R, col.G, col.B, col.A);
+		internal static SFML.Graphics.Color From(Color col)
+		{
+			return new SFML.Graphics.Color((byte)col.Red, (byte)col.Green, (byte)col.Blue, (byte)col.Alpha);
+		}
 
 		public static bool operator ==(Color a, Color b)
 		{

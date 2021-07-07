@@ -1,4 +1,6 @@
-﻿namespace SMPL
+﻿using SFML.System;
+
+namespace SMPL
 {
 	public struct Size
 	{
@@ -43,5 +45,8 @@
 		public static bool operator !=(Size a, Size b) => a.Width != b.Width && a.Height != b.Height;
 		public static Size operator *(Size a, double b) =>	new(a.Width * b,		  a.Height * b);
 		public static Size operator /(Size a, double b) =>	new(a.Width / b,		  a.Height / b);
+
+		internal static Size To(Vector2f size) => new(size.X, size.Y);
+		internal static Vector2f From(Size size) => new((float)size.Width, (float)size.Height);
 	}
 }

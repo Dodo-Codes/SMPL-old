@@ -2,7 +2,7 @@
 
 namespace TestGame
 {
-	public class Player
+	public class Player : TimeEvents
 	{
 		public IdentityComponent<Player> IdentityComponent { get; set; }
 		public TransformComponent TransformComponent { get; set; }
@@ -10,9 +10,16 @@ namespace TestGame
 
 		public Player()
 		{
+			Subscribe(this);
 			IdentityComponent = new(this, "player");
-			TransformComponent = new(new Point(), 0, new Size(400, 400));
-			SpriteComponent = new(TransformComponent, "penka.png");
+			TransformComponent = new(new Point(), 0, new Size(200, 300));
+			SpriteComponent = new(TransformComponent, "fire.png");
+
+			SpriteComponent.Effects.EarthquakeOpacityPercent = 100;
+		}
+		public override void OnEachFrame()
+		{
+			SpriteComponent.Time = Time.GameClock;
 		}
 	}
 }

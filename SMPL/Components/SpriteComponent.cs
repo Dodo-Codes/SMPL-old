@@ -6,47 +6,26 @@ namespace SMPL
 {
 	public class SpriteComponent
 	{
-		public enum Effect
-		{
-			TintRed, TintGreen, TintBlue, Opacity,
-			Gamma, Desaturation, Inversion, Contrast, Brightness,
-			OutlineOpacity, OutlineOffset, OutlineRed, OutlineGreen, OutlineBlue,
-			FillOpacity, FillRed, FillGreen, FillBlue,
-			BlinkOpacity, BlinkSpeed,
-			BlurOpacity, BlurStrengthX, BlurStrengthY,
-			EarthquakeOpacity, EarthquakeStrengthX, EarthquakeStrengthY,
-			StretchOpacity, StretchStrengthX, StretchStrengthY, StretchSpeedX, StretchSpeedY,
-			WaterOpacity, WaterStrengthX, WaterStrengthY, WaterSpeedX, WaterSpeedY,
-			EdgeOpacity, EdgeThreshold, EdgeThickness, EdgeRed, EdgeGreen, EdgeBlue,
-			PixelateOpacity, PixelateThreshold,
-			GridOpacityX, GridOpacityY, GridCellWidth, GridCellHeight, GridCellSpacingX, GridCellSpacingY,
-			GridRedX, GridRedY, GridGreenX, GridGreenY, GridBlueX, GridBlueY,
-			WindX, WindY, WindSpeedX, WindSpeedY,
-			VibrateX, VibrateY,
-			WaveSinX, WaveSinY, WaveCosX, WaveCosY, WaveSinSpeedX, WaveSinSpeedY, WaveCosSpeedX, WaveCosSpeedY,
-		}
 		public enum Mask
 		{
 			None, In, Out
 		}
-		internal Dictionary<Effect, double> effects = new();
 
 		internal Image image;
-		internal Dictionary<Effect, double> shaderArgs = new();
-		internal Shader shader = new("shaders.vert", null, "shaders.frag");
 		internal Texture rawTexture;
 		internal byte[] rawTextureData;
 		internal Sprite sprite = new();
 
 		public TransformComponent TransformComponent { get; set; }
+		public Effects Effects { get; set; } = new();
 		private Mask maskType;
 		public Mask MaskType
 		{
 			get { return maskType; }
 			set
 			{
-				shader.SetUniform("hasmask", value == Mask.In || value == Mask.Out);
-				shader.SetUniform("maskout", value == Mask.Out);
+				Effects.shader.SetUniform("HasMask", value == Mask.In || value == Mask.Out);
+				Effects.shader.SetUniform("MaskOut", value == Mask.Out);
 				maskType = value;
 			}
 		}
@@ -57,10 +36,22 @@ namespace SMPL
 			set
 			{
 				maskColor = value;
-				shader.SetUniform("maskred", (float)value.Red / 255f);
-				shader.SetUniform("maskgreen", (float)value.Green / 255f);
-				shader.SetUniform("maskblue", (float)value.Blue / 255f);
+				Effects.shader.SetUniform("MaskRed", (float)value.Red / 255f);
+				Effects.shader.SetUniform("MaskGreen", (float)value.Green / 255f);
+				Effects.shader.SetUniform("MaskBlue", (float)value.Blue / 255f);
 			}
+		}
+		public Color TintColor
+		{
+			get { return Color.To(sprite.Color); }
+			set { sprite.Color = Color.From(value); }
+		}
+
+		private double time;
+		public double Time
+		{
+			get { return time; }
+			set { time = value; Effects.shader.SetUniform("Time", (float)value); }
 		}
 
 		private string texturePath;
@@ -82,29 +73,27 @@ namespace SMPL
 				rawTextureData = image.Pixels;
 				image.FlipVertically();
 				rawTexture = new Texture(image);
-				shader.SetUniform("texture", sprite.Texture);
-				shader.SetUniform("raw_texture", rawTexture);
+				Effects.shader.SetUniform("texture", sprite.Texture);
+				Effects.shader.SetUniform("raw_texture", rawTexture);
 				texturePath = value;
 			}
 		}
 		public SpriteComponent(TransformComponent transformComponent, string texturePath = "folder/texture.png")
 		{
-			var effects = (Effect[])Enum.GetValues(typeof(Effect));
-			foreach (var effect in effects) this.effects.Add(effect, 0);
 			TransformComponent = transformComponent;
 			TexturePath = texturePath;
 		}
 
-		public void SetEffect(Effect effect, double value)
-		{
-			
-		}
-		internal void SetShaderArg(Effect effect, double rawValue, double value, bool usePercent1)
-		{
-			var percent1 = Number.FromPercent(value, new Bounds(0, 1));
-			effects[effect] = rawValue;
-			shader.SetUniform($"{effect}".ToLower(), (float)(usePercent1 ? percent1 : value));
-		}
+		//public void SetEffect(Effect effect, double value)
+		//{
+		//	
+		//}
+		//internal void SetShaderArg(Effect effect, double rawValue, double value, bool usePercent1)
+		//{
+		//	var percent1 = Number.FromPercent(value, new Bounds(0, 1));
+		//	effects[effect] = rawValue;
+		//	shader.SetUniform($"{effect}".ToLower(), (float)(usePercent1 ? percent1 : value));
+		//}
 
 		//Blink.Speed.Set(100);
 		//Outline.Offset.Set(20);

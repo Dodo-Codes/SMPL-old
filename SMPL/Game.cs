@@ -10,7 +10,6 @@ namespace SMPL
 		public struct Events
 		{
 			public WindowEvents windowEvents;
-			public TimeEvents timeEvents;
 			public KeyboardEvents keyboardEvents;
 			public MouseEvents mouseEvents;
 			public FileEvents fileEvents;
@@ -30,7 +29,6 @@ namespace SMPL
 
 			if (gameEvents.windowEvents != null) gameEvents.windowEvents.Subscribe();
 			if (gameEvents.worldCameraEvents != null) gameEvents.worldCameraEvents.Subscribe();
-			if (gameEvents.timeEvents != null) gameEvents.timeEvents.Subscribe();
 			if (gameEvents.keyboardEvents != null) gameEvents.keyboardEvents.Subscribe();
 			if (gameEvents.mouseEvents != null) gameEvents.mouseEvents.Subscribe();
 			if (gameEvents.fileEvents != null) gameEvents.fileEvents.Subscribe();

@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace SMPL
 {
 	public abstract class TimeEvents
 	{
-		internal static TimeEvents instance;
-		internal void Subscribe()
+		internal static List<TimeEvents> instances = new();
+		internal static void Update()
 		{
-			instance = this;
-			OnStart();
+			foreach (var i in instances)
+				i.OnEachFrame();
 		}
 
-		public virtual void OnStart() { }
-		public virtual void OnEachTick() { }
+		public static void Subscribe(TimeEvents instance) => instances.Add(instance);
+		public virtual void OnEachFrame() { }
 	}
 }

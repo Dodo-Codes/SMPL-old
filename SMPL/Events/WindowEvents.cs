@@ -14,6 +14,8 @@ namespace SMPL
 			Window.window.GainedFocus += new EventHandler(OnFocus);
 			Window.window.LostFocus += new EventHandler(OnUnfocus);
 			Window.form.SizeChanged += new EventHandler(OnResize);
+
+			OnCreated();
 		}
 		public virtual void OnClose() { }
 		public virtual void OnFocus() { }
@@ -21,6 +23,7 @@ namespace SMPL
 		public virtual void OnResize() { }
 		public virtual void OnMinimize() { }
 		public virtual void OnMaximize() { }
+		public virtual void OnCreated() { }
 
 		internal void OnClose(object sender, EventArgs e)
 		{

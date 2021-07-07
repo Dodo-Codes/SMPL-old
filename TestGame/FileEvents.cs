@@ -6,7 +6,7 @@ namespace TestGame
 	{
 		public override void OnLoadingEnd()
 		{
-			if (File.AssetIsLoaded("penka.png"))
+			if (File.AssetIsLoaded("fire.png"))
 			{
 				new Player();
 			}

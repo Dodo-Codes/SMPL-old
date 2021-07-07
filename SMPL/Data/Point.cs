@@ -23,7 +23,7 @@ namespace SMPL
 		public static Point MoveAtAngle(Point point, double angle, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			if (timeUnit == Time.Unit.Second) speed *= Time.DeltaTime;
-			var dir = Angle.AngleToDirection(angle);
+			var dir = Number.AngleToDirection(angle);
 
 			point.X += dir.X * speed;
 			point.Y += dir.Y * speed;
@@ -32,7 +32,7 @@ namespace SMPL
 		public static Point MoveTowardPoint(Point point, Point targetPoint, double speed,
 			Time.Unit timeUnit = Time.Unit.Second)
 		{
-			var ang = Angle.AngleBetweenPoints(point, targetPoint);
+			var ang = Number.GetAngleBetweenPoints(point, targetPoint);
 			return MoveAtAngle(point, ang, speed, timeUnit);
 		}
 
@@ -55,5 +55,8 @@ namespace SMPL
 		public override int GetHashCode() => default;
 
 		public override string ToString() => $"{X} {Y}";
+
+		internal static Point To(Vector2f point) => new(point.X, point.Y);
+		internal static Vector2f From(Point point) => new((float)point.X, (float)point.Y);
 	}
 }

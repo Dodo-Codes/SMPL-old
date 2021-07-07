@@ -35,7 +35,7 @@ namespace SMPL
 		public Point Position
 		{
 			get { return new Point(view.Center.X, view.Center.Y); }
-			set { view.Center = new Vector2f((float)value.X, (float)value.Y); }
+			set { view.Center = Point.From(value); }
 		}
 		public double Angle
 		{
@@ -45,7 +45,7 @@ namespace SMPL
 		public Size Size
 		{
 			get { return new Size(view.Size.X, view.Size.Y); }
-			set { view.Size = new Vector2f((float)value.Width, (float)value.Height); }
+			set { view.Size = Size.From(value); }
 		}
 		private double zoom = 1;
 		public double Zoom
@@ -54,7 +54,7 @@ namespace SMPL
 			set
 			{
 				zoom = Number.Limit(value, new Bounds(0.001, 500));
-				view.Size = new Vector2f((float)(startSize.Width / zoom), (float)(startSize.Height / zoom));
+				view.Size = Size.From(startSize / zoom);
 			}
 		}
 		public Color BackgroundColor { get; set; }
@@ -78,14 +78,13 @@ namespace SMPL
 		internal void StartDraw()
 		{
 			rendTexture.SetView(view);
-			rendTexture.Clear(new SFML.Graphics.Color(
-				(byte)BackgroundColor.Red, (byte)BackgroundColor.Green, (byte)BackgroundColor.Blue, (byte)BackgroundColor.Alpha));
+			rendTexture.Clear(Color.From(BackgroundColor));
 		}
 		public virtual void OnDraw() { }
 		internal void EndDraw()
 		{
 			rendTexture.Display();
-			var pos = new Vector2f((float)TransformComponent.Position.X, (float)TransformComponent.Position.Y);
+			var pos = Point.From(TransformComponent.Position);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
@@ -118,9 +117,9 @@ namespace SMPL
 			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
 			sortedCameras[0].Add(this);
 
-			var pos = new Vector2f((float)viewPosition.X, (float)viewPosition.Y);
+			var pos = Point.From(viewPosition);
 			TransformComponent = new(new Point(), 0, new Size(100, 100));
-			view = new View(pos, new Vector2f((float)viewSize.Width, (float)viewSize.Height));
+			view = new View(pos, Size.From(viewSize));
 			rendTexture = new RenderTexture((uint)viewSize.Width, (uint)viewSize.Height);
 			BackgroundColor = Color.DarkGreen;
 			startSize = viewSize;
@@ -144,23 +143,10 @@ namespace SMPL
 		{
 			foreach (var line in lines)
 			{
-				var start = new Vector2f((float)line.StartPosition.X, (float)line.StartPosition.Y);
-				var end = new Vector2f((float)line.EndPosition.X, (float)line.EndPosition.Y);
-				var startColor = new SFML.Graphics.Color(
-					(byte)line.StartPosition.Color.Red,
-					(byte)line.StartPosition.Color.Green,
-					(byte)line.StartPosition.Color.Blue,
-					(byte)line.StartPosition.Color.Alpha);
-				var endColor = new SFML.Graphics.Color(
-					(byte)line.EndPosition.Color.Red,
-					(byte)line.EndPosition.Color.Green,
-					(byte)line.EndPosition.Color.Blue,
-					(byte)line.EndPosition.Color.Alpha);
-
 				var vert = new Vertex[]
 				{
-					new(start, startColor),
-					new(end, endColor)
+					new(Point.From(line.StartPosition), Color.From(line.StartPosition.Color)),
+					new(Point.From(line.EndPosition), Color.From(line.EndPosition.Color))
 				};
 				rendTexture.Draw(vert, PrimitiveType.Lines);
 			}
@@ -169,12 +155,7 @@ namespace SMPL
 		{
 			foreach (var p in points)
 			{
-				var vert = new Vertex[]
-				{
-					new(new Vector2f(
-						(float)p.X, (float)p.Y),
-						new SFML.Graphics.Color((byte)p.Color.Red, (byte)p.Color.Green, (byte)p.Color.Blue, (byte)p.Color.Alpha))
-				};
+				var vert = new Vertex[] { new(Point.From(p), Color.From(p.Color)) };
 				rendTexture.Draw(vert, PrimitiveType.Points);
 			}
 		}
@@ -187,9 +168,7 @@ namespace SMPL
 				for (int i = 0; i < points.Count ; i++)
 				{
 					var p = points[i];
-					vert[i] = new Vertex(
-						new Vector2f((float)p.X, (float)p.Y),
-						new SFML.Graphics.Color((byte)p.Color.Red, (byte)p.Color.Green, (byte)p.Color.Blue, (byte)p.Color.Alpha));
+					vert[i] = new Vertex(Point.From(p), Color.From(p.Color));
 				}
 
 				rendTexture.Draw(vert, PrimitiveType.Quads);
@@ -200,13 +179,13 @@ namespace SMPL
 			foreach (var s in spriteComponents)
 			{
 				if (s == null || s.sprite == null || s.sprite.Texture == null || s.TransformComponent == null) continue;
-				s.sprite.Position = new Vector2f((float)s.TransformComponent.Position.X, (float)s.TransformComponent.Position.Y);
+				s.sprite.Position = Point.From(s.TransformComponent.Position);
 				s.sprite.Rotation = (float)s.TransformComponent.Angle;
 				s.sprite.Scale = new Vector2f(
 					(float)s.TransformComponent.Size.Width / s.sprite.Texture.Size.X,
 					(float)s.TransformComponent.Size.Height / s.sprite.Texture.Size.Y);
 
-				rendTexture.Draw(s.sprite, new RenderStates(s.shader));
+				rendTexture.Draw(s.sprite, new RenderStates(s.Effects.shader));
 			}
 		}
 	}
