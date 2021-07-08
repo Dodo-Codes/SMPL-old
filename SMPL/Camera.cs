@@ -178,14 +178,16 @@ namespace SMPL
 		{
 			foreach (var s in spriteComponents)
 			{
-				if (s == null || s.sprite == null || s.sprite.Texture == null || s.TransformComponent == null) continue;
-				s.sprite.Position = Point.From(s.TransformComponent.Position);
-				s.sprite.Rotation = (float)s.TransformComponent.Angle;
-				s.sprite.Scale = new Vector2f(
-					(float)s.TransformComponent.Size.Width / s.sprite.Texture.Size.X,
-					(float)s.TransformComponent.Size.Height / s.sprite.Texture.Size.Y);
+				if (s == null || s.Effects.sprite == null ||
+					s.Effects.sprite.Texture == null || s.TransformComponent == null)
+					continue;
+				s.Effects.sprite.Position = Point.From(s.TransformComponent.Position);
+				s.Effects.sprite.Rotation = (float)s.TransformComponent.Angle;
+				s.Effects.sprite.Scale = new Vector2f(
+					(float)s.TransformComponent.Size.Width / s.Effects.sprite.Texture.Size.X,
+					(float)s.TransformComponent.Size.Height / s.Effects.sprite.Texture.Size.Y);
 
-				rendTexture.Draw(s.sprite, new RenderStates(s.Effects.shader));
+				rendTexture.Draw(s.Effects.sprite, new RenderStates(s.Effects.shader));
 			}
 		}
 	}

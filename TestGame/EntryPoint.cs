@@ -12,7 +12,7 @@ namespace TestGame
 				worldCameraEvents = new WorldCameraEvents(),
 				fileEvents = new FileEvents()
 			};
-			Game.Start(events);
+			Game.Start(events, new Size(1, 1));
 		}
 	}
 }

@@ -8,13 +8,13 @@ namespace SMPL
 	{
 		internal static WorldCameraEvents instance;
 
-		internal void Subscribe()
+		internal void Subscribe(Size pixelSize)
 		{
 			instance = this;
 
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
-			Camera.WorldCamera = new(new Point(0, 0), size);
+			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
 			Camera.WorldCamera.TransformComponent.Size = size;
 			Window.window.SetView(Camera.WorldCamera.view);
 		}

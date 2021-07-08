@@ -15,11 +15,11 @@ namespace TestGame
 			TransformComponent = new(new Point(), 0, new Size(200, 300));
 			SpriteComponent = new(TransformComponent, "fire.png");
 
-			SpriteComponent.Effects.EarthquakeOpacityPercent = 100;
+			//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
 		}
 		public override void OnEachFrame()
 		{
-			SpriteComponent.Time = Time.GameClock;
+			SpriteComponent.Effects.Progress = Time.GameClock;
 		}
 	}
 }

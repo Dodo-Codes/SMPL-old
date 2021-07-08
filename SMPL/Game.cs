@@ -20,7 +20,7 @@ namespace SMPL
 
 		static void Main() { }
 
-		public static void Start(Events gameEvents)
+		public static void Start(Events gameEvents, Size pixelSize)
 		{
 			File.Initialize();
 			Time.Initialize();
@@ -28,7 +28,7 @@ namespace SMPL
 			OS.Initialize();
 
 			if (gameEvents.windowEvents != null) gameEvents.windowEvents.Subscribe();
-			if (gameEvents.worldCameraEvents != null) gameEvents.worldCameraEvents.Subscribe();
+			if (gameEvents.worldCameraEvents != null) gameEvents.worldCameraEvents.Subscribe(pixelSize);
 			if (gameEvents.keyboardEvents != null) gameEvents.keyboardEvents.Subscribe();
 			if (gameEvents.mouseEvents != null) gameEvents.mouseEvents.Subscribe();
 			if (gameEvents.fileEvents != null) gameEvents.fileEvents.Subscribe();

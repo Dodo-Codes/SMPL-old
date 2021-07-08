@@ -220,14 +220,14 @@ uniform float WaterSpeedX;
 uniform float WaterSpeedY;
 
 uniform float EdgeOpacity;
-uniform float EdgeThreshold;
+uniform float EdgeSensitivity;
 uniform float EdgeThickness;
 uniform float EdgeRed;
 uniform float EdgeGreen;
 uniform float EdgeBlue;
 
 uniform float PixelateOpacity;
-uniform float PixelateThreshold;
+uniform float PixelateStrength;
 
 uniform float GridOpacityX;
 uniform float GridOpacityY;
@@ -246,6 +246,9 @@ uniform float FillOpacity;
 uniform float FillRed;
 uniform float FillGreen;
 uniform float FillBlue;
+
+uniform float IgnoreDark;
+uniform float IgnoreBright;
 
 void main(void)
 {
@@ -266,6 +269,18 @@ void main(void)
 	coord.x += factorx / (1 + 2 * factorx);
 	coord.y += factory / (1 + 2 * factory);
 	color = mix(vec4(color, alpha), texture2D(Texture, coord), StretchOpacity);
+	// ==================================================================================================================
+	vec3 luminanceVector = vec3(0.2125, 0.7154, 0.0721);
+	vec4 sample = texture2D(Texture, coord);
+
+	float luminance = dot(luminanceVector, sample.rgb);
+	float luminance2 = -dot(luminanceVector, sample.rgb);
+	luminance = max(0.0, luminance - IgnoreDark);
+	luminance2 = max(0.0, luminance2 + (1 - IgnoreBright));
+	sample.rgb *= sign(luminance);
+	sample.rgb *= sign(luminance2);
+
+	color = mix(vec4(color, alpha), sample, 1);
 	// ==================================================================================================================
 	coord.x += sin(radians(2000 * Time * WaterSpeedX + coord.y * 250)) * 0.02 * WaterStrengthX;
 	coord.y += cos(radians(2000 * Time * WaterSpeedY + coord.x * 500)) * 0.03 * WaterStrengthY;
@@ -325,8 +340,7 @@ void main(void)
 				 texture2D(Texture, gl_TexCoord[0].xy + offx2 + offy2) * -1.0;
 
 	vec3 result = sqrt(hEdge.rgb * hEdge.rgb + vEdge.rgb * vEdge.rgb);
-	float edge = length(result);
-	if (edge > (EdgeThreshold * 6.0)) color = mix(color, vec3(EdgeRed, EdgeGreen, EdgeBlue), EdgeOpacity);
+	if (length(result) > (EdgeSensitivity * 6.0)) color = mix(color, vec3(EdgeRed, EdgeGreen, EdgeBlue), EdgeOpacity);
 	// ==================================================================================================================
 	if (mod(gl_FragCoord.x, round(GridCellWidth + GridCellSpacingX)) < round(GridCellSpacingX))
 	{
@@ -346,7 +360,7 @@ void main(void)
 	color = color + vec3(Brightness);
 	color = vec3(clamp(color.r, 0, 1), clamp(color.g, 0, 1), clamp(color.b, 0, 1));
 	// ==================================================================================================================
-	float factor = 1.0 / (PixelateThreshold + 0.001);
+	float factor = 1.0 / (PixelateStrength + 0.001);
 	vec2 pos = floor(gl_TexCoord[0].xy * factor + 0.5) / factor;
 	color = mix(vec4(color, alpha), gl_Color * texture2D(Texture, pos), PixelateOpacity);
 	// ==================================================================================================================
