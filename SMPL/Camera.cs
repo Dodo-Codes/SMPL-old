@@ -187,7 +187,20 @@ namespace SMPL
 					(float)s.TransformComponent.Size.Width / s.Effects.sprite.Texture.Size.X,
 					(float)s.TransformComponent.Size.Height / s.Effects.sprite.Texture.Size.Y);
 
-				rendTexture.Draw(s.Effects.sprite, new RenderStates(s.Effects.shader));
+				var pos = s.Effects.sprite.Position;
+				for (int j = 0; j < s.Repeats.Height + 1; j++)
+				{
+					for (int i = 0; i < s.Repeats.Width + 1; i++)
+					{
+						var w = s.Effects.sprite.TextureRect.Width;
+						var h = s.Effects.sprite.TextureRect.Height;
+						var p = s.Effects.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
+
+						s.Effects.sprite.Position = p;
+						rendTexture.Draw(s.Effects.sprite, new RenderStates(s.Effects.shader));
+						s.Effects.sprite.Position = pos;
+					}
+				}
 			}
 		}
 	}
