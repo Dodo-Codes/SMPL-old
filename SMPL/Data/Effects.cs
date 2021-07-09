@@ -4,9 +4,8 @@ namespace SMPL
 {
 	public class Effects
 	{
+		internal SpriteComponent parent;
 		internal Shader shader;
-		internal Sprite sprite = new();
-
 
 		public enum Mask
 		{
@@ -37,8 +36,8 @@ namespace SMPL
 		}
 		public Color TintColor
 		{
-			get { return Color.To(sprite.Color); }
-			set { sprite.Color = Color.From(value); }
+			get { return Color.To(parent.sprite.Color); }
+			set { parent.sprite.Color = Color.From(value); }
 		}
 
 		private double progress;
@@ -389,8 +388,9 @@ namespace SMPL
 		//	set { stretchOpacity = value; shader.SetUniform("StretchOpacity", (float)value / 100f); }
 		//}
 
-		public Effects()
+		public Effects(SpriteComponent parent)
 		{
+			this.parent = parent;
 			shader = new("shaders.vert", null, "shaders.frag");
 
 			OutlineOffset = 10;

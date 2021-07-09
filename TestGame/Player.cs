@@ -12,7 +12,7 @@ namespace TestGame
 		{
 			Subscribe(this);
 			IdentityComponent = new(this, "player");
-			TransformComponent = new(new Point(), 0, new Size(100, 150));
+			TransformComponent = new(new Point(), 0, new Size(800, 500));
 			SpriteComponent = new(TransformComponent, "fire.png");
 			//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
 		}

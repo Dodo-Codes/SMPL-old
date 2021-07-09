@@ -32,7 +32,7 @@ namespace SMPL
 
 		internal static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
 		internal static List<QueuedAsset> queuedAssets = new();
-		internal static Dictionary<string, Texture> textures = new();
+		internal static Dictionary<string, SFML.Graphics.Texture> textures = new();
 		internal static Dictionary<string, Font> fonts = new();
 		internal static Dictionary<string, Sound> sounds = new();
 		internal static Dictionary<string, Music> music = new();
@@ -73,7 +73,7 @@ namespace SMPL
 					{
 						switch (asset)
 						{
-							case Asset.Texture: textures[path] = new Texture(path); break;
+							case Asset.Texture: textures[path] = new SFML.Graphics.Texture(path); break;
 							case Asset.Font: fonts[path] = new Font(path); break;
 							case Asset.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
 							case Asset.Music: music[path] = new Music(path); break;

@@ -178,27 +178,27 @@ namespace SMPL
 		{
 			foreach (var s in spriteComponents)
 			{
-				if (s == null || s.Effects.sprite == null ||
-					s.Effects.sprite.Texture == null || s.TransformComponent == null)
+				if (s == null || s.IsHidden || s.sprite == null ||
+					s.sprite.Texture == null || s.transform == null)
 					continue;
-				s.Effects.sprite.Position = Point.From(s.TransformComponent.Position);
-				s.Effects.sprite.Rotation = (float)s.TransformComponent.Angle;
-				s.Effects.sprite.Scale = new Vector2f(
-					(float)s.TransformComponent.Size.Width / s.Effects.sprite.Texture.Size.X,
-					(float)s.TransformComponent.Size.Height / s.Effects.sprite.Texture.Size.Y);
+				s.sprite.Position = Point.From(s.transform.Position);
+				s.sprite.Rotation = (float)s.transform.Angle;
+				s.sprite.Scale = new Vector2f(
+					(float)s.transform.Size.Width / s.sprite.Texture.Size.X,
+					(float)s.transform.Size.Height / s.sprite.Texture.Size.Y);
 
-				var pos = s.Effects.sprite.Position;
+				var pos = s.sprite.Position;
 				for (int j = 0; j < s.Repeats.Height + 1; j++)
 				{
 					for (int i = 0; i < s.Repeats.Width + 1; i++)
 					{
-						var w = s.Effects.sprite.TextureRect.Width;
-						var h = s.Effects.sprite.TextureRect.Height;
-						var p = s.Effects.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
+						var w = s.sprite.TextureRect.Width;
+						var h = s.sprite.TextureRect.Height;
+						var p = s.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
 
-						s.Effects.sprite.Position = p;
-						rendTexture.Draw(s.Effects.sprite, new RenderStates(s.Effects.shader));
-						s.Effects.sprite.Position = pos;
+						s.sprite.Position = p;
+						rendTexture.Draw(s.sprite, new RenderStates(s.Effects.shader));
+						s.sprite.Position = pos;
 					}
 				}
 			}
