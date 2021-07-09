@@ -15,7 +15,16 @@ namespace SMPL
 		public Texture Texture { get; set; }
 
 		public bool IsHidden { get; set; }
-		public Size Repeats { get; set; }
+		private Size repeats;
+		public Size Repeats
+		{
+			get { return repeats; }
+			set
+			{
+				repeats = value;
+				OriginPercent = originPercent;
+			}
+		}
 		private Point originPercent;
 		public Point OriginPercent
 		{
