@@ -23,19 +23,19 @@ namespace SMPL
 			{
 				if (File.textures.ContainsKey(value) == false)
 				{
-					Debug.LogError(2, $"The texture at '{value}' is not loaded.\nUse " +
-						$"'{nameof(File)}.{nameof(File.LoadAsset)}({nameof(File)}.{nameof(File.Asset)}." +
+					Debug.LogError(2, $"The texture at '{value}' is not loaded.\n" +
+						$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
 						$"{nameof(File.Asset.Texture)}, \"{value}\")' to load it.");
 					return;
 				}
 				parent.sprite.Texture = File.textures[value];
-				parent.image = new Image(parent.sprite.Texture.CopyToImage());
-				if (parent.Effects.MaskType != Effects.Mask.In) parent.image.FlipVertically();
-				parent.rawTextureData = parent.image.Pixels;
-				parent.image.FlipVertically();
-				parent.rawTexture = new SFML.Graphics.Texture(parent.image);
-				parent.Effects.shader.SetUniform("texture", parent.sprite.Texture);
-				parent.Effects.shader.SetUniform("raw_texture", parent.rawTexture);
+				//parent.image = new Image(parent.sprite.Texture.CopyToImage());
+				//if (parent.Effects.MaskType != Effects.Mask.In) parent.image.FlipVertically();
+				//parent.rawTextureData = parent.image.Pixels;
+				//parent.image.FlipVertically();
+				//parent.rawTexture = new SFML.Graphics.Texture(parent.image);
+				//parent.Effects.shader.SetUniform("texture", parent.sprite.Texture);
+				//parent.Effects.shader.SetUniform("raw_texture", parent.rawTexture);
 				path = value;
 			}
 		}

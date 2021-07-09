@@ -22,7 +22,6 @@ namespace TestGame
 		public override void OnEachFrame()
 		{
 			TransformComponent.Angle++;
-			SpriteComponent.Effects.Progress = Time.GameClock;
 		}
 	}
 }
