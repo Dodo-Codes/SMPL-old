@@ -11,7 +11,7 @@ namespace SMPL
 		internal Sprite sprite = new();
 
 		internal TransformComponent transform;
-		public Effects Effects { get; set; }
+		//public Effects Effects { get; set; }
 		public Texture Texture { get; set; }
 
 		public bool IsHidden { get; set; }
@@ -48,7 +48,7 @@ namespace SMPL
 		public SpriteComponent(TransformComponent transformComponent, string texturePath = "folder/texture.png")
 		{
 			transform = transformComponent;
-			Effects = new(this);
+			//Effects = new(this);
 			Texture = new(this, texturePath);
 		}
 	}

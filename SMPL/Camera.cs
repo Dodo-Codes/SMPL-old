@@ -197,7 +197,7 @@ namespace SMPL
 						var p = s.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
 
 						s.sprite.Position = p;
-						rendTexture.Draw(s.sprite, new RenderStates(s.Effects.shader));
+						rendTexture.Draw(s.sprite);//, new RenderStates(s.Effects.shader));
 						s.sprite.Position = pos;
 					}
 				}

@@ -1,27 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "D:\\code\\SFML\\SMPL\\TestProject1\\TestProject1.csproj": {}
+    "G:\\SFML\\TestProject1\\TestProject1.csproj": {}
   },
   "projects": {
-    "D:\\code\\SFML\\SMPL\\TestProject1\\TestProject1.csproj": {
+    "G:\\SFML\\TestProject1\\TestProject1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\code\\SFML\\SMPL\\TestProject1\\TestProject1.csproj",
+        "projectUniqueName": "G:\\SFML\\TestProject1\\TestProject1.csproj",
         "projectName": "TestProject1",
-        "projectPath": "D:\\code\\SFML\\SMPL\\TestProject1\\TestProject1.csproj",
-        "packagesPath": "C:\\Users\\PC PC\\.nuget\\packages\\",
-        "outputPath": "D:\\code\\SFML\\SMPL\\TestProject1\\obj\\",
+        "projectPath": "G:\\SFML\\TestProject1\\TestProject1.csproj",
+        "packagesPath": "C:\\Users\\GoKsTaR\\.nuget\\packages\\",
+        "outputPath": "G:\\SFML\\TestProject1\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\PC PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\GoKsTaR\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -72,7 +73,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.104\\RuntimeIdentifierGraph.json"
         }
       }
     }
