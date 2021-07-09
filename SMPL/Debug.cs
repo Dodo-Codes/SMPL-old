@@ -59,11 +59,11 @@ namespace SMPL
 				$"{sep}";
 			Console.Log(result);
 		}
-		public static bool DoesNotExistError<T, T1>(Dictionary<T, T1> dict, T key, string type)
-		{
-			var notFound = dict.ContainsKey(key) == false;
-			if (notFound) LogError(2, $"{type} '{key}' was not found.");
-			return notFound;
-		}
+		//public static bool DoesNotExistError<T, T1>(Dictionary<T, T1> dict, T key, string type)
+		//{
+		//	var notFound = dict.ContainsKey(key) == false;
+		//	if (notFound) LogError(2, $"{type} '{key}' was not found.");
+		//	return notFound;
+		//}
 	}
 }

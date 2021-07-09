@@ -53,11 +53,7 @@ namespace SMPL
 		}
 		public void ShrinkAt(int index)
 		{
-			if (HasIndex(index) == false)
-			{
-				Debug.LogError(1, $"The index '{index}' was not found.");
-				return;
-			}
+			if (IndexNotFound(index)) return;
 			indexes.Remove(index);
 			values.RemoveAt(index);
 			dict.Remove(keys[index]);
@@ -65,11 +61,7 @@ namespace SMPL
 		}
 		public void ShrinkAt(UniqueKeyT uniqueKey)
 		{
-			if (HasUniqueKey(uniqueKey) == false)
-			{
-				Debug.LogError(1, $"The unique key '{uniqueKey}' was not found.");
-				return;
-			}
+			if (UniqueKeyNotFound(uniqueKey)) return;
 			indexes.Remove(keys.IndexOf(uniqueKey));
 			values.RemoveAt(keys.IndexOf(uniqueKey));
 			dict.Remove(uniqueKey);
@@ -77,21 +69,13 @@ namespace SMPL
 		}
 		public void ReplaceAt(int index, ValueT value)
 		{
-			if (HasIndex(index) == false)
-			{
-				Debug.LogError(1, $"The index '{index}' was not found.");
-				return;
-			}
+			if (IndexNotFound(index)) return;
 			values[index] = value;
 			dict[keys[index]] = value;
 		}
 		public void ReplaceAt(UniqueKeyT uniqueKey, ValueT value)
 		{
-			if (HasUniqueKey(uniqueKey) == false)
-			{
-				Debug.LogError(1, $"The unique key '{uniqueKey}' was not found.");
-				return;
-			}
+			if (UniqueKeyNotFound(uniqueKey)) return;
 			dict[uniqueKey] = value;
 			values[keys.IndexOf(uniqueKey)] = value;
 		}
@@ -127,42 +111,22 @@ namespace SMPL
 		public int GetDataAmount() => indexes == null ? 0 : indexes.Count;
 		public ValueT GetValueAt(UniqueKeyT uniqueKey)
 		{
-			if (HasUniqueKey(uniqueKey) == false)
-			{
-				Debug.LogError(1, $"The unique key '{uniqueKey}' was not found.");
-				return default;
-			}
-			return dict[uniqueKey];
-		}
-		public ValueT GetValueAt(int index)
+         return UniqueKeyNotFound(uniqueKey) ? default : dict[uniqueKey];
+      }
+      public ValueT GetValueAt(int index)
 		{
-			if (HasIndex(index) == false)
-			{
-				Debug.LogError(1, $"The index '{index}' was not found.");
-				return default;
-			}
-			return values[index];
-		}
-		public UniqueKeyT GetUniqueKeyAt(int index)
+         return IndexNotFound(index) ? default : values[index];
+      }
+      public UniqueKeyT GetUniqueKeyAt(int index)
 		{
-			if (HasIndex(index) == false)
-			{
-				Debug.LogError(1, $"The index '{index}' was not found.");
-				return default;
-			}
-			return keys[index];
-		}
-		public int GetIndexAt(UniqueKeyT uniqueKey)
+         return IndexNotFound(index) ? default : keys[index];
+      }
+      public int GetIndexAt(UniqueKeyT uniqueKey)
 		{
-			if (HasUniqueKey(uniqueKey) == false)
-			{
-				Debug.LogError(1, $"The unique key '{uniqueKey}' was not found.");
-				return default;
-			}
-			return keys.IndexOf(uniqueKey);
-		}
+         return UniqueKeyNotFound(uniqueKey) ? default : keys.IndexOf(uniqueKey);
+      }
 
-		public int[] GetIndexes() => indexes == null ? System.Array.Empty<int>() : indexes.ToArray();
+      public int[] GetIndexes() => indexes == null ? System.Array.Empty<int>() : indexes.ToArray();
 		public UniqueKeyT[] GetUniqueKeys()
 		{
 			if (indexes == null) return System.Array.Empty<UniqueKeyT>();
@@ -187,5 +151,18 @@ namespace SMPL
 		public bool HasIndex(int index) => indexes != null && indexes.Contains(index);
 		public bool HasUniqueKey(UniqueKeyT uniqueKey) => keys != null && keys.Contains(uniqueKey);
 		public bool HasValue(ValueT value) => values != null && values.Contains(value);
+
+		internal bool UniqueKeyNotFound(UniqueKeyT uniqueKey)
+      {
+			if (HasUniqueKey(uniqueKey)) return false;
+			Debug.LogError(1, $"The unique key '{uniqueKey}' was not found.");
+			return true;
+		}
+		internal bool IndexNotFound(int index)
+		{
+			if (HasIndex(index)) return false;
+			Debug.LogError(1, $"The index '{index}' was not found.");
+			return true;
+		}
 	}
 }

@@ -54,8 +54,10 @@ namespace SMPL
 			}
 			return true;
 		}
-		public List<string> GetTags() => ObjTags[Instance];
+		public string[] GetTags() => ObjTags[Instance].ToArray();
 
+		public static string[] GetAllUniqueIDs() => UniqueIDs.Keys.ToArray();
+		public static T[] GetAll() => UniqueIDs.Values.ToArray();
 		public static string[] GetAllTags() => TagObjs.Keys.ToArray();
 		public static bool TagsExist(params string[] tags)
 		{

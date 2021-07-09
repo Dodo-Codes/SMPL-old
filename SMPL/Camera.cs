@@ -59,6 +59,20 @@ namespace SMPL
 		}
 		public Color BackgroundColor { get; set; }
 
+		public Camera(Point viewPosition, Size viewSize)
+		{
+			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
+			sortedCameras[0].Add(this);
+
+			var pos = Point.From(viewPosition);
+			TransformComponent = new(new Point(), 0, new Size(100, 100));
+			view = new View(pos, Size.From(viewSize));
+			rendTexture = new RenderTexture((uint)viewSize.Width, (uint)viewSize.Height);
+			BackgroundColor = Color.DarkGreen;
+			startSize = viewSize;
+			Zoom = 1;
+		}
+
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
@@ -112,19 +126,6 @@ namespace SMPL
 			}
 		}
 
-		public Camera(Point viewPosition, Size viewSize)
-		{
-			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
-			sortedCameras[0].Add(this);
-
-			var pos = Point.From(viewPosition);
-			TransformComponent = new(new Point(), 0, new Size(100, 100));
-			view = new View(pos, Size.From(viewSize));
-			rendTexture = new RenderTexture((uint)viewSize.Width, (uint)viewSize.Height);
-			BackgroundColor = Color.DarkGreen;
-			startSize = viewSize;
-			Zoom = 1;
-		}
 		public bool Snap(string filePath = "folder/picture.png")
 		{
 			var img = rendTexture.Texture.CopyToImage();
