@@ -7,31 +7,17 @@ namespace SMPL
 {
 	public class Game
 	{
-		public struct Events
-		{
-			public WindowEvents windowEvents;
-			public KeyboardEvents keyboardEvents;
-			public MouseEvents mouseEvents;
-			public FileEvents fileEvents;
-			public WorldCameraEvents worldCameraEvents;
-		}
-
 		internal static Thread resourceLoading;
 
 		static void Main() { }
 
-		public static void Start(Events gameEvents, Size pixelSize)
+		public static void Start(Size pixelSize)
 		{
 			File.Initialize();
 			Time.Initialize();
-			Window.Initialize();
+			Window.Initialize(pixelSize);
 			OS.Initialize();
-
-			if (gameEvents.windowEvents != null) gameEvents.windowEvents.Subscribe();
-			if (gameEvents.worldCameraEvents != null) gameEvents.worldCameraEvents.Subscribe(pixelSize);
-			if (gameEvents.keyboardEvents != null) gameEvents.keyboardEvents.Subscribe();
-			if (gameEvents.mouseEvents != null) gameEvents.mouseEvents.Subscribe();
-			if (gameEvents.fileEvents != null) gameEvents.fileEvents.Subscribe();
+			Events.Initialize();
 
 			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
 			resourceLoading.Name = "ResourcesLoading";

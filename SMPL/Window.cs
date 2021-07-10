@@ -108,7 +108,7 @@ namespace SMPL
 			window.SetActive(false);
 		}
 
-		internal static void Initialize()
+		internal static void Initialize(Size pixelSize)
 		{
 			var w = (int)VideoMode.DesktopMode.Width;
 			var h = (int)VideoMode.DesktopMode.Height;
@@ -119,6 +119,12 @@ namespace SMPL
 			window = new RenderWindow(form.Handle);
 			window.SetVisible(true);
 			window.SetTitle($"{nameof(SMPL)} Game");
+
+			var scrSize = Screen.PrimaryScreen.Bounds;
+			var size = new Size(scrSize.Width, scrSize.Height);
+			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
+			Camera.WorldCamera.TransformComponent.Size = size;
+			window.SetView(Camera.WorldCamera.view);
 		}
 	}
 }

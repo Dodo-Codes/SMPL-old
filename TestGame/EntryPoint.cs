@@ -6,13 +6,7 @@ namespace TestGame
 	{
 		public static void Main()
 		{
-			var events = new Game.Events()
-			{
-				windowEvents = new WindowEvents(),
-				worldCameraEvents = new WorldCameraEvents(),
-				fileEvents = new FileEvents()
-			};
-			Game.Start(events, new Size(1, 1));
+			Game.Start(new Size(1, 1));
 		}
 	}
 }

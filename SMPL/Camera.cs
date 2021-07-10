@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SMPL
 {
-	public class Camera
+	public class Camera : Events
 	{
 		public static Camera WorldCamera { get; internal set; }
 		public IdentityComponent<Camera> IdentityComponent { get; set; }

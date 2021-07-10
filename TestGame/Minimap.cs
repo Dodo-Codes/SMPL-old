@@ -7,10 +7,19 @@ namespace TestGame
 		public Minimap(Point viewPosition, Size viewSize) :
 			base(viewPosition, viewSize)
 		{
+			Subscribe(this);
 			IdentityComponent = new(this, "minimap");
+			new Timer("test", 2);
 		}
 
-		public override void OnDraw()
+      public override void OnTimerEnd(Timer timerInstance)
+      {
+         if (timerInstance.IdentityComponent.UniqueID == "timer-test")
+         {
+				Console.Log("minimap");
+			}
+      }
+      public override void OnDraw()
 		{
 			var p1 = new Point(0, 0);
 			var p2 = new Point(100, 0);

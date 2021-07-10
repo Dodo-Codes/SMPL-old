@@ -8,15 +8,9 @@ namespace SMPL
 	{
 		internal static WorldCameraEvents instance;
 
-		internal void Subscribe(Size pixelSize)
+		internal void Subscribe()
 		{
 			instance = this;
-
-			var scrSize = Screen.PrimaryScreen.Bounds;
-			var size = new Size(scrSize.Width, scrSize.Height);
-			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
-			Camera.WorldCamera.TransformComponent.Size = size;
-			Window.window.SetView(Camera.WorldCamera.view);
 		}
 
 		public void DrawLines(params Line[] lines) => Camera.WorldCamera.DrawLines(lines);

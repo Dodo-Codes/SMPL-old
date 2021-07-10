@@ -138,7 +138,7 @@ namespace SMPL
 				Window.window.DispatchEvents();
 
 				frameCount++;
-				TimeEvents.Update();
+				Events.Update();
 
 				Window.Draw();
 				frameDeltaTime.Restart();
