@@ -40,11 +40,9 @@ namespace SMPL
 		internal static void Initialize() => CreateShaderFiles();
 		internal static void UpdateMainThreadAssets()
 		{
-			if (FileEvents.instance == null) return;
-
-			if (assetLoadBegin) FileEvents.instance.OnLoadingStart();
-			if (assetLoadUpdate) FileEvents.instance.OnLoadingUpdate();
-			if (assetLoadEnd) FileEvents.instance.OnLoadingEnd();
+			if (assetLoadBegin) foreach (var e in Events.instances) e.OnAssetsLoadingStart();
+			if (assetLoadUpdate) foreach (var e in Events.instances) e.OnAssetsLoadingUpdate();
+			if (assetLoadEnd) foreach (var e in Events.instances) e.OnAssetsLoadingEnd();
 
 			assetLoadBegin = false;
 			assetLoadUpdate = false;

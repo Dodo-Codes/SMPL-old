@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SFML.Graphics;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SMPL
@@ -16,6 +17,20 @@ namespace SMPL
 			PointB = pointB;
 			PointC = pointC;
 			PointD = pointD;
+		}
+		public void Draw(Camera camera)
+		{
+			if (Window.DrawNotAllowed()) return;
+
+			var points = new List<Point>() { PointA, PointB, PointC, PointD };
+			var vert = new Vertex[points.Count];
+			for (int i = 0; i < points.Count; i++)
+			{
+				var p = points[i];
+				vert[i] = new Vertex(Point.From(p), Color.From(p.Color));
+			}
+
+			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 		}
 	}
 }

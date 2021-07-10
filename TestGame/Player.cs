@@ -13,27 +13,18 @@ namespace TestGame
 			Subscribe(this);
 			IdentityComponent = new(this, "player");
 			TransformComponent = new(new Point(), 0, new Size(400, 300));
-			SpriteComponent = new(TransformComponent, "fire.png");
 
-			SpriteComponent.OriginPercent = new Point(50, 50);
-			SpriteComponent.Repeats = new Size(0, 0);
-			new Timer("timer-test", 0.5f);
-			//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
+			File.LoadAsset(File.Asset.Texture, "fire.png");
 		}
-		public override void OnEachFrame()
-		{
-			TransformComponent.Angle++;
-		}
-      public override void OnKeyPress(Keyboard.Key key)
+      public override void OnAssetsLoadingEnd()
       {
-			Console.Log(key);
+			if (File.AssetIsLoaded("fire.png") == false) return;
+			SpriteComponent = new(TransformComponent, "fire.png");
       }
-      public override void OnTimerEnd(Timer timerInstance)
+      public override void OnDraw(Camera camera)
       {
-			if (timerInstance.IdentityComponent.UniqueID == "timer-test")
-         {
-				timerInstance.Progress = 0;
-         }
+			if (SpriteComponent == null) return;
+			SpriteComponent.Draw(camera);
 		}
    }
 }

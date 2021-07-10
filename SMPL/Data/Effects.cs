@@ -4,6 +4,8 @@ namespace SMPL
 {
 	public class Effects
 	{
+		//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
+
 		internal SpriteComponent parent;
 		internal Shader shader;
 

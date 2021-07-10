@@ -76,14 +76,14 @@ namespace SMPL
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
-			WorldCameraEvents.instance.OnDraw();
+         foreach (var e in instances) e.OnDraw(WorldCamera);
 			foreach (var kvp in sortedCameras)
 			{
 				foreach (var camera in kvp.Value)
 				{
 					if (camera == WorldCamera) continue;
 					camera.StartDraw();
-					camera.OnDraw();
+					foreach (var e in instances) e.OnDraw(camera);
 					camera.EndDraw();
 				}
 			}
@@ -94,7 +94,6 @@ namespace SMPL
 			rendTexture.SetView(view);
 			rendTexture.Clear(Color.From(BackgroundColor));
 		}
-		public virtual void OnDraw() { }
 		internal void EndDraw()
 		{
 			rendTexture.Display();
@@ -138,71 +137,6 @@ namespace SMPL
 				return false;
 			}
 			return true;
-		}
-
-		public void DrawLines(params Line[] lines)
-		{
-			foreach (var line in lines)
-			{
-				var vert = new Vertex[]
-				{
-					new(Point.From(line.StartPosition), Color.From(line.StartPosition.Color)),
-					new(Point.From(line.EndPosition), Color.From(line.EndPosition.Color))
-				};
-				rendTexture.Draw(vert, PrimitiveType.Lines);
-			}
-		}
-		public void DrawPoints(params Point[] points)
-		{
-			foreach (var p in points)
-			{
-				var vert = new Vertex[] { new(Point.From(p), Color.From(p.Color)) };
-				rendTexture.Draw(vert, PrimitiveType.Points);
-			}
-		}
-		public void DrawShapes(params Shape[] shapes)
-		{
-			foreach (var shape in shapes)
-			{
-				var points = new List<Point>() { shape.PointA, shape.PointB, shape.PointC, shape.PointD };
-				var vert = new Vertex[points.Count];
-				for (int i = 0; i < points.Count ; i++)
-				{
-					var p = points[i];
-					vert[i] = new Vertex(Point.From(p), Color.From(p.Color));
-				}
-
-				rendTexture.Draw(vert, PrimitiveType.Quads);
-			}
-		}
-		public void DrawSprites(params SpriteComponent[] spriteComponents)
-		{
-			foreach (var s in spriteComponents)
-			{
-				if (s == null || s.IsHidden || s.sprite == null ||
-					s.sprite.Texture == null || s.transform == null)
-					continue;
-				s.sprite.Position = Point.From(s.transform.Position);
-				s.sprite.Rotation = (float)s.transform.Angle;
-				s.sprite.Scale = new Vector2f(
-					(float)s.transform.Size.Width / s.sprite.Texture.Size.X,
-					(float)s.transform.Size.Height / s.sprite.Texture.Size.Y);
-
-				var pos = s.sprite.Position;
-				for (int j = 0; j < s.Repeats.Height + 1; j++)
-				{
-					for (int i = 0; i < s.Repeats.Width + 1; i++)
-					{
-						var w = s.sprite.TextureRect.Width;
-						var h = s.sprite.TextureRect.Height;
-						var p = s.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
-
-						s.sprite.Position = p;
-						rendTexture.Draw(s.sprite);//, new RenderStates(s.Effects.shader));
-						s.sprite.Position = pos;
-					}
-				}
-			}
 		}
 	}
 }

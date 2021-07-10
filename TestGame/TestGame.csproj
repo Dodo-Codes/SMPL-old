@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <StartupObject>TestGame.EntryPoint</StartupObject>
+    <StartupObject>TestGame.Game</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

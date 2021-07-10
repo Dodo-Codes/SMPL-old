@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFML.Graphics;
+using System;
 
 namespace SMPL
 {
@@ -62,6 +63,17 @@ namespace SMPL
 			return GetCrossPoint(lineA, lineB) != new Point(double.NaN, double.NaN);
 		}
 
+		public void Draw(Camera camera)
+		{
+			if (Window.DrawNotAllowed()) return;
+
+			var vert = new Vertex[]
+			{
+				new(Point.From(StartPosition), Color.From(StartPosition.Color)),
+				new(Point.From(EndPosition), Color.From(EndPosition.Color))
+			};
+			camera.rendTexture.Draw(vert, PrimitiveType.Lines);
+		}
 		internal static void GetCrossPointOfTwoLines(Point startA, Point endA, Point startB, Point endB,
 			 out bool lines_intersect, out bool segments_intersect,
 			 out Point intersection,

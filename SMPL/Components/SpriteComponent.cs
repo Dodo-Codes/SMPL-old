@@ -1,4 +1,6 @@
 ﻿using SFML.Graphics;
+using SFML.System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace SMPL
@@ -50,6 +52,33 @@ namespace SMPL
 			transform = transformComponent;
 			//Effects = new(this);
 			Texture = new(this, texturePath);
+		}
+
+		public void Draw(Camera camera)
+		{
+			if (Window.DrawNotAllowed() || IsHidden || sprite == null ||
+				sprite.Texture == null || transform == null) return;
+
+			sprite.Position = Point.From(transform.Position);
+			sprite.Rotation = (float)transform.Angle;
+			sprite.Scale = new Vector2f(
+				(float)transform.Size.Width / sprite.Texture.Size.X,
+				(float)transform.Size.Height / sprite.Texture.Size.Y);
+
+			var pos = sprite.Position;
+			for (int j = 0; j < Repeats.Height + 1; j++)
+			{
+				for (int i = 0; i < Repeats.Width + 1; i++)
+				{
+					var w = sprite.TextureRect.Width;
+					var h = sprite.TextureRect.Height;
+					var p = sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
+
+					sprite.Position = p;
+					camera.rendTexture.Draw(sprite);//, new RenderStates(Effects.shader));
+					sprite.Position = pos;
+				}
+			}
 		}
 	}
 }

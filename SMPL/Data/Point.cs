@@ -1,4 +1,5 @@
-﻿using SFML.System;
+﻿using SFML.Graphics;
+using SFML.System;
 using System;
 
 namespace SMPL
@@ -16,6 +17,13 @@ namespace SMPL
 			X = x;
 			Y = y;
 		}
+		public void Draw(Camera camera)
+		{
+			if (Window.DrawNotAllowed()) return;
+			var vert = new Vertex[] { new(From(this), Color.From(Color)) };
+			camera.rendTexture.Draw(vert, PrimitiveType.Points);
+		}
+
 		public static double GetDistance(Point pointA, Point pointB)
 		{
 			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
