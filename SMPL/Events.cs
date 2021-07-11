@@ -176,5 +176,10 @@ namespace SMPL
 		public virtual void OnMouseButtonPress(Mouse.Button button) { }
 		public virtual void OnMouseButtonRelease(Mouse.Button button) { }
 		public virtual void OnMouseWheelScroll(double delta, Mouse.Wheel wheel) { }
+
+		public virtual void OnMultiplayerTakenClientUniqueID(string newClientUniqueID) { }
+		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
+		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
+		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
 	}
 }

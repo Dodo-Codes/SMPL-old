@@ -1,6 +1,10 @@
 ﻿using NetCoreServer;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using TcpClient = NetCoreServer.TcpClient;
 
 namespace SMPL
@@ -9,480 +13,520 @@ namespace SMPL
 	{
 		private enum MessageType
 		{
-			Connection, ChangeID, ClientConnected, ClientDisconnected, ClientOnline, ClientToAll, ClientToClient, ClientToServer, ServerToAll, ServerToClient, ClientToAllAndServer
+			Connection, ChangeID, ClientConnected, ClientDisconnected, ClientOnline,
+			ClientToAll, ClientToClient, ClientToServer, ServerToAll, ServerToClient,
+			ClientToAllAndServer
 		}
-		public enum MessageReceiver
+		public enum Receivers { Server, Client, AllClients, ServerAndAllClients }
+		public struct Message
 		{
-			Server, AllClients, ServerAndAllClients
-		}
+			public string Content { get; set; }
+			public string Tag { get; set; }
+			public string ReceiverClientUniqueID { get; set; }
+			public string SenderClientUniqueID { get; internal set; }
+			public Receivers Receivers { get; set; }
+
+			public Message(string tag, string content, Receivers receivers,
+				string receiverClientUniqueID = null)
+         {
+				Content = content;
+				Tag = tag;
+				ReceiverClientUniqueID = receiverClientUniqueID;
+				SenderClientUniqueID = ClientUniqueID;
+				Receivers = receivers;
+         }
+
+         public override string ToString()
+         {
+				var send = SenderClientUniqueID == null ? "from the Server" : $"from Client '{SenderClientUniqueID}'";
+				var rec = Receivers == Receivers.Client ?
+					$"to Client '{ReceiverClientUniqueID}'" : $"to {Receivers}";
+				return
+					$"{Text.Repeat("~", 50)}\n" +
+					$"Multiplayer Message {send} {rec}\n" +
+					$"Tag: {Tag}\n" +
+					$"Content: {Content}\n" +
+					$"{Text.Repeat("~", 50)}";
+         }
+      }
 
 		internal static Server server;
 		internal static Client client;
 
+		private static Dictionary<string, string> clientRealIDs = new();
+		private static List<string> clientIDs = new();
+		private static readonly int serverPort = 1234;
+		private static readonly string msgSep = "';qi#ou3", msgCompSep = "a;@lsfi";
+
 		public static string SameDeviceIP { get { return "127.0.0.1"; } }
-		public static bool MessagesAreLogged { get; set; }
+		public static bool MessagesAreLogged { get; set; } = true;
+		public static bool ClientIsConnected { get; private set; }
+		public static bool ServerIsRunning { get; private set; }
+		public static string ClientUniqueID { get; private set; }
 
 		public static void StartServer()
 		{
 			try
 			{
-				if (serverIsRunning)
+				if (ServerIsRunning)
 				{
-					Console.Log.Message.Do("Server is already starting/started.");
+					Debug.LogError(1, "Server is already starting/started.");
 					return;
 				}
-				if (clientIsConnected)
+				if (ClientIsConnected)
 				{
-					Console.Log.Message.Do("Cannot start a server while a Client.");
+					Debug.LogError(1, "Cannot start a server while a Client.");
 					return;
 				}
-				server = new Simple.Server(IPAddress.Any, (int)serverPort);
+				server = new Server(IPAddress.Any, serverPort);
 				server.Start();
-				serverIsRunning = true;
+				ServerIsRunning = true;
 
 				var hostName = Dns.GetHostName();
 				var hostEntry = Dns.GetHostEntry(hostName);
-				connectToServerInfo = "Clients can connect through those IPs if they are in the same multiplayer\n" +
-					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\nSame device: 127.0.0.1";
+				var connectToServerInfo =
+					"Clients can connect through those IPs if they are in the same network\n" +
+					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
+					$"Same device: {SameDeviceIP}";
 				foreach (var ip in hostEntry.AddressList)
 				{
 					if (ip.AddressFamily == AddressFamily.InterNetwork)
 					{
 						var ipParts = ip.ToString().Split('.');
-						var ipType = ipParts[0] == "192" && ipParts[1] == "168" ? "Same router: " : "Same VPN: ";
+						var ipType = ipParts[0] == "192" && ipParts[1] == "168" ?
+							"Same router: " : "Same VPN: ";
 						connectToServerInfo = $"{connectToServerInfo}\n{ipType}{ip}";
 					}
 				}
-				Console.Log.Message.Do($"Started a {Game.Title.Get()} LAN Server on port {serverPort}.\n\n" +
+				Console.Log($"Started a {Window.Title} LAN Server.\n\n" +
 					$"{connectToServerInfo}");
-				Console.Log.Message.Do("");
+				Console.Log("");
 			}
 			catch (Exception ex)
 			{
-				serverIsRunning = false;
-				Console.Log.Message.Do($"Error: {ex.Message}");
+				ServerIsRunning = false;
+				Debug.LogError(1, ex.Message);
 			}
 		}
 		public static void StopServer()
 		{
 			try
 			{
-				if (serverIsRunning == false)
+				if (ServerIsRunning == false)
 				{
-					Console.Log.Message.Do("Server is not running.");
+					Debug.LogError(1, "Server is not running.");
 					return;
 				}
-				if (clientIsConnected)
+				if (ClientIsConnected)
 				{
-					Console.Log.Message.Do("Cannot stop a server while a client.");
+					Debug.LogError(1, "Cannot stop a server while a client.");
 					return;
 				}
-				serverIsRunning = false;
+				ServerIsRunning = false;
 				server.Stop();
-				Console.Log.Message.Do($"The LAN Server on port {serverPort} was stopped.");
+				Console.Log($"The {Window.Title} LAN Server was stopped.");
 			}
 			catch (Exception ex)
 			{
-				serverIsRunning = false;
-				Console.Log.Message.Do($"Error: {ex.Message}");
+				ServerIsRunning = false;
+				Debug.LogError(-1, ex.Message);
 				return;
 			}
 		}
 
 		public static void ConnectClient(string clientUniqueID, string serverIP)
       {
-			if (clientIsConnected)
+			if (ClientIsConnected)
 			{
-				Console.Log.Message.Do("Already connecting/connected.");
+				Debug.LogError(1, "Already connecting/connected.");
 				return;
 			}
-			if (serverIsRunning)
+			if (ServerIsRunning)
 			{
-				Console.Log.Message.Do("Cannot connect as Client while hosting a Server.");
+				Debug.LogError(1, "Cannot connect as Client while hosting a Server.");
 				return;
 			}
 
 			try
 			{
-				client = new Simple.Client(data.ip, (int)serverPort);
+				client = new Client(serverIP, serverPort);
 			}
 			catch (Exception)
 			{
-				Console.Log.Message.Do($"The IP '{data.ip}' is invalid.");
+				Debug.LogError(1, $"The IP '{serverIP}' is invalid.");
 				return;
 			}
-			Console.Log.Message.Do($"Entering connection '{data.ip}:{serverPort}' as Client...");
+			ClientUniqueID = clientUniqueID;
+			Console.Log($"Connecting to {Window.Title} Server '{serverIP}'...");
 			client.ConnectAsync();
 		}
 		public static void DisconnectClinet()
       {
-			if (clientIsConnected == false)
+			if (ClientIsConnected == false)
 			{
-				Console.Log.Message.Do("Cannot disconnect when not connected as Client.");
+				Debug.LogError(1, "Cannot disconnect when not connected as Client.");
 				return;
 			}
 			client.DisconnectAndStop();
 		}
 
-		public static void SendMessage(MessageReceiver receiver, string message)
+		public static void SendMessage(Message message)
 		{
 			if (MessageDisconnected()) return;
 
-			var log = "";
-			switch (receiver)
+			switch (message.Receivers)
 			{
-				case MessageReceiver.Server:
+				case Receivers.Server:
 					{
-						if (clientIsConnected)
-						{
-							client.SendAsync($"{multiplayerMsgSep}{(int)MessageType.ClientToServer}{multiplayerMsgComponentSep}" +
-								$"{data.clientID}{multiplayerMsgComponentSep}{message}");
-							log = $"Message sent to Server: {message}";
-						}
+						if (ServerIsRunning || ClientIsConnected == false) break;
+						
+						client.SendAsync($"{msgSep}" +
+							$"{(int)MessageType.ClientToServer}{msgCompSep}" +
+							$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
+						LogMessage(message);
 						break;
 					}
-				case MessageReceiver.AllClients:
+				case Receivers.AllClients:
 					{
-						if (clientIsConnected)
+						if (ClientIsConnected)
 						{
-							client.SendAsync($"{multiplayerMsgSep}{(int)MessageType.ClientToAll}{multiplayerMsgComponentSep}" +
-								$"{data.clientID}{multiplayerMsgComponentSep}{message}");
+							client.SendAsync($"{msgSep}{(int)MessageType.ClientToAll}{msgCompSep}" +
+								$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
 						}
-						else if (serverIsRunning)
+						else if (ServerIsRunning)
 						{
-							server.Multicast($"{multiplayerMsgSep}{(int)MessageType.ServerToAll}{multiplayerMsgComponentSep}{message}");
+							server.Multicast($"{msgSep}{(int)MessageType.ServerToAll}" +
+								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
 						}
-						log = $"Message sent to all Clients: {message}";
+						LogMessage(message);
 						break;
 					}
-				case MessageReceiver.ServerAndAllClients:
+				case Receivers.ServerAndAllClients:
 					{
-						if (clientIsConnected)
+						if (ClientIsConnected)
 						{
-							client.SendAsync($"{multiplayerMsgSep}{(int)MessageType.ClientToAllAndServer}{multiplayerMsgComponentSep}" +
-								$"{data.clientID}{multiplayerMsgComponentSep}{message}");
+							client.SendAsync($"{msgSep}{(int)MessageType.ClientToAllAndServer}{msgCompSep}" +
+								$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
 						}
-						else if (serverIsRunning)
+						else if (ServerIsRunning)
 						{
-							server.Multicast($"{multiplayerMsgSep}{(int)MessageType.ServerToAll}{multiplayerMsgComponentSep}{message}");
+							server.Multicast($"{msgSep}{(int)MessageType.ServerToAll}" +
+								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
 						}
-						log = $"Message sent to Server & all Clients: {message}";
+						LogMessage(message);
+						break;
+					}
+				case Receivers.Client:
+               {
+						if (ClientIsConnected)
+						{
+							client.SendAsync($"{msgSep}{(int)MessageType.ClientToClient}{msgCompSep}" +
+								$"{ClientUniqueID}{msgCompSep}{message.ReceiverClientUniqueID}" +
+								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
+						}
+						else if (ServerIsRunning)
+						{
+							server.Multicast($"{msgSep}{(int)MessageType.ServerToClient}{msgCompSep}" +
+								$"{message.Tag}{msgCompSep}{message.Content}");
+						}
+						LogMessage(message);
 						break;
 					}
 			}
-			Console.Log.Message.Do(log, log != "");
-		}
-		public static void SendPrivateMessage(string clientUniqueID, string message)
-		{
-			if (MessageDisconnected() || clientUniqueID == data.clientID) return;
-
-			if (clientIsConnected)
-			{
-				client.SendAsync($"{multiplayerMsgSep}{(int)MessageType.ClientToClient}{multiplayerMsgComponentSep}" +
-					$"{clientUniqueID}{multiplayerMsgComponentSep}{clientUniqueID}{multiplayerMsgComponentSep}{message}");
-			}
-			else if (serverIsRunning)
-			{
-				server.Multicast($"{multiplayerMsgSep}{(int)MessageType.ServerToClient}{multiplayerMsgComponentSep}" +
-					$"{clientUniqueID}{multiplayerMsgComponentSep}{message}");
-			}
-			Console.Log.Message.Do($"Message sent to Client [{clientUniqueID}]: {message}");
 		}
 
 		private static bool MessageDisconnected()
 		{
-			if (clientIsConnected == false && serverIsRunning == false)
+			if (ClientIsConnected == false && ServerIsRunning == false)
 			{
-				if (data.multiplayerLogMessagesToConsole == false) return true;
-				Console.Log.Message.Do("Cannot send a message while disconnected.");
+				if (MessagesAreLogged == false) return true;
+				Console.Log("Cannot send a message while disconnected.");
 				return true;
 			}
 			return false;
 		}
-	}
-
-	internal class Session : TcpSession
-	{
-		public Session(TcpServer server) : base(server) { }
-
-		protected override void OnConnected()
+		private static void LogMessage(Message msg)
 		{
-			// Send invite message
-			//string message = "Hello from TCP! Please send a message!";
-			//SendAsync(message);
+			if (MessagesAreLogged == false) return;
+			Console.Log(msg);
 		}
-		protected override void OnDisconnected()
-		{
-			var disconnectedClient = clientRealIDs[Id.ToString()];
-			clientIDs.Remove(disconnectedClient);
-			server.Multicast($"{multiplayerMsgSep}{(int)MessageType.ClientDisconnected}{multiplayerMsgComponentSep}{disconnectedClient}");
 
-			Console.Log.Message.Do($"Client [{disconnectedClient}] disconnected.");
-			game.OnMultiplayerClientDisconnected(disconnectedClient);
-		}
-		protected override void OnReceived(byte[] buffer, long offset, long size)
+		internal class Session : TcpSession
 		{
-			var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-			var messages = rawMessages.Split(multiplayerMsgSep, StringSplitOptions.RemoveEmptyEntries);
-			var messageBack = "";
-			foreach (var message in messages)
+			public Session(TcpServer server) : base(server) { }
+
+			protected override void OnConnected()
 			{
-				var components = message.Split(multiplayerMsgComponentSep);
-				var messageType = (MessageType)int.Parse(components[0]);
-				switch (messageType)
+				// Send invite message
+				//string message = "Hello from TCP! Please send a message!";
+				//SendAsync(message);
+			}
+			protected override void OnDisconnected()
+			{
+				var disconnectedClient = clientRealIDs[Id.ToString()];
+				clientIDs.Remove(disconnectedClient);
+				server.Multicast($"{msgSep}{(int)MessageType.ClientDisconnected}{msgCompSep}{disconnectedClient}");
+
+				Console.Log($"Client '{disconnectedClient}' disconnected.");
+				foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(disconnectedClient);
+			}
+			protected override void OnReceived(byte[] buffer, long offset, long size)
+			{
+				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+				var messages = rawMessages.Split(msgSep, StringSplitOptions.RemoveEmptyEntries);
+				var messageBack = "";
+				foreach (var message in messages)
 				{
-					case MessageType.Connection: // A client just connected and sent his ID & unique name
-						{
-							var id = components[1];
-							var clientID = components[2];
-							if (clientIDs.Contains(clientID)) // Is the unique name free?
+					var components = message.Split(msgCompSep);
+					var messageType = (MessageType)int.Parse(components[0]);
+					switch (messageType)
+					{
+						case MessageType.Connection: // A client just connected and sent his ID & unique name
 							{
-								clientID = ChangeID(clientID);
-								// Send a message back with a free one toward the same ID so the client can recognize it's for him
-								messageBack = $"{multiplayerMsgSep}{(int)MessageType.ChangeID}{multiplayerMsgComponentSep}" +
-									$"{id}{multiplayerMsgComponentSep}{clientID}";
-							}
-							clientRealIDs[Id.ToString()] = clientID;
-							clientIDs.Add(clientID);
-
-							// Sticking another message to update the newcoming client about online clients
-							messageBack = $"{messageBack}{multiplayerMsgSep}{(int)MessageType.ClientOnline}{multiplayerMsgComponentSep}" +
-								$"{clientID}";
-							foreach (var ID in clientIDs)
-							{
-								messageBack = $"{messageBack}{multiplayerMsgComponentSep}{ID}";
-							}
-
-							// Sticking a third message to update online clients about the newcomer.
-							messageBack =
-								$"{messageBack}{multiplayerMsgSep}{(int)MessageType.ClientConnected}{multiplayerMsgComponentSep}" +
-								$"{clientID}";
-							Console.Log.Message.Do($"Client [{clientID}] connected.");
-							game.OnMultiplayerClientConnected(clientID);
-							break;
-						}
-					case MessageType.ClientToAll: // A client wants to send a message to everyone
-						{
-							messageBack = $"{messageBack}{multiplayerMsgSep}{message}";
-							break;
-						}
-					case MessageType.ClientToClient: // A client wants to send a message to another client
-						{
-							messageBack = $"{messageBack}{multiplayerMsgSep}{message}";
-							break;
-						}
-					case MessageType.ClientToServer: // A client sent me (the server) a message
-						{
-							if (data.multiplayerLogMessagesToConsole)
-							{
-								Console.Log.Message.Do($"Message received from Client [{components[1]}]: {components[2]}");
-							}
-							game.OnMultiplayerMessageReceived(components[1], components[2]);
-							break;
-						}
-					case MessageType.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
-						{
-							if (data.multiplayerLogMessagesToConsole)
-							{
-								Console.Log.Message.Do($"Message received from Client [{components[1]}]: {components[2]}");
-							}
-							game.OnMultiplayerMessageReceived(components[1], components[2]);
-							messageBack = $"{messageBack}{multiplayerMsgSep}{message}";
-							break;
-						}
-				}
-			}
-			if (messageBack != "") server.Multicast(messageBack);
-		}
-		protected override void OnError(SocketError error)
-		{
-			Console.Log.Message.Do($"Error: {error}");
-		}
-		private static string ChangeID(string ID)
-		{
-			var i = 0;
-			while (true)
-			{
-				i++;
-				if (clientIDs.Contains(ID + i) == false) break;
-			}
-			return $"{ID}{i}";
-		}
-	}
-	internal class Server : TcpServer
-	{
-		public Server(IPAddress address, int port) : base(address, port) { }
-		protected override TcpSession CreateSession() { return new Session(this); }
-		protected override void OnError(SocketError error)
-		{
-			serverIsRunning = false;
-			Console.Log.Message.Do($"Error: {error}");
-		}
-	}
-	internal class Client : TcpClient
-	{
-		private bool stop;
-
-		public Client(string address, int port) : base(address, port) { }
-
-		public void DisconnectAndStop()
-		{
-			stop = true;
-			DisconnectAsync();
-			while (IsConnected) Thread.Yield();
-		}
-		protected override void OnConnected()
-		{
-			clientIsConnected = true;
-			clientIDs.Add(data.clientID);
-			Console.Log.Message.Do($"Connected as Client [{data.clientID}] to {client.Socket.RemoteEndPoint}.");
-			game.OnMultiplayerConnected();
-			client.SendAsync($"{multiplayerMsgSep}{(int)MessageType.Connection}{multiplayerMsgComponentSep}" +
-				$"{client.Id}{multiplayerMsgComponentSep}{data.clientID}");
-		}
-		protected override void OnDisconnected()
-		{
-			if (clientIsConnected)
-			{
-				clientIsConnected = false;
-				Console.Log.Message.Do("Disconnected.");
-				clientIDs.Clear();
-				game.OnMultiplayerDisconnected();
-				if (stop == true) return;
-			}
-
-			// Wait for a while...
-			Thread.Sleep(1000);
-
-			// Try to connect again
-			Console.Log.Message.Do("Lost connection. Trying to reconnect...");
-			ConnectAsync();
-		}
-		protected override void OnReceived(byte[] buffer, long offset, long size)
-		{
-			var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-			var messages = rawMessages.Split(multiplayerMsgSep, StringSplitOptions.RemoveEmptyEntries);
-			var messageBack = "";
-			foreach (var message in messages)
-			{
-				var components = message.Split(multiplayerMsgComponentSep);
-				var messageType = (MessageType)int.Parse(components[0]);
-				switch (messageType)
-				{
-					case MessageType.ChangeID: // Server said someone's ID is taken and sent a free one
-						{
-							if (components[1] == client.Id.ToString()) // Is this for me?
-							{
-								var oldID = data.clientID;
-								var newID = components[2];
-								clientIDs.Remove(oldID);
-								clientIDs.Add(newID);
-
-								Console.Log.Message.Do($"Client ID [{oldID}] is taken. New Client ID is [{newID}].");
-								game.OnMultiplayerTakenID(newID);
-							}
-							break;
-						}
-					case MessageType.ClientConnected: // Server said some client connected
-						{
-							var ID = components[1];
-							if (ID != data.clientID) // If not me
-							{
-								clientIDs.Add(ID);
-								Console.Log.Message.Do($"Client [{components[1]}] connected.");
-								game.OnMultiplayerClientConnected(ID);
-							}
-							break;
-						}
-					case MessageType.ClientDisconnected: // Server said some client disconnected
-						{
-							var ID = components[1];
-							clientIDs.Remove(ID);
-							Console.Log.Message.Do($"Client [{components[1]}] disconnected.");
-							game.OnMultiplayerClientDisconnected(ID);
-							break;
-						}
-					case MessageType.ClientOnline: // Someone just connected and is getting updated on who is already online
-						{
-							var ID = components[1];
-							if (ID == data.clientID) // For me?
-							{
-								for (int i = 2; i < components.Length; i++)
+								var id = components[1];
+								var clientID = components[2];
+								if (clientIDs.Contains(clientID)) // Is the unique name free?
 								{
-									var curClientID = components[i];
+									clientID = ChangeID(clientID);
+									// Send a message back with a free one toward the same ID so the client can recognize it's for him
+									messageBack = $"{msgSep}{(int)MessageType.ChangeID}{msgCompSep}" +
+										$"{id}{msgCompSep}{clientID}";
+								}
+								clientRealIDs[Id.ToString()] = clientID;
+								clientIDs.Add(clientID);
 
-									if (clientIDs.Contains(curClientID) == false)
+								// Sticking another message to update the newcoming client about online clients
+								messageBack = $"{messageBack}{msgSep}{(int)MessageType.ClientOnline}" +
+									$"{msgCompSep}{clientID}";
+								foreach (var ID in clientIDs)
+								{
+									messageBack = $"{messageBack}{msgCompSep}{ID}";
+								}
+
+								// Sticking a third message to update online clients about the newcomer.
+								messageBack =
+									$"{messageBack}{msgSep}{(int)MessageType.ClientConnected}{msgCompSep}" +
+									$"{clientID}";
+								Console.Log($"Client '{clientID}' connected.");
+								foreach (var e in Events.instances) e.OnMultiplayerClientConnect(clientID);
+								break;
+							}
+						case MessageType.ClientToAll: // A client wants to send a message to everyone
+							{
+								messageBack = $"{messageBack}{msgSep}{message}";
+								break;
+							}
+						case MessageType.ClientToClient: // A client wants to send a message to another client
+							{
+								messageBack = $"{messageBack}{msgSep}{message}";
+								break;
+							}
+						case MessageType.ClientToServer: // A client sent me (the server) a message
+							{
+								var msg = new Message(components[2], components[3], Receivers.Server)
+								{ SenderClientUniqueID = components[1] };
+
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								break;
+							}
+						case MessageType.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
+							{
+								var msg = new Message(components[2], components[3], Receivers.Server)
+								{ SenderClientUniqueID = components[1] };
+
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+
+								messageBack = $"{messageBack}{msgSep}{message}";
+								break;
+							}
+					}
+				}
+				if (messageBack != "") server.Multicast(messageBack);
+			}
+			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}");
+			private static string ChangeID(string ID)
+			{
+				var i = 0;
+				while (true)
+				{
+					i++;
+					if (clientIDs.Contains(ID + i) == false) break;
+				}
+				return $"{ID}{i}";
+			}
+		}
+		internal class Server : TcpServer
+		{
+			public Server(IPAddress address, int port) : base(address, port) { }
+			protected override TcpSession CreateSession() { return new Session(this); }
+			protected override void OnError(SocketError error)
+			{
+				ServerIsRunning = false;
+				Debug.LogError(-1, $"{error}");
+			}
+		}
+		internal class Client : TcpClient
+		{
+			private bool stop;
+
+			public Client(string address, int port) : base(address, port) { }
+
+			public void DisconnectAndStop()
+			{
+				stop = true;
+				DisconnectAsync();
+				while (IsConnected) Thread.Yield();
+			}
+			protected override void OnConnected()
+			{
+				ClientIsConnected = true;
+				clientIDs.Add(ClientUniqueID);
+				Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server {client.Socket.RemoteEndPoint}.");
+				foreach (var e in Events.instances) e.OnMultiplayerClientConnect(ClientUniqueID);
+				client.SendAsync($"{msgSep}{(int)MessageType.Connection}{msgCompSep}" +
+					$"{client.Id}{msgCompSep}{ClientUniqueID}");
+			}
+			protected override void OnDisconnected()
+			{
+				if (ClientIsConnected)
+				{
+					ClientIsConnected = false;
+					Console.Log("Disconnected.");
+					clientIDs.Clear();
+					foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(ClientUniqueID);
+					if (stop == true) return;
+				}
+
+				// Wait for a while...
+				Thread.Sleep(1000);
+
+				// Try to connect again
+				Console.Log("Lost connection. Trying to reconnect...");
+				ConnectAsync();
+			}
+			protected override void OnReceived(byte[] buffer, long offset, long size)
+			{
+				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+				var messages = rawMessages.Split(msgSep, StringSplitOptions.RemoveEmptyEntries);
+				var messageBack = "";
+				foreach (var message in messages)
+				{
+					var components = message.Split(msgCompSep);
+					var messageType = (MessageType)int.Parse(components[0]);
+					switch (messageType)
+					{
+						case MessageType.ChangeID: // Server said someone's ID is taken and sent a free one
+							{
+								if (components[1] == client.Id.ToString()) // Is this for me?
+								{
+									var oldID = ClientUniqueID;
+									var newID = components[2];
+									clientIDs.Remove(oldID);
+									clientIDs.Add(newID);
+
+									Console.Log($"Client Unique ID '{oldID}' is taken. " +
+										$"New Client Unique ID is '{newID}'.");
+									foreach (var e in Events.instances)
+										e.OnMultiplayerTakenClientUniqueID(newID);
+								}
+								break;
+							}
+						case MessageType.ClientConnected: // Server said some client connected
+							{
+								var ID = components[1];
+								if (ID != ClientUniqueID) // If not me
+								{
+									clientIDs.Add(ID);
+									Console.Log($"Client '{components[1]}' connected.");
+									foreach (var e in Events.instances) e.OnMultiplayerClientConnect(ID);
+								}
+								break;
+							}
+						case MessageType.ClientDisconnected: // Server said some client disconnected
+							{
+								var ID = components[1];
+								clientIDs.Remove(ID);
+								Console.Log($"Client '{components[1]}' disconnected.");
+								foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(ID);
+								break;
+							}
+						case MessageType.ClientOnline: // Someone just connected and is getting updated on who is already online
+							{
+								var ID = components[1];
+								if (ID == ClientUniqueID) // For me?
+								{
+									for (int i = 2; i < components.Length; i++)
 									{
-										clientIDs.Add(curClientID);
+										var curClientID = components[i];
+
+										if (clientIDs.Contains(curClientID) == false)
+										{
+											clientIDs.Add(curClientID);
+										}
 									}
 								}
+								Console.Log("");
+								break;
 							}
-							Console.Log.Message.Do("");
-							break;
-						}
-					case MessageType.ClientToAll: // A client is sending a message to all clients
-						{
-							var ID = components[1];
-							if (ID == data.clientID) break; // Is this my message coming back to me?
-							if (data.multiplayerLogMessagesToConsole)
+						case MessageType.ClientToAll: // A client is sending a message to all clients
 							{
-								Console.Log.Message.Do($"Message received from Client [{components[1]}]: {components[2]}");
-							}
-							game.OnMultiplayerMessageReceived(ID, components[2]);
-							break;
-						}
-					case MessageType.ClientToAllAndServer: // A client is sending a message to the server and all clients
-						{
-							var ID = components[1];
-							if (ID == data.clientID) break; // Is this my message coming back to me?
-							if (data.multiplayerLogMessagesToConsole)
-							{
-								Console.Log.Message.Do($"Message received from Client [{components[1]}]: {components[2]}");
-							}
-							game.OnMultiplayerMessageReceived(ID, components[2]);
-							break;
-						}
-					case MessageType.ClientToClient: // A client is sending a message to another client
-						{
-							var ID = components[1];
-							if (ID == data.clientID) return; // Is this my message coming back to me? (unlikely)
-							if (components[2] != data.clientID) return; // Not for me?
+								if (components[1] == ClientUniqueID) break; // Is this my message coming back to me?
+								var msg = new Message(components[2], components[3], Receivers.AllClients, ClientUniqueID) { SenderClientUniqueID = components[1] };
 
-							if (data.multiplayerLogMessagesToConsole)
-							{
-								Console.Log.Message.Do($"Message received from Client [{components[1]}]: {components[3]}");
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								break;
 							}
-							game.OnMultiplayerMessageReceived(ID, components[3]);
-							break;
-						}
-					case MessageType.ServerToAll: // The server sent everyone a message
-						{
-							if (data.multiplayerLogMessagesToConsole)
+						case MessageType.ClientToAllAndServer: // A client is sending a message to the server and all clients
 							{
-								Console.Log.Message.Do($"Message received from Server: {components[1]}");
-							}
-							game.OnMultiplayerMessageReceived(null, components[1]);
-							break;
-						}
-					case MessageType.ServerToClient: // The server sent some client a message
-						{
-							if (components[1] != data.clientID) return; // Not for me?
+								if (components[1] == ClientUniqueID) break; // Is this my message coming back to me?
+								var msg = new Message(components[2], components[3], Receivers.ServerAndAllClients, ClientUniqueID)
+								{ SenderClientUniqueID = components[1] };
 
-							if (data.multiplayerLogMessagesToConsole)
-							{
-								Console.Log.Message.Do($"Message received from Server: {components[1]}");
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								break;
 							}
-							game.OnMultiplayerMessageReceived(null, components[1]);
-							break;
-						}
+						case MessageType.ClientToClient: // A client is sending a message to another client
+							{
+								if (components[2] != ClientUniqueID) break; // Not for me?
+								if (components[1] == ClientUniqueID) return; // Is this my message coming back to me? (unlikely)
+								var msg = new Message(components[3], components[4], Receivers.Client, ClientUniqueID)
+								{ SenderClientUniqueID = components[1] };
+
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								break;
+							}
+						case MessageType.ServerToAll: // The server sent everyone a message
+							{
+								var msg = new Message(components[1], components[2], Receivers.AllClients, ClientUniqueID);
+
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								break;
+							}
+						case MessageType.ServerToClient: // The server sent some client a message
+							{
+								if (components[1] != ClientUniqueID) return; // Not for me?
+
+								var msg = new Message(components[1], components[2], Receivers.Client, ClientUniqueID);
+
+								LogMessage(msg);
+								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								break;
+							}
+					}
 				}
+				if (messageBack != "") client.SendAsync(messageBack);
 			}
-			if (messageBack != "") client.SendAsync(messageBack);
-		}
-		protected override void OnError(SocketError error)
-		{
-			clientIsConnected = false;
-			Console.Log.Message.Do($"Error: {error}");
+			protected override void OnError(SocketError error)
+			{
+				ClientIsConnected = false;
+				Debug.LogError(-1, $"{error}");
+			}
 		}
 	}
 }

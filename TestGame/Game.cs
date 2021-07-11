@@ -10,6 +10,11 @@ namespace TestGame
       {
          new Player();
          new Minimap(new Point(), new Size(500, 500));
+         Multiplayer.ConnectClient("asd", "dd");
+
+         var msg = new Multiplayer.Message("test", "my test message", Multiplayer.Receivers.Client, "jojo");
+         Multiplayer.SendMessage(msg);
+         //Multiplayer.ConnectClient("asd", Multiplayer.SameDeviceIP);
       }
    }
 }
