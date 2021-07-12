@@ -42,11 +42,9 @@ namespace SMPL
 				var rec = Receivers == Receivers.Client ?
 					$"to Client '{ReceiverClientUniqueID}'" : $"to {Receivers}";
 				return
-					$"{Text.Repeat("~", 50)}\n" +
 					$"Multiplayer Message {send} {rec}\n" +
 					$"Tag: {Tag}\n" +
-					$"Content: {Content}\n" +
-					$"{Text.Repeat("~", 50)}";
+					$"Content: {Content}";
          }
       }
 
@@ -70,12 +68,12 @@ namespace SMPL
 			{
 				if (ServerIsRunning)
 				{
-					Debug.LogError(1, "Server is already starting/started.");
+					Debug.LogError(1, "Server is already starting/started.", true);
 					return;
 				}
 				if (ClientIsConnected)
 				{
-					Debug.LogError(1, "Cannot start a server while a Client.");
+					Debug.LogError(1, "Cannot start a server while a Client.", true);
 					return;
 				}
 				server = new Server(IPAddress.Any, serverPort);
@@ -98,14 +96,17 @@ namespace SMPL
 						connectToServerInfo = $"{connectToServerInfo}\n{ipType}{ip}";
 					}
 				}
-				Console.Log($"Started a {Window.Title} LAN Server.\n\n" +
-					$"{connectToServerInfo}");
-				Console.Log("");
+				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
 			}
 			catch (Exception ex)
 			{
+				var se = default(SocketException);
+				var msg = ex.Message;
+				Statics.TryCast(ex, out se);
+
 				ServerIsRunning = false;
-				Debug.LogError(1, ex.Message);
+				if (se.ErrorCode == 10048) msg = "Another server is already running on that IP/port.";
+				Debug.LogError(1, msg, true);
 			}
 		}
 		public static void StopServer()
@@ -114,22 +115,22 @@ namespace SMPL
 			{
 				if (ServerIsRunning == false)
 				{
-					Debug.LogError(1, "Server is not running.");
+					Debug.LogError(1, "Server is not running.\n", true);
 					return;
 				}
 				if (ClientIsConnected)
 				{
-					Debug.LogError(1, "Cannot stop a server while a client.");
+					Debug.LogError(1, "Cannot stop a server while a client.\n", true);
 					return;
 				}
 				ServerIsRunning = false;
 				server.Stop();
-				Console.Log($"The {Window.Title} LAN Server was stopped.");
+				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
 			}
 			catch (Exception ex)
 			{
 				ServerIsRunning = false;
-				Debug.LogError(-1, ex.Message);
+				Debug.LogError(-1, ex.Message, true);
 				return;
 			}
 		}
@@ -138,12 +139,12 @@ namespace SMPL
       {
 			if (ClientIsConnected)
 			{
-				Debug.LogError(1, "Already connecting/connected.");
+				Debug.LogError(1, "Already connecting/connected.\n", true);
 				return;
 			}
 			if (ServerIsRunning)
 			{
-				Debug.LogError(1, "Cannot connect as Client while hosting a Server.");
+				Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true);
 				return;
 			}
 
@@ -153,18 +154,18 @@ namespace SMPL
 			}
 			catch (Exception)
 			{
-				Debug.LogError(1, $"The IP '{serverIP}' is invalid.");
+				Debug.LogError(1, $"The IP '{serverIP}' is invalid.\n", true);
 				return;
 			}
 			ClientUniqueID = clientUniqueID;
-			Console.Log($"Connecting to {Window.Title} Server '{serverIP}'...");
+			Console.Log($"Connecting to {Window.Title} Server '{serverIP}:{serverPort}'...\n");
 			client.ConnectAsync();
 		}
 		public static void DisconnectClinet()
       {
 			if (ClientIsConnected == false)
 			{
-				Debug.LogError(1, "Cannot disconnect when not connected as Client.");
+				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
 				return;
 			}
 			client.DisconnectAndStop();
@@ -183,7 +184,7 @@ namespace SMPL
 						client.SendAsync($"{msgSep}" +
 							$"{(int)MessageType.ClientToServer}{msgCompSep}" +
 							$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
-						LogMessage(message);
+						LogMessage(message, true);
 						break;
 					}
 				case Receivers.AllClients:
@@ -198,7 +199,7 @@ namespace SMPL
 							server.Multicast($"{msgSep}{(int)MessageType.ServerToAll}" +
 								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
 						}
-						LogMessage(message);
+						LogMessage(message, true);
 						break;
 					}
 				case Receivers.ServerAndAllClients:
@@ -213,7 +214,7 @@ namespace SMPL
 							server.Multicast($"{msgSep}{(int)MessageType.ServerToAll}" +
 								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
 						}
-						LogMessage(message);
+						LogMessage(message, true);
 						break;
 					}
 				case Receivers.Client:
@@ -229,7 +230,7 @@ namespace SMPL
 							server.Multicast($"{msgSep}{(int)MessageType.ServerToClient}{msgCompSep}" +
 								$"{message.Tag}{msgCompSep}{message.Content}");
 						}
-						LogMessage(message);
+						LogMessage(message, true);
 						break;
 					}
 			}
@@ -240,16 +241,19 @@ namespace SMPL
 			if (ClientIsConnected == false && ServerIsRunning == false)
 			{
 				if (MessagesAreLogged == false) return true;
-				Console.Log("Cannot send a message while disconnected.");
+				Console.Log("Cannot send a message while disconnected.\n");
 				return true;
 			}
 			return false;
 		}
-		private static void LogMessage(Message msg)
+		private static void LogMessage(Message msg, bool send)
 		{
-			if (MessagesAreLogged == false) return;
-			Console.Log(msg);
+			if (MessagesAreLogged == false || Debug.IsActive == false) return;
+			var debugStr = Debug.IsActive ? Debug.debugString : "";
+			Console.Log((send ? "SENT " : "RECEIVED ") + debugStr);
+			Console.Log($"{msg}\n");
 		}
+		private static string ConnectedClients() => $"Connected clients: {clientIDs.Count}.";
 
 		internal class Session : TcpSession
 		{
@@ -267,7 +271,7 @@ namespace SMPL
 				clientIDs.Remove(disconnectedClient);
 				server.Multicast($"{msgSep}{(int)MessageType.ClientDisconnected}{msgCompSep}{disconnectedClient}");
 
-				Console.Log($"Client '{disconnectedClient}' disconnected.");
+				Console.Log($"Client '{disconnectedClient}' disconnected. {ConnectedClients()}\n");
 				foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(disconnectedClient);
 			}
 			protected override void OnReceived(byte[] buffer, long offset, long size)
@@ -307,7 +311,7 @@ namespace SMPL
 								messageBack =
 									$"{messageBack}{msgSep}{(int)MessageType.ClientConnected}{msgCompSep}" +
 									$"{clientID}";
-								Console.Log($"Client '{clientID}' connected.");
+								Console.Log($"Client '{clientID}' connected. {ConnectedClients()}\n");
 								foreach (var e in Events.instances) e.OnMultiplayerClientConnect(clientID);
 								break;
 							}
@@ -326,7 +330,7 @@ namespace SMPL
 								var msg = new Message(components[2], components[3], Receivers.Server)
 								{ SenderClientUniqueID = components[1] };
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 								break;
 							}
@@ -335,7 +339,7 @@ namespace SMPL
 								var msg = new Message(components[2], components[3], Receivers.Server)
 								{ SenderClientUniqueID = components[1] };
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 
 								messageBack = $"{messageBack}{msgSep}{message}";
@@ -345,7 +349,7 @@ namespace SMPL
 				}
 				if (messageBack != "") server.Multicast(messageBack);
 			}
-			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}");
+			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}", true);
 			private static string ChangeID(string ID)
 			{
 				var i = 0;
@@ -364,7 +368,7 @@ namespace SMPL
 			protected override void OnError(SocketError error)
 			{
 				ServerIsRunning = false;
-				Debug.LogError(-1, $"{error}");
+				Debug.LogError(-1, $"{error}", true);
 			}
 		}
 		internal class Client : TcpClient
@@ -383,7 +387,7 @@ namespace SMPL
 			{
 				ClientIsConnected = true;
 				clientIDs.Add(ClientUniqueID);
-				Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server {client.Socket.RemoteEndPoint}.");
+				Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server {client.Socket.RemoteEndPoint}.\n");
 				foreach (var e in Events.instances) e.OnMultiplayerClientConnect(ClientUniqueID);
 				client.SendAsync($"{msgSep}{(int)MessageType.Connection}{msgCompSep}" +
 					$"{client.Id}{msgCompSep}{ClientUniqueID}");
@@ -393,7 +397,7 @@ namespace SMPL
 				if (ClientIsConnected)
 				{
 					ClientIsConnected = false;
-					Console.Log("Disconnected.");
+					Console.Log("Disconnected from the Server.\n");
 					clientIDs.Clear();
 					foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(ClientUniqueID);
 					if (stop == true) return;
@@ -403,7 +407,7 @@ namespace SMPL
 				Thread.Sleep(1000);
 
 				// Try to connect again
-				Console.Log("Lost connection. Trying to reconnect...");
+				Console.Log("Trying to reconnect...\n");
 				ConnectAsync();
 			}
 			protected override void OnReceived(byte[] buffer, long offset, long size)
@@ -427,9 +431,8 @@ namespace SMPL
 									clientIDs.Add(newID);
 
 									Console.Log($"Client Unique ID '{oldID}' is taken. " +
-										$"New Client Unique ID is '{newID}'.");
-									foreach (var e in Events.instances)
-										e.OnMultiplayerTakenClientUniqueID(newID);
+										$"New Client Unique ID is '{newID}'.\n");
+									foreach (var e in Events.instances) e.OnMultiplayerTakenClientUniqueID(newID);
 								}
 								break;
 							}
@@ -439,7 +442,7 @@ namespace SMPL
 								if (ID != ClientUniqueID) // If not me
 								{
 									clientIDs.Add(ID);
-									Console.Log($"Client '{components[1]}' connected.");
+									Console.Log($"Client '{components[1]}' connected. {ConnectedClients()}\n");
 									foreach (var e in Events.instances) e.OnMultiplayerClientConnect(ID);
 								}
 								break;
@@ -448,7 +451,7 @@ namespace SMPL
 							{
 								var ID = components[1];
 								clientIDs.Remove(ID);
-								Console.Log($"Client '{components[1]}' disconnected.");
+								Console.Log($"Client '{components[1]}' disconnected. {ConnectedClients()}\n");
 								foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(ID);
 								break;
 							}
@@ -466,8 +469,8 @@ namespace SMPL
 											clientIDs.Add(curClientID);
 										}
 									}
+									Console.Log($"{ConnectedClients()}\n");
 								}
-								Console.Log("");
 								break;
 							}
 						case MessageType.ClientToAll: // A client is sending a message to all clients
@@ -475,7 +478,7 @@ namespace SMPL
 								if (components[1] == ClientUniqueID) break; // Is this my message coming back to me?
 								var msg = new Message(components[2], components[3], Receivers.AllClients, ClientUniqueID) { SenderClientUniqueID = components[1] };
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 								break;
 							}
@@ -485,7 +488,7 @@ namespace SMPL
 								var msg = new Message(components[2], components[3], Receivers.ServerAndAllClients, ClientUniqueID)
 								{ SenderClientUniqueID = components[1] };
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 								break;
 							}
@@ -496,7 +499,7 @@ namespace SMPL
 								var msg = new Message(components[3], components[4], Receivers.Client, ClientUniqueID)
 								{ SenderClientUniqueID = components[1] };
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 								break;
 							}
@@ -504,7 +507,7 @@ namespace SMPL
 							{
 								var msg = new Message(components[1], components[2], Receivers.AllClients, ClientUniqueID);
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 								break;
 							}
@@ -514,7 +517,7 @@ namespace SMPL
 
 								var msg = new Message(components[1], components[2], Receivers.Client, ClientUniqueID);
 
-								LogMessage(msg);
+								LogMessage(msg, false);
 								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
 								break;
 							}
@@ -525,7 +528,7 @@ namespace SMPL
 			protected override void OnError(SocketError error)
 			{
 				ClientIsConnected = false;
-				Debug.LogError(-1, $"{error}");
+				Debug.LogError(-1, $"{error}", true);
 			}
 		}
 	}

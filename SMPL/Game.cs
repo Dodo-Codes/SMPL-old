@@ -37,4 +37,19 @@ namespace SMPL
 
 		public virtual void OnStart() { }
 	}
+
+	internal static class Statics
+	{
+		internal static bool TryCast<T>(this object obj, out T result)
+		{
+			if (obj is T t)
+			{
+				result = t;
+				return true;
+			}
+
+			result = default;
+			return false;
+		}
+	}
 }

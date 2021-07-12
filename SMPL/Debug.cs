@@ -9,6 +9,7 @@ namespace SMPL
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>
 		public static bool IsActive { get { return Debugger.IsAttached; } }
+		internal static string debugString = "(This error message will not appear after the game is built)";
 
 		public static double GetCurrentLineNumber(uint depth = 0)
 		{
@@ -41,29 +42,21 @@ namespace SMPL
 			return method == default ? default : result;
 		}
 
-		public static void LogError(int depth, string description)
+		public static void LogError(int depth, string description, bool isDisplayingInRelease = false)
 		{
-			if (IsActive == false) return;
+			if (IsActive == false && isDisplayingInRelease == false) return;
 
-			var sep = Text.Repeat("~", 50);
 			var d = (uint)depth;
-			var place = depth >= 0 ?
+			var debugStr = isDisplayingInRelease ? "" : debugString;
+			var place = depth >= 0 && IsActive ?
 				$"- At file: {GetCurrentFileName(d + 1)}\n" +
 				$"- At method: {GetCurrentMethodName(d + 1)}\n" +
-				$"- At line: {GetCurrentLineNumber(d + 1)} | {GetCurrentMethodName(d)}\n\n" : "";
+				$"- At line: {GetCurrentLineNumber(d + 1)} | {GetCurrentMethodName(d)}\n" : "";
 			var result =
-				$"{sep}\n" +
+				$"ERROR {debugStr}\n" +
 				$"{place}" +
-				$"{description}\n\n" +
-				$"(This message will not appear after the game is built)\n" +
-				$"{sep}";
+				$"{description}\n";
 			Console.Log(result);
 		}
-		//public static bool DoesNotExistError<T, T1>(Dictionary<T, T1> dict, T key, string type)
-		//{
-		//	var notFound = dict.ContainsKey(key) == false;
-		//	if (notFound) LogError(2, $"{type} '{key}' was not found.");
-		//	return notFound;
-		//}
 	}
 }

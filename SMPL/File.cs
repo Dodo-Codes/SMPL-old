@@ -13,13 +13,11 @@ namespace SMPL
 		{
 			public string path;
 			public Asset asset;
-			public string error;
 
-			public QueuedAsset(string path, Asset asset, string error)
+			public QueuedAsset(string path, Asset asset)
 			{
 				this.path = path;
 				this.asset = asset;
-				this.error = error;
 			}
 		}
 
@@ -79,7 +77,7 @@ namespace SMPL
 					}
 					catch (Exception)
 					{
-						Debug.LogError(1, queuedAsset.error);
+						Debug.LogError(-1, $"Failed to load asset {asset} from file '{path}'.");
 						continue;
 					}
 					loadedCount++;
@@ -118,8 +116,7 @@ namespace SMPL
 			queuedAssets.Add(new QueuedAsset()
 			{
 				asset = asset,
-				path = filePath,
-				error = $"Failed to load asset {asset} from file '{filePath}'."
+				path = filePath
 			});
 		}
 		/// <summary>

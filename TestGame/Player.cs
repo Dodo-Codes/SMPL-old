@@ -26,5 +26,5 @@ namespace TestGame
 			if (SpriteComponent == null) return;
 			SpriteComponent.Draw(camera);
 		}
-   }
+	}
 }
