@@ -32,7 +32,7 @@ namespace SMPL
 		internal static List<QueuedAsset> queuedAssets = new();
 		internal static Dictionary<string, SFML.Graphics.Texture> textures = new();
 		internal static Dictionary<string, Font> fonts = new();
-		internal static Dictionary<string, Sound> sounds = new();
+		internal static Dictionary<string, AudioComponent> sounds = new();
 		internal static Dictionary<string, Music> music = new();
 
 		internal static void Initialize() => CreateShaderFiles();

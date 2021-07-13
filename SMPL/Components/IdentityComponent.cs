@@ -68,6 +68,7 @@ namespace SMPL
 			return true;
 		}
 		public static T PickByUniqueID(string uniqueID) => UniqueIDs.ContainsKey(uniqueID) ? UniqueIDs[uniqueID] : default;
-		public static List<T> PickByTag(string tag) => TagObjs.ContainsKey(tag) ? TagObjs[tag] : new();
+		public static T[] PickByTag(string tag) => TagObjs.ContainsKey(tag) ?
+			TagObjs[tag].ToArray() : System.Array.Empty<T>();
 	}
 }

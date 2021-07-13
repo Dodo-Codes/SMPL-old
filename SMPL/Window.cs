@@ -64,7 +64,7 @@ namespace SMPL
 			get { return !form.Visible; }
 			set { form.Visible = !value; }
 		}
-		public static bool Resizable
+		public static bool IsResizable
 		{
 			get { return resizable; }
 			set
@@ -74,6 +74,8 @@ namespace SMPL
 				Update();
 			}
 		}
+		public static bool IsPausingOnUnfocus { get; set; }
+
 		public static string Title
 		{
 			get { return form.Text; }
@@ -187,6 +189,9 @@ namespace SMPL
 			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
 			Camera.WorldCamera.TransformComponent.Size = size;
 			window.SetView(Camera.WorldCamera.view);
+
+			CurrentType = Type.Normal;
+			IsResizable = true;
 		}
 	}
 }

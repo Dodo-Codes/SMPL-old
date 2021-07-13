@@ -7,13 +7,16 @@ namespace TestGame
 		public IdentityComponent<Player> IdentityComponent { get; set; }
 		public TransformComponent TransformComponent { get; set; }
 		public TextComponent TextComponent { get; set; }
+		public AudioComponent SoundComponent { get; set; }
 
 		public Player()
 		{
 			Subscribe(this);
 			IdentityComponent = new(this, "player");
 			TransformComponent = new(new Point(0, 0), 0, new Size(400, 200));
+			SoundComponent = new();
 
+			Window.IsPausingOnUnfocus = true;
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
 		}
       public override void OnAssetsLoadingEnd()
@@ -28,7 +31,7 @@ namespace TestGame
 			TextComponent.BoxOriginPercent = new Point(50, 50);
 			TextComponent.Color = Color.Black;
 			TextComponent.CharacterSize = 32;
-			TextComponent.Position += new Point(0, -1);
+			TextComponent.Position += new Point(0, 1);
 		}
 	}
 }
