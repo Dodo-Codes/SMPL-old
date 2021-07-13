@@ -9,8 +9,8 @@ namespace TestGame
       public override void OnStart()
       {
          new Player();
-         var m = new Minimap(new Point(0, 0), new Size(500, 500));
-         m.TransformComponent.Position = new Point(-600, 0);
+         //var m = new Minimap(new Point(0, 0), new Size(500, 500));
+         //m.TransformComponent.Position = new Point(-600, 0);
       }
    }
 }

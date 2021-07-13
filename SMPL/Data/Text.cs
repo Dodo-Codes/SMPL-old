@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Drawing;
 using System.Text;
 
 namespace SMPL
 {
-	public abstract class Text
+	public static class Text
 	{
 		public static void ClipboardCopy(string text)
 		{

@@ -12,7 +12,7 @@ namespace TestGame
 		{
 			Subscribe(this);
 			IdentityComponent = new(this, "player");
-			TransformComponent = new(new Point(0, 0), 0, new Size(-300, 100));
+			TransformComponent = new(new Point(0, 0), 0, new Size(400, 200));
 
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
 		}
@@ -25,8 +25,10 @@ namespace TestGame
       {
 			if (TextComponent == null) return;
 			TextComponent.Draw(camera);
-			TextComponent.DrawBounds(camera, 5, Color.White);
-			TransformComponent.Angle++;
+			TextComponent.BoxOriginPercent = new Point(50, 50);
+			TextComponent.Color = Color.Black;
+			TextComponent.CharacterSize = 32;
+			TextComponent.Position += new Point(0, -1);
 		}
 	}
 }

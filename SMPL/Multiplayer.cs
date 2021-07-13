@@ -174,16 +174,15 @@ namespace SMPL
 		public static void SendMessage(Message message)
 		{
 			if (MessageDisconnected()) return;
-
 			switch (message.Receivers)
 			{
 				case Receivers.Server:
 					{
 						if (ServerIsRunning || ClientIsConnected == false) break;
-						
-						client.SendAsync($"{msgSep}" +
-							$"{(int)MessageType.ClientToServer}{msgCompSep}" +
-							$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
+
+						var str = $"{msgSep}{(int)MessageType.ClientToServer}{msgCompSep}" +
+							$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}";
+						client.SendAsync(str);
 						LogMessage(message, true);
 						break;
 					}
