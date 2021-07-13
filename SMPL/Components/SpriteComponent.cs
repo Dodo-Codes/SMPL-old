@@ -7,9 +7,6 @@ namespace SMPL
 {
 	public class SpriteComponent
 	{
-		internal Image image;
-		internal SFML.Graphics.Texture rawTexture;
-		internal byte[] rawTextureData;
 		internal Sprite sprite = new();
 
 		internal TransformComponent transform;
@@ -79,6 +76,19 @@ namespace SMPL
 					sprite.Position = pos;
 				}
 			}
+		}
+		public void DrawBounds(Camera camera, float thickness, Color color)
+		{
+			var b = sprite.GetGlobalBounds();
+			var c = Color.From(color);
+			var left = new Vertex[]
+			{
+				new Vertex(new Vector2f(b.Left - thickness, b.Top - thickness), c),
+				new Vertex(new Vector2f(b.Left + thickness, b.Top - thickness), c),
+				new Vertex(new Vector2f(b.Left + thickness, b.Top + thickness + b.Height), c),
+				new Vertex(new Vector2f(b.Left - thickness, b.Top + thickness + b.Height), c),
+			};
+			camera.rendTexture.Draw(left, PrimitiveType.Quads);
 		}
 	}
 }

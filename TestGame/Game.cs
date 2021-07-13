@@ -9,10 +9,8 @@ namespace TestGame
       public override void OnStart()
       {
          new Player();
-         new Minimap(new Point(), new Size(500, 500));
-         Multiplayer.ConnectClient($"asd", Multiplayer.SameDeviceIP);
-
-         //Multiplayer.StartServer();
+         var m = new Minimap(new Point(0, 0), new Size(500, 500));
+         m.TransformComponent.Position = new Point(-600, 0);
       }
    }
 }

@@ -6,25 +6,27 @@ namespace TestGame
 	{
 		public IdentityComponent<Player> IdentityComponent { get; set; }
 		public TransformComponent TransformComponent { get; set; }
-		public SpriteComponent SpriteComponent { get; set; }
+		public TextComponent TextComponent { get; set; }
 
 		public Player()
 		{
 			Subscribe(this);
 			IdentityComponent = new(this, "player");
-			TransformComponent = new(new Point(), 0, new Size(400, 300));
+			TransformComponent = new(new Point(0, 0), 0, new Size(-300, 100));
 
-			File.LoadAsset(File.Asset.Texture, "fire.png");
+			File.LoadAsset(File.Asset.Font, "Munro.ttf");
 		}
       public override void OnAssetsLoadingEnd()
       {
-			if (File.AssetIsLoaded("fire.png") == false) return;
-			SpriteComponent = new(TransformComponent, "fire.png");
+			if (File.AssetIsLoaded("Munro.ttf") == false) return;
+			TextComponent = new(TransformComponent, "Munro.ttf");
       }
       public override void OnDraw(Camera camera)
       {
-			if (SpriteComponent == null) return;
-			SpriteComponent.Draw(camera);
+			if (TextComponent == null) return;
+			TextComponent.Draw(camera);
+			TextComponent.DrawBounds(camera, 5, Color.White);
+			TransformComponent.Angle++;
 		}
 	}
 }

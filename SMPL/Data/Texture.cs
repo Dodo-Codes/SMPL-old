@@ -4,7 +4,11 @@ namespace SMPL
 {
 	public class Texture
 	{
+		//internal Image image;
+		//internal SFML.Graphics.Texture rawTexture;
+		//internal byte[] rawTextureData;
 		internal SpriteComponent parent;
+
 		public bool IsRepeated
 		{
 			get { return parent.sprite.Texture.Repeated; }
@@ -28,7 +32,9 @@ namespace SMPL
 						$"{nameof(File.Asset.Texture)}, \"{value}\")' to load it.");
 					return;
 				}
-				parent.sprite.Texture = File.textures[value];
+				var texture = File.textures[value];
+				parent.sprite.Texture = texture;
+
 				//parent.image = new Image(parent.sprite.Texture.CopyToImage());
 				//if (parent.Effects.MaskType != Effects.Mask.In) parent.image.FlipVertically();
 				//parent.rawTextureData = parent.image.Pixels;

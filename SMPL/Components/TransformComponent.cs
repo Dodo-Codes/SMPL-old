@@ -1,4 +1,6 @@
-﻿namespace SMPL
+﻿using SFML.Graphics;
+
+namespace SMPL
 {
 	public class TransformComponent
 	{
