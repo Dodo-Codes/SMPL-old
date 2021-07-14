@@ -18,11 +18,19 @@ namespace TestGame
 
 			Window.IsPausingOnUnfocus = true;
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
+			File.LoadAsset(File.Asset.Sound, "whistle.wav");
 		}
       public override void OnAssetsLoadingEnd()
       {
-			if (File.AssetIsLoaded("Munro.ttf") == false) return;
-			TextComponent = new(TransformComponent, "Munro.ttf");
+			if (File.AssetIsLoaded("Munro.ttf"))
+			{
+				TextComponent = new(TransformComponent, "Munro.ttf");
+			}
+         if (File.AssetIsLoaded("whistle.wav"))
+         {
+				var sound = new Sound("whistle.wav");
+				sound.IsPlaying = true;
+			}
       }
       public override void OnDraw(Camera camera)
       {
