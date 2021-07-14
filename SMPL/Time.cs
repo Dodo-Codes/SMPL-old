@@ -137,8 +137,6 @@ namespace SMPL
 				Application.DoEvents();
 				Window.window.DispatchEvents();
 
-				if (Window.IsPausingOnUnfocus && Window.HasFocus == false) continue;
-
 				frameCount++;
 				Events.Update();
 

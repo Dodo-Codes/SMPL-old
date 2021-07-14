@@ -30,9 +30,9 @@ namespace SMPL
 
 		internal static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
 		internal static List<QueuedAsset> queuedAssets = new();
-		internal static Dictionary<string, SFML.Graphics.Texture> textures = new();
+		internal static Dictionary<string, Texture> textures = new();
 		internal static Dictionary<string, Font> fonts = new();
-		internal static Dictionary<string, SFML.Audio.Sound> sounds = new();
+		internal static Dictionary<string, Sound> sounds = new();
 		internal static Dictionary<string, Music> music = new();
 
 		internal static void Initialize() => CreateShaderFiles();
@@ -69,9 +69,9 @@ namespace SMPL
 					{
 						switch (asset)
 						{
-							case Asset.Texture: textures[path] = new SFML.Graphics.Texture(path); break;
+							case Asset.Texture: textures[path] = new Texture(path); break;
 							case Asset.Font: fonts[path] = new Font(path); break;
-							case Asset.Sound: sounds[path] = new SFML.Audio.Sound(new SoundBuffer(path)); break;
+							case Asset.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
 							case Asset.Music: music[path] = new Music(path); break;
 						}
 					}
@@ -94,8 +94,8 @@ namespace SMPL
 		{
 			filePath = filePath.Replace('/', '\\');
 			var path = filePath.Split('\\');
-			var full = $"{File.Directory}{filePath}";
-			var curPath = File.Directory;
+			var full = $"{Directory}{filePath}";
+			var curPath = Directory;
 			for (int i = 0; i < path.Length - 1; i++)
 			{
 				var p = $"{curPath}\\{path[i]}";

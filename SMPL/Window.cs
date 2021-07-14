@@ -74,7 +74,6 @@ namespace SMPL
 				Update();
 			}
 		}
-		public static bool IsPausingOnUnfocus { get; set; }
 
 		public static string Title
 		{
