@@ -3,12 +3,11 @@ using SFML.System;
 
 namespace SMPL
 {
-   public class Audio
+   public class Audio : Events
    {
       public enum Type { NotLoaded, Sound, Music }
       internal Sound sound;
       internal Music music;
-      private readonly string path;
 
       public IdentityComponent<Audio> IdentityComponent { get; set; }
 
@@ -18,13 +17,13 @@ namespace SMPL
          set { Listener.Position = new Vector3f((float)value.X, 0, (float)value.Y); }
       }
 
+      public string Path { get; private set; }
       public bool IsLooping
       {
          get { return !IsNotLoaded() && (CurrentType == Type.Sound ? sound.Loop : music.Loop); }
          set
          {
             if (IsNotLoaded()) return;
-
             if (CurrentType == Type.Sound) sound.Loop = value;
             else music.Loop = value;
          }
@@ -50,13 +49,29 @@ namespace SMPL
             if (IsNotLoaded()) return;
             if (CurrentType == Type.Sound)
             {
-               if (IsPaused && value == false) sound.Play();
-               else if (IsPaused == false && value) sound.Pause();
+               if (value && IsPlaying)
+               {
+                  foreach (var e in Events.instances) e.OnAudioPause(this);
+                  sound.Pause();
+               }
+               else if (value == false && IsPaused)
+               {
+                  foreach (var e in Events.instances) e.OnAudioPlay(this);
+                  sound.Play();
+               }
             }
             else
             {
-               if (IsPaused && value == false) music.Play();
-               else if (IsPaused == false && value) music.Pause();
+               if (value && IsPlaying)
+               {
+                  foreach (var e in Events.instances) e.OnAudioPause(this);
+                  music.Pause();
+               }
+               else if (value == false && IsPaused)
+               {
+                  foreach (var e in Events.instances) e.OnAudioPlay(this);
+                  music.Play();
+               }
             }
          }
       }
@@ -70,13 +85,31 @@ namespace SMPL
             if (IsNotLoaded()) return;
             if (CurrentType == Type.Sound)
             {
-               if (IsPlaying && value == false) sound.Stop();
-               else if (IsPlaying == false && value) sound.Play();
+               if (value)
+               {
+                  if (IsPaused == false) foreach (var e in instances) e.OnAudioStart(this);
+                  foreach (var e in instances) e.OnAudioPlay(this);
+                  sound.Play();
+               }
+               else if (IsPlaying || IsPaused)
+               {
+                  foreach (var e in instances) e.OnAudioStop(this);
+                  sound.Stop();
+               }
             }
             else
             {
-               if (IsPlaying && value == false) music.Stop();
-               else if (IsPlaying == false && value) music.Play();
+               if (value)
+               {
+                  if (IsPaused == false) foreach (var e in instances) e.OnAudioStart(this);
+                  foreach (var e in instances) e.OnAudioPlay(this);
+                  music.Play();
+               }
+               else if (IsPlaying || IsPaused)
+               {
+                  foreach (var e in instances) e.OnAudioStop(this);
+                  music.Stop();
+               }
             }
          }
       }
@@ -165,11 +198,20 @@ namespace SMPL
          }
 			else { IsNotLoaded(); return; }
 
-         path = audioPath;
+         Subscribe(this);
+         Path = audioPath;
          VolumePercent = 50;
       }
 
-      private void IsMono()
+		public override void OnEachFrameEarly()
+		{
+			if (Gate.EnterOnceWhile($"{Path}-enda915'kf", IsPlaying == false && IsPaused == false))
+			{
+            foreach (var e in instances) e.OnAudioEnd(this);
+         }
+		}
+
+		private void IsMono()
       {
          if ((CurrentType == Type.Sound && sound.SoundBuffer.ChannelCount == 1) ||
             (CurrentType == Type.Music && music.ChannelCount == 1) ||
@@ -177,9 +219,9 @@ namespace SMPL
             return;
 
          Debug.LogError(2,
-            $"This will have no effect since the file '{path}' has 2 channels (stereo) and\n" +
+            $"This will have no effect since the file '{Path}' has 2 channels (stereo) and\n" +
             $"only single channelled (mono) files support this.\n" +
-            $"Please convert the channels of the file '{path}' to mono before using environmental audio.");
+            $"Please convert the channels of the file '{Path}' to mono before using environmental audio.");
       }
       private bool IsNotLoaded()
       {

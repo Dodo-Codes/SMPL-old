@@ -181,5 +181,11 @@ namespace SMPL
 		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
+
+		public virtual void OnAudioStart(Audio audio) { }
+		public virtual void OnAudioPlay(Audio audio) { }
+		public virtual void OnAudioPause(Audio audio) { }
+		public virtual void OnAudioStop(Audio audio) { }
+		public virtual void OnAudioEnd(Audio audio) { }
 	}
 }

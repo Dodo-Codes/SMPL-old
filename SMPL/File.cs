@@ -38,9 +38,10 @@ namespace SMPL
 		internal static void Initialize() => CreateShaderFiles();
 		internal static void UpdateMainThreadAssets()
 		{
-			if (assetLoadBegin) foreach (var e in Events.instances) e.OnAssetsLoadingStart();
-			if (assetLoadUpdate) foreach (var e in Events.instances) e.OnAssetsLoadingUpdate();
-			if (assetLoadEnd) foreach (var e in Events.instances) e.OnAssetsLoadingEnd();
+			var instances = new List<Events>(Events.instances); // thread safe iteration
+			if (assetLoadBegin) foreach (var e in instances) e.OnAssetsLoadingStart();
+			if (assetLoadUpdate) foreach (var e in instances) e.OnAssetsLoadingUpdate();
+			if (assetLoadEnd) foreach (var e in instances) e.OnAssetsLoadingEnd();
 
 			assetLoadBegin = false;
 			assetLoadUpdate = false;
