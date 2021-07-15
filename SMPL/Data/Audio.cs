@@ -8,6 +8,7 @@ namespace SMPL
       public enum Type { NotLoaded, Sound, Music }
       internal Sound sound;
       internal Music music;
+      private bool stopped;
 
       public IdentityComponent<Audio> IdentityComponent { get; set; }
 
@@ -85,6 +86,7 @@ namespace SMPL
             if (IsNotLoaded()) return;
             if (CurrentType == Type.Sound)
             {
+               stopped = !value;
                if (value)
                {
                   if (IsPaused == false) foreach (var e in instances) e.OnAudioStart(this);
@@ -99,6 +101,7 @@ namespace SMPL
             }
             else
             {
+               stopped = !value;
                if (value)
                {
                   if (IsPaused == false) foreach (var e in instances) e.OnAudioStart(this);
@@ -205,7 +208,7 @@ namespace SMPL
 
 		public override void OnEachFrameEarly()
 		{
-			if (Gate.EnterOnceWhile($"{Path}-enda915'kf", IsPlaying == false && IsPaused == false))
+			if (Gate.EnterOnceWhile($"{Path}-enda915'kf", IsPlaying == false && IsPaused == false && stopped == false))
 			{
             foreach (var e in instances) e.OnAudioEnd(this);
          }

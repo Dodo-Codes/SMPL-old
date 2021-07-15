@@ -46,5 +46,25 @@ namespace TestGame
 			if (key == Keyboard.Key.D) music.IsPaused = false;
 			if (key == Keyboard.Key.F) music.IsPlaying = false;
 		}
+		public override void OnAudioStart(Audio audio)
+		{
+			Console.Log("start");
+		}
+		public override void OnAudioEnd(Audio audio)
+		{
+			Console.Log("end");
+		}
+		public override void OnAudioPause(Audio audio)
+		{
+			Console.Log("pause");
+		}
+		public override void OnAudioPlay(Audio audio)
+		{
+			Console.Log("play");
+		}
+		public override void OnAudioStop(Audio audio)
+		{
+			Console.Log("stop");
+		}
 	}
 }
