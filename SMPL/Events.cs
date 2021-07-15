@@ -11,21 +11,23 @@ namespace SMPL
 
 		internal static void Update()
 		{
-			foreach (var i in instances) i.OnEachFrameEarly();
-			foreach (var i in instances) i.OnEachFrame();
-			foreach (var i in instances) i.OnEachFrameLate();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyEachFrame();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnEachFrame();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnLateEachFrame();
 
 			var timerUIDs = IdentityComponent<Timer>.GetAllUniqueIDs();
-			foreach (var uid in timerUIDs)
+			for (int j = 0; j < timerUIDs.Length; j++)
 			{
-				var timer = IdentityComponent<Timer>.PickByUniqueID(uid);
+				var timer = IdentityComponent<Timer>.PickByUniqueID(timerUIDs[j]);
 				if (timer.IsPaused) continue;
 				if (timer.Countdown > 0) timer.Countdown -= Time.DeltaTime;
-				if (Gate.EnterOnceWhile(uid, timer.Countdown <= 0))
+				if (Gate.EnterOnceWhile(timerUIDs[j] + "as;li3'f2", timer.Countdown <= 0))
 				{
 					timer.EndCount++;
 					timer.Countdown = 0;
-               foreach (var i in instances) i.OnTimerEnd(timer);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyTimerEnd(timer);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnTimerEnd(timer);
+					for (int i = 0; i < instances.Count; i++) instances[i].OnLateTimerEnd(timer);
 				}
 			}
 		}
@@ -69,15 +71,25 @@ namespace SMPL
 		}
 
 		internal void OnWindowClose(object sender, EventArgs e) => Window.Close();
-		internal void OnWindowFocus(object sender, EventArgs e) => OnWindowFocus();
-		internal void OnWindowUnfocus(object sender, EventArgs e) => OnWindowUnfocus();
+		internal void OnWindowFocus(object sender, EventArgs e)
+		{
+			OnEarlyWindowFocus();
+			OnWindowFocus();
+			OnLateWindowFocus();
+		}
+		internal void OnWindowUnfocus(object sender, EventArgs e)
+		{
+			OnEarlyWindowFocus();
+			OnWindowUnfocus();
+			OnLateWindowFocus();
+		}
 		internal void OnWindowResize(object sender, EventArgs e)
 		{
 			switch (Window.CurrentState)
 			{
-				case Window.State.Floating: OnWindowResize(); break;
-				case Window.State.Minimized: OnWindowMinimize(); break;
-				case Window.State.Maximized: OnWindowMaximize(); break;
+				case Window.State.Floating: { OnEarlyWindowResize(); OnWindowResize(); OnLateWindowResize(); break; }
+				case Window.State.Minimized: { OnEarlyWindowMinimize(); OnWindowMinimize(); OnLateWindowMinimize(); break; }
+				case Window.State.Maximized: { OnEarlyWindowMaximize(); OnWindowMaximize(); OnLateWindowMaximize(); break; }
 			}
 		}
 
@@ -85,13 +97,17 @@ namespace SMPL
 		{
 			var keyArgs = (SFML.Window.KeyEventArgs)e;
 			var key = (Keyboard.Key)keyArgs.Code;
+			OnEarlyKeyPress(key);
 			OnKeyPress(key);
+			OnLateKeyPress(key);
 		}
 		internal void OnKeyRelease(object sender, EventArgs e)
 		{
 			var keyArgs = (SFML.Window.KeyEventArgs)e;
 			var key = (Keyboard.Key)keyArgs.Code;
+			OnEarlyKeyRelease(key);
 			OnKeyRelease(key);
+			OnLateKeyRelease(key);
 		}
 		internal void OnTextInput(object sender, EventArgs e)
 		{
@@ -99,48 +115,48 @@ namespace SMPL
 			var keyStr = keyArgs.KeyChar.ToString();
 			keyStr = keyStr.Replace('\r', '\n');
 			if (keyStr == "\b") keyStr = "";
-			OnTextInput(keyStr, keyStr == "\b", keyStr == Environment.NewLine, keyStr == "\t");
+			var isBackSpace = keyStr == "\b";
+			var isEnter = keyStr == Environment.NewLine;
+			var isTab = keyStr == "\t";
+			OnEarlyTextInput(keyStr, isBackSpace, isEnter, isTab);
+			OnTextInput(keyStr, isBackSpace, isEnter, isTab);
+			OnLateTextInput(keyStr, isBackSpace, isEnter, isTab);
 		}
 		internal void OnLanguageChange(object sender, EventArgs e)
 		{
 			var langArgs = (InputLanguageChangedEventArgs)e;
 			var culture = langArgs.InputLanguage.Culture;
+			OnEarlyLanguageChange(culture.EnglishName, culture.NativeName, culture.Name);
 			OnLanguageChange(culture.EnglishName, culture.NativeName, culture.Name);
+			OnLateLanguageChange(culture.EnglishName, culture.NativeName, culture.Name);
 		}
 
-		public virtual void OnStartEarly() { }
-		public virtual void OnStart() { }
-		public virtual void OnStartLate() { }
-		public virtual void OnDraw(Camera camera) { }
-		public virtual void OnEachFrameEarly() { }
-		public virtual void OnEachFrame() { }
-		public virtual void OnEachFrameLate() { }
-		public virtual void OnTimerEnd(Timer timerInstance) { }
+		internal void OnMouseCursorMove(object sender, EventArgs e)
+		{
+			OnEarlyMouseCursorMove();
+			OnMouseCursorMove();
+			OnLateMouseCursorMove();
+		}
+		internal void OnMouseCursorEnterWindow(object sender, EventArgs e)
+		{
+			OnEarlyMouseCursorEnterWindow();
+			OnMouseCursorEnterWindow();
+			OnLateMouseCursorEnterWindow();
+		}
+		internal void OnMouseCursorLeaveWindow(object sender, EventArgs e)
+		{
+			OnEarlyMouseCursorLeaveWindow();
+			OnMouseCursorLeaveWindow();
+			OnLateMouseCursorLeaveWindow();
+		}
 
-		public virtual void OnWindowClose() { }
-		public virtual void OnWindowFocus() { }
-		public virtual void OnWindowUnfocus() { }
-		public virtual void OnWindowResize() { }
-		public virtual void OnWindowMinimize() { }
-		public virtual void OnWindowMaximize() { }
-
-		public virtual void OnAssetsLoadingStart() { }
-		public virtual void OnAssetsLoadingUpdate() { }
-		public virtual void OnAssetsLoadingEnd() { }
-
-		public virtual void OnKeyPress(Keyboard.Key key) { }
-		public virtual void OnKeyRelease(Keyboard.Key key) { }
-		public virtual void OnTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
-		public virtual void OnLanguageChange(string englishName, string nativeName, string languageCode) { }
-
-		internal void OnMouseCursorMove(object sender, EventArgs e) => OnMouseCursorMove();
-		internal void OnMouseCursorEnterWindow(object sender, EventArgs e) => OnMouseCursorEnterWindow();
-		internal void OnMouseCursorLeaveWindow(object sender, EventArgs e) => OnMouseCursorLeaveWindow();
 		internal void OnMouseButtonPress(object sender, EventArgs e)
 		{
 			var buttonArgs = (MouseButtonEventArgs)e;
 			var button = (Mouse.Button)buttonArgs.Button;
+			OnEarlyMouseButtonPress(button);
 			OnMouseButtonPress(button);
+			OnLateMouseButtonPress(button);
 		}
 		internal void OnMouseButtonRelease(object sender, EventArgs e)
 		{
@@ -168,7 +184,70 @@ namespace SMPL
 			var wheel = (Mouse.Wheel)arguments.Wheel;
 			OnMouseWheelScroll(arguments.Delta, wheel);
 		}
+		//=================================================================
 
+		public virtual void OnEarlyStart() { }
+		public virtual void OnEarlyEachFrame() { }
+		public virtual void OnEarlyDraw(Camera camera) { }
+		public virtual void OnEarlyTimerEnd(Timer timerInstance) { }
+		public virtual void OnStart() { }
+		public virtual void OnDraw(Camera camera) { }
+		public virtual void OnEachFrame() { }
+		public virtual void OnTimerEnd(Timer timerInstance) { }
+		public virtual void OnLateStart() { }
+		public virtual void OnLateDraw(Camera camera) { }
+		public virtual void OnLateEachFrame() { }
+		public virtual void OnLateTimerEnd(Timer timerInstance) { }
+
+		public virtual void OnEarlyWindowClose() { }
+		public virtual void OnEarlyWindowFocus() { }
+		public virtual void OnEarlyWindowUnfocus() { }
+		public virtual void OnEarlyWindowResize() { }
+		public virtual void OnEarlyWindowMinimize() { }
+		public virtual void OnEarlyWindowMaximize() { }
+		public virtual void OnWindowClose() { }
+		public virtual void OnWindowFocus() { }
+		public virtual void OnWindowUnfocus() { }
+		public virtual void OnWindowResize() { }
+		public virtual void OnWindowMinimize() { }
+		public virtual void OnWindowMaximize() { }
+		public virtual void OnLateWindowClose() { }
+		public virtual void OnLateWindowFocus() { }
+		public virtual void OnLateWindowUnfocus() { }
+		public virtual void OnLateWindowResize() { }
+		public virtual void OnLateWindowMinimize() { }
+		public virtual void OnLateWindowMaximize() { }
+
+		public virtual void OnEarlyAssetsLoadingStart() { }
+		public virtual void OnEarlyAssetsLoadingUpdate() { }
+		public virtual void OnEarlyAssetsLoadingEnd() { }
+		public virtual void OnAssetsLoadingStart() { }
+		public virtual void OnAssetsLoadingUpdate() { }
+		public virtual void OnAssetsLoadingEnd() { }
+		public virtual void OnLateAssetsLoadingStart() { }
+		public virtual void OnLateAssetsLoadingUpdate() { }
+		public virtual void OnLateAssetsLoadingEnd() { }
+
+		public virtual void OnEarlyKeyPress(Keyboard.Key key) { }
+		public virtual void OnEarlyKeyRelease(Keyboard.Key key) { }
+		public virtual void OnEarlyTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
+		public virtual void OnEarlyLanguageChange(string englishName, string nativeName, string languageCode) { }
+		public virtual void OnKeyPress(Keyboard.Key key) { }
+		public virtual void OnKeyRelease(Keyboard.Key key) { }
+		public virtual void OnTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
+		public virtual void OnLanguageChange(string englishName, string nativeName, string languageCode) { }
+		public virtual void OnLateKeyPress(Keyboard.Key key) { }
+		public virtual void OnLateKeyRelease(Keyboard.Key key) { }
+		public virtual void OnLateTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
+		public virtual void OnLateLanguageChange(string englishName, string nativeName, string languageCode) { }
+
+		public virtual void OnEarlyMouseCursorMove() { }
+		public virtual void OnEarlyMouseCursorEnterWindow() { }
+		public virtual void OnEarlyMouseCursorLeaveWindow() { }
+		public virtual void OnEarlyMouseButtonDoubleClick(Mouse.Button button) { }
+		public virtual void OnEarlyMouseButtonPress(Mouse.Button button) { }
+		public virtual void OnEarlyMouseButtonRelease(Mouse.Button button) { }
+		public virtual void OnEarlyMouseWheelScroll(double delta, Mouse.Wheel wheel) { }
 		public virtual void OnMouseCursorMove() { }
 		public virtual void OnMouseCursorEnterWindow() { }
 		public virtual void OnMouseCursorLeaveWindow() { }
@@ -176,16 +255,41 @@ namespace SMPL
 		public virtual void OnMouseButtonPress(Mouse.Button button) { }
 		public virtual void OnMouseButtonRelease(Mouse.Button button) { }
 		public virtual void OnMouseWheelScroll(double delta, Mouse.Wheel wheel) { }
+		public virtual void OnLateMouseCursorMove() { }
+		public virtual void OnLateMouseCursorEnterWindow() { }
+		public virtual void OnLateMouseCursorLeaveWindow() { }
+		public virtual void OnLateMouseButtonDoubleClick(Mouse.Button button) { }
+		public virtual void OnLateMouseButtonPress(Mouse.Button button) { }
+		public virtual void OnLateMouseButtonRelease(Mouse.Button button) { }
+		public virtual void OnLateMouseWheelScroll(double delta, Mouse.Wheel wheel) { }
 
+		public virtual void OnEarlyMultiplayerTakenClientUniqueID(string newClientUniqueID) { }
+		public virtual void OnEarlyMultiplayerClientConnect(string clientUniqueID) { }
+		public virtual void OnEarlyMultiplayerClientDisconnect(string clientUniqueID) { }
+		public virtual void OnEarlyMultiplayerMessageReceived(Multiplayer.Message message) { }
 		public virtual void OnMultiplayerTakenClientUniqueID(string newClientUniqueID) { }
 		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
+		public virtual void OnLateMultiplayerTakenClientUniqueID(string newClientUniqueID) { }
+		public virtual void OnLateMultiplayerClientConnect(string clientUniqueID) { }
+		public virtual void OnLateMultiplayerClientDisconnect(string clientUniqueID) { }
+		public virtual void OnLateMultiplayerMessageReceived(Multiplayer.Message message) { }
 
+		public virtual void OnEarlyAudioStart(Audio audio) { }
+		public virtual void OnEarlyAudioPlay(Audio audio) { }
+		public virtual void OnEarlyAudioPause(Audio audio) { }
+		public virtual void OnEarlyAudioStop(Audio audio) { }
+		public virtual void OnEarlyAudioEnd(Audio audio) { }
 		public virtual void OnAudioStart(Audio audio) { }
 		public virtual void OnAudioPlay(Audio audio) { }
 		public virtual void OnAudioPause(Audio audio) { }
 		public virtual void OnAudioStop(Audio audio) { }
 		public virtual void OnAudioEnd(Audio audio) { }
+		public virtual void OnLateAudioStart(Audio audio) { }
+		public virtual void OnLateAudioPlay(Audio audio) { }
+		public virtual void OnLateAudioPause(Audio audio) { }
+		public virtual void OnLateAudioStop(Audio audio) { }
+		public virtual void OnLateAudioEnd(Audio audio) { }
 	}
 }

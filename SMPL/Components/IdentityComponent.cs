@@ -28,29 +28,29 @@ namespace SMPL
 
 		public void AddTags(params string[] tags)
 		{
-			foreach (var tag in tags)
+			for (int i = 0; i < tags.Length; i++)
 			{
-				if (ObjTags[Instance].Contains(tag)) continue;
-				ObjTags[Instance].Add(tag);
-				if (TagObjs.ContainsKey(tag) == false) TagObjs[tag] = new List<T>();
-				TagObjs[tag].Add(Instance);
+				if (ObjTags[Instance].Contains(tags[i])) continue;
+				ObjTags[Instance].Add(tags[i]);
+				if (TagObjs.ContainsKey(tags[i]) == false) TagObjs[tags[i]] = new List<T>();
+				TagObjs[tags[i]].Add(Instance);
 			}
 		}
 		public void RemoveTags(params string[] tags)
 		{
-			foreach (var tag in tags)
+			for (int i = 0; i < tags.Length; i++)
 			{
-				if (ObjTags[Instance].Contains(tag) == false) continue;
-				ObjTags[Instance].Remove(tag);
-				TagObjs[tag].Remove(Instance);
-				if (TagObjs[tag].Count == 0) TagObjs.Remove(tag);
+				if (ObjTags[Instance].Contains(tags[i]) == false) continue;
+				ObjTags[Instance].Remove(tags[i]);
+				TagObjs[tags[i]].Remove(Instance);
+				if (TagObjs[tags[i]].Count == 0) TagObjs.Remove(tags[i]);
 			}
 		}
 		public bool HasTags(params string[] tags)
 		{
-			foreach (var tag in tags)
+			for (int i = 0; i < tags.Length; i++)
 			{
-				if (ObjTags[Instance].Contains(tag) == false) return false;
+				if (ObjTags[Instance].Contains(tags[i]) == false) return false;
 			}
 			return true;
 		}
@@ -61,9 +61,9 @@ namespace SMPL
 		public static string[] GetAllTags() => TagObjs.Keys.ToArray();
 		public static bool TagsExist(params string[] tags)
 		{
-			foreach (var tag in tags)
+			for (int i = 0; i < tags.Length; i++)
 			{
-				if (TagObjs.ContainsKey(tag) == false) return false;
+				if (TagObjs.ContainsKey(tags[i]) == false) return false;
 			}
 			return true;
 		}

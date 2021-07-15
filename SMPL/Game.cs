@@ -2,6 +2,7 @@
 using System;
 using System.Windows.Forms;
 using System.Threading;
+using static SMPL.Events;
 
 namespace SMPL
 {
@@ -28,9 +29,9 @@ namespace SMPL
 
 			instance.OnStart();
 
-			foreach (var e in Events.instances) e.OnStartEarly();
-			foreach (var e in Events.instances) e.OnStart();
-			foreach (var e in Events.instances) e.OnStartLate();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyStart();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnStart();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnLateStart();
 
 			Time.Run();
 		}

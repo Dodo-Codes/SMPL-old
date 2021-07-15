@@ -50,29 +50,25 @@ namespace SMPL
             if (IsNotLoaded()) return;
             if (CurrentType == Type.Sound)
             {
-               if (value && IsPlaying)
-               {
-                  foreach (var e in Events.instances) e.OnAudioPause(this);
-                  sound.Pause();
-               }
-               else if (value == false && IsPaused)
-               {
-                  foreach (var e in Events.instances) e.OnAudioPlay(this);
-                  sound.Play();
-               }
+               if (value && IsPlaying) sound.Pause();
+               else if (value == false && IsPaused) sound.Play();
             }
             else
             {
-               if (value && IsPlaying)
-               {
-                  foreach (var e in Events.instances) e.OnAudioPause(this);
-                  music.Pause();
-               }
-               else if (value == false && IsPaused)
-               {
-                  foreach (var e in Events.instances) e.OnAudioPlay(this);
-                  music.Play();
-               }
+               if (value && IsPlaying) music.Pause();
+               else if (value == false && IsPaused) music.Play();
+            }
+            if (value && IsPlaying)
+            {
+               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioPause(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioPause(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioPause(this);
+            }
+            else if (value == false && IsPaused)
+            {
+               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioPlay(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioPlay(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioPlay(this);
             }
          }
       }
@@ -87,32 +83,32 @@ namespace SMPL
             if (CurrentType == Type.Sound)
             {
                stopped = !value;
-               if (value)
-               {
-                  if (IsPaused == false) foreach (var e in instances) e.OnAudioStart(this);
-                  foreach (var e in instances) e.OnAudioPlay(this);
-                  sound.Play();
-               }
-               else if (IsPlaying || IsPaused)
-               {
-                  foreach (var e in instances) e.OnAudioStop(this);
-                  sound.Stop();
-               }
+               if (value) sound.Play();
+               else if (IsPlaying || IsPaused) sound.Stop();
             }
             else
             {
                stopped = !value;
-               if (value)
+               if (value) music.Play();
+               else if (IsPlaying || IsPaused) music.Stop();
+            }
+            if (value)
+            {
+               if (IsPaused == false)
                {
-                  if (IsPaused == false) foreach (var e in instances) e.OnAudioStart(this);
-                  foreach (var e in instances) e.OnAudioPlay(this);
-                  music.Play();
+                  for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioStart(this);
+                  for (int i = 0; i < instances.Count; i++) instances[i].OnAudioStart(this);
+                  for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioStart(this);
                }
-               else if (IsPlaying || IsPaused)
-               {
-                  foreach (var e in instances) e.OnAudioStop(this);
-                  music.Stop();
-               }
+               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioPlay(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioPlay(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioPlay(this);
+            }
+            else if (IsPlaying || IsPaused)
+            {
+               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioStop(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioStop(this);
+               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioStop(this);
             }
          }
       }
@@ -206,11 +202,13 @@ namespace SMPL
          VolumePercent = 50;
       }
 
-		public override void OnEachFrameEarly()
+		public override void OnEarlyEachFrame()
 		{
 			if (Gate.EnterOnceWhile($"{Path}-enda915'kf", IsPlaying == false && IsPaused == false && stopped == false))
 			{
-            foreach (var e in instances) e.OnAudioEnd(this);
+            for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioEnd(this);
+            for (int i = 0; i < instances.Count; i++) instances[i].OnAudioEnd(this);
+            for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioEnd(this);
          }
 		}
 

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using static SMPL.Events;
 
 namespace SMPL
 {
@@ -121,7 +122,9 @@ namespace SMPL
 
 		public static void Close()
       {
-			foreach (var e in Events.instances) e.OnWindowClose();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyWindowClose();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnWindowClose();
+			for (int i = 0; i < instances.Count; i++) instances[i].OnLateWindowClose();
 			window.Close();
 		}
 		public static void RequestFocus() => window.RequestFocus();

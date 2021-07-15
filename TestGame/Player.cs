@@ -25,7 +25,7 @@ namespace TestGame
 			}
          if (File.AssetIsLoaded("music.ogg"))
          {
-				var sound = new Audio("music.ogg") { IsPlaying = true, Speed = 5 };
+				var sound = new Audio("music.ogg") { IsPlaying = true };
 				sound.IdentityComponent = new(sound, "whistle");
 			}
       }
@@ -46,25 +46,17 @@ namespace TestGame
 			if (key == Keyboard.Key.D) music.IsPaused = false;
 			if (key == Keyboard.Key.F) music.IsPlaying = false;
 		}
+		public override void OnEarlyAudioStart(Audio audio)
+		{
+			Console.Log("early");
+		}
 		public override void OnAudioStart(Audio audio)
 		{
 			Console.Log("start");
 		}
-		public override void OnAudioEnd(Audio audio)
+		public override void OnLateAudioStart(Audio audio)
 		{
-			Console.Log("end");
-		}
-		public override void OnAudioPause(Audio audio)
-		{
-			Console.Log("pause");
-		}
-		public override void OnAudioPlay(Audio audio)
-		{
-			Console.Log("play");
-		}
-		public override void OnAudioStop(Audio audio)
-		{
-			Console.Log("stop");
+			Console.Log("late");
 		}
 	}
 }

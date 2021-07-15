@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using TcpClient = NetCoreServer.TcpClient;
+using static SMPL.Events;
 
 namespace SMPL
 {
@@ -86,15 +87,14 @@ namespace SMPL
 					"Clients can connect through those IPs if they are in the same network\n" +
 					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
 					$"Same device: {SameDeviceIP}";
-				foreach (var ip in hostEntry.AddressList)
+				for (int i = 0; i < hostEntry.AddressList.Length; i++)
 				{
-					if (ip.AddressFamily == AddressFamily.InterNetwork)
-					{
-						var ipParts = ip.ToString().Split('.');
-						var ipType = ipParts[0] == "192" && ipParts[1] == "168" ?
-							"Same router: " : "Same VPN: ";
-						connectToServerInfo = $"{connectToServerInfo}\n{ipType}{ip}";
-					}
+					if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
+
+					var ipParts = hostEntry.AddressList[i].ToString().Split('.');
+					var ipType = ipParts[0] == "192" && ipParts[1] == "168" ?
+						"Same router: " : "Same VPN: ";
+					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
 				}
 				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
 			}
@@ -271,16 +271,18 @@ namespace SMPL
 				server.Multicast($"{msgSep}{(int)MessageType.ClientDisconnected}{msgCompSep}{disconnectedClient}");
 
 				Console.Log($"Client '{disconnectedClient}' disconnected. {ConnectedClients()}\n");
-				foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(disconnectedClient);
+				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerClientDisconnect(disconnectedClient);
+				for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerClientDisconnect(disconnectedClient);
+				for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerClientDisconnect(disconnectedClient);
 			}
 			protected override void OnReceived(byte[] buffer, long offset, long size)
 			{
 				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
 				var messages = rawMessages.Split(msgSep, StringSplitOptions.RemoveEmptyEntries);
 				var messageBack = "";
-				foreach (var message in messages)
+				for (int j = 0; j < messages.Length; j++)
 				{
-					var components = message.Split(msgCompSep);
+					var components = messages[j].Split(msgCompSep);
 					var messageType = (MessageType)int.Parse(components[0]);
 					switch (messageType)
 					{
@@ -301,9 +303,9 @@ namespace SMPL
 								// Sticking another message to update the newcoming client about online clients
 								messageBack = $"{messageBack}{msgSep}{(int)MessageType.ClientOnline}" +
 									$"{msgCompSep}{clientID}";
-								foreach (var ID in clientIDs)
+								for (int i = 0; i < clientIDs.Count; i++)
 								{
-									messageBack = $"{messageBack}{msgCompSep}{ID}";
+									messageBack = $"{messageBack}{msgCompSep}{clientIDs[i]}";
 								}
 
 								// Sticking a third message to update online clients about the newcomer.
@@ -311,17 +313,19 @@ namespace SMPL
 									$"{messageBack}{msgSep}{(int)MessageType.ClientConnected}{msgCompSep}" +
 									$"{clientID}";
 								Console.Log($"Client '{clientID}' connected. {ConnectedClients()}\n");
-								foreach (var e in Events.instances) e.OnMultiplayerClientConnect(clientID);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerClientConnect(clientID);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerClientConnect(clientID);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerClientConnect(clientID);
 								break;
 							}
 						case MessageType.ClientToAll: // A client wants to send a message to everyone
 							{
-								messageBack = $"{messageBack}{msgSep}{message}";
+								messageBack = $"{messageBack}{msgSep}{messages[j]}";
 								break;
 							}
 						case MessageType.ClientToClient: // A client wants to send a message to another client
 							{
-								messageBack = $"{messageBack}{msgSep}{message}";
+								messageBack = $"{messageBack}{msgSep}{messages[j]}";
 								break;
 							}
 						case MessageType.ClientToServer: // A client sent me (the server) a message
@@ -330,7 +334,9 @@ namespace SMPL
 								{ SenderClientUniqueID = components[1] };
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 								break;
 							}
 						case MessageType.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
@@ -339,9 +345,11 @@ namespace SMPL
 								{ SenderClientUniqueID = components[1] };
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 
-								messageBack = $"{messageBack}{msgSep}{message}";
+								messageBack = $"{messageBack}{msgSep}{messages[j]}";
 								break;
 							}
 					}
@@ -387,7 +395,11 @@ namespace SMPL
 				ClientIsConnected = true;
 				clientIDs.Add(ClientUniqueID);
 				Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server {client.Socket.RemoteEndPoint}.\n");
-				foreach (var e in Events.instances) e.OnMultiplayerClientConnect(ClientUniqueID);
+
+				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerClientConnect(ClientUniqueID);
+				for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerClientConnect(ClientUniqueID);
+				for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerClientConnect(ClientUniqueID);
+
 				client.SendAsync($"{msgSep}{(int)MessageType.Connection}{msgCompSep}" +
 					$"{client.Id}{msgCompSep}{ClientUniqueID}");
 			}
@@ -398,7 +410,9 @@ namespace SMPL
 					ClientIsConnected = false;
 					Console.Log("Disconnected from the Server.\n");
 					clientIDs.Clear();
-					foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(ClientUniqueID);
+					for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerClientDisconnect(ClientUniqueID);
+					for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerClientDisconnect(ClientUniqueID);
+					for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerClientDisconnect(ClientUniqueID);
 					if (stop == true) return;
 				}
 
@@ -414,9 +428,9 @@ namespace SMPL
 				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
 				var messages = rawMessages.Split(msgSep, StringSplitOptions.RemoveEmptyEntries);
 				var messageBack = "";
-				foreach (var message in messages)
+				for (int j = 0; j < messages.Length; j++)
 				{
-					var components = message.Split(msgCompSep);
+					var components = messages[j].Split(msgCompSep);
 					var messageType = (MessageType)int.Parse(components[0]);
 					switch (messageType)
 					{
@@ -431,7 +445,9 @@ namespace SMPL
 
 									Console.Log($"Client Unique ID '{oldID}' is taken. " +
 										$"New Client Unique ID is '{newID}'.\n");
-									foreach (var e in Events.instances) e.OnMultiplayerTakenClientUniqueID(newID);
+									for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerTakenClientUniqueID(newID);
+									for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerTakenClientUniqueID(newID);
+									for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerTakenClientUniqueID(newID);
 								}
 								break;
 							}
@@ -442,7 +458,9 @@ namespace SMPL
 								{
 									clientIDs.Add(ID);
 									Console.Log($"Client '{components[1]}' connected. {ConnectedClients()}\n");
-									foreach (var e in Events.instances) e.OnMultiplayerClientConnect(ID);
+									for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerClientConnect(ID);
+									for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerClientConnect(ID);
+									for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerClientConnect(ID);
 								}
 								break;
 							}
@@ -451,7 +469,9 @@ namespace SMPL
 								var ID = components[1];
 								clientIDs.Remove(ID);
 								Console.Log($"Client '{components[1]}' disconnected. {ConnectedClients()}\n");
-								foreach (var e in Events.instances) e.OnMultiplayerClientDisconnect(ID);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerClientDisconnect(ID);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerClientDisconnect(ID);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerClientDisconnect(ID);
 								break;
 							}
 						case MessageType.ClientOnline: // Someone just connected and is getting updated on who is already online
@@ -478,7 +498,9 @@ namespace SMPL
 								var msg = new Message(components[2], components[3], Receivers.AllClients, ClientUniqueID) { SenderClientUniqueID = components[1] };
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 								break;
 							}
 						case MessageType.ClientToAllAndServer: // A client is sending a message to the server and all clients
@@ -488,7 +510,9 @@ namespace SMPL
 								{ SenderClientUniqueID = components[1] };
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 								break;
 							}
 						case MessageType.ClientToClient: // A client is sending a message to another client
@@ -499,7 +523,9 @@ namespace SMPL
 								{ SenderClientUniqueID = components[1] };
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 								break;
 							}
 						case MessageType.ServerToAll: // The server sent everyone a message
@@ -507,7 +533,9 @@ namespace SMPL
 								var msg = new Message(components[1], components[2], Receivers.AllClients, ClientUniqueID);
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 								break;
 							}
 						case MessageType.ServerToClient: // The server sent some client a message
@@ -517,7 +545,9 @@ namespace SMPL
 								var msg = new Message(components[1], components[2], Receivers.Client, ClientUniqueID);
 
 								LogMessage(msg, false);
-								foreach (var e in Events.instances) e.OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnMultiplayerMessageReceived(msg);
+								for (int i = 0; i < instances.Count; i++) instances[i].OnLateMultiplayerMessageReceived(msg);
 								break;
 							}
 					}

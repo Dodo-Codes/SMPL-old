@@ -76,15 +76,17 @@ namespace SMPL
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
-         foreach (var e in instances) e.OnDraw(WorldCamera);
+         for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyDraw(WorldCamera);
+         for (int i = 0; i < instances.Count; i++) instances[i].OnDraw(WorldCamera);
+			for (int i = 0; i < instances.Count; i++) instances[i].OnLateDraw(WorldCamera);
 			foreach (var kvp in sortedCameras)
 			{
-				foreach (var camera in kvp.Value)
+				for (int i = 0; i < kvp.Value.Count; i++)
 				{
-					if (camera == WorldCamera) continue;
-					camera.StartDraw();
-					foreach (var e in instances) e.OnDraw(camera);
-					camera.EndDraw();
+					if (kvp.Value[i] == WorldCamera) continue;
+					kvp.Value[i].StartDraw();
+					for (int j = 0; j < instances.Count; j++) instances[j].OnDraw(kvp.Value[i]);
+					kvp.Value[i].EndDraw();
 				}
 			}
 			WorldCamera.EndDraw();

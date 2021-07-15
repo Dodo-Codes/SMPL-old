@@ -39,9 +39,24 @@ namespace SMPL
 		internal static void UpdateMainThreadAssets()
 		{
 			var instances = new List<Events>(Events.instances); // thread safe iteration
-			if (assetLoadBegin) foreach (var e in instances) e.OnAssetsLoadingStart();
-			if (assetLoadUpdate) foreach (var e in instances) e.OnAssetsLoadingUpdate();
-			if (assetLoadEnd) foreach (var e in instances) e.OnAssetsLoadingEnd();
+			if (assetLoadBegin)
+			{
+				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAssetsLoadingStart();
+				for (int i = 0; i < instances.Count; i++) instances[i].OnAssetsLoadingStart();
+				for (int i = 0; i < instances.Count; i++) instances[i].OnLateAssetsLoadingStart();
+			}
+			if (assetLoadUpdate)
+			{
+				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAssetsLoadingUpdate();
+				for (int i = 0; i < instances.Count; i++) instances[i].OnAssetsLoadingUpdate();
+				for (int i = 0; i < instances.Count; i++) instances[i].OnLateAssetsLoadingUpdate();
+			}
+			if (assetLoadEnd)
+			{
+				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAssetsLoadingEnd();
+				for (int i = 0; i < instances.Count; i++) instances[i].OnAssetsLoadingEnd();
+				for (int i = 0; i < instances.Count; i++) instances[i].OnLateAssetsLoadingEnd();
+			}
 
 			assetLoadBegin = false;
 			assetLoadUpdate = false;
@@ -60,12 +75,11 @@ namespace SMPL
 				var curQueuedAssets = new List<QueuedAsset>(queuedAssets);
 				var loadedCount = 0;
 				assetLoadBegin = true;
-				foreach (var queuedAsset in curQueuedAssets)
+				for (int i = 0; i < curQueuedAssets.Count; i++)
 				{
-					var asset = queuedAsset.asset;
-					var path = queuedAsset.path;
+					var asset = curQueuedAssets[i].asset;
+					var path = curQueuedAssets[i].path;
 					path = path.Replace('/', '\\');
-					var fullPath = $"{Directory}{path}";
 					try
 					{
 						switch (asset)
