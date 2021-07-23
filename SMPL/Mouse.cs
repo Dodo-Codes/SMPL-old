@@ -11,6 +11,7 @@
 			Vertical, Horizontal
 		}
 
+		internal static Point lastFrameCursorPosScr;
 		public static Point CursorPositionWindow
 		{
 			get

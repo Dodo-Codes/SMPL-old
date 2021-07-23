@@ -26,7 +26,7 @@
       }
       public bool IsPaused { get; set; }
 
-      public IdentityComponent<Timer> IdentityComponent { get; set; }
+      public ComponentIdentity<Timer> IdentityComponent { get; set; }
 
       public Timer(string uniqueID, double duration)
       {

@@ -6,7 +6,7 @@ namespace SMPL
 	{
 		//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
 
-		internal SpriteComponent parent;
+		internal ComponentSprite parent;
 		internal Shader shader;
 
 		public enum Mask
@@ -31,9 +31,9 @@ namespace SMPL
 			set
 			{
 				maskColor = value;
-				shader.SetUniform("MaskRed", (float)value.Red / 255f);
-				shader.SetUniform("MaskGreen", (float)value.Green / 255f);
-				shader.SetUniform("MaskBlue", (float)value.Blue / 255f);
+				shader.SetUniform("MaskRed", (float)value.R / 255f);
+				shader.SetUniform("MaskGreen", (float)value.G / 255f);
+				shader.SetUniform("MaskBlue", (float)value.B / 255f);
 			}
 		}
 		public Color TintColor
@@ -87,10 +87,10 @@ namespace SMPL
 			set
 			{
 				fillColor = value;
-				shader.SetUniform("FillRed", (float)value.Red / 255f);
-				shader.SetUniform("FillGreen", (float)value.Green / 255f);
-				shader.SetUniform("FillBlue", (float)value.Blue / 255f);
-				shader.SetUniform("FillOpacity", (float)value.Alpha / 255f);
+				shader.SetUniform("FillRed", (float)value.R / 255f);
+				shader.SetUniform("FillGreen", (float)value.G / 255f);
+				shader.SetUniform("FillBlue", (float)value.B / 255f);
+				shader.SetUniform("FillOpacity", (float)value.A / 255f);
 			}
 		}
 		private Color outlineColor;
@@ -100,10 +100,10 @@ namespace SMPL
 			set
 			{
 				outlineColor = value;
-				shader.SetUniform("OutlineRed", (float)value.Red / 255f);
-				shader.SetUniform("OutlineGreen", (float)value.Green / 255f);
-				shader.SetUniform("OutlineBlue", (float)value.Blue / 255f);
-				shader.SetUniform("OutlineOpacity", (float)value.Alpha / 255f);
+				shader.SetUniform("OutlineRed", (float)value.R / 255f);
+				shader.SetUniform("OutlineGreen", (float)value.G / 255f);
+				shader.SetUniform("OutlineBlue", (float)value.B / 255f);
+				shader.SetUniform("OutlineOpacity", (float)value.A / 255f);
 			}
 		}
 		private double outlineOffset;
@@ -137,8 +137,8 @@ namespace SMPL
 			set
 			{
 				blurStrength = value;
-				shader.SetUniform("BlurStrengthX", (float)value.Width / 200f);
-				shader.SetUniform("BlurStrengthY", (float)value.Height / 200f);
+				shader.SetUniform("BlurStrengthX", (float)value.W / 200f);
+				shader.SetUniform("BlurStrengthY", (float)value.H / 200f);
 			}
 		}
 		private double earthquakeOpacity;
@@ -154,8 +154,8 @@ namespace SMPL
 			set
 			{
 				earthquakeStrength = value;
-				shader.SetUniform("EarthquakeStrengthX", (float)value.Width / 300f);
-				shader.SetUniform("EarthquakeStrengthY", (float)value.Height / 300f);
+				shader.SetUniform("EarthquakeStrengthX", (float)value.W / 300f);
+				shader.SetUniform("EarthquakeStrengthY", (float)value.H / 300f);
 			}
 		}
 		private Size waterStrength;
@@ -165,8 +165,8 @@ namespace SMPL
 			set
 			{
 				waterStrength = value;
-				shader.SetUniform("WaterStrengthX", (float)value.Width / 10f);
-				shader.SetUniform("WaterStrengthY", (float)value.Height / 10f);
+				shader.SetUniform("WaterStrengthX", (float)value.W / 10f);
+				shader.SetUniform("WaterStrengthY", (float)value.H / 10f);
 			}
 		}
 		private Size waterSpeed;
@@ -176,8 +176,8 @@ namespace SMPL
 			set
 			{
 				waterSpeed = value;
-				shader.SetUniform("WaterSpeedX", (float)value.Width / 40f);
-				shader.SetUniform("WaterSpeedY", (float)value.Height / 40f);
+				shader.SetUniform("WaterSpeedX", (float)value.W / 40f);
+				shader.SetUniform("WaterSpeedY", (float)value.H / 40f);
 			}
 		}
 		private double waterOpacity;
@@ -193,10 +193,10 @@ namespace SMPL
 			set
 			{
 				edgeColor = value;
-				shader.SetUniform("EdgeRed", (float)value.Red / 255f);
-				shader.SetUniform("EdgeGreen", (float)value.Green / 255f);
-				shader.SetUniform("EdgeBlue", (float)value.Blue / 255f);
-				shader.SetUniform("EdgeOpacity", (float)value.Alpha / 255f);
+				shader.SetUniform("EdgeRed", (float)value.R / 255f);
+				shader.SetUniform("EdgeGreen", (float)value.G / 255f);
+				shader.SetUniform("EdgeBlue", (float)value.B / 255f);
+				shader.SetUniform("EdgeOpacity", (float)value.A / 255f);
 			}
 		}
 		private double edgeSensitivity;
@@ -242,8 +242,8 @@ namespace SMPL
 			set
 			{
 				gridCellSize = value;
-				shader.SetUniform("GridCellWidth", (float)value.Width * 2f);
-				shader.SetUniform("GridCellHeight", (float)value.Height * 2f);
+				shader.SetUniform("GridCellWidth", (float)value.W * 2f);
+				shader.SetUniform("GridCellHeight", (float)value.H * 2f);
 			}
 		}
 		private Size gridCellSpacing;
@@ -253,8 +253,8 @@ namespace SMPL
 			set
 			{
 				gridCellSpacing = value;
-				shader.SetUniform("GridCellSpacingX", (float)value.Width / 5f);
-				shader.SetUniform("GridCellSpacingY", (float)value.Height / 5f);
+				shader.SetUniform("GridCellSpacingX", (float)value.W / 5f);
+				shader.SetUniform("GridCellSpacingY", (float)value.H / 5f);
 			}
 		}
 		private Color gridColorX;
@@ -264,10 +264,10 @@ namespace SMPL
 			set
 			{
 				gridColorX = value;
-				shader.SetUniform("GridRedX", (float)value.Red / 255f);
-				shader.SetUniform("GridGreenX", (float)value.Green / 255f);
-				shader.SetUniform("GridBlueX", (float)value.Blue / 255f);
-				shader.SetUniform("GridOpacityX", (float)value.Alpha / 255f);
+				shader.SetUniform("GridRedX", (float)value.R / 255f);
+				shader.SetUniform("GridGreenX", (float)value.G / 255f);
+				shader.SetUniform("GridBlueX", (float)value.B / 255f);
+				shader.SetUniform("GridOpacityX", (float)value.A / 255f);
 			}
 		}
 		private Color gridColorY;
@@ -277,10 +277,10 @@ namespace SMPL
 			set
 			{
 				gridColorY = value;
-				shader.SetUniform("GridRedY", (float)value.Red / 255f);
-				shader.SetUniform("GridGreenY", (float)value.Green / 255f);
-				shader.SetUniform("GridBlueY", (float)value.Blue / 255f);
-				shader.SetUniform("GridOpacityY", (float)value.Alpha / 255f);
+				shader.SetUniform("GridRedY", (float)value.R / 255f);
+				shader.SetUniform("GridGreenY", (float)value.G / 255f);
+				shader.SetUniform("GridBlueY", (float)value.B / 255f);
+				shader.SetUniform("GridOpacityY", (float)value.A / 255f);
 			}
 		}
 		private Size windStrength;
@@ -290,8 +290,8 @@ namespace SMPL
 			set
 			{
 				windStrength = value;
-				shader.SetUniform("WindStrengthX", (float)value.Width / 5f);
-				shader.SetUniform("WindStrengthY", (float)value.Height / 5f);
+				shader.SetUniform("WindStrengthX", (float)value.W / 5f);
+				shader.SetUniform("WindStrengthY", (float)value.H / 5f);
 			}
 		}
 		private Size windSpeed;
@@ -301,8 +301,8 @@ namespace SMPL
 			set
 			{
 				windSpeed = value;
-				shader.SetUniform("WindSpeedX", (float)value.Width / 8f);
-				shader.SetUniform("WindSpeedY", (float)value.Height / 8f);
+				shader.SetUniform("WindSpeedX", (float)value.W / 8f);
+				shader.SetUniform("WindSpeedY", (float)value.H / 8f);
 			}
 		}
 		private Size vibrateStrength;
@@ -312,8 +312,8 @@ namespace SMPL
 			set
 			{
 				vibrateStrength = value;
-				shader.SetUniform("VibrateStrengthX", (float)value.Width / 10f);
-				shader.SetUniform("VibrateStrengthY", (float)value.Height / 10f);
+				shader.SetUniform("VibrateStrengthX", (float)value.W / 10f);
+				shader.SetUniform("VibrateStrengthY", (float)value.H / 10f);
 			}
 		}
 		private Size sinStrength;
@@ -323,8 +323,8 @@ namespace SMPL
 			set
 			{
 				sinStrength = value;
-				shader.SetUniform("SinStrengthX", (float)value.Width);
-				shader.SetUniform("SinStrengthY", (float)value.Height);
+				shader.SetUniform("SinStrengthX", (float)value.W);
+				shader.SetUniform("SinStrengthY", (float)value.H);
 			}
 		}
 		private Size cosStrength;
@@ -334,8 +334,8 @@ namespace SMPL
 			set
 			{
 				cosStrength = value;
-				shader.SetUniform("CosStrengthX", (float)value.Width);
-				shader.SetUniform("CosStrengthY", (float)value.Height);
+				shader.SetUniform("CosStrengthX", (float)value.W);
+				shader.SetUniform("CosStrengthY", (float)value.H);
 			}
 		}
 		private Size sinSpeed;
@@ -345,8 +345,8 @@ namespace SMPL
 			set
 			{
 				sinSpeed = value;
-				shader.SetUniform("SinSpeedX", (float)value.Width / 10f);
-				shader.SetUniform("SinSpeedY", (float)value.Height / 10f);
+				shader.SetUniform("SinSpeedX", (float)value.W / 10f);
+				shader.SetUniform("SinSpeedY", (float)value.H / 10f);
 			}
 		}
 		private Size cosSpeed;
@@ -356,8 +356,8 @@ namespace SMPL
 			set
 			{
 				cosSpeed = value;
-				shader.SetUniform("CosSpeedX", (float)value.Width / 10f);
-				shader.SetUniform("CosSpeedY", (float)value.Height / 10f);
+				shader.SetUniform("CosSpeedX", (float)value.W / 10f);
+				shader.SetUniform("CosSpeedY", (float)value.H / 10f);
 			}
 		}
 
@@ -368,8 +368,8 @@ namespace SMPL
 		//	set
 		//	{
 		//		stretchStrength = value;
-		//		shader.SetUniform("StretchStrengthX", (float)value.Width / 200f);
-		//		shader.SetUniform("StretchStrengthY", (float)value.Height / 200f);
+		//		shader.SetUniform("StretchStrengthX", (float)value.W / 200f);
+		//		shader.SetUniform("StretchStrengthY", (float)value.H / 200f);
 		//	}
 		//}
 		//private Size stretchSpeed;
@@ -379,8 +379,8 @@ namespace SMPL
 		//	set
 		//	{
 		//		stretchSpeed = value;
-		//		shader.SetUniform("StretchSpeedX", (float)value.Width * 5f);
-		//		shader.SetUniform("StretchSpeedY", (float)value.Height * 5f);
+		//		shader.SetUniform("StretchSpeedX", (float)value.W * 5f);
+		//		shader.SetUniform("StretchSpeedY", (float)value.H * 5f);
 		//	}
 		//}
 		//private double stretchOpacity;
@@ -390,7 +390,7 @@ namespace SMPL
 		//	set { stretchOpacity = value; shader.SetUniform("StretchOpacity", (float)value / 100f); }
 		//}
 
-		public Effects(SpriteComponent parent)
+		public Effects(ComponentSprite parent)
 		{
 			this.parent = parent;
 			shader = new("shaders.vert", null, "shaders.frag");

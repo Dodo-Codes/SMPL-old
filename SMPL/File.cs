@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.IO;
+using static SMPL.Events;
 
 namespace SMPL
 {
@@ -38,24 +39,27 @@ namespace SMPL
 		internal static void Initialize() => CreateShaderFiles();
 		internal static void UpdateMainThreadAssets()
 		{
-			var instances = new List<Events>(Events.instances); // thread safe iteration
+			var instances = new SortedDictionary<int, List<Events>>(Events.instances); // thread safe iteration
 			if (assetLoadBegin)
 			{
-				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAssetsLoadingStart();
-				for (int i = 0; i < instances.Count; i++) instances[i].OnAssetsLoadingStart();
-				for (int i = 0; i < instances.Count; i++) instances[i].OnLateAssetsLoadingStart();
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnAssetsLoadingStartSetup(); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnAssetsLoadingStart(); }
 			}
 			if (assetLoadUpdate)
 			{
-				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAssetsLoadingUpdate();
-				for (int i = 0; i < instances.Count; i++) instances[i].OnAssetsLoadingUpdate();
-				for (int i = 0; i < instances.Count; i++) instances[i].OnLateAssetsLoadingUpdate();
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnAssetsLoadingUpdateSetup(); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnAssetsLoadingUpdate(); }
 			}
 			if (assetLoadEnd)
 			{
-				for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAssetsLoadingEnd();
-				for (int i = 0; i < instances.Count; i++) instances[i].OnAssetsLoadingEnd();
-				for (int i = 0; i < instances.Count; i++) instances[i].OnLateAssetsLoadingEnd();
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnAssetsLoadingEndSetup(); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnAssetsLoadingEnd(); }
 			}
 
 			assetLoadBegin = false;

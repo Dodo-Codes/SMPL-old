@@ -1,15 +1,14 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using static SMPL.Events;
 
 namespace SMPL
 {
-	public class SpriteComponent
+	public class ComponentSprite
 	{
 		internal Sprite sprite = new();
 
-		internal TransformComponent transform;
+		internal Component2D transform;
 		//public Effects Effects { get; set; }
 		//internal Image image;
 		//internal SFML.Graphics.Texture rawTexture;
@@ -78,7 +77,7 @@ namespace SMPL
 				var textRect = sprite.TextureRect;
 				sprite.TextureRect = new IntRect(
 					textRect.Left, textRect.Top,
-					(int)(sz.X * value.Width), (int)(sz.Y * value.Height));
+					(int)(sz.X * value.W), (int)(sz.Y * value.H));
 			}
 		}
 
@@ -90,32 +89,19 @@ namespace SMPL
 			set
 			{
 				repeats = value;
-				OriginPercent = originPercent;
-			}
-		}
-		private Point originPercent;
-		public Point OriginPercent
-		{
-			get { return originPercent; }
-			set
-			{
-				originPercent = value;
-				var w = sprite.TextureRect.Width;
-				var h = sprite.TextureRect.Height;
-
-				value.X = Number.Limit(value.X, new Bounds(0, 100));
-				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				var p = value / 100;
-				var x = w * (float)p.X * ((float)Repeats.Width / 2f) + (w * (float)p.X / 2f);
-				var y = h * (float)p.Y * ((float)Repeats.Height / 2f) + (h * (float)p.Y / 2f);
-
-				sprite.Origin = new SFML.System.Vector2f(x, y);
+				transform.OriginPercent = transform.OriginPercent;
 			}
 		}
 
-		public SpriteComponent(TransformComponent transformComponent, string texturePath = "folder/texture.png")
+		internal void Update()
+      {
+
+      }
+
+		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png")
 		{
-			transform = transformComponent;
+			sprites.Add(this);
+			transform = component2D;
 			//Effects = new(this);
 			TexturePath = texturePath;
 			IsRepeated = true;
@@ -127,22 +113,27 @@ namespace SMPL
 			if (Window.DrawNotAllowed() || IsHidden || sprite == null ||
 				sprite.Texture == null || transform == null) return;
 
+			var w = sprite.TextureRect.Width;
+			var h = sprite.TextureRect.Height;
+			var p = transform.OriginPercent / 100;
+			var x = w * (float)p.X * ((float)Repeats.W / 2f) + (w * (float)p.X / 2f);
+			var y = h * (float)p.Y * ((float)Repeats.H / 2f) + (h * (float)p.Y / 2f);
+
+			sprite.Origin = new Vector2f(x, y);
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Scale = new Vector2f(
-				(float)transform.Size.Width / sprite.Texture.Size.X,
-				(float)transform.Size.Height / sprite.Texture.Size.Y);
+				(float)transform.Size.W / sprite.Texture.Size.X,
+				(float)transform.Size.H / sprite.Texture.Size.Y);
 
 			var pos = sprite.Position;
-			for (int j = 0; j < Repeats.Height + 1; j++)
+			for (int j = 0; j < Repeats.H + 1; j++)
 			{
-				for (int i = 0; i < Repeats.Width + 1; i++)
+				for (int i = 0; i < Repeats.W + 1; i++)
 				{
-					var w = sprite.TextureRect.Width;
-					var h = sprite.TextureRect.Height;
-					var p = sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
+					var p1 = sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
 
-					sprite.Position = p;
+					sprite.Position = p1;
 					camera.rendTexture.Draw(sprite);//, new RenderStates(Effects.shader));
 					sprite.Position = pos;
 				}

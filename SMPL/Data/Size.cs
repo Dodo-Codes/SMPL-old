@@ -4,30 +4,30 @@ namespace SMPL
 {
 	public struct Size
 	{
-		public double Width { get; set; }
-		public double Height { get; set; }
+		public double W { get; set; }
+		public double H { get; set; }
 
 		public Size(double width, double height)
 		{
-			Width = width;
-			Height = height;
+			W = width;
+			H = height;
 		}
 		public static Size Resize(Size size, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
-			size.Width = Number.Move(size.Width, speed, timeUnit);
-			size.Height = Number.Move(size.Height, speed, timeUnit);
+			size.W = Number.Move(size.W, speed, timeUnit);
+			size.H = Number.Move(size.H, speed, timeUnit);
 			return size;
 		}
 		public static Size ResizeTowardTarget(Size size, Size targetSize, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			size = Resize(size, speed, timeUnit);
 			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
-			var dist = Point.GetDistance(new Point(size.Width, size.Height), new Point(targetSize.Width, targetSize.Height));
+			var dist = Point.GetDistance(new Point(size.W, size.H), new Point(targetSize.W, targetSize.H));
 			if (dist < sp) size = targetSize;
 			return size;
 		}
 
-		public override string ToString() => $"{Width} {Height}";
+		public override string ToString() => $"{W} {H}";
 		/// <summary>
 		/// This default <see cref="object"/> method is not implemented.
 		/// </summary>
@@ -37,16 +37,16 @@ namespace SMPL
 		/// </summary>
 		public override int GetHashCode() => default;
 
-		public static Size operator +(Size a, Size b) =>	new(a.Width + b.Width, a.Height + b.Height);
-		public static Size operator -(Size a, Size b) =>	new(a.Width - b.Width, a.Height - b.Height);
-		public static Size operator *(Size a, Size b) =>	new(a.Width * b.Width, a.Height * b.Height);
-		public static Size operator /(Size a, Size b) =>	new(a.Width / b.Width, a.Height / b.Height);
-		public static bool operator ==(Size a, Size b) => a.Width == b.Width && a.Height == b.Height;
-		public static bool operator !=(Size a, Size b) => a.Width != b.Width && a.Height != b.Height;
-		public static Size operator *(Size a, double b) =>	new(a.Width * b,		  a.Height * b);
-		public static Size operator /(Size a, double b) =>	new(a.Width / b,		  a.Height / b);
+		public static Size operator +(Size a, Size b) => new(a.W + b.W, a.H + b.H);
+		public static Size operator -(Size a, Size b) => new(a.W - b.W, a.H - b.H);
+		public static Size operator *(Size a, Size b) => new(a.W * b.W, a.H * b.H);
+		public static Size operator /(Size a, Size b) => new(a.W / b.W, a.H / b.H);
+		public static bool operator ==(Size a, Size b) => a.W == b.W && a.H == b.H;
+		public static bool operator !=(Size a, Size b) => a.W != b.W || a.H != b.H;
+		public static Size operator *(Size a, double b) =>	new(a.W * b, a.H * b);
+		public static Size operator /(Size a, double b) =>	new(a.W / b, a.H / b);
 
 		internal static Size To(Vector2f size) => new(size.X, size.Y);
-		internal static Vector2f From(Size size) => new((float)size.Width, (float)size.Height);
+		internal static Vector2f From(Size size) => new((float)size.W, (float)size.H);
 	}
 }

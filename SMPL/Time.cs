@@ -52,6 +52,7 @@ namespace SMPL
 
 		internal static Clock time, frameDeltaTime;
 		internal static uint frameCount;
+		public static uint FrameCount { get { return frameCount; } }
 		public static double DeltaTime { get { return frameDeltaTime.ElapsedTime.AsSeconds(); } }
 		private static uint frameRateLimit;
 		public static uint FrameRateLimit

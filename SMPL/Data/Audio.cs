@@ -1,5 +1,6 @@
 ﻿using SFML.Audio;
 using SFML.System;
+using System.Collections.Generic;
 
 namespace SMPL
 {
@@ -10,7 +11,7 @@ namespace SMPL
       internal Music music;
       private bool stopped;
 
-      public IdentityComponent<Audio> IdentityComponent { get; set; }
+      public ComponentIdentity<Audio> IdentityComponent { get; set; }
 
       public static Point ListenerPosition
       {
@@ -60,15 +61,17 @@ namespace SMPL
             }
             if (value && IsPlaying)
             {
-               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioPause(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioPause(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioPause(this);
+               var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioPauseSetup(this); }
+               var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioPause(this); }
             }
             else if (value == false && IsPaused)
             {
-               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioPlay(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioPlay(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioPlay(this);
+               var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioPlaySetup(this); }
+               var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioPlay(this); }
             }
          }
       }
@@ -96,19 +99,22 @@ namespace SMPL
             {
                if (IsPaused == false)
                {
-                  for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioStart(this);
-                  for (int i = 0; i < instances.Count; i++) instances[i].OnAudioStart(this);
-                  for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioStart(this);
+                  var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                     e[i].OnAudioStartSetup(this); }
+                  var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                     e[i].OnAudioStart(this); }
                }
-               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioPlay(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioPlay(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioPlay(this);
+               var n2 = D(instances); foreach (var kvp in n2) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioPlaySetup(this); }
+               var n3 = D(instances); foreach (var kvp in n3) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioPlay(this); }
             }
             else if (IsPlaying || IsPaused)
             {
-               for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioStop(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnAudioStop(this);
-               for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioStop(this);
+               var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioStopSetup(this); }
+               var n2 = D(instances); foreach (var kvp in n2) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+                  e[i].OnAudioStop(this); }
             }
          }
       }
@@ -197,18 +203,19 @@ namespace SMPL
          }
 			else { IsNotLoaded(); return; }
 
-         Subscribe(this);
+         Subscribe(this, 0);
          Path = audioPath;
          VolumePercent = 50;
       }
 
-		public override void OnEarlyEachFrame()
+		public override void OnEachFrameSetup()
 		{
 			if (Gate.EnterOnceWhile($"{Path}-enda915'kf", IsPlaying == false && IsPaused == false && stopped == false))
 			{
-            for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyAudioEnd(this);
-            for (int i = 0; i < instances.Count; i++) instances[i].OnAudioEnd(this);
-            for (int i = 0; i < instances.Count; i++) instances[i].OnLateAudioEnd(this);
+            var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+               e[i].OnAudioEndSetup(this); }
+            var n2 = D(instances); foreach (var kvp in n2) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+               e[i].OnAudioEnd(this); }
          }
 		}
 

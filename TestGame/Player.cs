@@ -4,59 +4,57 @@ namespace TestGame
 {
 	public class Player : Events
 	{
-		public IdentityComponent<Player> IdentityComponent { get; set; }
-		public TransformComponent TransformComponent { get; set; }
-		public TextComponent TextComponent { get; set; }
+		public ComponentIdentity<Player> ComponentIdentity { get; set; }
+		public Component2D Component2D { get; set; }
+		public ComponentSprite ComponentSprite { get; set; }
+		public ComponentText ComponentText { get; set; }
 
 		public Player()
 		{
-			Subscribe(this);
-			IdentityComponent = new(this, "player");
-			TransformComponent = new(new Point(0, 0), 0, new Size(400, 200));
+			Subscribe(this, 0);
+			ComponentIdentity = new(this, "player");
+			Component2D = new(new Point(0, 0), 0, new Size(400, 200));
 
+			File.LoadAsset(File.Asset.Texture, "test2.png");
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
-			File.LoadAsset(File.Asset.Sound, "music.ogg");
 		}
       public override void OnAssetsLoadingEnd()
       {
-			if (File.AssetIsLoaded("Munro.ttf"))
+			if (Gate.EnterOnceWhile("test2.png", File.AssetIsLoaded("test2.png")))
 			{
-				TextComponent = new(TransformComponent, "Munro.ttf");
+				ComponentSprite = new(Component2D, "test2.png");
 			}
-         if (File.AssetIsLoaded("music.ogg"))
-         {
-				var sound = new Audio("music.ogg") { IsPlaying = true };
-				sound.IdentityComponent = new(sound, "whistle");
+			if (Gate.EnterOnceWhile("Munro.ttf", File.AssetIsLoaded("Munro.ttf")))
+			{
+				ComponentText = new(Component2D, "Munro.ttf");
 			}
       }
 		public override void OnDraw(Camera camera)
       {
-			if (TextComponent == null) return;
-			TextComponent.Draw(camera);
-			TextComponent.BoxOriginPercent = new Point(50, 50);
-			TextComponent.Color = Color.Black;
-			TextComponent.CharacterSize = 32;
-			TextComponent.Position = Point.MoveAtAngle(TextComponent.Position, 90, 10);
+         if (ComponentSprite != null)
+         {
+				ComponentSprite.Draw(camera);
+         }
+         if (ComponentText != null)
+         {
+				//ComponentText.Draw(camera);
+			}
 		}
-		public override void OnKeyPress(Keyboard.Key key)
-		{
-			var music = IdentityComponent<Audio>.PickByUniqueID("whistle");
-			if (key == Keyboard.Key.A) music.IsPlaying = true;
-			if (key == Keyboard.Key.S) music.IsPaused = true;
-			if (key == Keyboard.Key.D) music.IsPaused = false;
-			if (key == Keyboard.Key.F) music.IsPlaying = false;
-		}
-		public override void OnEarlyAudioStart(Audio audio)
-		{
-			Console.Log("early");
-		}
-		public override void OnAudioStart(Audio audio)
-		{
+      public override void OnKeyHold(Keyboard.Key key)
+      {
+			ComponentText.Spacing += new Size(0.01, 0);
+      }
+		public override void OnTextSpacingResizeStart(ComponentText instance, Size delta)
+      {
 			Console.Log("start");
 		}
-		public override void OnLateAudioStart(Audio audio)
-		{
-			Console.Log("late");
+      public override void OnTextSpacingResize(ComponentText instance, Size delta)
+      {
+			Console.Log(delta);
 		}
-	}
+      public override void OnTextSpacingResizeEnd(ComponentText instance)
+      {
+			Console.Log("end");
+		}
+   }
 }

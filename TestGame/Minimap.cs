@@ -7,11 +7,11 @@ namespace TestGame
 		public Minimap(Point viewPosition, Size viewSize) :
 			base(viewPosition, viewSize)
 		{
-			Subscribe(this);
+			Subscribe(this, 0);
 			IdentityComponent = new(this, "minimap");
-			BackgroundColor = Color.DarkRed;
+			BackgroundColor = Color.BlueDark;
 			TransformComponent.Position = new Point(400, 0);
 			TransformComponent.Size = new Size(500, 500);
 		}
-	}
+   }
 }

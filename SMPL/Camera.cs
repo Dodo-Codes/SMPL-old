@@ -8,8 +8,8 @@ namespace SMPL
 	public class Camera : Events
 	{
 		public static Camera WorldCamera { get; internal set; }
-		public IdentityComponent<Camera> IdentityComponent { get; set; }
-		public TransformComponent TransformComponent { get; set; }
+		public ComponentIdentity<Camera> IdentityComponent { get; set; }
+		public Component2D TransformComponent { get; set; }
 
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
@@ -67,8 +67,8 @@ namespace SMPL
 			var pos = Point.From(viewPosition);
 			TransformComponent = new(new Point(), 0, new Size(100, 100));
 			view = new View(pos, Size.From(viewSize));
-			rendTexture = new RenderTexture((uint)viewSize.Width, (uint)viewSize.Height);
-			BackgroundColor = Color.DarkGreen;
+			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
+			BackgroundColor = Color.GreenDark;
 			startSize = viewSize;
 			Zoom = 1;
 		}
@@ -76,17 +76,21 @@ namespace SMPL
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
-         for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyDraw(WorldCamera);
-         for (int i = 0; i < instances.Count; i++) instances[i].OnDraw(WorldCamera);
-			for (int i = 0; i < instances.Count; i++) instances[i].OnLateDraw(WorldCamera);
-			foreach (var kvp in sortedCameras)
+			{ var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnDrawSetup(WorldCamera); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+						e[i].OnDraw(WorldCamera); } }
+			foreach (var kvpp in sortedCameras)
 			{
-				for (int i = 0; i < kvp.Value.Count; i++)
+				for (int j = 0; j < kvpp.Value.Count; j++)
 				{
-					if (kvp.Value[i] == WorldCamera) continue;
-					kvp.Value[i].StartDraw();
-					for (int j = 0; j < instances.Count; j++) instances[j].OnDraw(kvp.Value[i]);
-					kvp.Value[i].EndDraw();
+					if (kvpp.Value[j] == WorldCamera) continue;
+					kvpp.Value[j].StartDraw();
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+							e[i].OnDrawSetup(kvpp.Value[j]); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+							e[i].OnDraw(kvpp.Value[j]); }
+					kvpp.Value[j].EndDraw();
 				}
 			}
 			WorldCamera.EndDraw();
@@ -104,8 +108,8 @@ namespace SMPL
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
 			var sc = new Vector2f(
-				(float)TransformComponent.Size.Width / (float)tsz.X,
-				(float)TransformComponent.Size.Height / (float)tsz.Y);
+				(float)TransformComponent.Size.W / (float)tsz.X,
+				(float)TransformComponent.Size.H / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;
@@ -140,5 +144,5 @@ namespace SMPL
 			}
 			return true;
 		}
-	}
+   }
 }

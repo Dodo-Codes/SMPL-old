@@ -29,9 +29,10 @@ namespace SMPL
 
 			instance.OnStart();
 
-			for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyStart();
-			for (int i = 0; i < instances.Count; i++) instances[i].OnStart();
-			for (int i = 0; i < instances.Count; i++) instances[i].OnLateStart();
+			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				e[i].OnStartSetup(); }
+			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				e[i].OnStart(); }
 
 			Time.Run();
 		}

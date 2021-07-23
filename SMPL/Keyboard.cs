@@ -53,5 +53,6 @@ namespace SMPL
 			F2 = 86, F3 = 87, F4 = 88, F5 = 89, F6 = 90, F7 = 91, F8 = 92, F9 = 93, F10 = 94, F11 = 95, F12 = 96, F13 = 97,
 			F14 = 98, F15 = 99, Pause = 100,
 		}
+		public static Key[] PressedKeys { get { return Events.keysHeld.ToArray(); } }
 	}
 }

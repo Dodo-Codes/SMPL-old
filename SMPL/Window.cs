@@ -122,9 +122,10 @@ namespace SMPL
 
 		public static void Close()
       {
-			for (int i = 0; i < instances.Count; i++) instances[i].OnEarlyWindowClose();
-			for (int i = 0; i < instances.Count; i++) instances[i].OnWindowClose();
-			for (int i = 0; i < instances.Count; i++) instances[i].OnLateWindowClose();
+			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					e[i].OnWindowCloseSetup(); }
+			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					e[i].OnWindowClose(); }
 			window.Close();
 		}
 		public static void RequestFocus() => window.RequestFocus();
