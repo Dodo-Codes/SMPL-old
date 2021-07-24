@@ -9,6 +9,15 @@ uniform float MaskRed;
 uniform float MaskGreen;
 uniform float MaskBlue;
 
+uniform float ReplaceRed;
+uniform float ReplaceGreen;
+uniform float ReplaceBlue;
+uniform float ReplaceOpacity;
+uniform float ReplaceWithRed;
+uniform float ReplaceWithGreen;
+uniform float ReplaceWithBlue;
+uniform float ReplaceWithOpacity;
+
 uniform float Gamma;
 uniform float Desaturation;
 uniform float Inversion;
@@ -85,9 +94,7 @@ void main(void)
 	vec3 colorR = texture2D(RawTexture, gl_TexCoord[0].xy);
 	// ==================================================================================================================
 	vec2 coord = gl_TexCoord[0].xy;
-	vec4 pixelcolor = texture2D(Texture, coord);
-	float blinkalpha = cos(Time * (BlinkSpeed));
-	alpha = mix(alpha, min(blinkalpha, pixelcolor.w), BlinkOpacity / 2);
+	alpha = mix(alpha, min(cos(Time * (BlinkSpeed)), texture2D(Texture, coord).w), BlinkOpacity / 2);
 	// ==================================================================================================================
 	float factorx = sin(Time * StretchSpeedX) * StretchStrengthX;
 	float factory = sin(Time * StretchSpeedY) * StretchStrengthY;
@@ -188,6 +195,18 @@ void main(void)
 	float factor = 1.0 / (PixelateStrength + 0.001);
 	vec2 pos = floor(gl_TexCoord[0].xy * factor + 0.5) / factor;
 	color = mix(vec4(color, alpha), gl_Color * texture2D(Texture, pos), PixelateOpacity);
+	// ==================================================================================================================
+	float margin = 0.004;
+	vec4 replace = vec4(ReplaceRed, ReplaceGreen, ReplaceBlue, ReplaceOpacity);
+	vec4 replaceWith = vec4(ReplaceWithRed, ReplaceWithGreen, ReplaceWithBlue, ReplaceWithOpacity);
+	if (color.x > replace.x - margin && color.x < replace.x + margin &&
+		color.y > replace.y - margin && color.y < replace.y + margin &&
+		color.z > replace.z - margin && color.z < replace.z + margin &&
+		alpha > replace.w - margin && alpha < replace.w + margin)
+	{
+		color = replaceWith.xyz;
+		alpha = replaceWith.w;
+	}
 	// ==================================================================================================================
 	if (HasMask)
 	{

@@ -359,8 +359,8 @@ namespace SMPL
 		public virtual void OnTextCharacterResize(ComponentText instance, int delta) { }
 		public virtual void OnTextChangeSetup(ComponentText instance, string prevoious) { }
 		public virtual void OnTextChange(ComponentText instance, string previous) { }
-		public virtual void OnTextRecolorSetup(ComponentText instance, Color previous) { }
-		public virtual void OnTextRecolor(ComponentText instance, Color previous) { }
+		public virtual void OnTextTintRecolorSetup(ComponentText instance, Color previous) { }
+		public virtual void OnTextTintRecolor(ComponentText instance, Color previous) { }
 		public virtual void OnTextBackgroundRecolorSetup(ComponentText instance, Color previous) { }
 		public virtual void OnTextBackgroundRecolor(ComponentText instance, Color previous) { }
 		public virtual void OnTextOutlineRecolorSetup(ComponentText instance, Color previous) { }
@@ -371,8 +371,8 @@ namespace SMPL
 		public virtual void OnTextSpacingResize(ComponentText instance, Size delta) { }
 		public virtual void OnTextChangeStartSetup(ComponentText instance, string prevoious) { }
 		public virtual void OnTextChangeStart(ComponentText instance, string previous) { }
-		public virtual void OnTextRecolorStartSetup(ComponentText instance, Color previous) { }
-		public virtual void OnTextRecolorStart(ComponentText instance, Color previous) { }
+		public virtual void OnTextTintRecolorStartSetup(ComponentText instance, Color previous) { }
+		public virtual void OnTextTintRecolorStart(ComponentText instance, Color previous) { }
 		public virtual void OnTextBackgroundRecolorStartSetup(ComponentText instance, Color previous) { }
 		public virtual void OnTextBackgroundRecolorStart(ComponentText instance, Color previous) { }
 		public virtual void OnTextOutlineRecolorStartSetup(ComponentText instance, Color previous) { }
@@ -383,8 +383,8 @@ namespace SMPL
 		public virtual void OnTextSpacingResizeStart(ComponentText instance, Size delta) { }
 		public virtual void OnTextChangeEndSetup(ComponentText instance) { }
 		public virtual void OnTextChangeEnd(ComponentText instance) { }
-		public virtual void OnTextRecolorEndSetup(ComponentText instance) { }
-		public virtual void OnTextRecolorEnd(ComponentText instance) { }
+		public virtual void OnTextTintRecolorEndSetup(ComponentText instance) { }
+		public virtual void OnTextTintRecolorEnd(ComponentText instance) { }
 		public virtual void OnTextBackgroundRecolorEndSetup(ComponentText instance) { }
 		public virtual void OnTextBackgroundRecolorEnd(ComponentText instance) { }
 		public virtual void OnTextOutlineRecolorEndSetup(ComponentText instance) { }
@@ -420,5 +420,52 @@ namespace SMPL
 		public virtual void On2DOriginateStart(Component2D instance, Point delta) { }
 		public virtual void On2DOriginateEndSetup(Component2D instance) { }
 		public virtual void On2DOriginateEnd(Component2D instance) { }
+
+		public virtual void OnSpriteCreateSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteCreate(ComponentSprite instance) { }
+		public virtual void OnSpriteRepeatingChangeSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteRepeatingChange(ComponentSprite instance) { }
+		public virtual void OnSpriteSmoothingChangeSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteSmoothingChange(ComponentSprite instance) { }
+		public virtual void OnSpriteVisibilityChangeSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteVisibilityChange(ComponentSprite instance) { }
+		public virtual void OnSpriteGridResizeSetup(ComponentSprite instance, Size delta) { }
+		public virtual void OnSpriteGridResize(ComponentSprite instance, Size delta) { }
+		public virtual void OnSpriteOffsetSetup(ComponentSprite instance, Point delta) { }
+		public virtual void OnSpriteOffset(ComponentSprite instance, Point delta) { }
+		public virtual void OnSpriteResizeSetup(ComponentSprite instance, Size delta) { }
+		public virtual void OnSpriteResize(ComponentSprite instance, Size delta) { }
+		public virtual void OnSpriteOffsetStartSetup(ComponentSprite instance, Point delta) { }
+		public virtual void OnSpriteOffsetStart(ComponentSprite instance, Point delta) { }
+		public virtual void OnSpriteResizeStartSetup(ComponentSprite instance, Size delta) { }
+		public virtual void OnSpriteResizeStart(ComponentSprite instance, Size delta) { }
+		public virtual void OnSpriteOffsetEndSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteOffsetEnd(ComponentSprite instance) { }
+		public virtual void OnSpriteResizeEndSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteResizeEnd(ComponentSprite instance) { }
+		public virtual void OnSpriteTintRecolorSetup(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteTintRecolor(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteTintRecolorStartSetup(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteTintRecolorStart(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteTintRecolorEndSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteTintRecolorEnd(ComponentSprite instance) { }
+		public virtual void OnSpriteOutlineResizeSetup(ComponentSprite instance, double delta) { }
+		public virtual void OnSpriteOutlineResize(ComponentSprite instance, double delta) { }
+		public virtual void OnSpriteOutlineResizeStartSetup(ComponentSprite instance, double delta) { }
+		public virtual void OnSpriteOutlineResizeStart(ComponentSprite instance, double delta) { }
+		public virtual void OnSpriteOutlineResizeEndSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteOutlineResizeEnd(ComponentSprite instance) { }
+		public virtual void OnSpriteOutlineRecolorSetup(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteOutlineRecolor(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteOutlineRecolorStartSetup(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteOutlineRecolorStart(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteOutlineRecolorEndSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteOutlineRecolorEnd(ComponentSprite instance) { }
+		public virtual void OnSpriteBackgroundRecolorSetup(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteBackgroundRecolor(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteBackgroundRecolorStartSetup(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteBackgroundRecolorStart(ComponentSprite instance, Color previous) { }
+		public virtual void OnSpriteBackgroundRecolorEndSetup(ComponentSprite instance) { }
+		public virtual void OnSpriteBackgroundRecolorEnd(ComponentSprite instance) { }
 	}
 }

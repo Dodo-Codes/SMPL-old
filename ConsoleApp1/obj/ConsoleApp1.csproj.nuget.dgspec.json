@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj": {}
+    "D:\\code\\SFML\\SMPL\\ConsoleApp1\\ConsoleApp1.csproj": {}
   },
   "projects": {
-    "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj": {
+    "D:\\code\\SFML\\SMPL\\ConsoleApp1\\ConsoleApp1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj",
-        "projectName": "SMPL",
-        "projectPath": "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj",
+        "projectUniqueName": "D:\\code\\SFML\\SMPL\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectName": "ConsoleApp1",
+        "projectPath": "D:\\code\\SFML\\SMPL\\ConsoleApp1\\ConsoleApp1.csproj",
         "packagesPath": "C:\\Users\\PC PC\\.nuget\\packages\\",
-        "outputPath": "D:\\code\\SFML\\SMPL\\SMPL\\obj\\",
+        "outputPath": "D:\\code\\SFML\\SMPL\\ConsoleApp1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\PC PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,28 +39,6 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "dependencies": {
-            "NetCoreServer": {
-              "target": "Package",
-              "version": "[5.1.0, )"
-            },
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.1, )"
-            },
-            "SFML.Net": {
-              "target": "Package",
-              "version": "[2.5.0, )"
-            },
-            "System.Configuration.ConfigurationManager": {
-              "target": "Package",
-              "version": "[5.0.0, )"
-            },
-            "System.Diagnostics.PerformanceCounter": {
-              "target": "Package",
-              "version": "[5.0.1, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",

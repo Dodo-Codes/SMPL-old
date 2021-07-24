@@ -9,9 +9,24 @@ namespace SMPL
 		private readonly uint creationFrame;
 		private readonly double rand;
 		internal Component2D transform;
-		//public Effects Effects { get; set; }
 		internal SFML.Graphics.Text text;
 
+		public Effects Effects { get; set; }
+
+		private Color bgColor, lastFrameBgCol;
+		public Color BackgroundColor
+		{
+			get { return bgColor; }
+			set
+			{
+				if (bgColor == value) return;
+				var delta = bgColor;
+				bgColor = value;
+
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolor(this, delta); }
+			}
+		}
 		private Point position, lastFramePos;
 		public Point Position
 		{
@@ -141,70 +156,6 @@ namespace SMPL
 						e[i].OnTextChange(this, oldStr); }
 			}
 		}
-		private Color bgColor, lastFrameBgCol;
-		public Color BackgroundColor
-		{
-			get { return bgColor; }
-			set
-			{
-				if (bgColor == value) return;
-				var delta = bgColor;
-				bgColor = value;
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolor(this, delta); }
-			}
-		}
-		private Color color, lastFrameCol;
-		public Color Color
-		{
-			get { return color; }
-			set
-			{
-				if (color == value) return;
-				var delta = Color.To(text.FillColor);
-				color = value;
-				text.FillColor = Color.From(value);
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextRecolorSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextRecolor(this, delta); }
-			}
-		}
-		private Color outlineColor, lastFrameOutCol;
-		public Color OutlineColor
-		{
-			get { return outlineColor; }
-			set
-			{
-				if (outlineColor == value) return;
-				var delta = Color.To(text.OutlineColor);
-				outlineColor = value;
-				text.OutlineColor = Color.From(value);
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextOutlineRecolorSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextOutlineRecolor(this, delta); }
-			}
-		}
-		private double lastFrameOutW;
-		public double OutlineWidth
-		{
-			get { return text.OutlineThickness; }
-			set
-			{
-				if (text.OutlineThickness == value) return;
-				var delta = value - text.OutlineThickness;
-				text.OutlineThickness = (float)value;
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextOutlineResizeSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextOutlineResize(this, delta); }
-			}
-		}
 		private Size spacing, lastFrameSp;
 		public Size Spacing
 		{
@@ -318,62 +269,6 @@ namespace SMPL
 				}
 			}
 			//=============================
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-start", lastFrameBgCol != bgColor))
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStartSetup(this, bgColor - lastFrameBgCol); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStart(this, bgColor - lastFrameBgCol); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-end", lastFrameBgCol == bgColor))
-			{
-				if (creationFrame + 1 != Time.frameCount)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEnd(this); }
-				}
-			}
-			//=============================
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-col-start", lastFrameCol != color))
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRecolorStartSetup(this, color - lastFrameCol); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRecolorStart(this, color - lastFrameCol); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-col-end", lastFrameCol == color))
-			{
-				if (creationFrame + 1 != Time.frameCount)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRecolorEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRecolorEnd(this); }
-				}
-			}
-			//=============================
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-outcol-start", lastFrameOutCol != outlineColor))
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorStartSetup(this, outlineColor - lastFrameOutCol); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorStart(this, outlineColor - lastFrameOutCol); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-outcol-end", lastFrameOutCol == outlineColor))
-			{
-				if (creationFrame + 1 != Time.frameCount)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorEnd(this); }
-				}
-			}
-			//=============================
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-outw-start", lastFrameOutW != OutlineWidth))
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeStartSetup(this, OutlineWidth - lastFrameOutW); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeStart(this, OutlineWidth - lastFrameOutW); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-outw-end", lastFrameOutW == OutlineWidth))
-			{
-				if (creationFrame + 1 != Time.frameCount)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeEnd(this); }
-				}
-			}
-			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-sp-start", lastFrameSp != spacing))
 			{
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextSpacingResizeStartSetup(this, spacing - lastFrameSp); }
@@ -388,26 +283,32 @@ namespace SMPL
 				}
 			}
 			//=============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-start", lastFrameBgCol != bgColor))
+			{
+				var delta = bgColor - lastFrameBgCol;
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStartSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStart(this, delta); }
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-end", lastFrameBgCol == bgColor))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEndSetup(this); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEnd(this); }
+				}
+			}
+			//=============================
 			lastFramePos = position;
 			lastFrameAng = Angle;
 			lastFrameSc = Scale;
 			lastFrameOrPer = originPercent;
-			lastFrameCol = color;
-			lastFrameBgCol = bgColor;
-			lastFrameOutCol = outlineColor;
-			lastFrameOutW = OutlineWidth;
 			lastFrameSp = spacing;
 			lastFrameText = Text;
+			lastFrameBgCol = bgColor;
 		}
 
 		public ComponentText(Component2D component2D, string fontPath = "folder/font.ttf")
 		{
-			transform = component2D;
-			texts.Add(this);
-			creationFrame = Time.FrameCount;
-			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			//Effects = new(this);
-			text = new();
 			if (File.fonts.ContainsKey(fontPath) == false)
 			{
 				Debug.LogError(1, $"The font at '{fontPath}' is not loaded.\n" +
@@ -415,15 +316,19 @@ namespace SMPL
 					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
 				return;
 			}
+			transform = component2D;
+			text = new();
+			texts.Add(this);
+			Effects = new(this);
+			creationFrame = Time.FrameCount;
+			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			FontPath = fontPath;
 			text.DisplayedString = "Hello World!";
+			lastFrameText = text.DisplayedString;
 			text.CharacterSize = 64;
-			color = Color.White;
-			outlineColor = Color.Black;
-			text.FillColor = Color.From(Color.White);
-			text.OutlineColor = Color.From(Color.Black);
 			text.Position = GetOffset();
 			spacing = new Size(4, 4);
+			lastFrameSp = spacing;
 			text.LetterSpacing = 1;
 			text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
 			lastFrameSc = new Size(1, 1);
@@ -440,7 +345,7 @@ namespace SMPL
 
 			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
 			//rend.SetView(camera.view);
-			rend.Clear(new SFML.Graphics.Color(Color.From(bgColor)));
+			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));
 			rend.Draw(text);
 			rend.Display();
 			var sprite = new Sprite(rend.Texture)

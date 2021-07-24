@@ -4,10 +4,10 @@ namespace TestGame
 {
 	public class Player : Events
 	{
-		public ComponentIdentity<Player> ComponentIdentity { get; set; }
-		public Component2D Component2D { get; set; }
-		public ComponentSprite ComponentSprite { get; set; }
-		public ComponentText ComponentText { get; set; }
+		private ComponentIdentity<Player> ComponentIdentity { get; set; }
+		private Component2D Component2D { get; set; }
+		private ComponentSprite ComponentSprite { get; set; }
+		private ComponentText ComponentText { get; set; }
 
 		public Player()
 		{
@@ -34,27 +34,27 @@ namespace TestGame
          if (ComponentSprite != null)
          {
 				ComponentSprite.Draw(camera);
-         }
+			}
          if (ComponentText != null)
          {
-				//ComponentText.Draw(camera);
+				ComponentText.Draw(camera);
 			}
 		}
       public override void OnKeyHold(Keyboard.Key key)
       {
-			ComponentText.Spacing += new Size(0.01, 0);
-      }
-		public override void OnTextSpacingResizeStart(ComponentText instance, Size delta)
-      {
+			ComponentSprite.SizePercent += new Size(1, 0);
+		}
+		public override void OnSpriteResizeStart(ComponentSprite instance, Size delta)
+		{
 			Console.Log("start");
 		}
-      public override void OnTextSpacingResize(ComponentText instance, Size delta)
-      {
+		public override void OnSpriteResize(ComponentSprite instance, Size delta)
+		{
 			Console.Log(delta);
 		}
-      public override void OnTextSpacingResizeEnd(ComponentText instance)
-      {
+		public override void OnSpriteResizeEnd(ComponentSprite instance)
+		{
 			Console.Log("end");
 		}
-   }
+	}
 }

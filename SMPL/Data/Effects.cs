@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using static SMPL.Events;
 
 namespace SMPL
 {
@@ -6,8 +7,18 @@ namespace SMPL
 	{
 		//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
 
-		internal ComponentSprite parent;
+		private readonly uint creationFrame;
+		private readonly double rand;
+		internal ComponentText textParent;
+		internal ComponentSprite spriteParent;
 		internal Shader shader;
+
+		private double progress;
+		public double Progress
+		{
+			get { return progress; }
+			set { progress = value; shader.SetUniform("Time", (float)value); }
+		}
 
 		public enum Mask
 		{
@@ -35,18 +46,6 @@ namespace SMPL
 				shader.SetUniform("MaskGreen", (float)value.G / 255f);
 				shader.SetUniform("MaskBlue", (float)value.B / 255f);
 			}
-		}
-		public Color TintColor
-		{
-			get { return Color.To(parent.sprite.Color); }
-			set { parent.sprite.Color = Color.From(value); }
-		}
-
-		private double progress;
-		public double Progress
-		{
-			get { return progress; }
-			set { progress = value; shader.SetUniform("Time", (float)value); }
 		}
 
 		private double gamma;
@@ -80,6 +79,106 @@ namespace SMPL
 			set { brightness = value; shader.SetUniform("Brightness", (float)value / 100f); }
 		}
 
+		private Color replaceColor, lastFrameRepCol;
+		public Color ReplacedColor
+		{
+			get { return replaceColor; }
+			set
+			{
+				replaceColor = value;
+				shader.SetUniform("ReplaceRed", (float)value.R / 255f);
+				shader.SetUniform("ReplaceGreen", (float)value.G / 255f);
+				shader.SetUniform("ReplaceBlue", (float)value.B / 255f);
+				shader.SetUniform("ReplaceOpacity", (float)value.A / 255f);
+			}
+		}
+		private Color replaceWithColor, lastFrameRepWCol;
+		public Color ReplaceWithColor
+		{
+			get { return replaceWithColor; }
+			set
+			{
+				replaceWithColor = value;
+				shader.SetUniform("ReplaceWithRed", (float)value.R / 255f);
+				shader.SetUniform("ReplaceWithGreen", (float)value.G / 255f);
+				shader.SetUniform("ReplaceWithBlue", (float)value.B / 255f);
+				shader.SetUniform("ReplaceWithOpacity", (float)value.A / 255f);
+			}
+		}
+		private Color color, lastFrameCol;
+		public Color TintColor
+		{
+			get { return Color.To(spriteParent == null ? textParent.text.FillColor : spriteParent.sprite.Color); }
+			set
+			{
+				if (color == value) return;
+				var delta = Color.To(spriteParent == null ? textParent.text.FillColor : spriteParent.sprite.Color);
+				color = value;
+				var c = Color.From(value);
+				if (spriteParent != null)
+				{
+					spriteParent.sprite.Color = c;
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolor(spriteParent, delta); }
+				}
+				else
+				{
+					textParent.text.FillColor = c;
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolor(textParent, delta); }
+				}
+			}
+		}
+		private Color bgColor, lastFrameBgCol;
+		public Color BackgroundColor
+		{
+			get { return bgColor; }
+			set
+			{
+				if (bgColor == value) return;
+				var delta = bgColor;
+				bgColor = value;
+
+				if (textParent != null)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolor(textParent, delta); }
+				}
+				else
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolor(spriteParent, delta); }
+				}
+			}
+		}
+		private Color outlineColor, lastFrameOutCol;
+		public Color OutlineColor
+		{
+			get { return outlineColor; }
+			set
+			{
+				if (outlineColor == value) return;
+				var delta = outlineColor;
+				outlineColor = value;
+				if (textParent != null)
+				{
+					textParent.text.OutlineColor = Color.From(value);
+
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolor(textParent, delta); }
+				}
+				else
+				{
+					shader.SetUniform("OutlineRed", (float)value.R / 255f);
+					shader.SetUniform("OutlineGreen", (float)value.G / 255f);
+					shader.SetUniform("OutlineBlue", (float)value.B / 255f);
+					shader.SetUniform("OutlineOpacity", (float)value.A / 255f);
+
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolor(spriteParent, delta); }
+				}
+			}
+		}
 		private Color fillColor;
 		public Color FillColor
 		{
@@ -93,24 +192,28 @@ namespace SMPL
 				shader.SetUniform("FillOpacity", (float)value.A / 255f);
 			}
 		}
-		private Color outlineColor;
-		public Color OutlineColor
+		private double outlineWidth, lastFrameOutW;
+		public double OutlineWidth
 		{
-			get { return outlineColor; }
+			get { return outlineWidth; }
 			set
 			{
-				outlineColor = value;
-				shader.SetUniform("OutlineRed", (float)value.R / 255f);
-				shader.SetUniform("OutlineGreen", (float)value.G / 255f);
-				shader.SetUniform("OutlineBlue", (float)value.B / 255f);
-				shader.SetUniform("OutlineOpacity", (float)value.A / 255f);
+				if (value == outlineWidth) return;
+				var delta = value - outlineWidth;
+				outlineWidth = value;
+				if (spriteParent != null)
+				{
+					shader.SetUniform("OutlineOffset", (float)value / 500f);
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResize(spriteParent, delta); }
+				}
+				else
+				{
+					textParent.text.OutlineThickness = (float)value;
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResize(textParent, delta); }
+				}
 			}
-		}
-		private double outlineOffset;
-		public double OutlineOffset
-		{
-			get { return outlineOffset; }
-			set { outlineOffset = value; shader.SetUniform("OutlineOffset", (float)value / 500f); }
 		}
 		private double blinkSpeed;
 		public double BlinkSpeed
@@ -390,28 +493,212 @@ namespace SMPL
 		//	set { stretchOpacity = value; shader.SetUniform("StretchOpacity", (float)value / 100f); }
 		//}
 
+		internal void Update()
+		{
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-col-start", lastFrameCol != color))
+			{
+				var delta = color - lastFrameCol;
+				if (textParent != null)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorStartSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorStart(textParent, delta); }
+				}
+				else
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorStartSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorStart(spriteParent, delta); }
+				}
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-col-end", lastFrameCol == color))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					if (textParent != null)
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorEndSetup(textParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorEnd(textParent); }
+					}
+					else
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorEndSetup(spriteParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorEnd(spriteParent); }
+					}
+				}
+			}
+			//=============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outw-start", lastFrameOutW != OutlineWidth))
+			{
+				var delta = OutlineWidth - lastFrameOutW;
+				if (textParent != null)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeStartSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeStart(textParent, delta); }
+				}
+				else
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeStartSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeStart(spriteParent, delta); }
+				}
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outw-end", lastFrameOutW == OutlineWidth))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					if (textParent != null)
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeEndSetup(textParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeEnd(textParent); }
+					}
+					else
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeEndSetup(spriteParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeEnd(spriteParent); }
+					}
+				}
+			}
+			//=============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-bgCol-start", lastFrameBgCol != bgColor))
+			{
+				var delta = bgColor - lastFrameBgCol;
+				if (textParent != null)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStartSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStart(textParent, delta); }
+				}
+				else
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorStartSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorStart(spriteParent, delta); }
+				}
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-bgCol-end", lastFrameBgCol == bgColor))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					if (textParent != null)
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEndSetup(textParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEnd(textParent); }
+					}
+					else
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorEndSetup(spriteParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorEnd(spriteParent); }
+					}
+				}
+			}
+			//=============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outcol-start", lastFrameOutCol != outlineColor))
+			{
+				var delta = outlineColor - lastFrameOutCol;
+				if (textParent != null)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorStartSetup(textParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorStart(textParent, delta); }
+				}
+				else
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorStartSetup(spriteParent, delta); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorStart(spriteParent, delta); }
+				}
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outcol-end", lastFrameOutCol == outlineColor))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					if (textParent != null)
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorEndSetup(textParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorEnd(textParent); }
+					}
+					else
+					{
+						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorEndSetup(spriteParent); }
+						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorEnd(spriteParent); }
+					}
+				}
+			}
+			//=============================
+			lastFrameOutW = OutlineWidth;
+			lastFrameCol = color;
+			lastFrameBgCol = bgColor;
+			lastFrameOutCol = outlineColor;
+		}
+
 		public Effects(ComponentSprite parent)
 		{
-			this.parent = parent;
+			creationFrame = Time.FrameCount;
+			rand = Number.Random(new Bounds(-9999, 9999), 5);
+			spriteParent = parent;
+			SetDefaults();
+		}
+		public Effects(ComponentText parent)
+		{
+			creationFrame = Time.FrameCount;
+			rand = Number.Random(new Bounds(-9999, 9999), 5);
+			textParent = parent;
+			textParent.text.FillColor = Color.From(Color.White);
+			textParent.text.OutlineColor = Color.From(Color.Black);
+
+			SetDefaults();
+		}
+		private void SetDefaults()
+		{
 			shader = new("shaders.vert", null, "shaders.frag");
+			color = Color.White; lastFrameCol = Color.White;
 
-			OutlineOffset = 10;
-			BlinkSpeed = 20;
-			BlurStrength = new Size(10, 10);
-			EarthquakeStrength = new Size(5, 10);
-			WaterStrength = new Size(10, 10);
+			outlineColor = Color.Black; lastFrameOutCol = Color.Black;
+			shader.SetUniform("OutlineRed", 0f);
+			shader.SetUniform("OutlineGreen", 0f);
+			shader.SetUniform("OutlineBlue", 0f);
+			shader.SetUniform("OutlineOpacity", 1f);
+
+			outlineWidth = 10;
+			shader.SetUniform("OutlineOffset", 0.02f);
+
+			blinkSpeed = 20;
+			shader.SetUniform("BlinkSpeed", 20f);
+
+			blurStrength = new Size(10, 10);
+			shader.SetUniform("BlurStrengthX", 0.05f);
+			shader.SetUniform("BlurStrengthY", 0.05f);
+
+			earthquakeStrength = new Size(5, 10);
+			shader.SetUniform("EarthquakeStrengthX", 0.017f);
+			shader.SetUniform("EarthquakeStrengthY", 0.034f);
+
+			waterStrength = new Size(10, 10);
 			WaterSpeed = new Size(5, 5);
-			EdgeSensitivity = 20;
-			EdgeThickness = 20;
-			PixelateStrength = 5;
-			GridCellSize = new Size(5, 5);
-			GridCellSpacing = new Size(25, 25);
-			WindSpeed = new Size(10, 10);
-			WaveSpeedCos = new Size(0, 30);
-			WaveSpeedSin = new Size(0, 30);
+			shader.SetUniform("WaterStrengthX", 1f);
+			shader.SetUniform("WaterStrengthY", 1f);
+			shader.SetUniform("WaterSpeedX", 0.125f);
+			shader.SetUniform("WaterSpeedY", 0.125f);
 
-			//Wind.Speed.Set(10, 10);
-			//Wave.Speed.Set(20, 20, 20, 20);
+			edgeSensitivity = 20;
+			edgeThickness = 20;
+			shader.SetUniform("EdgeSensitivity", 0.5f);
+			shader.SetUniform("EdgeThickness", 0.096f);
+
+			pixelateStrength = 5;
+			shader.SetUniform("PixelateStrength", 0.05f);
+
+			gridCellSize = new Size(5, 5);
+			gridCellSpacing = new Size(25, 25);
+			shader.SetUniform("GridCellWidth", 10f);
+			shader.SetUniform("GridCellHeight", 10f);
+			shader.SetUniform("GridCellSpacingX", 5f);
+			shader.SetUniform("GridCellSpacingY", 5f);
+
+			sinSpeed = new Size(0, 30);
+			cosSpeed = new Size(0, 30);
+			shader.SetUniform("SinSpeedX", 3f);
+			shader.SetUniform("SinSpeedY", 3f);
+			shader.SetUniform("CosSpeedX", 3f);
+			shader.SetUniform("CosSpeedY", 3f);
+
+			windSpeed = new Size(10, 10);
+			shader.SetUniform("WindSpeedX", 1.25f);
+			shader.SetUniform("WindSpeedY", 1.25f);
 		}
 	}
 }
