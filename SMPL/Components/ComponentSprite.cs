@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System.Collections.Generic;
 using static SMPL.Events;
 
 namespace SMPL
@@ -11,11 +12,14 @@ namespace SMPL
 		internal Sprite sprite = new();
 
 		internal Component2D transform;
-		public Effects Effects { get; set; }
 		internal Image image;
 		internal Texture rawTexture;
 		internal byte[] rawTextureData;
 
+		public Effects Effects { get; set; }
+
+		internal ComponentSprite maskingSprite;
+		internal ComponentText maskingText;
 		private bool isHidden;
 		public bool IsHidden
 		{
@@ -63,12 +67,10 @@ namespace SMPL
 				sprite.Texture = texture;
 
 				image = new Image(sprite.Texture.CopyToImage());
-				if (Effects.MaskType != Effects.Mask.In) image.FlipVertically();
-				image.FlipVertically();
+				//image.FlipVertically();
 				rawTextureData = image.Pixels;
 				rawTexture = new Texture(image);
 				Effects.shader.SetUniform("texture", sprite.Texture);
-				Effects.shader.SetUniform("raw_texture", rawTexture);
 				path = value;
 			}
 		}
@@ -185,7 +187,8 @@ namespace SMPL
 
 		public void Draw(Camera camera)
 		{
-			if (Window.DrawNotAllowed() || IsHidden || sprite == null ||
+			var isMask = maskingSprite != null || maskingText != null;
+			if (Window.DrawNotAllowed() || isMask || IsHidden || sprite == null ||
 				sprite.Texture == null || transform == null) return;
 
 			var w = sprite.TextureRect.Width;
@@ -194,17 +197,16 @@ namespace SMPL
 			var x = w * (float)p.X * ((float)GridSize.W / 2f) + (w * (float)p.X / 2f);
 			var y = h * (float)p.Y * ((float)GridSize.H / 2f) + (h * (float)p.Y / 2f);
 
-			//var rendTexture = new RenderTexture(image.Size.X, image.Size.Y);
-			//rendTexture.Clear(Color.From(Effects.BackgroundColor));
-			//rendTexture.Texture.Update(rawTextureData);
-
 			sprite.Origin = new Vector2f(x, y);
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Scale = new Vector2f(
-				(float)transform.Size.W / sprite.Texture.Size.X,
-				(float)transform.Size.H / sprite.Texture.Size.Y);
-			sprite.Texture.Update(rawTextureData);
+				(float)transform.Size.W / rawTexture.Size.X,
+				(float)transform.Size.H / rawTexture.Size.Y);
+
+			var drawMaskResult = Effects.DrawMasks(rawTexture);
+			Effects.shader.SetUniform("raw_texture", drawMaskResult.Texture);
+			sprite.Texture = drawMaskResult.Texture;
 
 			var pos = sprite.Position;
 			for (int j = 0; j < GridSize.H + 1; j++)
@@ -218,6 +220,7 @@ namespace SMPL
 					sprite.Position = pos;
 				}
 			}
+			drawMaskResult.Dispose();
 		}
 		public void DrawBounds(Camera camera, float thickness, Color color)
 		{

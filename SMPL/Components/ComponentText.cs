@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System.Collections.Generic;
 using static SMPL.Events;
 
 namespace SMPL
@@ -13,6 +14,8 @@ namespace SMPL
 
 		public Effects Effects { get; set; }
 
+		internal ComponentSprite maskingSprite;
+		internal ComponentText maskingText;
 		private Color bgColor, lastFrameBgCol;
 		public Color BackgroundColor
 		{
@@ -175,7 +178,7 @@ namespace SMPL
 			}
 		}
 
-		private Vector2f GetOffset()
+		internal Vector2f GetOffset()
       {
 			var t = new SFML.Graphics.Text("12", text.Font);
 			t.CharacterSize = text.CharacterSize;
@@ -340,11 +343,11 @@ namespace SMPL
 		}
 		public void Draw(Camera camera)
 		{
-			if (Window.DrawNotAllowed() || IsHidden || text == null ||
+			var isMask = maskingSprite != null || maskingText != null;
+			if (Window.DrawNotAllowed() || isMask || IsHidden || text == null ||
 				text.Font == null || transform == null) return;
 
 			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
-			//rend.SetView(camera.view);
 			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));
 			rend.Draw(text);
 			rend.Display();
@@ -356,8 +359,11 @@ namespace SMPL
 					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
 					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)))
 			};
-			camera.rendTexture.Draw(sprite);//, new RenderStates(Effects.shader));
+			var drawMaskResult = Effects.DrawMasks(sprite.Texture);
+			sprite.Texture = drawMaskResult.Texture;
+			camera.rendTexture.Draw(sprite, new RenderStates(Effects.shader));
 
+			drawMaskResult.Dispose();
 			rend.Dispose();
 			sprite.Dispose();
 		}

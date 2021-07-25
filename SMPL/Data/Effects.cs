@@ -1,4 +1,6 @@
 ﻿using SFML.Graphics;
+using SFML.System;
+using System.Collections.Generic;
 using static SMPL.Events;
 
 namespace SMPL
@@ -47,6 +49,8 @@ namespace SMPL
 				shader.SetUniform("MaskBlue", (float)value.B / 255f);
 			}
 		}
+		internal List<ComponentSprite> maskSprites = new();
+		internal List<ComponentText> maskTexts = new();
 
 		private double gamma;
 		public double GammaPercent
@@ -625,6 +629,38 @@ namespace SMPL
 			lastFrameOutCol = outlineColor;
 		}
 
+		public void MaskAdd(ComponentSprite componentSprite)
+		{
+			if (AddMask(maskSprites, nameof(ComponentSprite), componentSprite))
+			{
+				if (spriteParent != null) componentSprite.maskingSprite = spriteParent;
+				else componentSprite.maskingText = textParent;
+			}
+		}
+		public void MaskAdd(ComponentText componentText)
+		{
+			if (AddMask(maskTexts, nameof(ComponentText), componentText))
+			{
+				if (spriteParent != null) componentText.maskingSprite = spriteParent;
+				else componentText.maskingText = textParent;
+			}
+		}
+		private static bool AddMask<T>(List<T> list, string name, T component)
+		{
+			if (component == null)
+			{
+				Debug.LogError(2, $"The instance of {nameof(T)} cannot be 'null'.");
+				return false;
+			}
+			if (list.Contains(component))
+			{
+				Debug.LogError(2, $"The instance of {nameof(T)} is already added as a mask.");
+				return false;
+			}
+			list.Add(component);
+			return true;
+		}
+
 		public Effects(ComponentSprite parent)
 		{
 			creationFrame = Time.FrameCount;
@@ -652,9 +688,6 @@ namespace SMPL
 			shader.SetUniform("OutlineGreen", 0f);
 			shader.SetUniform("OutlineBlue", 0f);
 			shader.SetUniform("OutlineOpacity", 1f);
-
-			outlineWidth = 10;
-			shader.SetUniform("OutlineOffset", 0.02f);
 
 			blinkSpeed = 20;
 			shader.SetUniform("BlinkSpeed", 20f);
@@ -699,6 +732,65 @@ namespace SMPL
 			windSpeed = new Size(10, 10);
 			shader.SetUniform("WindSpeedX", 1.25f);
 			shader.SetUniform("WindSpeedY", 1.25f);
+		}
+
+		internal RenderTexture DrawMasks(Texture texture)
+		{
+			var transform = textParent != null ? textParent.transform : spriteParent.transform;
+			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
+			var sprite = new Sprite(texture);
+			var sc = new Vector2f((float)transform.Size.W / texture.Size.X, (float)transform.Size.H / texture.Size.Y);
+
+			rend.Draw(sprite);
+			for (int i = 0; i < maskTexts.Count; i++)
+			{
+				var pos = Point.From(maskTexts[i].transform.Position) + maskTexts[i].GetOffset();
+				maskTexts[i].text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+				maskTexts[i].text.Rotation = (float)maskTexts[i].transform.Angle;
+				maskTexts[i].text.Origin = new Vector2f(
+					(float)(maskTexts[i].transform.Size.W * (maskTexts[i].transform.OriginPercent.X / 100)),
+					(float)(maskTexts[i].transform.Size.H * (maskTexts[i].transform.OriginPercent.Y / 100)));
+				rend.Draw(maskTexts[i].text);
+			}
+			for (int i = 0; i < maskSprites.Count; i++)
+			{
+				//var scOld = obj.sprite.Scale;
+				//var aOld = obj.sprite.Rotation;
+				//var orOld = obj.sprite.Origin;
+				//
+				//var sc = new Vector2f(scOld.X / sprite.Scale.X, scOld.Y / sprite.Scale.Y);
+				//var a = -(sprite.Rotation - aOld);
+				//obj.sprite.Scale = sc;
+				//obj.sprite.Rotation = a;
+				//obj.sprite.Origin *= 2;
+				//var p2 = new Vector2f(posOld.X, posOld.Y);
+				//var p = ;
+				////p += new Vector2f(sprite.TextureRect.Width / 4, sprite.TextureRect.Height / 4);
+				var pos = Point.From(maskSprites[i].transform.Position);
+				var w = sprite.TextureRect.Width;
+				var h = sprite.TextureRect.Height;
+				var p = transform.OriginPercent / 100;
+				var x = w * (float)p.X * ((float)maskSprites[i].GridSize.W / 2f) + (w * (float)p.X / 2f);
+				var y = h * (float)p.Y * ((float)maskSprites[i].GridSize.H / 2f) + (h * (float)p.Y / 2f);
+
+				maskSprites[i].sprite.Origin = new Vector2f(x, y);
+				maskSprites[i].sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+				maskSprites[i].sprite.Rotation = (float)maskSprites[i].transform.Angle;
+				maskSprites[i].sprite.Scale = new Vector2f(
+					(float)maskSprites[i].transform.Size.W / maskSprites[i].rawTexture.Size.X,
+					(float)maskSprites[i].transform.Size.H / maskSprites[i].rawTexture.Size.Y);
+
+				rend.Draw(maskSprites[i].sprite, new RenderStates(maskSprites[i].Effects.shader));
+
+				//obj.sprite.Position = posOld;
+				//obj.sprite.Scale = scOld;
+				//obj.sprite.Rotation = aOld;
+				//obj.sprite.Origin = orOld;
+			}	
+			rend.Display();
+
+			sprite.Dispose();
+			return rend;
 		}
 	}
 }
