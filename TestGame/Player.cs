@@ -15,7 +15,7 @@ namespace TestGame
 		{
 			Subscribe(this, 0);
 			ComponentIdentity = new(this, "player");
-			Component2D = new(new Point(0, 0), 0, new Size(400, 400));
+			Component2D = new(new Point(0, 0), 0, new Size(100, 100));
 			Mask2D = new(new Point(0, 0), 0, new Size(100, 100));
 
 			File.LoadAsset(File.Asset.Texture, "test2.png");
@@ -49,6 +49,7 @@ namespace TestGame
 			}
          if (ComponentText != null)
          {
+				ComponentText.Text = $"{Mouse.CursorPositionWindow}";
 				ComponentText.Draw(camera);
 			}
 			if (Mask != null)

@@ -133,28 +133,6 @@ namespace SMPL
 				}
 			}
 		}
-		private Color bgColor, lastFrameBgCol;
-		public Color BackgroundColor
-		{
-			get { return bgColor; }
-			set
-			{
-				if (bgColor == value) return;
-				var delta = bgColor;
-				bgColor = value;
-
-				if (textParent != null)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolor(textParent, delta); }
-				}
-				else
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolor(spriteParent, delta); }
-				}
-			}
-		}
 		private Color outlineColor, lastFrameOutCol;
 		public Color OutlineColor
 		{
@@ -561,37 +539,6 @@ namespace SMPL
 				}
 			}
 			//=============================
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-bgCol-start", lastFrameBgCol != bgColor))
-			{
-				var delta = bgColor - lastFrameBgCol;
-				if (textParent != null)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStartSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorStart(textParent, delta); }
-				}
-				else
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorStartSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorStart(spriteParent, delta); }
-				}
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-bgCol-end", lastFrameBgCol == bgColor))
-			{
-				if (creationFrame + 1 != Time.frameCount)
-				{
-					if (textParent != null)
-					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEndSetup(textParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEnd(textParent); }
-					}
-					else
-					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorEndSetup(spriteParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteBackgroundRecolorEnd(spriteParent); }
-					}
-				}
-			}
-			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outcol-start", lastFrameOutCol != outlineColor))
 			{
 				var delta = outlineColor - lastFrameOutCol;
@@ -625,7 +572,6 @@ namespace SMPL
 			//=============================
 			lastFrameOutW = OutlineWidth;
 			lastFrameCol = color;
-			lastFrameBgCol = bgColor;
 			lastFrameOutCol = outlineColor;
 		}
 
@@ -633,16 +579,32 @@ namespace SMPL
 		{
 			if (AddMask(maskSprites, nameof(ComponentSprite), componentSprite))
 			{
-				if (spriteParent != null) componentSprite.maskingSprite = spriteParent;
-				else componentSprite.maskingText = textParent;
+				if (spriteParent != null)
+				{
+					componentSprite.maskingSprite = spriteParent;
+					spriteParent.Effects.shader.SetUniform("HasMask", true);
+				}
+				else
+				{
+					componentSprite.maskingText = textParent;
+					textParent.Effects.shader.SetUniform("HasMask", true);
+				}
 			}
 		}
 		public void MaskAdd(ComponentText componentText)
 		{
 			if (AddMask(maskTexts, nameof(ComponentText), componentText))
 			{
-				if (spriteParent != null) componentText.maskingSprite = spriteParent;
-				else componentText.maskingText = textParent;
+				if (spriteParent != null)
+				{
+					componentText.maskingSprite = spriteParent;
+					spriteParent.Effects.shader.SetUniform("HasMask", true);
+				}
+				else
+				{
+					componentText.maskingText = textParent;
+					textParent.Effects.shader.SetUniform("HasMask", true);
+				}
 			}
 		}
 		private static bool AddMask<T>(List<T> list, string name, T component)
@@ -734,14 +696,13 @@ namespace SMPL
 			shader.SetUniform("WindSpeedY", 1.25f);
 		}
 
-		internal RenderTexture DrawMasks(Texture texture)
+		internal RenderTexture DrawMasks(Sprite spr)
 		{
 			var transform = textParent != null ? textParent.transform : spriteParent.transform;
 			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
-			var sprite = new Sprite(texture);
-			var sc = new Vector2f((float)transform.Size.W / texture.Size.X, (float)transform.Size.H / texture.Size.Y);
+			var sc = new Vector2f((float)transform.Size.W / spr.Texture.Size.X, (float)transform.Size.H / spr.Texture.Size.Y);
 
-			rend.Draw(sprite);
+			rend.Draw(spr);
 			for (int i = 0; i < maskTexts.Count; i++)
 			{
 				var pos = Point.From(maskTexts[i].transform.Position) + maskTexts[i].GetOffset();
@@ -754,21 +715,9 @@ namespace SMPL
 			}
 			for (int i = 0; i < maskSprites.Count; i++)
 			{
-				//var scOld = obj.sprite.Scale;
-				//var aOld = obj.sprite.Rotation;
-				//var orOld = obj.sprite.Origin;
-				//
-				//var sc = new Vector2f(scOld.X / sprite.Scale.X, scOld.Y / sprite.Scale.Y);
-				//var a = -(sprite.Rotation - aOld);
-				//obj.sprite.Scale = sc;
-				//obj.sprite.Rotation = a;
-				//obj.sprite.Origin *= 2;
-				//var p2 = new Vector2f(posOld.X, posOld.Y);
-				//var p = ;
-				////p += new Vector2f(sprite.TextureRect.Width / 4, sprite.TextureRect.Height / 4);
 				var pos = Point.From(maskSprites[i].transform.Position);
-				var w = sprite.TextureRect.Width;
-				var h = sprite.TextureRect.Height;
+				var w = spr.TextureRect.Width;
+				var h = spr.TextureRect.Height;
 				var p = transform.OriginPercent / 100;
 				var x = w * (float)p.X * ((float)maskSprites[i].GridSize.W / 2f) + (w * (float)p.X / 2f);
 				var y = h * (float)p.Y * ((float)maskSprites[i].GridSize.H / 2f) + (h * (float)p.Y / 2f);
@@ -781,15 +730,8 @@ namespace SMPL
 					(float)maskSprites[i].transform.Size.H / maskSprites[i].rawTexture.Size.Y);
 
 				rend.Draw(maskSprites[i].sprite, new RenderStates(maskSprites[i].Effects.shader));
-
-				//obj.sprite.Position = posOld;
-				//obj.sprite.Scale = scOld;
-				//obj.sprite.Rotation = aOld;
-				//obj.sprite.Origin = orOld;
-			}	
+			}
 			rend.Display();
-
-			sprite.Dispose();
 			return rend;
 		}
 	}

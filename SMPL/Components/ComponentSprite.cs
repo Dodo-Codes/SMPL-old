@@ -14,6 +14,7 @@ namespace SMPL
 		internal Component2D transform;
 		internal Image image;
 		internal Texture rawTexture;
+		internal Texture rawTextureShader;
 		internal byte[] rawTextureData;
 
 		public Effects Effects { get; set; }
@@ -67,10 +68,10 @@ namespace SMPL
 				sprite.Texture = texture;
 
 				image = new Image(sprite.Texture.CopyToImage());
-				//image.FlipVertically();
 				rawTextureData = image.Pixels;
 				rawTexture = new Texture(image);
-				Effects.shader.SetUniform("texture", sprite.Texture);
+				image.FlipVertically();
+				rawTextureShader = new Texture(image);
 				path = value;
 			}
 		}
@@ -200,13 +201,27 @@ namespace SMPL
 			sprite.Origin = new Vector2f(x, y);
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
+			if (rawTexture.Size.X < transform.Size.W &&
+				rawTexture.Size.Y < transform.Size.H)
+			{
+
+			}
 			sprite.Scale = new Vector2f(
 				(float)transform.Size.W / rawTexture.Size.X,
 				(float)transform.Size.H / rawTexture.Size.Y);
+			if (sprite.Scale.X < 1) sprite.Scale = new Vector2f(1, sprite.Scale.Y);
+			if (sprite.Scale.Y < 1) sprite.Scale = new Vector2f(sprite.Scale.X, 1);
 
-			var drawMaskResult = Effects.DrawMasks(rawTexture);
-			Effects.shader.SetUniform("raw_texture", drawMaskResult.Texture);
+			sprite.Texture = rawTexture;
+			var drawMaskResult = Effects.DrawMasks(sprite);
 			sprite.Texture = drawMaskResult.Texture;
+
+			sprite.TextureRect = new IntRect(sprite.TextureRect.Left, sprite.TextureRect.Top,
+				(int)transform.Size.W, (int)transform.Size.H);
+			sprite.Scale = new Vector2f(1, 1);
+
+			Effects.shader.SetUniform("Texture", sprite.Texture);
+			Effects.shader.SetUniform("RawTexture", rawTextureShader);
 
 			var pos = sprite.Position;
 			for (int j = 0; j < GridSize.H + 1; j++)

@@ -359,8 +359,12 @@ namespace SMPL
 					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
 					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)))
 			};
-			var drawMaskResult = Effects.DrawMasks(sprite.Texture);
+			var drawMaskResult = Effects.DrawMasks(sprite);
 			sprite.Texture = drawMaskResult.Texture;
+
+			Effects.shader.SetUniform("Texture", sprite.Texture);
+			Effects.shader.SetUniform("RawTexture", rend.Texture);
+
 			camera.rendTexture.Draw(sprite, new RenderStates(Effects.shader));
 
 			drawMaskResult.Dispose();
