@@ -22,6 +22,8 @@ namespace SMPL
 			set { progress = value; shader.SetUniform("Time", (float)value); }
 		}
 
+		internal List<ComponentSprite> maskSprites = new();
+		internal List<ComponentText> maskTexts = new();
 		public enum Mask
 		{
 			None, In, Out
@@ -47,10 +49,19 @@ namespace SMPL
 				shader.SetUniform("MaskRed", (float)value.R / 255f);
 				shader.SetUniform("MaskGreen", (float)value.G / 255f);
 				shader.SetUniform("MaskBlue", (float)value.B / 255f);
+				shader.SetUniform("MaskOpacity", (float)value.A / 255f);
 			}
 		}
-		internal List<ComponentSprite> maskSprites = new();
-		internal List<ComponentText> maskTexts = new();
+		private float maskColorBounds, lastFrameMaskColB;
+		public float MaskColorBounds
+		{
+			get { return maskColorBounds; }
+			set
+			{
+				maskColorBounds = value;
+				shader.SetUniform("MaskMargin", (float)value / 255f);
+			}
+		}
 
 		private double gamma;
 		public double GammaPercent
@@ -83,6 +94,16 @@ namespace SMPL
 			set { brightness = value; shader.SetUniform("Brightness", (float)value / 100f); }
 		}
 
+		private float replaceColorBounds, lastFrameRepColB;
+		public float ReplaceColorBounds
+		{
+			get { return replaceColorBounds; }
+			set
+			{
+				replaceColorBounds = value;
+				shader.SetUniform("ReplaceMargin", (float)value / 255f);
+			}
+		}
 		private Color replaceColor, lastFrameRepCol;
 		public Color ReplacedColor
 		{
@@ -611,12 +632,12 @@ namespace SMPL
 		{
 			if (component == null)
 			{
-				Debug.LogError(2, $"The instance of {nameof(T)} cannot be 'null'.");
+				Debug.LogError(2, $"The instance of {name} cannot be 'null'.");
 				return false;
 			}
 			if (list.Contains(component))
 			{
-				Debug.LogError(2, $"The instance of {nameof(T)} is already added as a mask.");
+				Debug.LogError(2, $"This instance of {name} is already added as a mask.");
 				return false;
 			}
 			list.Add(component);
@@ -650,6 +671,12 @@ namespace SMPL
 			shader.SetUniform("OutlineGreen", 0f);
 			shader.SetUniform("OutlineBlue", 0f);
 			shader.SetUniform("OutlineOpacity", 1f);
+
+			replaceColorBounds = 1; lastFrameRepColB = 1;
+			shader.SetUniform("ReplaceMargin", 0.004f);
+
+			maskColorBounds = 1; lastFrameMaskColB = 1;
+			shader.SetUniform("MaskMargin", 0.004f);
 
 			blinkSpeed = 20;
 			shader.SetUniform("BlinkSpeed", 20f);
@@ -699,14 +726,17 @@ namespace SMPL
 		internal RenderTexture DrawMasks(Sprite spr)
 		{
 			var transform = textParent != null ? textParent.transform : spriteParent.transform;
-			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
+			var sz = new Vector2u((uint)transform.Size.W, (uint)transform.Size.H);
+			if (sz.X < spr.Texture.Size.X) sz.X = spr.Texture.Size.X;
+			if (sz.Y < spr.Texture.Size.Y) sz.Y = spr.Texture.Size.Y;
+			var rend = new RenderTexture(sz.X, sz.Y);
 			var sc = new Vector2f((float)transform.Size.W / spr.Texture.Size.X, (float)transform.Size.H / spr.Texture.Size.Y);
 
 			rend.Draw(spr);
 			for (int i = 0; i < maskTexts.Count; i++)
 			{
 				var pos = Point.From(maskTexts[i].transform.Position) + maskTexts[i].GetOffset();
-				maskTexts[i].text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+				maskTexts[i].text.Position = new Vector2f(pos.X, pos.Y);
 				maskTexts[i].text.Rotation = (float)maskTexts[i].transform.Angle;
 				maskTexts[i].text.Origin = new Vector2f(
 					(float)(maskTexts[i].transform.Size.W * (maskTexts[i].transform.OriginPercent.X / 100)),
