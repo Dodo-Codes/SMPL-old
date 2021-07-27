@@ -11,8 +11,7 @@ namespace SMPL
 
 		private readonly uint creationFrame;
 		private readonly double rand;
-		internal ComponentText textParent;
-		internal ComponentSprite spriteParent;
+		internal ComponentVisual owner;
 		internal Shader shader;
 
 		private double progress;
@@ -22,8 +21,7 @@ namespace SMPL
 			set { progress = value; shader.SetUniform("Time", (float)value); }
 		}
 
-		internal List<ComponentSprite> maskSprites = new();
-		internal List<ComponentText> maskTexts = new();
+		internal List<ComponentVisual> masks = new();
 		public enum Mask
 		{
 			None, In, Out
@@ -133,21 +131,25 @@ namespace SMPL
 		private Color color, lastFrameCol;
 		public Color TintColor
 		{
-			get { return Color.To(spriteParent == null ? textParent.text.FillColor : spriteParent.sprite.Color); }
+			get { return Color.To(owner is ComponentText ?
+				(owner as ComponentText).text.FillColor : (owner as ComponentSprite).sprite.Color); }
 			set
 			{
 				if (color == value) return;
-				var delta = Color.To(spriteParent == null ? textParent.text.FillColor : spriteParent.sprite.Color);
+				var delta = Color.To(owner is ComponentText ?
+					(owner as ComponentText).text.FillColor : (owner as ComponentSprite).sprite.Color);
 				color = value;
 				var c = Color.From(value);
-				if (spriteParent != null)
+				if (owner is ComponentSprite)
 				{
+					var spriteParent = owner as ComponentSprite;
 					spriteParent.sprite.Color = c;
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorSetup(spriteParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolor(spriteParent, delta); }
 				}
 				else
 				{
+					var textParent = owner as ComponentText;
 					textParent.text.FillColor = c;
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorSetup(textParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolor(textParent, delta); }
@@ -163,8 +165,9 @@ namespace SMPL
 				if (outlineColor == value) return;
 				var delta = outlineColor;
 				outlineColor = value;
-				if (textParent != null)
+				if (owner is ComponentText)
 				{
+					var textParent = owner as ComponentText;
 					textParent.text.OutlineColor = Color.From(value);
 
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorSetup(textParent, delta); }
@@ -172,6 +175,7 @@ namespace SMPL
 				}
 				else
 				{
+					var spriteParent = owner as ComponentSprite;
 					shader.SetUniform("OutlineRed", (float)value.R / 255f);
 					shader.SetUniform("OutlineGreen", (float)value.G / 255f);
 					shader.SetUniform("OutlineBlue", (float)value.B / 255f);
@@ -204,14 +208,16 @@ namespace SMPL
 				if (value == outlineWidth) return;
 				var delta = value - outlineWidth;
 				outlineWidth = value;
-				if (spriteParent != null)
+				if (owner is ComponentSprite)
 				{
+					var spriteParent = owner as ComponentSprite;
 					shader.SetUniform("OutlineOffset", (float)value / 500f);
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeSetup(spriteParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResize(spriteParent, delta); }
 				}
 				else
 				{
+					var textParent = owner as ComponentText;
 					textParent.text.OutlineThickness = (float)value;
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeSetup(textParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResize(textParent, delta); }
@@ -498,6 +504,9 @@ namespace SMPL
 
 		internal void Update()
 		{
+			var textParent = owner is ComponentText ? owner as ComponentText : null;
+			var spriteParent = owner is ComponentSprite ? owner as ComponentSprite : null;
+
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-col-start", lastFrameCol != color))
 			{
 				var delta = color - lastFrameCol;
@@ -596,39 +605,17 @@ namespace SMPL
 			lastFrameOutCol = outlineColor;
 		}
 
-		public void MaskAdd(ComponentSprite componentSprite)
+		public void MaskAdd(ComponentVisual componentVisual)
 		{
-			if (AddMask(maskSprites, nameof(ComponentSprite), componentSprite))
+			if (componentVisual is ComponentSprite && AddMask(masks, nameof(ComponentSprite), componentVisual)) Execute();
+			else if (componentVisual is ComponentText && AddMask(masks, nameof(ComponentText), componentVisual)) Execute();
+			void Execute()
 			{
-				if (spriteParent != null)
-				{
-					componentSprite.maskingSprite = spriteParent;
-					spriteParent.Effects.shader.SetUniform("HasMask", true);
-				}
-				else
-				{
-					componentSprite.maskingText = textParent;
-					textParent.Effects.shader.SetUniform("HasMask", true);
-				}
+				componentVisual.masking = owner;
+				owner.Effects.shader.SetUniform("HasMask", true);
 			}
 		}
-		public void MaskAdd(ComponentText componentText)
-		{
-			if (AddMask(maskTexts, nameof(ComponentText), componentText))
-			{
-				if (spriteParent != null)
-				{
-					componentText.maskingSprite = spriteParent;
-					spriteParent.Effects.shader.SetUniform("HasMask", true);
-				}
-				else
-				{
-					componentText.maskingText = textParent;
-					textParent.Effects.shader.SetUniform("HasMask", true);
-				}
-			}
-		}
-		private static bool AddMask<T>(List<T> list, string name, T component)
+		private static bool AddMask(List<ComponentVisual> list, string name, ComponentVisual component)
 		{
 			if (component == null)
 			{
@@ -644,20 +631,11 @@ namespace SMPL
 			return true;
 		}
 
-		public Effects(ComponentSprite parent)
+		public Effects(ComponentVisual owner)
 		{
 			creationFrame = Time.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			spriteParent = parent;
-			SetDefaults();
-		}
-		public Effects(ComponentText parent)
-		{
-			creationFrame = Time.FrameCount;
-			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			textParent = parent;
-			textParent.text.FillColor = Color.From(Color.White);
-			textParent.text.OutlineColor = Color.From(Color.Black);
+			this.owner = owner;
 
 			SetDefaults();
 		}
@@ -725,41 +703,47 @@ namespace SMPL
 
 		internal RenderTexture DrawMasks(Sprite spr)
 		{
-			var transform = textParent != null ? textParent.transform : spriteParent.transform;
-			var sz = new Vector2u((uint)transform.Size.W, (uint)transform.Size.H);
+			var sz = new Vector2u((uint)owner.transform.Size.W, (uint)owner.transform.Size.H);
 			if (sz.X < spr.Texture.Size.X) sz.X = spr.Texture.Size.X;
 			if (sz.Y < spr.Texture.Size.Y) sz.Y = spr.Texture.Size.Y;
 			var rend = new RenderTexture(sz.X, sz.Y);
-			var sc = new Vector2f((float)transform.Size.W / spr.Texture.Size.X, (float)transform.Size.H / spr.Texture.Size.Y);
+			var sc = new Vector2f(
+				(float)owner.transform.Size.W / spr.Texture.Size.X,
+				(float)owner.transform.Size.H / spr.Texture.Size.Y);
 
 			rend.Draw(spr);
-			for (int i = 0; i < maskTexts.Count; i++)
+			for (int i = 0; i < masks.Count; i++)
 			{
-				var pos = Point.From(maskTexts[i].transform.Position) + maskTexts[i].GetOffset();
-				maskTexts[i].text.Position = new Vector2f(pos.X, pos.Y);
-				maskTexts[i].text.Rotation = (float)maskTexts[i].transform.Angle;
-				maskTexts[i].text.Origin = new Vector2f(
-					(float)(maskTexts[i].transform.Size.W * (maskTexts[i].transform.OriginPercent.X / 100)),
-					(float)(maskTexts[i].transform.Size.H * (maskTexts[i].transform.OriginPercent.Y / 100)));
-				rend.Draw(maskTexts[i].text);
-			}
-			for (int i = 0; i < maskSprites.Count; i++)
-			{
-				var pos = Point.From(maskSprites[i].transform.Position);
-				var w = spr.TextureRect.Width;
-				var h = spr.TextureRect.Height;
-				var p = transform.OriginPercent / 100;
-				var x = w * (float)p.X * ((float)maskSprites[i].GridSize.W / 2f) + (w * (float)p.X / 2f);
-				var y = h * (float)p.Y * ((float)maskSprites[i].GridSize.H / 2f) + (h * (float)p.Y / 2f);
+				if (masks[i].IsHidden) continue;
+				if (masks[i] is ComponentText)
+				{
+					var t = masks[i] as ComponentText;
+					t.text.Position = Point.From(t.transform.Position) + t.GetOffset();
+					t.text.Rotation = (float)t.transform.Angle;
+					t.text.Origin = new Vector2f(
+						(float)(t.transform.Size.W * (t.transform.OriginPercent.X / 100)),
+						(float)(t.transform.Size.H * (t.transform.OriginPercent.Y / 100)));
+					rend.Draw(t.text);//, new RenderStates(t.Effects.shader));
+				}
+				else
+				{
+					var s = masks[i] as ComponentSprite;
+					var pos = Point.From(s.transform.Position) * 2;
+					var w = spr.TextureRect.Width;
+					var h = spr.TextureRect.Height;
+					var p = s.transform.OriginPercent / 100;
+					var x = w * (float)p.X * ((float)s.GridSize.W / 2f) + (w * (float)p.X / 2f);
+					var y = h * (float)p.Y * ((float)s.GridSize.H / 2f) + (h * (float)p.Y / 2f);
 
-				maskSprites[i].sprite.Origin = new Vector2f(x, y);
-				maskSprites[i].sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-				maskSprites[i].sprite.Rotation = (float)maskSprites[i].transform.Angle;
-				maskSprites[i].sprite.Scale = new Vector2f(
-					(float)maskSprites[i].transform.Size.W / maskSprites[i].rawTexture.Size.X,
-					(float)maskSprites[i].transform.Size.H / maskSprites[i].rawTexture.Size.Y);
+					s.sprite.Origin = new Vector2f(x, y);
+					s.sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+					s.sprite.Rotation = (float)s.transform.Angle;
+					s.sprite.Scale = new Vector2f(
+						(float)s.transform.Size.W / s.rawTexture.Size.X,
+						(float)s.transform.Size.H / s.rawTexture.Size.Y);
 
-				rend.Draw(maskSprites[i].sprite, new RenderStates(maskSprites[i].Effects.shader));
+					rend.Draw(s.sprite, new RenderStates(s.Effects.shader));
+				}
 			}
 			rend.Display();
 			return rend;

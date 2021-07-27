@@ -5,17 +5,10 @@ using static SMPL.Events;
 
 namespace SMPL
 {
-	public class ComponentText
+	public class ComponentText : ComponentVisual
 	{
-		private readonly uint creationFrame;
-		private readonly double rand;
-		internal Component2D transform;
-		internal SFML.Graphics.Text text;
+		internal SFML.Graphics.Text text = new();
 
-		public Effects Effects { get; set; }
-
-		internal ComponentSprite maskingSprite;
-		internal ComponentText maskingText;
 		private Color bgColor, lastFrameBgCol;
 		public Color BackgroundColor
 		{
@@ -91,20 +84,6 @@ namespace SMPL
 			{
 				text.Font = File.fonts[value];
 				path = value;
-			}
-		}
-		private bool isHidden;
-		public bool IsHidden
-		{
-			get { return isHidden; }
-         set
-         {
-				if (isHidden == value) return;
-				isHidden = value;
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextVisibilityChangeSetup(this); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTextVisibilityChange(this); }
 			}
 		}
 		private Point originPercent, lastFrameOrPer;
@@ -311,6 +290,7 @@ namespace SMPL
 		}
 
 		public ComponentText(Component2D component2D, string fontPath = "folder/font.ttf")
+			: base(component2D)
 		{
 			if (File.fonts.ContainsKey(fontPath) == false)
 			{
@@ -319,52 +299,47 @@ namespace SMPL
 					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
 				return;
 			}
-			transform = component2D;
-			text = new();
 			texts.Add(this);
-			Effects = new(this);
-			creationFrame = Time.FrameCount;
-			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			FontPath = fontPath;
 			text.DisplayedString = "Hello World!";
-			lastFrameText = text.DisplayedString;
 			text.CharacterSize = 64;
 			text.Position = GetOffset();
-			spacing = new Size(4, 4);
-			lastFrameSp = spacing;
 			text.LetterSpacing = 1;
 			text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
+			text.FillColor = Color.From(Color.White);
+			text.OutlineColor = Color.From(Color.Black);
+
+			spacing = new Size(4, 4);
+			lastFrameText = text.DisplayedString;
+			lastFrameSp = spacing;
 			lastFrameSc = new Size(1, 1);
+			FontPath = fontPath;
 
 			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 					e[i].OnTextCreateSetup(this); }
 			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 					e[i].OnTextCreate(this); }
 		}
-		public void Draw(Camera camera)
+		public override void Draw(Camera camera)
 		{
-			var isMask = maskingSprite != null || maskingText != null;
-			if (Window.DrawNotAllowed() || isMask || IsHidden || text == null ||
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || text == null ||
 				text.Font == null || transform == null) return;
 
 			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
 			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));
 			rend.Draw(text);
 			rend.Display();
-			var sprite = new Sprite(rend.Texture)
-			{
-				Position = Point.From(transform.Position),
-				Rotation = (float)transform.Angle,
-				Origin = new Vector2f(
-					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
-					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)))
-			};
+			var sprite = new Sprite(rend.Texture);
 			var drawMaskResult = Effects.DrawMasks(sprite);
 			sprite.Texture = drawMaskResult.Texture;
 
 			Effects.shader.SetUniform("Texture", sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rend.Texture);
 
+			sprite.Position = Point.From(transform.Position) + GetOffset();
+			sprite.Rotation = (float)transform.Angle;
+			sprite.Origin = new Vector2f(
+					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
+					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)));
 			camera.rendTexture.Draw(sprite, new RenderStates(Effects.shader));
 
 			drawMaskResult.Dispose();

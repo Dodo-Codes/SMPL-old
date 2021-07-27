@@ -1,4 +1,5 @@
-﻿using static SMPL.Events;
+﻿using SFML.Graphics;
+using static SMPL.Events;
 
 namespace SMPL
 {

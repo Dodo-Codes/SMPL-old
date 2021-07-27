@@ -16,7 +16,7 @@ namespace TestGame
 			Subscribe(this, 0);
 			ComponentIdentity = new(this, "player");
 			Component2D = new(new Point(0, 0), 0, new Size(400, 400));
-			Mask2D = new(new Point(0, 0), 0, new Size(100, 100));
+			Mask2D = new(new Point(0, 0), 0, new Size(300, 300));
 
 			File.LoadAsset(File.Asset.Texture, "test2.png");
 			File.LoadAsset(File.Asset.Texture, "penka.png");
@@ -34,16 +34,20 @@ namespace TestGame
 			if (Gate.EnterOnceWhile("Munro.ttf", File.AssetIsLoaded("Munro.ttf")))
 			{
 				Mask = new(Mask2D, "Munro.ttf");
-				Mask.Effects.TintColor = Color.Blue;
 				ComponentSprite.Effects.MaskAdd(Mask);
-				ComponentSprite.Effects.MaskAdd(Mask);
-				ComponentSprite.Effects.MaskColor = Color.Blue;
+				ComponentSprite.Effects.MaskColor = Color.Red;
 				ComponentSprite.Effects.MaskType = Effects.Mask.Out;
+				Mask.Effects.WindStrength = new Size(50, 50);
+
 			}
       }
 		public override void OnDraw(Camera camera)
       {
 			Mask2D.Position = Mouse.CursorPositionWindow;
+			if (Mask != null)
+			{
+				Mask.Effects.Progress = Time.GameClock;
+			}
          if (ComponentSprite != null)
          {
 				ComponentSprite.Draw(camera);

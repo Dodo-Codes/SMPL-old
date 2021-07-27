@@ -5,35 +5,15 @@ using static SMPL.Events;
 
 namespace SMPL
 {
-	public class ComponentSprite
+	public class ComponentSprite : ComponentVisual
 	{
-		private readonly uint creationFrame;
-		private readonly double rand;
 		internal Sprite sprite = new();
 
-		internal Component2D transform;
 		internal Image image;
 		internal Texture rawTexture;
 		internal Texture rawTextureShader;
 		internal byte[] rawTextureData;
 
-		public Effects Effects { get; set; }
-
-		internal ComponentSprite maskingSprite;
-		internal ComponentText maskingText;
-		private bool isHidden;
-		public bool IsHidden
-		{
-			get { return isHidden; }
-			set
-			{
-				if (isHidden == value) return;
-				isHidden = value;
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteVisibilityChangeSetup(this); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteVisibilityChange(this); }
-			}
-		}
 		public bool IsRepeated
 		{
 			get { return sprite.Texture.Repeated; }
@@ -164,6 +144,7 @@ namespace SMPL
 		}
 
 		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png")
+			: base(component2D)
 		{
 			if (File.textures.ContainsKey(texturePath) == false)
 			{
@@ -173,10 +154,6 @@ namespace SMPL
 				return;
 			}
 			sprites.Add(this);
-			transform = component2D;
-			creationFrame = Time.FrameCount;
-			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			Effects = new(this);
 			TexturePath = texturePath;
 			sprite.Texture.Repeated = true;
 			sizePercent = new Size(100, 100);
@@ -186,10 +163,9 @@ namespace SMPL
 			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreate(this); }
 		}
 
-		public void Draw(Camera camera)
+		public override void Draw(Camera camera)
 		{
-			var isMask = maskingSprite != null || maskingText != null;
-			if (Window.DrawNotAllowed() || isMask || IsHidden || sprite == null ||
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || sprite == null ||
 				sprite.Texture == null || transform == null) return;
 
 			var w = sprite.TextureRect.Width;
