@@ -607,28 +607,53 @@ namespace SMPL
 
 		public void MaskAdd(ComponentVisual componentVisual)
 		{
-			if (componentVisual is ComponentSprite && AddMask(masks, nameof(ComponentSprite), componentVisual)) Execute();
-			else if (componentVisual is ComponentText && AddMask(masks, nameof(ComponentText), componentVisual)) Execute();
-			void Execute()
-			{
-				componentVisual.masking = owner;
-				owner.Effects.shader.SetUniform("HasMask", true);
-			}
+			if (componentVisual is ComponentSprite)
+				AddMask(masks, nameof(ComponentSprite), componentVisual, owner, true);
+			else
+				AddMask(masks, nameof(ComponentText), componentVisual, owner, true);
 		}
-		private static bool AddMask(List<ComponentVisual> list, string name, ComponentVisual component)
+		public void MaskRemove(ComponentVisual componentVisual)
 		{
-			if (component == null)
+			if (componentVisual is ComponentSprite)
+				AddMask(masks, nameof(ComponentSprite), componentVisual, owner, false);
+			else
+				AddMask(masks, nameof(ComponentText), componentVisual, owner, false);
+		}
+		private static void AddMask(List<ComponentVisual> list, string name,
+			ComponentVisual component, ComponentVisual owner, bool add)
+		{
+			if (add)
 			{
-				Debug.LogError(2, $"The instance of {name} cannot be 'null'.");
-				return false;
+				if (component == null)
+				{
+					Debug.LogError(2, $"The instance of {name} cannot be 'null'.");
+					return;
+				}
+				if (list.Contains(component))
+				{
+					Debug.LogError(2, $"This instance of {name} is already added as a mask.");
+					return;
+				}
+				list.Add(component);
 			}
-			if (list.Contains(component))
+			else
 			{
-				Debug.LogError(2, $"This instance of {name} is already added as a mask.");
-				return false;
+				if (list.Contains(component) == false)
+				{
+					Debug.LogError(2, $"The instance of {name} is not a mask.");
+					return;
+				}
+				list.Remove(component);
+				if (component is ComponentText)
+				{
+					var t = component as ComponentText;
+					t.text.Position = new Vector2f();
+					t.text.Rotation = 0;
+					t.text.Scale = new Vector2f(1, 1);
+				}
 			}
-			list.Add(component);
-			return true;
+			component.masking = add ? owner : null;
+			owner.Effects.shader.SetUniform("HasMask", add);
 		}
 
 		public Effects(ComponentVisual owner)
@@ -718,29 +743,40 @@ namespace SMPL
 				if (masks[i] is ComponentText)
 				{
 					var t = masks[i] as ComponentText;
-					t.text.Position = Point.From(t.transform.Position) + t.GetOffset();
-					t.text.Rotation = (float)t.transform.Angle;
+					var off = Point.To(t.GetOffset());
+					var dist = Point.GetDistance(t.transform.Position + off, owner.transform.Position);
+					var atAng = Number.GetAngleBetweenPoints(owner.transform.Position, t.transform.Position + off);
+					var pos = Point.From(Point.MoveAtAngle(
+						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
+
+					t.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+					t.text.Rotation = (float)(t.transform.Angle - owner.transform.Angle);
 					t.text.Origin = new Vector2f(
 						(float)(t.transform.Size.W * (t.transform.OriginPercent.X / 100)),
 						(float)(t.transform.Size.H * (t.transform.OriginPercent.Y / 100)));
+					t.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
+
 					rend.Draw(t.text);//, new RenderStates(t.Effects.shader));
 				}
 				else
 				{
 					var s = masks[i] as ComponentSprite;
-					var pos = Point.From(s.transform.Position) * 2;
 					var w = spr.TextureRect.Width;
 					var h = spr.TextureRect.Height;
 					var p = s.transform.OriginPercent / 100;
 					var x = w * (float)p.X * ((float)s.GridSize.W / 2f) + (w * (float)p.X / 2f);
 					var y = h * (float)p.Y * ((float)s.GridSize.H / 2f) + (h * (float)p.Y / 2f);
+					var dist = Point.GetDistance(s.transform.Position, owner.transform.Position);
+					var atAng = Number.GetAngleBetweenPoints(owner.transform.Position, s.transform.Position);
+					var pos = Point.From(Point.MoveAtAngle(
+						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
 
 					s.sprite.Origin = new Vector2f(x, y);
+					s.sprite.Rotation = (float)(s.transform.Angle - owner.transform.Angle);
 					s.sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-					s.sprite.Rotation = (float)s.transform.Angle;
 					s.sprite.Scale = new Vector2f(
-						(float)s.transform.Size.W / s.rawTexture.Size.X,
-						(float)s.transform.Size.H / s.rawTexture.Size.Y);
+						(float)s.transform.Size.W / s.rawTexture.Size.X / sc.X,
+						(float)s.transform.Size.H / s.rawTexture.Size.Y / sc.Y);
 
 					rend.Draw(s.sprite, new RenderStates(s.Effects.shader));
 				}

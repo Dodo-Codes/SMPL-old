@@ -174,25 +174,20 @@ namespace SMPL
 			var x = w * (float)p.X * ((float)GridSize.W / 2f) + (w * (float)p.X / 2f);
 			var y = h * (float)p.Y * ((float)GridSize.H / 2f) + (h * (float)p.Y / 2f);
 
+			sprite.Position = new Vector2f();
+			sprite.Rotation = 0;
+			sprite.Scale = new Vector2f(1, 1);
+
+			sprite.Texture = rawTexture;
+			var drawMaskResult = Effects.DrawMasks(sprite);
+			sprite.Texture = drawMaskResult.Texture;
+
 			sprite.Origin = new Vector2f(x, y);
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Scale = new Vector2f(
 				(float)transform.Size.W / rawTexture.Size.X,
 				(float)transform.Size.H / rawTexture.Size.Y);
-
-			sprite.Texture = rawTexture;
-			var drawMaskResult = Effects.DrawMasks(sprite);
-			sprite.Texture = drawMaskResult.Texture;
-
-			var l = sprite.TextureRect.Left;
-			var t = sprite.TextureRect.Top;
-			sprite.TextureRect = new IntRect(t, l, (int)transform.Size.W, (int)transform.Size.H);
-			if (sprite.TextureRect.Width < rawTexture.Size.X)
-				sprite.TextureRect = new IntRect(t, l, (int)rawTexture.Size.X, sprite.TextureRect.Height);
-			if (sprite.TextureRect.Height < rawTexture.Size.Y)
-				sprite.TextureRect = new IntRect(t, l, sprite.TextureRect.Width, (int)rawTexture.Size.Y);
-			sprite.Scale = new Vector2f(1, 1);
 
 			Effects.shader.SetUniform("Texture", sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rawTextureShader);

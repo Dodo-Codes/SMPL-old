@@ -30,6 +30,7 @@ namespace TestGame
 			}
 			if (Gate.EnterOnceWhile("penka.png", File.AssetIsLoaded("penka.png")))
 			{
+
 			}
 			if (Gate.EnterOnceWhile("Munro.ttf", File.AssetIsLoaded("Munro.ttf")))
 			{
@@ -37,13 +38,12 @@ namespace TestGame
 				ComponentSprite.Effects.MaskAdd(Mask);
 				ComponentSprite.Effects.MaskColor = Color.Red;
 				ComponentSprite.Effects.MaskType = Effects.Mask.Out;
-				Mask.Effects.WindStrength = new Size(50, 50);
-
 			}
       }
 		public override void OnDraw(Camera camera)
       {
 			Mask2D.Position = Mouse.CursorPositionWindow;
+			Component2D.Angle++;
 			if (Mask != null)
 			{
 				Mask.Effects.Progress = Time.GameClock;
@@ -64,7 +64,7 @@ namespace TestGame
 		}
       public override void OnKeyHold(Keyboard.Key key)
       {
-			ComponentSprite.SizePercent += new Size(1, 0);
+			ComponentSprite.Effects.MaskRemove(Mask);
 		}
 		public override void OnSpriteResizeStart(ComponentSprite instance, Size delta)
 		{
