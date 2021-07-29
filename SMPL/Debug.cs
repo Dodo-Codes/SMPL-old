@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace SMPL
 {
 	public static class Debug
 	{
+		private readonly static string engineKey = "_tas8lf1d5ku346";
+
 		/// <summary>
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>
@@ -41,6 +44,18 @@ namespace SMPL
 
 			return method == default ? default : result;
 		}
+		public static string GetCurrentFileDirectory(uint depth = 0)
+		{
+			var path = GetCurrentFilePath(depth).Split('\\');
+			var dir = "";
+			for (int i = 0; i < path.Length - 1; i++)
+			{
+				dir += path[i];
+				if (i == path.Length - 2) continue;
+				dir += "\\";
+			}
+			return dir;
+		}
 
 		public static void LogError(int depth, string description, bool isDisplayingInRelease = false)
 		{
@@ -57,6 +72,11 @@ namespace SMPL
 				$"{place}" +
 				$"{description}\n";
 			Console.Log(result);
+		}
+
+		internal static bool IsCalledFromUser(string dir)
+		{
+			return System.IO.File.Exists($"{dir}\\{engineKey}.txt") == false;
 		}
 	}
 }

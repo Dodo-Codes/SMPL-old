@@ -1,4 +1,5 @@
-﻿using static SMPL.Events;
+﻿using SFML.Graphics;
+using static SMPL.Events;
 
 namespace SMPL
 {
@@ -10,6 +11,7 @@ namespace SMPL
 		internal ComponentVisual masking;
 
 		public Effects Effects { get; set; }
+		public ComponentFamily Family { get; set; }
 
 		private bool isHidden;
 		public bool IsHidden
@@ -40,8 +42,17 @@ namespace SMPL
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			transform = component2D;
 			Effects = new(this);
+			Family = new(this);
 		}
-
 		public abstract void Draw(Camera camera);
+		//public abstract void DrawBounds(Camera camera, float thickness, Color color);
+
+		internal RenderStates GetRenderStates(bool includeShader = true)
+		{
+			var parent = Family.Parent ?? null;
+			var resultParent = parent == null ? Window.world.Transform :
+				Family.Parent is ComponentSprite ? parent.transform.sprite.Transform : parent.transform.text.Transform;
+			return new RenderStates(BlendMode.Alpha, resultParent, null, includeShader ? Effects.shader : null);
+		}
 	}
 }

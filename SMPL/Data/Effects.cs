@@ -132,25 +132,25 @@ namespace SMPL
 		public Color TintColor
 		{
 			get { return Color.To(owner is ComponentText ?
-				(owner as ComponentText).text.FillColor : (owner as ComponentSprite).sprite.Color); }
+				(owner as ComponentText).transform.text.FillColor : (owner as ComponentSprite).transform.sprite.Color); }
 			set
 			{
 				if (color == value) return;
 				var delta = Color.To(owner is ComponentText ?
-					(owner as ComponentText).text.FillColor : (owner as ComponentSprite).sprite.Color);
+					(owner as ComponentText).transform.text.FillColor : (owner as ComponentSprite).transform.sprite.Color);
 				color = value;
 				var c = Color.From(value);
 				if (owner is ComponentSprite)
 				{
 					var spriteParent = owner as ComponentSprite;
-					spriteParent.sprite.Color = c;
+					spriteParent.transform.sprite.Color = c;
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorSetup(spriteParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolor(spriteParent, delta); }
 				}
 				else
 				{
 					var textParent = owner as ComponentText;
-					textParent.text.FillColor = c;
+					textParent.transform.text.FillColor = c;
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorSetup(textParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolor(textParent, delta); }
 				}
@@ -168,7 +168,7 @@ namespace SMPL
 				if (owner is ComponentText)
 				{
 					var textParent = owner as ComponentText;
-					textParent.text.OutlineColor = Color.From(value);
+					textParent.transform.text.OutlineColor = Color.From(value);
 
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorSetup(textParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolor(textParent, delta); }
@@ -218,7 +218,7 @@ namespace SMPL
 				else
 				{
 					var textParent = owner as ComponentText;
-					textParent.text.OutlineThickness = (float)value;
+					textParent.transform.text.OutlineThickness = (float)value;
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeSetup(textParent, delta); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResize(textParent, delta); }
 				}
@@ -605,33 +605,23 @@ namespace SMPL
 			lastFrameOutCol = outlineColor;
 		}
 
-		public void MaskAdd(ComponentVisual componentVisual)
-		{
-			if (componentVisual is ComponentSprite)
-				AddMask(masks, nameof(ComponentSprite), componentVisual, owner, true);
-			else
-				AddMask(masks, nameof(ComponentText), componentVisual, owner, true);
-		}
-		public void MaskRemove(ComponentVisual componentVisual)
-		{
-			if (componentVisual is ComponentSprite)
-				AddMask(masks, nameof(ComponentSprite), componentVisual, owner, false);
-			else
-				AddMask(masks, nameof(ComponentText), componentVisual, owner, false);
-		}
-		private static void AddMask(List<ComponentVisual> list, string name,
+		public void AddMask(ComponentVisual target) => AddMask(masks, target, owner, true);
+		public void RemoveMask(ComponentVisual target) => AddMask(masks, target, owner, false);
+		public ComponentVisual[] GetMasks() => masks.ToArray();
+		public ComponentVisual GetMaskTarget() => owner.masking;
+		private static void AddMask(List<ComponentVisual> list,
 			ComponentVisual component, ComponentVisual owner, bool add)
 		{
 			if (add)
 			{
 				if (component == null)
 				{
-					Debug.LogError(2, $"The instance of {name} cannot be 'null'.");
+					Debug.LogError(2, $"The mask cannot be 'null'.");
 					return;
 				}
 				if (list.Contains(component))
 				{
-					Debug.LogError(2, $"This instance of {name} is already added as a mask.");
+					Debug.LogError(2, $"The instance of this mask is already added to this target.");
 					return;
 				}
 				list.Add(component);
@@ -640,16 +630,16 @@ namespace SMPL
 			{
 				if (list.Contains(component) == false)
 				{
-					Debug.LogError(2, $"The instance of {name} is not a mask.");
+					Debug.LogError(2, $"This instance is not a mask to this target.");
 					return;
 				}
 				list.Remove(component);
 				if (component is ComponentText)
 				{
 					var t = component as ComponentText;
-					t.text.Position = new Vector2f();
-					t.text.Rotation = 0;
-					t.text.Scale = new Vector2f(1, 1);
+					t.transform.text.Position = new Vector2f();
+					t.transform.text.Rotation = 0;
+					t.transform.text.Scale = new Vector2f(1, 1);
 				}
 			}
 			component.masking = add ? owner : null;
@@ -749,14 +739,14 @@ namespace SMPL
 					var pos = Point.From(Point.MoveAtAngle(
 						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
 
-					t.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-					t.text.Rotation = (float)(t.transform.Angle - owner.transform.Angle);
-					t.text.Origin = new Vector2f(
+					t.transform.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+					t.transform.text.Rotation = (float)(t.transform.Angle - owner.transform.Angle);
+					t.transform.text.Origin = new Vector2f(
 						(float)(t.transform.Size.W * (t.transform.OriginPercent.X / 100)),
 						(float)(t.transform.Size.H * (t.transform.OriginPercent.Y / 100)));
-					t.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
+					t.transform.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
 
-					rend.Draw(t.text);//, new RenderStates(t.Effects.shader));
+					rend.Draw(t.transform.text, t.GetRenderStates(false));
 				}
 				else
 				{
@@ -771,14 +761,14 @@ namespace SMPL
 					var pos = Point.From(Point.MoveAtAngle(
 						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
 
-					s.sprite.Origin = new Vector2f(x, y);
-					s.sprite.Rotation = (float)(s.transform.Angle - owner.transform.Angle);
-					s.sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-					s.sprite.Scale = new Vector2f(
+					s.transform.sprite.Origin = new Vector2f(x, y);
+					s.transform.sprite.Rotation = (float)(s.transform.Angle - owner.transform.Angle);
+					s.transform.sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+					s.transform.sprite.Scale = new Vector2f(
 						(float)s.transform.Size.W / s.rawTexture.Size.X / sc.X,
 						(float)s.transform.Size.H / s.rawTexture.Size.Y / sc.Y);
 
-					rend.Draw(s.sprite, new RenderStates(s.Effects.shader));
+					rend.Draw(s.transform.sprite, s.GetRenderStates());
 				}
 			}
 			rend.Display();

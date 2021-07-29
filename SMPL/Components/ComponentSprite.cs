@@ -7,8 +7,6 @@ namespace SMPL
 {
 	public class ComponentSprite : ComponentVisual
 	{
-		internal Sprite sprite = new();
-
 		internal Image image;
 		internal Texture rawTexture;
 		internal Texture rawTextureShader;
@@ -16,11 +14,11 @@ namespace SMPL
 
 		public bool IsRepeated
 		{
-			get { return sprite.Texture.Repeated; }
+			get { return transform.sprite.Texture.Repeated; }
 			set
 			{
-				if (sprite.Texture.Repeated == value) return;
-				sprite.Texture.Repeated = value;
+				if (transform.sprite.Texture.Repeated == value) return;
+				transform.sprite.Texture.Repeated = value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteRepeatingChangeSetup(this); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteRepeatingChange(this); }
@@ -28,11 +26,11 @@ namespace SMPL
 		}
 		public bool IsSmooth
 		{
-			get { return sprite.Texture.Smooth; }
+			get { return transform.sprite.Texture.Smooth; }
 			set
 			{
-				if (sprite.Texture.Smooth == value) return;
-				sprite.Texture.Smooth = value;
+				if (transform.sprite.Texture.Smooth == value) return;
+				transform.sprite.Texture.Smooth = value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteSmoothingChangeSetup(this); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteSmoothingChange(this); }
@@ -45,9 +43,9 @@ namespace SMPL
 			private set
 			{
 				var texture = File.textures[value];
-				sprite.Texture = texture;
+				transform.sprite.Texture = texture;
 
-				image = new Image(sprite.Texture.CopyToImage());
+				image = new Image(transform.sprite.Texture.CopyToImage());
 				rawTextureData = image.Pixels;
 				rawTexture = new Texture(image);
 				image.FlipVertically();
@@ -64,9 +62,9 @@ namespace SMPL
 				if (offsetPercent == value) return;
 				var delta = value - offsetPercent;
 				offsetPercent = value;
-				var rect = sprite.TextureRect;
-				var sz = sprite.Texture.Size;
-				sprite.TextureRect = new IntRect(
+				var rect = transform.sprite.TextureRect;
+				var sz = transform.sprite.Texture.Size;
+				transform.sprite.TextureRect = new IntRect(
 					(int)(sz.X * (offsetPercent.X / 100)), (int)(sz.Y * (offsetPercent.Y / 100)),
 					rect.Width, rect.Height);
 
@@ -85,9 +83,9 @@ namespace SMPL
 				sizePercent = value;
 				value /= 100;
 
-				var sz = sprite.Texture.Size;
-				var textRect = sprite.TextureRect;
-				sprite.TextureRect = new IntRect(textRect.Left, textRect.Top, (int)(sz.X * value.W), (int)(sz.Y * value.H));
+				var sz = transform.sprite.Texture.Size;
+				var textRect = transform.sprite.TextureRect;
+				transform.sprite.TextureRect = new IntRect(textRect.Left, textRect.Top, (int)(sz.X * value.W), (int)(sz.Y * value.H));
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeSetup(this, delta); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResize(this, delta); }
@@ -155,7 +153,7 @@ namespace SMPL
 			}
 			sprites.Add(this);
 			TexturePath = texturePath;
-			sprite.Texture.Repeated = true;
+			transform.sprite.Texture.Repeated = true;
 			sizePercent = new Size(100, 100);
 			lastFrameSzPer = sizePercent;
 
@@ -165,59 +163,46 @@ namespace SMPL
 
 		public override void Draw(Camera camera)
 		{
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || sprite == null ||
-				sprite.Texture == null || transform == null) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
+				transform.sprite.Texture == null) return;
 
-			var w = sprite.TextureRect.Width;
-			var h = sprite.TextureRect.Height;
+			var w = transform.sprite.TextureRect.Width;
+			var h = transform.sprite.TextureRect.Height;
 			var p = transform.OriginPercent / 100;
 			var x = w * (float)p.X * ((float)GridSize.W / 2f) + (w * (float)p.X / 2f);
 			var y = h * (float)p.Y * ((float)GridSize.H / 2f) + (h * (float)p.Y / 2f);
 
-			sprite.Position = new Vector2f();
-			sprite.Rotation = 0;
-			sprite.Scale = new Vector2f(1, 1);
+			transform.sprite.Position = new Vector2f();
+			transform.sprite.Rotation = 0;
+			transform.sprite.Scale = new Vector2f(1, 1);
 
-			sprite.Texture = rawTexture;
-			var drawMaskResult = Effects.DrawMasks(sprite);
-			sprite.Texture = drawMaskResult.Texture;
+			transform.sprite.Texture = rawTexture;
+			var drawMaskResult = Effects.DrawMasks(transform.sprite);
+			transform.sprite.Texture = drawMaskResult.Texture;
 
-			sprite.Origin = new Vector2f(x, y);
-			sprite.Position = Point.From(transform.Position);
-			sprite.Rotation = (float)transform.Angle;
-			sprite.Scale = new Vector2f(
+			transform.sprite.Origin = new Vector2f(x, y);
+			transform.sprite.Position = Point.From(transform.Position);
+			transform.sprite.Rotation = (float)transform.Angle;
+			transform.sprite.Scale = new Vector2f(
 				(float)transform.Size.W / rawTexture.Size.X,
 				(float)transform.Size.H / rawTexture.Size.Y);
 
-			Effects.shader.SetUniform("Texture", sprite.Texture);
+			Effects.shader.SetUniform("Texture", transform.sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rawTextureShader);
 
-			var pos = sprite.Position;
+			var pos = transform.sprite.Position;
 			for (int j = 0; j < GridSize.H + 1; j++)
 			{
 				for (int i = 0; i < GridSize.W + 1; i++)
 				{
-					var p1 = sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
+					var p1 = transform.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
 
-					sprite.Position = p1;
-					camera.rendTexture.Draw(sprite, new RenderStates(Effects.shader));
-					sprite.Position = pos;
+					transform.sprite.Position = p1;
+					camera.rendTexture.Draw(transform.sprite, GetRenderStates());
+					transform.sprite.Position = pos;
 				}
 			}
 			drawMaskResult.Dispose();
-		}
-		public void DrawBounds(Camera camera, float thickness, Color color)
-		{
-			var b = sprite.GetGlobalBounds();
-			var c = Color.From(color);
-			var left = new Vertex[]
-			{
-				new Vertex(new Vector2f(b.Left - thickness, b.Top - thickness), c),
-				new Vertex(new Vector2f(b.Left + thickness, b.Top - thickness), c),
-				new Vertex(new Vector2f(b.Left + thickness, b.Top + thickness + b.Height), c),
-				new Vertex(new Vector2f(b.Left - thickness, b.Top + thickness + b.Height), c),
-			};
-			camera.rendTexture.Draw(left, PrimitiveType.Quads);
 		}
 	}
 }

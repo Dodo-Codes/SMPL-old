@@ -8,6 +8,18 @@ uniform bool MaskOut;
 uniform float MaskRed;
 uniform float MaskGreen;
 uniform float MaskBlue;
+uniform float MaskOpacity;
+uniform float MaskMargin;
+
+uniform float ReplaceRed;
+uniform float ReplaceGreen;
+uniform float ReplaceBlue;
+uniform float ReplaceOpacity;
+uniform float ReplaceWithRed;
+uniform float ReplaceWithGreen;
+uniform float ReplaceWithBlue;
+uniform float ReplaceWithOpacity;
+uniform float ReplaceMargin;
 
 uniform float Gamma;
 uniform float Desaturation;
@@ -75,6 +87,15 @@ uniform float FillBlue;
 uniform float IgnoreDark;
 uniform float IgnoreBright;
 
+bool isInMargin(vec4 color1, vec4 color2, float margin)
+{
+	return
+	color1.x > color2.x - margin && color1.x < color2.x + margin &&
+	color1.y > color2.y - margin && color1.y < color2.y + margin &&
+	color1.z > color2.z - margin && color1.z < color2.z + margin &&
+	color1.w > color2.w - margin && color1.w < color2.w + margin;
+}
+
 void main(void)
 {
 	vec2 uv = gl_TexCoord[0].st;
@@ -85,9 +106,7 @@ void main(void)
 	vec3 colorR = texture2D(RawTexture, gl_TexCoord[0].xy);
 	// ==================================================================================================================
 	vec2 coord = gl_TexCoord[0].xy;
-	vec4 pixelcolor = texture2D(Texture, coord);
-	float blinkalpha = cos(Time * (BlinkSpeed));
-	alpha = mix(alpha, min(blinkalpha, pixelcolor.w), BlinkOpacity / 2);
+	alpha = mix(alpha, min(cos(Time * (BlinkSpeed)), texture2D(Texture, coord).w), BlinkOpacity / 2);
 	// ==================================================================================================================
 	float factorx = sin(Time * StretchSpeedX) * StretchStrengthX;
 	float factory = sin(Time * StretchSpeedY) * StretchStrengthY;
@@ -189,17 +208,26 @@ void main(void)
 	vec2 pos = floor(gl_TexCoord[0].xy * factor + 0.5) / factor;
 	color = mix(vec4(color, alpha), gl_Color * texture2D(Texture, pos), PixelateOpacity);
 	// ==================================================================================================================
+	vec4 replace = vec4(ReplaceRed, ReplaceGreen, ReplaceBlue, ReplaceOpacity);
+	vec4 replaceWith = vec4(ReplaceWithRed, ReplaceWithGreen, ReplaceWithBlue, ReplaceWithOpacity);
+	if (isInMargin(vec4(color, alpha), replace, ReplaceMargin))
+	{
+		color = replaceWith.xyz;
+		alpha = replaceWith.w;
+	}
+	// ==================================================================================================================
 	if (HasMask)
 	{
-		vec3 mask = vec3(MaskRed, MaskGreen, MaskBlue);
+		vec4 mask = vec4(MaskRed, MaskGreen, MaskBlue, MaskOpacity);
+		bool isInMargin = isInMargin(vec4(color, alpha), mask, MaskMargin);
 
 		if (MaskOut)
 		{
-			if (color == mask) alpha = 0.0;
+			if (isInMargin) alpha = 0.0;
 		}
 		else
 		{
-			if (color != mask) alpha = 0.0;
+			if (!isInMargin) alpha = 0.0;
 			else color = colorR;
 		}
 	}

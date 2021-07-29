@@ -7,8 +7,6 @@ namespace SMPL
 {
 	public class ComponentText : ComponentVisual
 	{
-		internal SFML.Graphics.Text text = new();
-
 		private Color bgColor, lastFrameBgCol;
 		public Color BackgroundColor
 		{
@@ -34,7 +32,7 @@ namespace SMPL
 				var delta = value - position;
 				position = value;
 
-				text.Position = Point.From(value) + GetOffset();
+				transform.text.Position = Point.From(value) + GetOffset();
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].OnTextMoveSetup(this, delta); }
@@ -45,13 +43,13 @@ namespace SMPL
 		private double lastFrameAng;
 		public double Angle
 		{
-			get { return text.Rotation; }
+			get { return transform.text.Rotation; }
 			set
 			{
-				if (text.Rotation == value) return;
+				if (transform.text.Rotation == value) return;
 
-				var delta = value - text.Rotation;
-				text.Rotation = (float)value;
+				var delta = value - transform.text.Rotation;
+				transform.text.Rotation = (float)value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].OnTextRotateSetup(this, delta); }
@@ -62,14 +60,14 @@ namespace SMPL
 		private Size lastFrameSc;
 		public Size Scale
 		{
-			get { return Size.To(text.Scale); }
+			get { return Size.To(transform.text.Scale); }
 			set
 			{
 				var v = Size.From(value);
-				if (text.Scale == v) return;
+				if (transform.text.Scale == v) return;
 
-				var delta = value - Size.To(text.Scale);
-				text.Scale = v;
+				var delta = value - Size.To(transform.text.Scale);
+				transform.text.Scale = v;
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].OnTextRescaleSetup(this, delta); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -82,7 +80,7 @@ namespace SMPL
 			get { return path; }
 			private set
 			{
-				text.Font = File.fonts[value];
+				transform.text.Font = File.fonts[value];
 				path = value;
 			}
 		}
@@ -107,12 +105,12 @@ namespace SMPL
 		}
 		public uint CharacterSize
 		{
-			get { return text.CharacterSize; }
+			get { return transform.text.CharacterSize; }
 			set
 			{
-				if (text.CharacterSize == value) return;
-				var delta = value - text.CharacterSize;
-				text.CharacterSize = value;
+				if (transform.text.CharacterSize == value) return;
+				var delta = value - transform.text.CharacterSize;
+				transform.text.CharacterSize = value;
 				Position = position;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -124,12 +122,12 @@ namespace SMPL
 		private string lastFrameText;
 		public string Text
 		{
-			get { return text.DisplayedString; }
+			get { return transform.text.DisplayedString; }
 			set
 			{
-				if (text.DisplayedString == value) return;
-				var oldStr = text.DisplayedString;
-				text.DisplayedString = value;
+				if (transform.text.DisplayedString == value) return;
+				var oldStr = transform.text.DisplayedString;
+				transform.text.DisplayedString = value;
 				UpdateOrigin();
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -147,8 +145,8 @@ namespace SMPL
 				if (spacing == value) return;
 				var delta = value - spacing;
 				spacing = value;
-				text.LetterSpacing = (float)value.W / 4;
-				text.LineSpacing = (float)value.H / 16 + (float)CharacterSize / 112;
+				transform.text.LetterSpacing = (float)value.W / 4;
+				transform.text.LineSpacing = (float)value.H / 16 + (float)CharacterSize / 112;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].OnTextSpacingResizeSetup(this, delta); }
@@ -159,24 +157,24 @@ namespace SMPL
 
 		internal Vector2f GetOffset()
       {
-			var t = new SFML.Graphics.Text("12", text.Font);
-			t.CharacterSize = text.CharacterSize;
+			var t = new SFML.Graphics.Text("12", transform.text.Font);
+			t.CharacterSize = transform.text.CharacterSize;
 			var d = new Vector2f((t.FindCharacterPos(1) - t.FindCharacterPos(0)).X, 0);
 			t.Dispose();
 			return d;
 		}
 		private void UpdateOrigin()
       {
-			text.DisplayedString += "\n";
+			transform.text.DisplayedString += "\n";
 			var pos = new Point();
 			for (uint i = 0; i < Text.Length; i++)
 			{
-				var p = text.FindCharacterPos(i + 1);
+				var p = transform.text.FindCharacterPos(i + 1);
 				if (pos.X < p.X) pos.X = p.X;
 				if (pos.Y < p.Y) pos.Y = p.Y;
 			}
-			text.Origin = Point.From(pos * (originPercent / 100));
-			text.DisplayedString = text.DisplayedString.Remove(Text.Length - 1, 1);
+			transform.text.Origin = Point.From(pos * (originPercent / 100));
+			transform.text.DisplayedString = transform.text.DisplayedString.Remove(Text.Length - 1, 1);
 		}
 
 		internal void Update()
@@ -300,16 +298,16 @@ namespace SMPL
 				return;
 			}
 			texts.Add(this);
-			text.DisplayedString = "Hello World!";
-			text.CharacterSize = 64;
-			text.Position = GetOffset();
-			text.LetterSpacing = 1;
-			text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
-			text.FillColor = Color.From(Color.White);
-			text.OutlineColor = Color.From(Color.Black);
+			transform.text.DisplayedString = "Hello World!";
+			transform.text.CharacterSize = 64;
+			transform.text.Position = GetOffset();
+			transform.text.LetterSpacing = 1;
+			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
+			transform.text.FillColor = Color.From(Color.White);
+			transform.text.OutlineColor = Color.From(Color.Black);
 
 			spacing = new Size(4, 4);
-			lastFrameText = text.DisplayedString;
+			lastFrameText = transform.text.DisplayedString;
 			lastFrameSp = spacing;
 			lastFrameSc = new Size(1, 1);
 			FontPath = fontPath;
@@ -321,12 +319,12 @@ namespace SMPL
 		}
 		public override void Draw(Camera camera)
 		{
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || text == null ||
-				text.Font == null || transform == null) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.text == null ||
+				transform.text.Font == null) return;
 
 			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
 			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));
-			rend.Draw(text);
+			rend.Draw(transform.text);
 			rend.Display();
 			var sprite = new Sprite(rend.Texture);
 			var drawMaskResult = Effects.DrawMasks(sprite);
@@ -340,50 +338,11 @@ namespace SMPL
 			sprite.Origin = new Vector2f(
 					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
 					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)));
-			camera.rendTexture.Draw(sprite, new RenderStates(Effects.shader));
+			camera.rendTexture.Draw(sprite, GetRenderStates());
 
 			drawMaskResult.Dispose();
 			rend.Dispose();
 			sprite.Dispose();
 		}
-		//public void DrawBounds(Camera camera, double thickness, Color color)
-		//{
-		//	var b = Text.text.GetGlobalBounds();
-		//	var c = Color.From(color);
-		//	var thf = (float)thickness;
-		//	var off = 16;
-		//	var left = new Vertex[]
-		//	{
-		//		new Vertex(new Vector2f(b.Left - thf - off, b.Top - thf), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off, b.Top - thf), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off, b.Top + thf + b.Height), c),
-		//		new Vertex(new Vector2f(b.Left - thf - off, b.Top + thf + b.Height), c),
-		//	};
-		//	var right = new Vertex[]
-		//	{
-		//		new Vertex(new Vector2f(b.Left - thf - off + b.Width, b.Top - thf), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off + b.Width, b.Top - thf), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off + b.Width, b.Top + thf + b.Height), c),
-		//		new Vertex(new Vector2f(b.Left - thf - off + b.Width, b.Top + thf + b.Height), c),
-		//	};
-		//	var up = new Vertex[]
-		//	{
-		//		new Vertex(new Vector2f(b.Left - thf - off, b.Top - thf), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off + b.Width, b.Top - thf), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off + b.Width, b.Top + thf), c),
-		//		new Vertex(new Vector2f(b.Left - thf - off, b.Top + thf), c),
-		//	};
-		//	var bot = new Vertex[]
-		//	{
-		//		new Vertex(new Vector2f(b.Left - thf - off, b.Top - thf + b.Height), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off + b.Width, b.Top - thf + b.Height), c),
-		//		new Vertex(new Vector2f(b.Left + thf - off + b.Width, b.Top + thf + b.Height), c),
-		//		new Vertex(new Vector2f(b.Left - thf - off, b.Top + thf + b.Height), c),
-		//	};
-		//	camera.rendTexture.Draw(left, PrimitiveType.Quads);
-		//	camera.rendTexture.Draw(right, PrimitiveType.Quads);
-		//	camera.rendTexture.Draw(up, PrimitiveType.Quads);
-		//	camera.rendTexture.Draw(bot, PrimitiveType.Quads);
-		//}
 	}
 }

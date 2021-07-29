@@ -15,9 +15,8 @@ namespace TestGame
 		{
 			Subscribe(this, 0);
 			ComponentIdentity = new(this, "player");
-			Component2D = new(new Point(0, 0), 0, new Size(400, 400));
+			Component2D = new(new Point(0, 0), 0, new Size(300, 300));
 			Mask2D = new(new Point(0, 0), 0, new Size(300, 300));
-
 			File.LoadAsset(File.Asset.Texture, "test2.png");
 			File.LoadAsset(File.Asset.Texture, "penka.png");
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
@@ -35,14 +34,14 @@ namespace TestGame
 			if (Gate.EnterOnceWhile("Munro.ttf", File.AssetIsLoaded("Munro.ttf")))
 			{
 				Mask = new(Mask2D, "Munro.ttf");
-				ComponentSprite.Effects.MaskAdd(Mask);
-				ComponentSprite.Effects.MaskColor = Color.Red;
-				ComponentSprite.Effects.MaskType = Effects.Mask.Out;
+				//ComponentSprite.Effects.AddMask(Mask);
+				//ComponentSprite.Effects.MaskColor = Color.Red;
+				//ComponentSprite.Effects.MaskType = Effects.Mask.Out;
 			}
       }
 		public override void OnDraw(Camera camera)
       {
-			Mask2D.Position = Mouse.CursorPositionWindow;
+			//Mask2D.Position = Mouse.CursorPositionWindow;
 			Component2D.Angle++;
 			if (Mask != null)
 			{
@@ -62,9 +61,14 @@ namespace TestGame
 				Mask.Draw(camera);
 			}
 		}
-      public override void OnKeyHold(Keyboard.Key key)
+      public override void OnKeyPress(Keyboard.Key key)
       {
-			ComponentSprite.Effects.MaskRemove(Mask);
+			Console.Log(Debug.GetCurrentFilePath(1));
+			//Mask.Family.Parent = ComponentSprite;
+		}
+		public override void OnKeyRelease(Keyboard.Key key)
+		{
+			//Mask.Family.Parent = null;
 		}
 		public override void OnSpriteResizeStart(ComponentSprite instance, Size delta)
 		{

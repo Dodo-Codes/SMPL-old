@@ -5,6 +5,9 @@ namespace SMPL
 {
 	public class Component2D
 	{
+		internal Sprite sprite = new();
+		internal SFML.Graphics.Text text = new();
+
 		private readonly uint creationFrame;
 		private readonly double rand;
 
@@ -17,6 +20,7 @@ namespace SMPL
 				if (position == value || Camera.WorldCamera.TransformComponent == this) return;
 				var delta = value - position;
 				position = value;
+
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].On2DMoveSetup(this, delta); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)

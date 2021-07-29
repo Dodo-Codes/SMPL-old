@@ -40,6 +40,7 @@ namespace SMPL
 		private static State currentState;
 		private static Type currentType;
 		private static bool resizable;
+		internal static Sprite world = new();
 
 		public static State CurrentState
 		{
