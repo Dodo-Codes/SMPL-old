@@ -32,7 +32,7 @@ namespace SMPL
 				var delta = value - position;
 				position = value;
 
-				transform.text.Position = Point.From(value) + GetOffset();
+				transform.text.Position = Point.From(value);
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].OnTextMoveSetup(this, delta); }
@@ -155,14 +155,6 @@ namespace SMPL
 			}
 		}
 
-		internal Vector2f GetOffset()
-      {
-			var t = new SFML.Graphics.Text("12", transform.text.Font);
-			t.CharacterSize = transform.text.CharacterSize;
-			var d = new Vector2f((t.FindCharacterPos(1) - t.FindCharacterPos(0)).X, 0);
-			t.Dispose();
-			return d;
-		}
 		private void UpdateOrigin()
       {
 			transform.text.DisplayedString += "\n";
@@ -300,7 +292,6 @@ namespace SMPL
 			texts.Add(this);
 			transform.text.DisplayedString = "Hello World!";
 			transform.text.CharacterSize = 64;
-			transform.text.Position = GetOffset();
 			transform.text.LetterSpacing = 1;
 			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
 			transform.text.FillColor = Color.From(Color.White);
@@ -333,7 +324,7 @@ namespace SMPL
 			Effects.shader.SetUniform("Texture", sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rend.Texture);
 
-			sprite.Position = Point.From(transform.Position) + GetOffset();
+			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Origin = new Vector2f(
 					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),

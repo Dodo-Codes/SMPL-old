@@ -7,6 +7,10 @@ namespace SMPL
 	public static class Debug
 	{
 		private readonly static string engineKey = "_tas8lf1d5ku346";
+		internal static bool currentMethodIsCalledByUser
+		{
+			get { return System.IO.File.Exists($"{GetCurrentFileDirectory(2)}\\{engineKey}.txt") == false; }
+		}
 
 		/// <summary>
 		/// Wether the game is started from Visual Studio or its '.exe' file.
@@ -46,7 +50,8 @@ namespace SMPL
 		}
 		public static string GetCurrentFileDirectory(uint depth = 0)
 		{
-			var path = GetCurrentFilePath(depth).Split('\\');
+			var fileName = new StackFrame((int)depth + 1, true).GetFileName();
+			var path = fileName.Split('\\');
 			var dir = "";
 			for (int i = 0; i < path.Length - 1; i++)
 			{
@@ -72,11 +77,6 @@ namespace SMPL
 				$"{place}" +
 				$"{description}\n";
 			Console.Log(result);
-		}
-
-		internal static bool IsCalledFromUser(string dir)
-		{
-			return System.IO.File.Exists($"{dir}\\{engineKey}.txt") == false;
 		}
 	}
 }

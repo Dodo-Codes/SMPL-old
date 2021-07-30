@@ -21,6 +21,7 @@ namespace SMPL
 				var delta = value - position;
 				position = value;
 
+				if (Debug.currentMethodIsCalledByUser == false) { lastFramePos = position; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].On2DMoveSetup(this, delta); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -36,10 +37,10 @@ namespace SMPL
 				if (angle == value || Camera.WorldCamera.TransformComponent == this) return;
 				var delta = value - angle;
 				angle = value;
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DRotateSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DRotate(this, delta); }
+
+				if (Debug.currentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotateSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotate(this, delta); }
 			}
 		}
 		private Size size, lastFrameSz;
@@ -51,6 +52,8 @@ namespace SMPL
 				if (size == value || Camera.WorldCamera.TransformComponent == this) return;
 				var delta = value - size;
 				size = value;
+
+				if (Debug.currentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].On2DResizeSetup(this, delta); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -68,6 +71,8 @@ namespace SMPL
 				if (originPercent == value || Camera.WorldCamera.TransformComponent == this) return;
 				var delta = value - originPercent;
 				originPercent = value;
+
+				if (Debug.currentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 						e[i].On2DOriginateSetup(this, delta); }
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)

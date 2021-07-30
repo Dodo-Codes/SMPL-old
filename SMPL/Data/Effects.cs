@@ -603,6 +603,10 @@ namespace SMPL
 			lastFrameOutW = OutlineWidth;
 			lastFrameCol = color;
 			lastFrameOutCol = outlineColor;
+			lastFrameMaskColB = maskColorBounds;
+			lastFrameRepColB = replaceColorBounds;
+			lastFrameRepCol = replaceColor;
+			lastFrameRepWCol = replaceWithColor;
 		}
 
 		public void AddMask(ComponentVisual target) => AddMask(masks, target, owner, true);
@@ -733,9 +737,8 @@ namespace SMPL
 				if (masks[i] is ComponentText)
 				{
 					var t = masks[i] as ComponentText;
-					var off = Point.To(t.GetOffset());
-					var dist = Point.GetDistance(t.transform.Position + off, owner.transform.Position);
-					var atAng = Number.GetAngleBetweenPoints(owner.transform.Position, t.transform.Position + off);
+					var dist = Point.GetDistance(t.transform.Position, owner.transform.Position);
+					var atAng = Number.GetAngleBetweenPoints(owner.transform.Position, t.transform.Position);
 					var pos = Point.From(Point.MoveAtAngle(
 						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
 

@@ -5,7 +5,8 @@ namespace SMPL
 {
 	public class ComponentFamily
 	{
-		private ComponentVisual parent, owner;
+		private readonly ComponentVisual owner;
+		private ComponentVisual parent;
 		public ComponentVisual Parent
 		{
 			get { return parent; }
@@ -27,53 +28,63 @@ namespace SMPL
 					ps != null ? ps.transform.sprite.Scale : pt.transform.text.Scale;
 				var futureParentScale = value == null ? Window.world.Scale :
 					vs != null ? vs.transform.sprite.Scale : vt.transform.text.Scale;
+				var prevPar = parent;
 
 				parent = value;
 
-				if (value != null)
+				if (value != null) // parent
 				{
 					var parAng = parent.transform.Angle;
 					var newPos = value.transform.sprite.InverseTransform.TransformPoint(pos);
-					var scaleW = scale.X / futureParentScale.X;
-					var scaleH = scale.Y / futureParentScale.Y;
 
 					value.Family.children.Add(owner);
-					//Area.Position.Set(newPos.X, newPos.Y, true);
-					//Area.Scale.Set(scaleW, scaleH, true);
-					//Area.Angle.Set(-(parAng - angle), true);
+					owner.transform.Position = Point.To(newPos);
+					if (os != null)
+					{
+						var tsz = new Vector2f(os.transform.sprite.TextureRect.Width, os.transform.sprite.TextureRect.Height);
+						var ssc = new Vector2f(scale.X / futureParentScale.X, scale.Y / futureParentScale.Y);
+						var sz = new Size(tsz.X * ssc.X, tsz.Y * ssc.Y);
+						os.transform.Size = sz;
+						Console.Log(os.transform.Size);
+					}
+					else
+					{
+						var sc = new Vector2f(scale.X / futureParentScale.X, scale.Y / futureParentScale.Y);
+						ot.transform.Size *= Size.To(sc);
+						ot.transform.text.Scale = sc;
+					}
+					owner.transform.Angle = -(parAng - angle);
 				}
-				else
+				else // unparent
 				{
+					var newPos = prevPar == null ? pos : prevPar.transform.sprite.Transform.TransformPoint(pos);
+					var parAng = prevPar.transform.sprite.Rotation;
 
+					prevPar.Family.children.Remove(owner);
+					owner.transform.Position = Point.To(newPos);
+					if (os != null)
+					{
+						var tsz = new Vector2f(os.transform.sprite.TextureRect.Width, os.transform.sprite.TextureRect.Height);
+						var ssc = new Vector2f(scale.X * parentScale.X, scale.Y * parentScale.Y);
+						var sz = new Size(tsz.X * ssc.X, tsz.Y * ssc.Y);
+						os.transform.Size = sz;
+					}
+					else
+					{
+						var sc = prevPar == null ? scale : new Vector2f(scale.X * parentScale.X, scale.Y * parentScale.Y);
+						ot.transform.Size /= Size.To(scale);
+						ot.transform.text.Scale = sc;
+					}
+					owner.transform.Angle = parAng + angle;
 				}
 			}
 		}
-		internal List<ComponentVisual> children;
+		internal List<ComponentVisual> children = new();
 
 		public Point Position { get; set; }
 		public double Angle { get; set; }
 		public Size Size { get; set; }
 
 		public ComponentFamily(ComponentVisual owner) => this.owner = owner;
-		private void UpdateChildrenAngles()
-		{
-			for (int i = 0; i < children.Count; i++)
-			{
-				var ownerAng = GetTr(owner).Item2;
-				var childAng = GetTr(children[i]).Item2;
-				var globalAngle = ownerAng + childAng;
-				children[i].transform.Angle = Number.Limit(globalAngle, new Bounds(0, 359), Number.Limitation.Overflow);
-			}
-		}
-
-		private (Vector2f, double, Vector2f) GetTr(ComponentVisual vis)
-		{
-			var s = vis is ComponentSprite ? vis as ComponentSprite : null;
-			var t = vis is ComponentText ? vis as ComponentText : null;
-			var pos = s != null ? s.transform.sprite.Position : t.transform.text.Position;
-			var ang = s != null ? s.transform.sprite.Rotation : t.transform.text.Rotation;
-			var sc = s != null ? s.transform.sprite.Scale : t.transform.text.Scale;
-			return (pos, ang, sc);
-		}
 	}
 }
