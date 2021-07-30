@@ -50,8 +50,8 @@ namespace SMPL
 		internal RenderStates GetRenderStates(bool includeShader = true)
 		{
 			var parent = Family.Parent ?? null;
-			var resultParent = parent == null ? Window.world.Transform :
-				Family.Parent is ComponentSprite ? parent.transform.sprite.Transform : parent.transform.text.Transform;
+			// the text uses the sprite in the transform as a transform since its transform is separate
+			var resultParent = parent == null ? Window.world.Transform : parent.transform.sprite.Transform;
 			return new RenderStates(BlendMode.Alpha, resultParent, null, includeShader ? Effects.shader : null);
 		}
 	}

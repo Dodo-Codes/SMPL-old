@@ -1,4 +1,5 @@
-﻿using SFML.System;
+﻿using SFML.Graphics;
+using SFML.System;
 using System.Collections.Generic;
 
 namespace SMPL
@@ -14,20 +15,13 @@ namespace SMPL
 			{
 				if (parent == value) return;
 
-				var os = owner is ComponentSprite ? owner as ComponentSprite : null;
-				var ot = owner is ComponentText ? owner as ComponentText : null;
-				var ps = parent is ComponentSprite ? parent as ComponentSprite : null;
-				var pt = parent is ComponentText ? parent as ComponentText : null;
-				var vs = value is ComponentSprite ? value as ComponentSprite : null;
-				var vt = value is ComponentText ? value as ComponentText : null; 
-
 				var pos = Point.From(owner.transform.Position);
-				var scale = os != null ? os.transform.sprite.Scale : ot.transform.text.Scale;
+				var scale = owner.transform.sprite.Scale;
 				var angle = owner.transform.Angle;
 				var parentScale = parent == null ? Window.world.Scale :
-					ps != null ? ps.transform.sprite.Scale : pt.transform.text.Scale;
+					parent is ComponentSprite ? parent.transform.sprite.Scale : parent.transform.text.Scale;
 				var futureParentScale = value == null ? Window.world.Scale :
-					vs != null ? vs.transform.sprite.Scale : vt.transform.text.Scale;
+					value is ComponentSprite ? value.transform.sprite.Scale : value.transform.text.Scale;
 				var prevPar = parent;
 
 				parent = value;
@@ -36,22 +30,16 @@ namespace SMPL
 				{
 					var parAng = parent.transform.Angle;
 					var newPos = value.transform.sprite.InverseTransform.TransformPoint(pos);
+					var ssc = new Vector2f(scale.X / futureParentScale.X, scale.Y / futureParentScale.Y);
 
 					value.Family.children.Add(owner);
 					owner.transform.Position = Point.To(newPos);
-					if (os != null)
+					if (owner is ComponentSprite)
 					{
-						var tsz = new Vector2f(os.transform.sprite.TextureRect.Width, os.transform.sprite.TextureRect.Height);
-						var ssc = new Vector2f(scale.X / futureParentScale.X, scale.Y / futureParentScale.Y);
+						var tsz = new Vector2f(owner.transform.sprite.TextureRect.Width, owner.transform.sprite.TextureRect.Height);
 						var sz = new Size(tsz.X * ssc.X, tsz.Y * ssc.Y);
-						os.transform.Size = sz;
-						Console.Log(os.transform.Size);
-					}
-					else
-					{
-						var sc = new Vector2f(scale.X / futureParentScale.X, scale.Y / futureParentScale.Y);
-						ot.transform.Size *= Size.To(sc);
-						ot.transform.text.Scale = sc;
+						owner.transform.Size = sz;
+						Console.Log(owner.transform.Size);
 					}
 					owner.transform.Angle = -(parAng - angle);
 				}
@@ -59,21 +47,15 @@ namespace SMPL
 				{
 					var newPos = prevPar == null ? pos : prevPar.transform.sprite.Transform.TransformPoint(pos);
 					var parAng = prevPar.transform.sprite.Rotation;
+					var ssc = new Vector2f(scale.X * parentScale.X, scale.Y * parentScale.Y);
 
 					prevPar.Family.children.Remove(owner);
 					owner.transform.Position = Point.To(newPos);
-					if (os != null)
+					if (owner is ComponentSprite)
 					{
-						var tsz = new Vector2f(os.transform.sprite.TextureRect.Width, os.transform.sprite.TextureRect.Height);
-						var ssc = new Vector2f(scale.X * parentScale.X, scale.Y * parentScale.Y);
+						var tsz = new Vector2f(owner.transform.sprite.TextureRect.Width, owner.transform.sprite.TextureRect.Height);
 						var sz = new Size(tsz.X * ssc.X, tsz.Y * ssc.Y);
-						os.transform.Size = sz;
-					}
-					else
-					{
-						var sc = prevPar == null ? scale : new Vector2f(scale.X * parentScale.X, scale.Y * parentScale.Y);
-						ot.transform.Size /= Size.To(scale);
-						ot.transform.text.Scale = sc;
+						owner.transform.Size = sz;
 					}
 					owner.transform.Angle = parAng + angle;
 				}

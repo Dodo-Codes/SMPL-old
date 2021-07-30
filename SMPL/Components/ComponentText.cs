@@ -324,11 +324,16 @@ namespace SMPL
 			Effects.shader.SetUniform("Texture", sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rend.Texture);
 
+			transform.sprite.Position = Point.From(transform.Position);
+			transform.sprite.Rotation = (float)transform.Angle;
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Origin = new Vector2f(
 					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
 					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)));
+
+			var sc = Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.transform.sprite.Scale;
+			sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
 			camera.rendTexture.Draw(sprite, GetRenderStates());
 
 			drawMaskResult.Dispose();
