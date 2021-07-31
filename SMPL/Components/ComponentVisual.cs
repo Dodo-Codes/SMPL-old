@@ -41,8 +41,9 @@ namespace SMPL
 			creationFrame = Time.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			transform = component2D;
-			Effects = new(this);
 			Family = new(this);
+			transform.family = Family;
+			Effects = new(this);
 		}
 		public abstract void Draw(Camera camera);
 		//public abstract void DrawBounds(Camera camera, float thickness, Color color);

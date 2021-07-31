@@ -15,9 +15,9 @@ namespace SMPL
 			{
 				if (parent == value) return;
 
-				var pos = Point.From(owner.transform.Position);
+				var pos = Point.From(owner.transform.LocalPosition);
 				var scale = owner.transform.sprite.Scale;
-				var angle = owner.transform.Angle;
+				var angle = owner.transform.LocalAngle;
 				var parentScale = parent == null ? Window.world.Scale :
 					parent is ComponentSprite ? parent.transform.sprite.Scale : parent.transform.text.Scale;
 				var futureParentScale = value == null ? Window.world.Scale :
@@ -28,20 +28,19 @@ namespace SMPL
 
 				if (value != null) // parent
 				{
-					var parAng = parent.transform.Angle;
+					var parAng = parent.transform.LocalAngle;
 					var newPos = value.transform.sprite.InverseTransform.TransformPoint(pos);
 					var ssc = new Vector2f(scale.X / futureParentScale.X, scale.Y / futureParentScale.Y);
 
 					value.Family.children.Add(owner);
-					owner.transform.Position = Point.To(newPos);
+					owner.transform.LocalPosition = Point.To(newPos);
 					if (owner is ComponentSprite)
 					{
 						var tsz = new Vector2f(owner.transform.sprite.TextureRect.Width, owner.transform.sprite.TextureRect.Height);
 						var sz = new Size(tsz.X * ssc.X, tsz.Y * ssc.Y);
-						owner.transform.Size = sz;
-						Console.Log(owner.transform.Size);
+						owner.transform.size = sz;
 					}
-					owner.transform.Angle = -(parAng - angle);
+					owner.transform.LocalAngle = -(parAng - angle);
 				}
 				else // unparent
 				{
@@ -50,22 +49,18 @@ namespace SMPL
 					var ssc = new Vector2f(scale.X * parentScale.X, scale.Y * parentScale.Y);
 
 					prevPar.Family.children.Remove(owner);
-					owner.transform.Position = Point.To(newPos);
+					owner.transform.LocalPosition = Point.To(newPos);
 					if (owner is ComponentSprite)
 					{
 						var tsz = new Vector2f(owner.transform.sprite.TextureRect.Width, owner.transform.sprite.TextureRect.Height);
 						var sz = new Size(tsz.X * ssc.X, tsz.Y * ssc.Y);
-						owner.transform.Size = sz;
+						owner.transform.size = sz;
 					}
-					owner.transform.Angle = parAng + angle;
+					owner.transform.LocalAngle = parAng + angle;
 				}
 			}
 		}
 		internal List<ComponentVisual> children = new();
-
-		public Point Position { get; set; }
-		public double Angle { get; set; }
-		public Size Size { get; set; }
 
 		public ComponentFamily(ComponentVisual owner) => this.owner = owner;
 	}

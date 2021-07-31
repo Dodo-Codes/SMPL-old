@@ -65,7 +65,7 @@ namespace SMPL
 			sortedCameras[0].Add(this);
 
 			var pos = Point.From(viewPosition);
-			TransformComponent = new(new Point(), 0, new Size(100, 100));
+			TransformComponent = new();
 			view = new View(pos, Size.From(viewSize));
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
 			BackgroundColor = Color.GreenDark;

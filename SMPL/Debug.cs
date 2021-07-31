@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 
 namespace SMPL
 {
 	public static class Debug
 	{
 		private readonly static string engineKey = "_tas8lf1d5ku346";
-		internal static bool currentMethodIsCalledByUser
+		public static bool currentMethodIsCalledByUser
 		{
 			get { return System.IO.File.Exists($"{GetCurrentFileDirectory(2)}\\{engineKey}.txt") == false; }
 		}

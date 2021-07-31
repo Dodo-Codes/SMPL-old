@@ -737,13 +737,13 @@ namespace SMPL
 				if (masks[i] is ComponentText)
 				{
 					var t = masks[i] as ComponentText;
-					var dist = Point.GetDistance(t.transform.Position, owner.transform.Position);
-					var atAng = Number.GetAngleBetweenPoints(owner.transform.Position, t.transform.Position);
+					var dist = Point.GetDistance(t.transform.LocalPosition, owner.transform.LocalPosition);
+					var atAng = Number.GetAngleBetweenPoints(owner.transform.LocalPosition, t.transform.LocalPosition);
 					var pos = Point.From(Point.MoveAtAngle(
-						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
+						owner.transform.LocalPosition, atAng - owner.transform.LocalAngle, dist, Time.Unit.Tick));
 
 					t.transform.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-					t.transform.text.Rotation = (float)(t.transform.Angle - owner.transform.Angle);
+					t.transform.text.Rotation = (float)(t.transform.LocalAngle - owner.transform.LocalAngle);
 					t.transform.text.Origin = new Vector2f(
 						(float)(t.transform.Size.W * (t.transform.OriginPercent.X / 100)),
 						(float)(t.transform.Size.H * (t.transform.OriginPercent.Y / 100)));

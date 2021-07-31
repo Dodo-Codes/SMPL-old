@@ -7,17 +7,21 @@ namespace SMPL
 	{
 		internal Sprite sprite = new();
 		internal SFML.Graphics.Text text = new();
+		internal ComponentFamily family;
 
 		private readonly uint creationFrame;
 		private readonly double rand;
 
-		private Point position, lastFramePos;
+		internal Point position, lastFramePos;
 		public Point Position
 		{
 			get { return position; }
 			set
 			{
-				if (position == value || Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.TransformComponent == this) return;
+				//localPosition = PositionToLocal(value);
+				if (position == value) return;
+
 				var delta = value - position;
 				position = value;
 
@@ -28,13 +32,16 @@ namespace SMPL
 						e[i].On2DMove(this, delta); }
 			}
 		}
-		private double angle, lastFrameAng;
+		internal double angle, lastFrameAng;
 		public double Angle
 		{
 			get { return angle; }
 			set
 			{
-				if (angle == value || Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.TransformComponent == this) return;
+				//localAngle = AngleToLocal(value);
+				if (angle == value) return;
+
 				var delta = value - angle;
 				angle = value;
 
@@ -43,7 +50,7 @@ namespace SMPL
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotate(this, delta); }
 			}
 		}
-		private Size size, lastFrameSz;
+		internal Size size, lastFrameSz;
 		public Size Size
 		{
 			get { return size; }
@@ -60,7 +67,7 @@ namespace SMPL
 						e[i].On2DResize(this, delta); }
 			}
 		}
-		private Point originPercent, lastFrameOrPer;
+		internal Point originPercent, lastFrameOrPer;
 		public Point OriginPercent
 		{
 			get { return originPercent; }
@@ -79,6 +86,10 @@ namespace SMPL
 						e[i].On2DOriginate(this, delta); }
 			}
 		}
+
+		public Point LocalPosition { get; set; }
+		public double LocalAngle { get; set; }
+		public Size LocalSize { get; set; }
 
 		internal void Update()
       {
@@ -157,18 +168,38 @@ namespace SMPL
 			lastFrameOrPer = originPercent;
 		}
 
-		public Component2D(Point position, double angle, Size size)
+		public Point PositionToLocal(Point position)
+		{
+			if (family != null && family.Parent != null)
+			{
+				var pos = family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(position));
+				return Point.To(pos);
+			}
+			else return position;
+		}
+		public Point PositionFromLocal(Point position)
+		{
+			if (family != null && family.Parent != null)
+			{
+				var pos = family.Parent.transform.sprite.Transform.TransformPoint(Point.From(position));
+				return Point.To(pos);
+			}
+			else return position;
+		}
+		public double AngleToLocal(double angle)
+		{
+			return family != null && family.Parent != null ? -(family.Parent.transform.LocalAngle - angle) : angle;
+		}
+		public double AngleFromLocal(double angle)
+		{
+			return family != null && family.Parent != null ? family.Parent.transform.LocalAngle + angle : angle;
+		}
+
+		public Component2D()
 		{
 			transforms.Add(this);
 			creationFrame = Time.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
-
-			this.position = position;
-			this.angle = angle;
-			this.size = size;
-			lastFramePos = position;
-			lastFrameAng = angle;
-			lastFrameSz = size;
 
 			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 					e[i].On2DCreateSetup(this); }

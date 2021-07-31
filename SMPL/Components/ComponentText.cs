@@ -324,8 +324,8 @@ namespace SMPL
 			Effects.shader.SetUniform("Texture", sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rend.Texture);
 
-			transform.sprite.Position = Point.From(transform.Position);
-			transform.sprite.Rotation = (float)transform.Angle;
+			transform.sprite.Position = Point.From(transform.LocalPosition);
+			transform.sprite.Rotation = (float)transform.LocalAngle;
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Origin = new Vector2f(

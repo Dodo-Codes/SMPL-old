@@ -181,8 +181,8 @@ namespace SMPL
 			transform.sprite.Texture = drawMaskResult.Texture;
 
 			transform.sprite.Origin = new Vector2f(x, y);
-			transform.sprite.Position = Point.From(transform.Position);
-			transform.sprite.Rotation = (float)transform.Angle;
+			transform.sprite.Position = Point.From(transform.LocalPosition);
+			transform.sprite.Rotation = (float)transform.LocalAngle;
 			transform.sprite.Scale = new Vector2f(
 				(float)transform.Size.W / rawTexture.Size.X,
 				(float)transform.Size.H / rawTexture.Size.Y);
