@@ -47,13 +47,5 @@ namespace SMPL
 		}
 		public abstract void Draw(Camera camera);
 		//public abstract void DrawBounds(Camera camera, float thickness, Color color);
-
-		internal RenderStates GetRenderStates(bool includeShader = true)
-		{
-			var parent = Family.Parent ?? null;
-			// the text uses the sprite in the transform as a transform since its transform is separate
-			var resultParent = parent == null ? Window.world.Transform : parent.transform.sprite.Transform;
-			return new RenderStates(BlendMode.Alpha, resultParent, null, includeShader ? Effects.shader : null);
-		}
 	}
 }

@@ -17,15 +17,16 @@ namespace TestGame
 			ComponentIdentity = new(this, "player");
 			Component2D = new()
 			{
-				LocalSize = new Size(100, 200)
+				Size = new Size(-200, 200)
 			};
 			Mask2D = new()
 			{
-				LocalSize = new Size(100, 100)
+				Size = new Size(200, 200)
 			};
 			File.LoadAsset(File.Asset.Texture, "test2.png");
 			File.LoadAsset(File.Asset.Texture, "penka.png");
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
+			Camera.WorldCamera.Position = new Point(500, 0);
 		}
       public override void OnAssetsLoadingEnd()
       {
@@ -49,8 +50,16 @@ namespace TestGame
       }
 		public override void OnDraw(Camera camera)
       {
-			Console.Log(Mask2D.LocalSize);
-			Component2D.LocalAngle++;
+			var par = Component2D.PositionToParallax(new Point(0, 0), new Size(50, 50), Camera.WorldCamera);
+			var ang = Component2D.AngleToParallax(0, 100, Camera.WorldCamera);
+			var sz = Component2D.SizeToParallax(new Size(100, 100), new Size(50, 50), Camera.WorldCamera);
+			Console.Log(ang);
+			Mask2D.Position = par;
+			Mask2D.Angle = ang;
+			Mask2D.Size = sz;
+			Camera.WorldCamera.Angle++;
+			Camera.WorldCamera.Size += new Size(0.16, 0.09) * 50;
+			Camera.WorldCamera.Position = new Point(Mouse.CursorPositionWindow.X, Camera.WorldCamera.Position.Y);
 			//Component2D.Position += new Point(0, 1);
 			if (Mask != null)
 			{
@@ -72,6 +81,7 @@ namespace TestGame
 		}
 		public override void OnKeyHold(Keyboard.Key key)
 		{
+
 		}
 		public override void OnKeyPress(Keyboard.Key key)
       {

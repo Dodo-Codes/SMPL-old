@@ -722,13 +722,14 @@ namespace SMPL
 
 		internal RenderTexture DrawMasks(Sprite spr)
 		{
-			var sz = new Vector2u((uint)owner.transform.LocalSize.W, (uint)owner.transform.LocalSize.H);
+			var sz = new Vector2u((uint)Number.Sign(owner.transform.Size.W, false),
+				(uint)Number.Sign(owner.transform.Size.H, false));
 			if (sz.X < spr.Texture.Size.X) sz.X = spr.Texture.Size.X;
 			if (sz.Y < spr.Texture.Size.Y) sz.Y = spr.Texture.Size.Y;
 			var rend = new RenderTexture(sz.X, sz.Y);
 			var sc = new Vector2f(
-				(float)owner.transform.LocalSize.W / spr.Texture.Size.X,
-				(float)owner.transform.LocalSize.H / spr.Texture.Size.Y);
+				(float)owner.transform.Size.W / spr.Texture.Size.X,
+				(float)owner.transform.Size.H / spr.Texture.Size.Y);
 
 			rend.Draw(spr);
 			for (int i = 0; i < masks.Count; i++)
@@ -745,11 +746,11 @@ namespace SMPL
 					t.transform.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
 					t.transform.text.Rotation = (float)(t.transform.LocalAngle - owner.transform.LocalAngle);
 					t.transform.text.Origin = new Vector2f(
-						(float)(t.transform.LocalSize.W * (t.transform.OriginPercent.X / 100)),
-						(float)(t.transform.LocalSize.H * (t.transform.OriginPercent.Y / 100)));
+						(float)(t.transform.Size.W * (t.transform.OriginPercent.X / 100)),
+						(float)(t.transform.Size.H * (t.transform.OriginPercent.Y / 100)));
 					t.transform.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
 
-					rend.Draw(t.transform.text, t.GetRenderStates(false));
+					rend.Draw(t.transform.text);
 				}
 				else
 				{
@@ -768,10 +769,10 @@ namespace SMPL
 					s.transform.sprite.Rotation = (float)(s.transform.Angle - owner.transform.Angle);
 					s.transform.sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
 					s.transform.sprite.Scale = new Vector2f(
-						(float)s.transform.LocalSize.W / s.rawTexture.Size.X / sc.X,
-						(float)s.transform.LocalSize.H / s.rawTexture.Size.Y / sc.Y);
+						(float)s.transform.Size.W / s.rawTexture.Size.X / sc.X,
+						(float)s.transform.Size.H / s.rawTexture.Size.Y / sc.Y);
 
-					rend.Draw(s.transform.sprite, s.GetRenderStates());
+					rend.Draw(s.transform.sprite, new RenderStates(s.Effects.shader));
 				}
 			}
 			rend.Display();

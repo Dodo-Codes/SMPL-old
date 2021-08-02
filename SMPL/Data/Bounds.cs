@@ -9,12 +9,12 @@
 			get { return lower; }
 			set
 			{
-				if (value > upper)
-				{
-					lower = upper;
-					upper = value;
-					return;
-				}
+				//if (value > upper)
+				//{
+				//	lower = upper;
+				//	upper = value;
+				//	return;
+				//}
 				lower = value;
 			}
 		}
@@ -23,12 +23,12 @@
 			get { return upper; }
 			set
 			{
-				if (value < lower)
-				{
-					upper = lower;
-					lower = value;
-					return;
-				}
+				//if (value < lower)
+				//{
+				//	upper = lower;
+				//	lower = value;
+				//	return;
+				//}
 				upper = value;
 			}
 		}

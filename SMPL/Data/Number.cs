@@ -165,10 +165,10 @@ namespace SMPL
 			var checkedSpeed = speed;
 			if (timeUnit == Time.Unit.Second) checkedSpeed *= Time.DeltaTime;
 			if (Math.Abs(difference) < checkedSpeed) angle = targetAngle;
-			else if (difference > 0 && difference < 180) Move(angle, -speed, timeUnit);
-			else if (difference > -180 && difference < 0) Move(angle, speed, timeUnit);
-			else if (difference > -360 && difference < -180) Move(angle, -speed, timeUnit);
-			else if (difference > 180 && difference < 360) Move(angle, speed, timeUnit);
+			else if (difference >= 0 && difference < 180) angle = Move(angle, -speed, timeUnit);
+			else if (difference >= -180 && difference < 0) angle = Move(angle, speed, timeUnit);
+			else if (difference >= -360 && difference < -180) angle = Move(angle, -speed, timeUnit);
+			else if (difference >= 180 && difference < 360) angle = Move(angle, speed, timeUnit);
 
 			// detects speed greater than possible
 			// prevents jiggle when passing 0-360 & 360-0 | simple to fix yet took me half a day

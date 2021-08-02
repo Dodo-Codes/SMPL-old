@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using static SMPL.Events;
 
 namespace SMPL
@@ -15,11 +16,11 @@ namespace SMPL
 		internal Point position, lastFramePos;
 		public Point Position
 		{
-			get { return GetGlobalPosition(LocalPosition); }
+			get { return PositionFromLocal(LocalPosition); }
 			set
 			{
 				if (Camera.WorldCamera.TransformComponent == this) return;
-				LocalPosition = GetLocalPosition(value);
+				localPosition = PositionToLocal(value);
 				if (position == value) return;
 
 				var delta = value - position;
@@ -35,11 +36,11 @@ namespace SMPL
 		internal double angle, lastFrameAng;
 		public double Angle
 		{
-			get { return GetGlobalAngle(LocalAngle); }
+			get { return AngleFromLocal(LocalAngle); }
 			set
 			{
 				if (Camera.WorldCamera.TransformComponent == this) return;
-				LocalAngle = GetLocalAngle(value);
+				localAngle = AngleToLocal(value);
 				if (angle == value) return;
 
 				var delta = value - angle;
@@ -53,11 +54,11 @@ namespace SMPL
 		internal Size size, lastFrameSz;
 		public Size Size
 		{
-			get { return GetGlobalSize(LocalSize); }
+			get { return size; }
 			set
 			{
 				if (Camera.WorldCamera.TransformComponent == this) return;
-				LocalSize = GetLocalSize(value);
+				localSize = SizeToLocal(value);
 				if (size == value) return;
 				var delta = value - size;
 				size = value;
@@ -89,9 +90,45 @@ namespace SMPL
 			}
 		}
 
-		public Point LocalPosition { get; set; }
-		public double LocalAngle { get; set; }
-		public Size LocalSize { get; set; }
+		private Point localPosition;
+		public Point LocalPosition
+		{
+			get { return localPosition; }
+			set
+			{
+				if (Camera.WorldCamera.TransformComponent == this) return;
+				position = PositionFromLocal(value);
+				if (localPosition == value) return;
+				var delta = value - localPosition;
+				localPosition = value;
+			}
+		}
+		private double localAngle;
+		public double LocalAngle
+		{
+			get { return localAngle; }
+			set
+			{
+				if (Camera.WorldCamera.TransformComponent == this) return;
+				angle = AngleFromLocal(value);
+				if (localAngle == value) return;
+				var delta = value - localAngle;
+				localAngle = value;
+			}
+		}
+		private Size localSize;
+		public Size LocalSize
+		{
+			get { return localSize; }
+			set
+			{
+				if (Camera.WorldCamera.TransformComponent == this) return;
+				size = SizeFromLocal(value);
+				if (localSize == value) return;
+				var delta = value - localSize;
+				localSize = value;
+			}
+		}
 
 		internal void Update()
       {
@@ -170,39 +207,53 @@ namespace SMPL
 			lastFrameOrPer = originPercent;
 		}
 
-		internal Point GetGlobalPosition(Point local)
+		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{
-			return family == null || family.Parent == null ? local :
-				Point.To(family.Parent.transform.sprite.Transform.TransformPoint(Point.From(local)));
+			parallaxPercent += new Size(100, 100);
+			var x = Number.FromPercent(parallaxPercent.W, new Bounds(-camera.Position.X, position.X));
+			var y = Number.FromPercent(parallaxPercent.H, new Bounds(-camera.Position.Y, position.Y));
+			return new Point(x, y);
 		}
-		internal Point GetLocalPosition(Point global)
+		public Point PositionFromLocal(Point localPosition)
 		{
-			return family == null || family.Parent == null ? global :
-				Point.To(family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(global)));
+			return family == null || family.Parent == null ? localPosition :
+				Point.To(family.Parent.transform.sprite.Transform.TransformPoint(Point.From(localPosition)));
 		}
-		internal double GetGlobalAngle(double local)
+		public Point PositionToLocal(Point position)
 		{
-			return family == null || family.Parent == null ? local :
-				family.Parent.transform.sprite.Rotation + local;
+			return family == null || family.Parent == null ? position :
+				Point.To(family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
-		internal double GetLocalAngle(double global)
+		public static double AngleToParallax(double angle, double parallaxPercent, Camera camera)
 		{
-			return family == null || family.Parent == null ? global :
-				-(family.Parent.transform.sprite.Rotation - global);
+			parallaxPercent /= 100;
+			return Number.MoveTowardAngle(angle, camera.Angle, (camera.Angle - angle) * parallaxPercent, Time.Unit.Tick);
 		}
-		internal Size GetGlobalSize(Size local)
+		public double AngleFromLocal(double localAngle)
 		{
-			if (family == null || family.Parent == null || family.owner is ComponentText) return local;
-			var parSz = family.Parent.transform.LocalSize;
-			var ssc = new Size(parSz.W / local.W, parSz.H / local.H);
-			return local * ssc;
+			return family == null || family.Parent == null ? localAngle :
+				family.Parent.transform.localAngle + localAngle;
 		}
-		internal Size GetLocalSize(Size global)
+		public double AngleToLocal(double angle)
 		{
-			if (family == null || family.Parent == null || family.owner is ComponentText) return global;
-			var parSz = family.Parent.transform.LocalSize;
-			var ssc = new Size(parSz.W / global.W, parSz.H / global.H);
-			return global / ssc;
+			return family == null || family.Parent == null ? angle :
+				-(family.Parent.transform.localAngle - angle);
+		}
+		public static Size SizeToParallax(Size size, Size parallaxPercent, Camera camera)
+		{
+			parallaxPercent /= 100;
+			var sc = (camera.Size / camera.startSize) * parallaxPercent;
+			return size * sc;
+		}
+		public Size SizeFromLocal(Size localSize)
+		{
+			return family == null || family.Parent == null || family.owner is ComponentText ? localSize :
+				localSize + family.Parent.transform.Size;
+		}
+		public Size SizeToLocal(Size size)
+		{
+			return family == null || family.Parent == null || family.owner is ComponentText ? size :
+				size - family.Parent.transform.Size;
 		}
 		public Component2D()
 		{

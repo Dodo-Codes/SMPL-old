@@ -47,16 +47,16 @@ namespace SMPL
 			get { return new Size(view.Size.X, view.Size.Y); }
 			set { view.Size = Size.From(value); }
 		}
-		private double zoom = 1;
-		public double Zoom
-		{
-			get { return zoom; }
-			set
-			{
-				zoom = Number.Limit(value, new Bounds(0.001, 500));
-				view.Size = Size.From(startSize / zoom);
-			}
-		}
+		//private double zoom = 1;
+		//public double Zoom
+		//{
+		//	get { return zoom; }
+		//	set
+		//	{
+		//		zoom = Number.Limit(value, new Bounds(0.001, 500));
+		//		view.Size = Size.From(startSize / zoom);
+		//	}
+		//}
 		public Color BackgroundColor { get; set; }
 
 		public Camera(Point viewPosition, Size viewSize)
@@ -70,7 +70,7 @@ namespace SMPL
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
 			BackgroundColor = Color.GreenDark;
 			startSize = viewSize;
-			Zoom = 1;
+			//Zoom = 1;
 		}
 
 		internal static void DrawCameras()
@@ -108,8 +108,8 @@ namespace SMPL
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
 			var sc = new Vector2f(
-				(float)TransformComponent.LocalSize.W / (float)tsz.X,
-				(float)TransformComponent.LocalSize.H / (float)tsz.Y);
+				(float)TransformComponent.Size.W / (float)tsz.X,
+				(float)TransformComponent.Size.H / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;

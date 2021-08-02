@@ -181,11 +181,11 @@ namespace SMPL
 			transform.sprite.Texture = drawMaskResult.Texture;
 
 			transform.sprite.Origin = new Vector2f(x, y);
-			transform.sprite.Position = Point.From(transform.LocalPosition);
-			transform.sprite.Rotation = (float)transform.LocalAngle;
+			transform.sprite.Position = Point.From(transform.Position);
+			transform.sprite.Rotation = (float)transform.Angle;
 			transform.sprite.Scale = new Vector2f(
-				(float)transform.LocalSize.W / rawTexture.Size.X,
-				(float)transform.LocalSize.H / rawTexture.Size.Y);
+				(float)transform.Size.W / rawTexture.Size.X,
+				(float)transform.Size.H / rawTexture.Size.Y);
 
 			Effects.shader.SetUniform("Texture", transform.sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rawTextureShader);
@@ -198,7 +198,7 @@ namespace SMPL
 					var p1 = transform.sprite.Transform.TransformPoint(new Vector2f((pos.X + w) * i, (pos.Y + h) * j));
 
 					transform.sprite.Position = p1;
-					camera.rendTexture.Draw(transform.sprite, GetRenderStates());
+					camera.rendTexture.Draw(transform.sprite, new RenderStates(Effects.shader));
 					transform.sprite.Position = pos;
 				}
 			}
