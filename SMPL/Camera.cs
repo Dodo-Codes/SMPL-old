@@ -108,8 +108,8 @@ namespace SMPL
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
 			var sc = new Vector2f(
-				(float)TransformComponent.Size.W / (float)tsz.X,
-				(float)TransformComponent.Size.H / (float)tsz.Y);
+				(float)TransformComponent.LocalSize.W / (float)tsz.X,
+				(float)TransformComponent.LocalSize.H / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;

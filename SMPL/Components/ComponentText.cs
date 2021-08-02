@@ -313,7 +313,7 @@ namespace SMPL
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.text == null ||
 				transform.text.Font == null) return;
 
-			var rend = new RenderTexture((uint)transform.Size.W, (uint)transform.Size.H);
+			var rend = new RenderTexture((uint)transform.LocalSize.W, (uint)transform.LocalSize.H);
 			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));
 			rend.Draw(transform.text);
 			rend.Display();
@@ -329,8 +329,8 @@ namespace SMPL
 			sprite.Position = Point.From(transform.Position);
 			sprite.Rotation = (float)transform.Angle;
 			sprite.Origin = new Vector2f(
-					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
-					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)));
+					(float)(transform.LocalSize.W * (transform.OriginPercent.X / 100)),
+					(float)(transform.LocalSize.H * (transform.OriginPercent.Y / 100)));
 
 			var sc = Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.transform.sprite.Scale;
 			sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);

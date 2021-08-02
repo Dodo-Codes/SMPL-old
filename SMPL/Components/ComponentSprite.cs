@@ -184,8 +184,8 @@ namespace SMPL
 			transform.sprite.Position = Point.From(transform.LocalPosition);
 			transform.sprite.Rotation = (float)transform.LocalAngle;
 			transform.sprite.Scale = new Vector2f(
-				(float)transform.Size.W / rawTexture.Size.X,
-				(float)transform.Size.H / rawTexture.Size.Y);
+				(float)transform.LocalSize.W / rawTexture.Size.X,
+				(float)transform.LocalSize.H / rawTexture.Size.Y);
 
 			Effects.shader.SetUniform("Texture", transform.sprite.Texture);
 			Effects.shader.SetUniform("RawTexture", rawTextureShader);

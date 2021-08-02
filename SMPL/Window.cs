@@ -191,7 +191,7 @@ namespace SMPL
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
 			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
-			Camera.WorldCamera.TransformComponent.Size = size;
+			Camera.WorldCamera.TransformComponent.LocalSize = size;
 			window.SetView(Camera.WorldCamera.view);
 
 			CurrentType = Type.Normal;

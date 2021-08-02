@@ -17,11 +17,11 @@ namespace TestGame
 			ComponentIdentity = new(this, "player");
 			Component2D = new()
 			{
-				Size = new Size(100, 100)
+				LocalSize = new Size(100, 200)
 			};
 			Mask2D = new()
 			{
-				Size = new Size(100, 100)
+				LocalSize = new Size(100, 100)
 			};
 			File.LoadAsset(File.Asset.Texture, "test2.png");
 			File.LoadAsset(File.Asset.Texture, "penka.png");
@@ -49,9 +49,9 @@ namespace TestGame
       }
 		public override void OnDraw(Camera camera)
       {
+			Console.Log(Mask2D.LocalSize);
 			Component2D.LocalAngle++;
 			//Component2D.Position += new Point(0, 1);
-			//Mask2D.LocalPosition = new Point(100, 0);
 			if (Mask != null)
 			{
 				Mask.Effects.Progress = Time.GameClock;
@@ -72,7 +72,6 @@ namespace TestGame
 		}
 		public override void OnKeyHold(Keyboard.Key key)
 		{
-
 		}
 		public override void OnKeyPress(Keyboard.Key key)
       {

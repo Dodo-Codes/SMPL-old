@@ -15,11 +15,11 @@ namespace SMPL
 		internal Point position, lastFramePos;
 		public Point Position
 		{
-			get { return position; }
+			get { return GetGlobalPosition(LocalPosition); }
 			set
 			{
 				if (Camera.WorldCamera.TransformComponent == this) return;
-				//localPosition = PositionToLocal(value);
+				LocalPosition = GetLocalPosition(value);
 				if (position == value) return;
 
 				var delta = value - position;
@@ -35,11 +35,11 @@ namespace SMPL
 		internal double angle, lastFrameAng;
 		public double Angle
 		{
-			get { return angle; }
+			get { return GetGlobalAngle(LocalAngle); }
 			set
 			{
 				if (Camera.WorldCamera.TransformComponent == this) return;
-				//localAngle = AngleToLocal(value);
+				LocalAngle = GetLocalAngle(value);
 				if (angle == value) return;
 
 				var delta = value - angle;
@@ -53,10 +53,12 @@ namespace SMPL
 		internal Size size, lastFrameSz;
 		public Size Size
 		{
-			get { return size; }
+			get { return GetGlobalSize(LocalSize); }
 			set
 			{
-				if (size == value || Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.TransformComponent == this) return;
+				LocalSize = GetLocalSize(value);
+				if (size == value) return;
 				var delta = value - size;
 				size = value;
 
@@ -168,33 +170,40 @@ namespace SMPL
 			lastFrameOrPer = originPercent;
 		}
 
-		public Point PositionToLocal(Point position)
+		internal Point GetGlobalPosition(Point local)
 		{
-			if (family != null && family.Parent != null)
-			{
-				var pos = family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(position));
-				return Point.To(pos);
-			}
-			else return position;
+			return family == null || family.Parent == null ? local :
+				Point.To(family.Parent.transform.sprite.Transform.TransformPoint(Point.From(local)));
 		}
-		public Point PositionFromLocal(Point position)
+		internal Point GetLocalPosition(Point global)
 		{
-			if (family != null && family.Parent != null)
-			{
-				var pos = family.Parent.transform.sprite.Transform.TransformPoint(Point.From(position));
-				return Point.To(pos);
-			}
-			else return position;
+			return family == null || family.Parent == null ? global :
+				Point.To(family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(global)));
 		}
-		public double AngleToLocal(double angle)
+		internal double GetGlobalAngle(double local)
 		{
-			return family != null && family.Parent != null ? -(family.Parent.transform.LocalAngle - angle) : angle;
+			return family == null || family.Parent == null ? local :
+				family.Parent.transform.sprite.Rotation + local;
 		}
-		public double AngleFromLocal(double angle)
+		internal double GetLocalAngle(double global)
 		{
-			return family != null && family.Parent != null ? family.Parent.transform.LocalAngle + angle : angle;
+			return family == null || family.Parent == null ? global :
+				-(family.Parent.transform.sprite.Rotation - global);
 		}
-
+		internal Size GetGlobalSize(Size local)
+		{
+			if (family == null || family.Parent == null || family.owner is ComponentText) return local;
+			var parSz = family.Parent.transform.LocalSize;
+			var ssc = new Size(parSz.W / local.W, parSz.H / local.H);
+			return local * ssc;
+		}
+		internal Size GetLocalSize(Size global)
+		{
+			if (family == null || family.Parent == null || family.owner is ComponentText) return global;
+			var parSz = family.Parent.transform.LocalSize;
+			var ssc = new Size(parSz.W / global.W, parSz.H / global.H);
+			return global / ssc;
+		}
 		public Component2D()
 		{
 			transforms.Add(this);

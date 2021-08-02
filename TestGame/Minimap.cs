@@ -11,7 +11,7 @@ namespace TestGame
 			IdentityComponent = new(this, "minimap");
 			BackgroundColor = Color.BlueDark;
 			TransformComponent.Position = new Point(400, 0);
-			TransformComponent.Size = new Size(500, 500);
+			TransformComponent.LocalSize = new Size(500, 500);
 		}
    }
 }
