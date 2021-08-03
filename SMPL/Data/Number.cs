@@ -60,8 +60,8 @@ namespace SMPL
 		{
 			precision = (int)Limit(precision, new Bounds(0, 5), Limitation.ClosestBound);
 			var precisionValue = (double)Math.Pow(10, precision);
-			var lowerInt = Convert.ToInt32(bounds.Lower * Math.Pow(10, GetPrecision(bounds.Lower)));
-			var upperInt = Convert.ToInt32(bounds.Upper * Math.Pow(10, GetPrecision(bounds.Upper)));
+			var lowerInt = Convert.ToInt32(bounds.Lower * Math.Pow(10, Precision(bounds.Lower)));
+			var upperInt = Convert.ToInt32(bounds.Upper * Math.Pow(10, Precision(bounds.Upper)));
 			var s = new Random(double.IsNaN(seed) ? Guid.NewGuid().GetHashCode() : (int)Round(seed));
 			var randInt = s.Next((int)(lowerInt * precisionValue), (int)(upperInt * precisionValue) + 1);
 			var result = randInt / precisionValue;
@@ -72,7 +72,7 @@ namespace SMPL
 		{
 			return numbers == null ? double.NaN : numbers.Sum() / numbers.Length;
 		}
-		public static double GetPrecision(double number)
+		public static double Precision(double number)
 		{
 			var cultDecPoint = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 			var split = number.ToString(cultDecPoint).Split();
@@ -88,7 +88,7 @@ namespace SMPL
 			if (toward == RoundToward.Down || toward == RoundToward.Up)
 			{
 				var numStr = number.ToString();
-				var prec = GetPrecision(number);
+				var prec = Precision(number);
 				if (prec > 0 && prec > precision)
 				{
 					var digit = toward == RoundToward.Down ? "1" : "9";
@@ -148,7 +148,7 @@ namespace SMPL
 		{
 			return (value - boundsA.Lower) / (boundsA.Upper - boundsA.Lower) * (boundsB.Upper - boundsB.Lower) + boundsB.Lower;
 		}
-		public static double GetAngleBetweenPoints(Point point, Point targetPoint)
+		public static double AngleBetweenPoints(Point point, Point targetPoint)
 		{
 			var dir = DirectionBetweenPoints(point, targetPoint);
 			return DirectionToAngle(dir);

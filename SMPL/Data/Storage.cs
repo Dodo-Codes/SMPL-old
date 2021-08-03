@@ -108,44 +108,50 @@ namespace SMPL
 			}
 		}
 
-		public int GetDataAmount() => indexes == null ? 0 : indexes.Count;
-		public ValueT GetValueAt(UniqueKeyT uniqueKey)
+		public int DataAmount => indexes == null ? 0 : indexes.Count;
+		public ValueT ValueAt(UniqueKeyT uniqueKey)
 		{
          return UniqueKeyNotFound(uniqueKey) ? default : dict[uniqueKey];
       }
-      public ValueT GetValueAt(int index)
+      public ValueT ValueAt(int index)
 		{
          return IndexNotFound(index) ? default : values[index];
       }
-      public UniqueKeyT GetUniqueKeyAt(int index)
+      public UniqueKeyT UniqueKeyAt(int index)
 		{
          return IndexNotFound(index) ? default : keys[index];
       }
-      public int GetIndexAt(UniqueKeyT uniqueKey)
+      public int IndexAt(UniqueKeyT uniqueKey)
 		{
          return UniqueKeyNotFound(uniqueKey) ? default : keys.IndexOf(uniqueKey);
       }
 
-      public int[] GetIndexes() => indexes == null ? System.Array.Empty<int>() : indexes.ToArray();
-		public UniqueKeyT[] GetUniqueKeys()
+      public int[] Indexes => indexes == null ? System.Array.Empty<int>() : indexes.ToArray();
+		public UniqueKeyT[] UniqueKeys
 		{
-			if (indexes == null) return System.Array.Empty<UniqueKeyT>();
-			var result = new List<UniqueKeyT>();
-			for (int i = 0; i < indexes.Count; i++)
+			get
 			{
-				result.Add(keys[indexes[i]]);
+				if (indexes == null) return System.Array.Empty<UniqueKeyT>();
+				var result = new List<UniqueKeyT>();
+				for (int i = 0; i < indexes.Count; i++)
+				{
+					result.Add(keys[indexes[i]]);
+				}
+				return result.ToArray();
 			}
-			return result.ToArray();
 		}
-		public ValueT[] GetValues()
+		public ValueT[] Values
 		{
-			if (indexes == null) return System.Array.Empty<ValueT>();
-			var result = new List<ValueT>();
-			for (int i = 0; i < indexes.Count; i++)
+			get
 			{
-				result.Add(values[indexes[i]]);
+				if (indexes == null) return System.Array.Empty<ValueT>();
+				var result = new List<ValueT>();
+				for (int i = 0; i < indexes.Count; i++)
+				{
+					result.Add(values[indexes[i]]);
+				}
+				return result.ToArray();
 			}
-			return result.ToArray();
 		}
 
 		public bool HasIndex(int index) => indexes != null && indexes.Contains(index);

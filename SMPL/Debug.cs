@@ -7,7 +7,7 @@ namespace SMPL
 		private readonly static string engineKey = "_tas8lf1d5ku346";
 		public static bool currentMethodIsCalledByUser
 		{
-			get { return System.IO.File.Exists($"{GetCurrentFileDirectory(2)}\\{engineKey}.txt") == false; }
+			get { return System.IO.File.Exists($"{CurrentFileDirectory(2)}\\{engineKey}.txt") == false; }
 		}
 
 		/// <summary>
@@ -16,26 +16,26 @@ namespace SMPL
 		public static bool IsActive { get { return Debugger.IsAttached; } }
 		internal static string debugString = "(This error message will not appear after the game is built)";
 
-		public static double GetCurrentLineNumber(uint depth = 0)
+		public static double CurrentLineNumber(uint depth = 0)
 		{
 			var info = new StackFrame((int)depth + 1, true);
 			return info.GetFileLineNumber();
 		}
-		public static string GetCurrentFileName(uint depth = 0)
+		public static string CurrentFileName(uint depth = 0)
 		{
-			var pathRaw = GetCurrentFilePath(depth + 1);
+			var pathRaw = CurrentFilePath(depth + 1);
 			if (pathRaw == null) return null;
 			var path = pathRaw.Split('\\');
 			var name = path[path.Length - 1].Split('.');
 			return name[0];
 		}
-		public static string GetCurrentFilePath(uint depth = 0)
+		public static string CurrentFilePath(uint depth = 0)
 		{
 			var info = new StackFrame((int)depth + 1, true);
 			var a = info.GetFileName();
 			return a;
 		}
-		public static string GetCurrentMethodName(uint depth = 0)
+		public static string CurrentMethodName(uint depth = 0)
 		{
 			var info = new StackFrame((int)depth + 1, true);
 			var method = info.GetMethod();
@@ -46,7 +46,7 @@ namespace SMPL
 
 			return method == default ? default : result;
 		}
-		public static string GetCurrentFileDirectory(uint depth = 0)
+		public static string CurrentFileDirectory(uint depth = 0)
 		{
 			var fileName = new StackFrame((int)depth + 1, true).GetFileName();
 			var path = fileName.Split('\\');
@@ -67,9 +67,9 @@ namespace SMPL
 			var d = (uint)depth;
 			var debugStr = isDisplayingInRelease ? "" : debugString;
 			var place = depth >= 0 && IsActive ?
-				$"- At file: {GetCurrentFileName(d + 1)}\n" +
-				$"- At method: {GetCurrentMethodName(d + 1)}\n" +
-				$"- At line: {GetCurrentLineNumber(d + 1)} | {GetCurrentMethodName(d)}\n" : "";
+				$"- At file: {CurrentFileName(d + 1)}\n" +
+				$"- At method: {CurrentMethodName(d + 1)}\n" +
+				$"- At line: {CurrentLineNumber(d + 1)} | {CurrentMethodName(d)}\n" : "";
 			var result =
 				$"ERROR {debugStr}\n" +
 				$"{place}" +

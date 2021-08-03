@@ -18,7 +18,7 @@ namespace SMPL
 			if (NotFound(uniqueID)) return;
 			gateEntries[uniqueID] = 0;
 		}
-		public static double GetEntryCount(string uniqueID)
+		public static double EntryCount(string uniqueID)
 		{
 			return
 				NotFound(uniqueID) ? double.NaN :

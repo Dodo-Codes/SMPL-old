@@ -13,6 +13,8 @@ namespace SMPL
 		private readonly uint creationFrame;
 		private readonly double rand;
 
+		public ComponentHitbox ComponentHitbox { get; set; } = new();
+
 		internal Point position, lastFramePos;
 		public Point Position
 		{
@@ -25,6 +27,7 @@ namespace SMPL
 
 				var delta = value - position;
 				position = value;
+				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFramePos = position; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -45,6 +48,7 @@ namespace SMPL
 
 				var delta = value - angle;
 				angle = value;
+				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotateSetup(this, delta); }
@@ -62,6 +66,7 @@ namespace SMPL
 				if (size == value) return;
 				var delta = value - size;
 				size = value;
+				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -81,6 +86,7 @@ namespace SMPL
 				if (originPercent == value || Camera.WorldCamera.TransformComponent == this) return;
 				var delta = value - originPercent;
 				originPercent = value;
+				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -101,6 +107,7 @@ namespace SMPL
 				if (localPosition == value) return;
 				var delta = value - localPosition;
 				localPosition = value;
+				UpdateHitbox();
 			}
 		}
 		private double localAngle;
@@ -114,6 +121,7 @@ namespace SMPL
 				if (localAngle == value) return;
 				var delta = value - localAngle;
 				localAngle = value;
+				UpdateHitbox();
 			}
 		}
 		private Size localSize;
@@ -127,9 +135,23 @@ namespace SMPL
 				if (localSize == value) return;
 				var delta = value - localSize;
 				localSize = value;
+				UpdateHitbox();
 			}
 		}
 
+		public Component2D()
+		{
+			transforms.Add(this);
+			creationFrame = Time.FrameCount;
+			rand = Number.Random(new Bounds(-9999, 9999), 5);
+
+			UpdateHitbox();
+
+			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					e[i].On2DCreateSetup(this); }
+			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					e[i].On2DCreate(this); }
+		}
 		internal void Update()
       {
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-pos-start", lastFramePos != position))
@@ -206,6 +228,18 @@ namespace SMPL
 			lastFrameSz = size;
 			lastFrameOrPer = originPercent;
 		}
+		internal void UpdateHitbox()
+		{
+			sprite.Position = Point.From(Position);
+			sprite.Rotation = (float)Angle;
+			foreach (var kvp in ComponentHitbox.lines)
+			{
+				var localLine = ComponentHitbox.localLines[kvp.Key];
+				var sp = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.StartPosition)));
+				var ep = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.EndPosition)));
+				ComponentHitbox.SetLine(kvp.Key, new Line(sp, ep));
+			}
+		}
 
 		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{
@@ -254,17 +288,6 @@ namespace SMPL
 		{
 			return family == null || family.Parent == null || family.owner is ComponentText ? size :
 				size - family.Parent.transform.Size;
-		}
-		public Component2D()
-		{
-			transforms.Add(this);
-			creationFrame = Time.FrameCount;
-			rand = Number.Random(new Bounds(-9999, 9999), 5);
-
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].On2DCreateSetup(this); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].On2DCreate(this); }
 		}
 	}
 }

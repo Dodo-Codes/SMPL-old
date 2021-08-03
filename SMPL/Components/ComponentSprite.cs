@@ -165,7 +165,6 @@ namespace SMPL
 		{
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
 				transform.sprite.Texture == null) return;
-
 			var w = transform.sprite.TextureRect.Width;
 			var h = transform.sprite.TextureRect.Height;
 			var p = transform.OriginPercent / 100;

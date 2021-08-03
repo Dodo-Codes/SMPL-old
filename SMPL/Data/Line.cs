@@ -5,7 +5,7 @@ namespace SMPL
 {
 	public struct Line
 	{
-		private Point startPosition;
+		internal Point startPosition;
 		public Point StartPosition
 		{
 			get { return startPosition; }
@@ -15,7 +15,7 @@ namespace SMPL
 				UpdateLength();
 			}
 		}
-		private Point endPosition;
+		internal Point endPosition;
 		public Point EndPosition
 		{
 			get { return endPosition; }
@@ -36,9 +36,9 @@ namespace SMPL
 			EndPosition = endPosition;
 			UpdateLength();
 		}
-		private void UpdateLength() => Length = Point.GetDistance(StartPosition, EndPosition);
+		private void UpdateLength() => Length = Point.Distance(StartPosition, EndPosition);
 
-		public static Point GetCrossPoint(Line lineA, Line lineB)
+		public static Point CrossPoint(Line lineA, Line lineB)
 		{
 			var segmentsCross = false;
 			var linesCross = false;
@@ -53,15 +53,12 @@ namespace SMPL
 		public static bool ContainsPoint(Line line, Point point)
 		{
 			var AB = line.Length;
-			var AP = Point.GetDistance(line.StartPosition, point);
-			var PB = Point.GetDistance(line.EndPosition, point);
+			var AP = Point.Distance(line.StartPosition, point);
+			var PB = Point.Distance(line.EndPosition, point);
 			var sum = AP + PB;
 			return Number.IsBetween(sum, new Bounds(AB - 0.01, AB + 0.01));
 		}
-		public static bool AreCrossing(Line lineA, Line lineB)
-		{
-			return GetCrossPoint(lineA, lineB) != new Point(double.NaN, double.NaN);
-		}
+		public static bool AreCrossing(Line lineA, Line lineB) => CrossPoint(lineA, lineB).IsInvalid() == false;
 
 		public void Draw(Camera camera)
 		{

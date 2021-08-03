@@ -611,8 +611,8 @@ namespace SMPL
 
 		public void AddMask(ComponentVisual target) => AddMask(masks, target, owner, true);
 		public void RemoveMask(ComponentVisual target) => AddMask(masks, target, owner, false);
-		public ComponentVisual[] GetMasks() => masks.ToArray();
-		public ComponentVisual GetMaskTarget() => owner.masking;
+		public ComponentVisual[] Masks => masks.ToArray();
+		public ComponentVisual MaskTarget => owner.masking;
 		private static void AddMask(List<ComponentVisual> list,
 			ComponentVisual component, ComponentVisual owner, bool add)
 		{
@@ -738,8 +738,8 @@ namespace SMPL
 				if (masks[i] is ComponentText)
 				{
 					var t = masks[i] as ComponentText;
-					var dist = Point.GetDistance(t.transform.LocalPosition, owner.transform.LocalPosition);
-					var atAng = Number.GetAngleBetweenPoints(owner.transform.LocalPosition, t.transform.LocalPosition);
+					var dist = Point.Distance(t.transform.LocalPosition, owner.transform.LocalPosition);
+					var atAng = Number.AngleBetweenPoints(owner.transform.LocalPosition, t.transform.LocalPosition);
 					var pos = Point.From(Point.MoveAtAngle(
 						owner.transform.LocalPosition, atAng - owner.transform.LocalAngle, dist, Time.Unit.Tick));
 
@@ -760,8 +760,8 @@ namespace SMPL
 					var p = s.transform.OriginPercent / 100;
 					var x = w * (float)p.X * ((float)s.GridSize.W / 2f) + (w * (float)p.X / 2f);
 					var y = h * (float)p.Y * ((float)s.GridSize.H / 2f) + (h * (float)p.Y / 2f);
-					var dist = Point.GetDistance(s.transform.Position, owner.transform.Position);
-					var atAng = Number.GetAngleBetweenPoints(owner.transform.Position, s.transform.Position);
+					var dist = Point.Distance(s.transform.Position, owner.transform.Position);
+					var atAng = Number.AngleBetweenPoints(owner.transform.Position, s.transform.Position);
 					var pos = Point.From(Point.MoveAtAngle(
 						owner.transform.Position, atAng - owner.transform.Angle, dist, Time.Unit.Tick));
 

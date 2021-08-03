@@ -9,7 +9,6 @@ namespace SMPL
 		public double X { get; set; }
 		public double Y { get; set; }
 		public Color Color { get; set; }
-		public static Point NaN { get { return new(double.NaN, double.NaN); } }
 
 		public Point(double x, double y)
 		{
@@ -24,7 +23,8 @@ namespace SMPL
 			camera.rendTexture.Draw(vert, PrimitiveType.Points);
 		}
 
-		public static double GetDistance(Point pointA, Point pointB)
+		public bool IsInvalid() => double.IsNaN(X) || double.IsNaN(Y);
+		public static double Distance(Point pointA, Point pointB)
 		{
 			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
 		}
@@ -37,11 +37,17 @@ namespace SMPL
 			point.Y += dir.Y * speed;
 			return point;
 		}
-		public static Point MoveTowardPoint(Point point, Point targetPoint, double speed,
+		public static Point MoveTowardTarget(Point point, Point targetPoint, double speed,
 			Time.Unit timeUnit = Time.Unit.Second)
 		{
-			var ang = Number.GetAngleBetweenPoints(point, targetPoint);
+			var ang = Number.AngleBetweenPoints(point, targetPoint);
 			return MoveAtAngle(point, ang, speed, timeUnit);
+		}
+		public static Point PercentTowardTarget(Point point, Point targetPoint, Size percent)
+		{
+			var x = Number.FromPercent(percent.W, new Bounds(point.X, targetPoint.X));
+			var y = Number.FromPercent(percent.H, new Bounds(point.Y, targetPoint.Y));
+			return new Point(x, y);
 		}
 
 		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);

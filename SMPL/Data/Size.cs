@@ -22,7 +22,7 @@ namespace SMPL
 		{
 			size = Resize(size, speed, timeUnit);
 			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
-			var dist = Point.GetDistance(new Point(size.W, size.H), new Point(targetSize.W, targetSize.H));
+			var dist = Point.Distance(new Point(size.W, size.H), new Point(targetSize.W, targetSize.H));
 			if (dist < sp) size = targetSize;
 			return size;
 		}

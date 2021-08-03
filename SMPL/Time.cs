@@ -126,7 +126,7 @@ namespace SMPL
 				_ => 0,
 			};
 		}
-		public static double GetFrameRate(bool averaged = false)
+		public static double FrameRate(bool averaged = false)
 		{
 			return averaged ? frameCount / time.ElapsedTime.AsSeconds() : 1 / frameDeltaTime.ElapsedTime.AsSeconds();
 		}
