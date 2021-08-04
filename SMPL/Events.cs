@@ -13,6 +13,7 @@ namespace SMPL
 		internal static List<ComponentText> texts = new();
 		internal static List<ComponentSprite> sprites = new();
 		internal static List<Keyboard.Key> keysHeld = new();
+		internal static List<ComponentHitbox> hitboxes = new();
 
 		private int order;
 		public int Order
@@ -54,12 +55,11 @@ namespace SMPL
 				}
 			}
 
-			{ var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnEachFrameSetup(); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnEachFrame(); } }
+			{ var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnEachFrameSetup(); }
+			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnEachFrame(); } }
 
 			for (int i = 0; i < transforms.Count; i++) transforms[i].Update();
+			for (int i = 0; i < hitboxes.Count; i++) hitboxes[i].Update();
 			for (int i = 0; i < sprites.Count; i++) sprites[i].Update();
 			for (int i = 0; i < texts.Count; i++) texts[i].Update();
          for (int j = 0; j < keysHeld.Count; j++)

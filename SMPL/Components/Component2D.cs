@@ -21,7 +21,7 @@ namespace SMPL
 			get { return PositionFromLocal(LocalPosition); }
 			set
 			{
-				if (Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.Component2D == this) return;
 				localPosition = PositionToLocal(value);
 				if (position == value) return;
 
@@ -42,7 +42,7 @@ namespace SMPL
 			get { return AngleFromLocal(LocalAngle); }
 			set
 			{
-				if (Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.Component2D == this) return;
 				localAngle = AngleToLocal(value);
 				if (angle == value) return;
 
@@ -61,7 +61,7 @@ namespace SMPL
 			get { return size; }
 			set
 			{
-				if (Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.Component2D == this) return;
 				localSize = SizeToLocal(value);
 				if (size == value) return;
 				var delta = value - size;
@@ -83,7 +83,7 @@ namespace SMPL
 			{
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value || Camera.WorldCamera.TransformComponent == this) return;
+				if (originPercent == value || Camera.WorldCamera.Component2D == this) return;
 				var delta = value - originPercent;
 				originPercent = value;
 				UpdateHitbox();
@@ -102,7 +102,7 @@ namespace SMPL
 			get { return localPosition; }
 			set
 			{
-				if (Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.Component2D == this) return;
 				position = PositionFromLocal(value);
 				if (localPosition == value) return;
 				var delta = value - localPosition;
@@ -116,7 +116,7 @@ namespace SMPL
 			get { return localAngle; }
 			set
 			{
-				if (Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.Component2D == this) return;
 				angle = AngleFromLocal(value);
 				if (localAngle == value) return;
 				var delta = value - localAngle;
@@ -130,7 +130,7 @@ namespace SMPL
 			get { return localSize; }
 			set
 			{
-				if (Camera.WorldCamera.TransformComponent == this) return;
+				if (Camera.WorldCamera.Component2D == this) return;
 				size = SizeFromLocal(value);
 				if (localSize == value) return;
 				var delta = value - localSize;

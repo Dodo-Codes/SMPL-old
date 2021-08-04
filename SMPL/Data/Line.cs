@@ -38,7 +38,7 @@ namespace SMPL
 		}
 		private void UpdateLength() => Length = Point.Distance(StartPosition, EndPosition);
 
-		public static Point CrossPoint(Line lineA, Line lineB)
+		public Point CrossPoint(Line line)
 		{
 			var segmentsCross = false;
 			var linesCross = false;
@@ -46,31 +46,19 @@ namespace SMPL
 			var closestCrossPointToMe = new Point(0, 0);
 			var closestCrossPointToLine = new Point(0, 0);
 
-			GetCrossPointOfTwoLines(lineA.startPosition, lineA.EndPosition, lineB.StartPosition, lineB.EndPosition,
+			GetCrossPointOfTwoLines(startPosition, EndPosition, line.StartPosition, line.EndPosition,
 				out linesCross, out segmentsCross, out intersection, out closestCrossPointToMe, out closestCrossPointToLine);
 			return segmentsCross ? intersection : new Point(double.NaN, double.NaN);
 		}
-		public static bool ContainsPoint(Line line, Point point)
+		public bool ContainsPoint(Point point)
 		{
-			var AB = line.Length;
-			var AP = Point.Distance(line.StartPosition, point);
-			var PB = Point.Distance(line.EndPosition, point);
+			var AB = Length;
+			var AP = Point.Distance(StartPosition, point);
+			var PB = Point.Distance(EndPosition, point);
 			var sum = AP + PB;
 			return Number.IsBetween(sum, new Bounds(AB - 0.01, AB + 0.01));
 		}
-		public static bool AreCrossing(Line lineA, Line lineB) => CrossPoint(lineA, lineB).IsInvalid() == false;
-
-		public void Draw(Camera camera)
-		{
-			if (Window.DrawNotAllowed()) return;
-
-			var vert = new Vertex[]
-			{
-				new(Point.From(StartPosition), Color.From(StartPosition.Color)),
-				new(Point.From(EndPosition), Color.From(EndPosition.Color))
-			};
-			camera.rendTexture.Draw(vert, PrimitiveType.Lines);
-		}
+		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
 		internal static void GetCrossPointOfTwoLines(Point startA, Point endA, Point startB, Point endB,
 			 out bool lines_intersect, out bool segments_intersect,
 			 out Point intersection,
@@ -227,5 +215,17 @@ namespace SMPL
 		//		return resultB;
 		//	}
 		//}
+
+		public void Draw(Camera camera)
+		{
+			if (Window.DrawNotAllowed()) return;
+
+			var vert = new Vertex[]
+			{
+				new(Point.From(StartPosition), Color.From(StartPosition.Color)),
+				new(Point.From(EndPosition), Color.From(EndPosition.Color))
+			};
+			camera.rendTexture.Draw(vert, PrimitiveType.Lines);
+		}
 	}
 }

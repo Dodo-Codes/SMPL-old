@@ -7,6 +7,10 @@ namespace SMPL
 	{
 		internal Dictionary<string, Line> localLines = new();
 		internal Dictionary<string, Line> lines = new();
+		internal List<ComponentHitbox> crosses = new();
+		internal List<ComponentHitbox> contains = new();
+		internal List<ComponentHitbox> ignores = new();
+
 		public int LineCount { get { return lines.Count; } }
 		public Line[] Lines { get { return lines.Values.ToArray(); } }
 		public string[] UniqueIDs { get { return lines.Keys.ToArray(); } }
@@ -35,9 +39,55 @@ namespace SMPL
 			}
 		}
 
+		public ComponentHitbox() => Events.hitboxes.Add(this);
+		internal void Update()
+		{
+			crosses.Clear();
+			contains.Clear();
+			ignores.Clear();
+			foreach (var hitbox in Events.hitboxes)
+			{
+
+			}
+		}
 		public void Draw(Camera camera)
 		{
 			foreach (var kvp in lines) kvp.Value.Draw(camera);
+		}
+
+		public Line GetLine(string uniqueID)
+		{
+			if (HasUniqueID(uniqueID) == false)
+			{
+				Debug.LogError(1, $"A line with unique ID '{uniqueID}' was not found.");
+				var p = new Point(double.NaN, double.NaN);
+				return new Line(p, p);
+			}
+			return lines[uniqueID];
+		}
+		public bool Ignores(ComponentHitbox componentHitbox) => ignores.Contains(componentHitbox);
+		public void AddIgnorance(ComponentHitbox componentHitbox)
+		{
+			if (componentHitbox == null)
+			{
+				Debug.LogError(1, "The ignored hitbox cannot be 'null'.");
+				return;
+			}
+			if (ignores.Contains(componentHitbox))
+			{
+				Debug.LogError(1, "This hitbox is already being ignored.");
+				return;
+			}
+			ignores.Add(componentHitbox);
+		}
+		public void RemoveIgnorance(ComponentHitbox componentHitbox)
+		{
+			if (ignores.Contains(componentHitbox) == false)
+			{
+				Debug.LogError(1, "The hitbox was not found.");
+				return;
+			}
+			ignores.Remove(componentHitbox);
 		}
 		public bool Overlaps(ComponentHitbox componentHitbox)
 		{
@@ -54,8 +104,8 @@ namespace SMPL
 			}
 			var ray = new Line(firstLine.StartPosition, new Point(9_999, -99_999));
 			var crossSum = 0;
-			foreach (var kvp in lines) crossSum += Line.AreCrossing(ray, kvp.Value) ? 1 : 0;
-			return crossSum == 3 && Crosses(componentHitbox) == false;
+			foreach (var kvp in lines) crossSum += ray.Crosses(kvp.Value) ? 1 : 0;
+			return crossSum == 1 && Crosses(componentHitbox) == false;
 		}
 		public bool Crosses(ComponentHitbox componentHitbox) => CrossPoints(componentHitbox).Length > 0;
 		public Point[] CrossPoints(ComponentHitbox componentHitbox)
@@ -66,8 +116,8 @@ namespace SMPL
 			{
 				foreach (var kvp2 in componentHitbox.lines)
 				{
-					var p = Line.CrossPoint(kvp.Value, kvp2.Value);
-					if (p.IsInvalid() || result.Contains(p)) continue;
+					var p = kvp.Value.CrossPoint(kvp2.Value);
+					if (p.IsInvalid || result.Contains(p)) continue;
 					result.Add(p);
 				}
 			}

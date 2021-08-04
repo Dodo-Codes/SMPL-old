@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ngB+3yJKZII8VbeV2O39uUohpX01JaSXLe/kbII+xaAscCHcdiHqvkRf+68pYIhKcWww4G08JiN2HdyqgeN2NQ==",
+  "dgSpecHash": "9AFEZcvWqhdbX2PKr1/ZJk1hpv5AhjCxlmnUq/9OAXOCCkIro40RWdZsEHQBMZOHAsY4oi1KJkG/UctGaffrZA==",
   "success": true,
-  "projectFilePath": "D:\\code\\SFML\\SMPL\\TestGame\\TestGame.csproj",
+  "projectFilePath": "D:\\code\\SFML\\SMPL\\TestGame\\Raycasting Test.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\PC PC\\.nuget\\packages\\csfml\\2.5.0\\csfml.2.5.0.nupkg.sha512",
     "C:\\Users\\PC PC\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.1\\microsoft.netcore.platforms.5.0.1.nupkg.sha512",

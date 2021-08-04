@@ -111,7 +111,7 @@ namespace SMPL
 			var gDist = Math.Abs(targetColor.G - color.G);
 			var bDist = Math.Abs(targetColor.B - color.B);
 
-			speed *= Time.DeltaTime;
+			if (timeUnit == Time.Unit.Second) speed *= Time.DeltaTime;
 			if (rDist < speed * 2) color.R = targetColor.R;
 			if (gDist < speed * 2) color.G = targetColor.G;
 			if (bDist < speed * 2) color.B = targetColor.B;

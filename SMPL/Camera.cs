@@ -8,8 +8,8 @@ namespace SMPL
 	public class Camera : Events
 	{
 		public static Camera WorldCamera { get; internal set; }
-		public ComponentIdentity<Camera> IdentityComponent { get; set; }
-		public Component2D TransformComponent { get; set; }
+		public ComponentIdentity<Camera> ComponentIdentity { get; set; }
+		public Component2D Component2D { get; set; }
 
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
@@ -65,10 +65,10 @@ namespace SMPL
 			sortedCameras[0].Add(this);
 
 			var pos = Point.From(viewPosition);
-			TransformComponent = new();
+			Component2D = new();
 			view = new View(pos, Size.From(viewSize));
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
-			BackgroundColor = Color.GreenDark;
+			BackgroundColor = Color.Black;
 			startSize = viewSize;
 			//Zoom = 1;
 		}
@@ -103,18 +103,18 @@ namespace SMPL
 		internal void EndDraw()
 		{
 			rendTexture.Display();
-			var pos = Point.From(TransformComponent.Position);
+			var pos = Point.From(Component2D.Position);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
 			var sc = new Vector2f(
-				(float)TransformComponent.Size.W / (float)tsz.X,
-				(float)TransformComponent.Size.H / (float)tsz.Y);
+				(float)Component2D.Size.W / (float)tsz.X,
+				(float)Component2D.Size.H / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;
 			sprite.Texture = rendTexture.Texture;
-			sprite.Rotation = (float)TransformComponent.Angle;
+			sprite.Rotation = (float)Component2D.Angle;
 			sprite.Position = pos;
 			sprite.TextureRect = new IntRect(new Vector2i(), sz);
 

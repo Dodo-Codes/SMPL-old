@@ -23,7 +23,7 @@ namespace SMPL
 			camera.rendTexture.Draw(vert, PrimitiveType.Points);
 		}
 
-		public bool IsInvalid() => double.IsNaN(X) || double.IsNaN(Y);
+		public bool IsInvalid => double.IsNaN(X) || double.IsNaN(Y);
 		public static double Distance(Point pointA, Point pointB)
 		{
 			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));

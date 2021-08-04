@@ -1110,9 +1110,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\code\\SFML\\SMPL\\TestGame\\TestGame.csproj",
-      "projectName": "TestGame",
-      "projectPath": "D:\\code\\SFML\\SMPL\\TestGame\\TestGame.csproj",
+      "projectUniqueName": "D:\\code\\SFML\\SMPL\\TestGame\\Raycasting Test.csproj",
+      "projectName": "Raycasting Test",
+      "projectPath": "D:\\code\\SFML\\SMPL\\TestGame\\Raycasting Test.csproj",
       "packagesPath": "C:\\Users\\PC PC\\.nuget\\packages\\",
       "outputPath": "D:\\code\\SFML\\SMPL\\TestGame\\obj\\",
       "projectStyle": "PackageReference",
