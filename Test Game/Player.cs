@@ -12,6 +12,8 @@ namespace TestGame
 			Subscribe(this, 0);
 
 			Component2D.Position = new Point(100, 0);
+			Component2D.GrantAccessToFile(Debug.CurrentFilePath(1));
+			GrantAccessToFile(Debug.CurrentFilePath(1));
 		}
 	}
 }

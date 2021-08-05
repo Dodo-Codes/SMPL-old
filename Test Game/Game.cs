@@ -10,6 +10,7 @@ namespace TestGame
       {
          var p = new Player();
          p.Component2D.Position = new Point(-100, 0);
+         p.GrantAccessToFile(Debug.CurrentFilePath());
       }
    }
 }

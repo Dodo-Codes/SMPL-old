@@ -6,7 +6,16 @@ namespace SMPL
 	{
 		internal List<string> accessPaths = new();
 
-		public bool Disabled { get; set; }
+		private bool disabled;
+		public bool Disabled
+		{
+			get { return disabled; }
+			set
+			{
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				disabled = value;
+			}
+		}
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{
 			if (Disabled) return true;
@@ -24,8 +33,9 @@ namespace SMPL
 				filesWithAccess);
 			return false;
 		}
-		public void GrantFile(string fullFilePath)
+		public void GrantAccessToFile(string fullFilePath)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (fullFilePath == null)
 			{
 				Debug.LogError(1, "The file path cannot be 'null'.");
@@ -38,8 +48,9 @@ namespace SMPL
 			}
 			accessPaths.Add(fullFilePath);
 		}
-		public void DenyFile(string fullFilePath)
+		public void DenyAccessToFile(string fullFilePath)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (accessPaths.Contains(fullFilePath) == false)
 			{
 				Debug.LogError(1, $"The file '{fullFilePath}' access is already denied.");
@@ -47,7 +58,7 @@ namespace SMPL
 			}
 			accessPaths.Add(fullFilePath);
 		}
-		public bool FileIsGranted(string fullFilePath) => accessPaths.Contains(fullFilePath);
+		public bool FileHasAccess(string fullFilePath) => accessPaths.Contains(fullFilePath);
 
 		public ComponentAccess() => accessPaths.Add(Debug.CurrentFilePath(2));
 	}
