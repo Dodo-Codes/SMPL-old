@@ -4,7 +4,7 @@ using static SMPL.Events;
 
 namespace SMPL
 {
-	public class ComponentIdentity<T>
+	public class ComponentIdentity<T> : ComponentAccess
 	{
 		private static Dictionary<string, T> UniqueIDs { get; set; } = new();
 		private static Dictionary<string, List<T>> TagObjs { get; set; } = new();
@@ -42,6 +42,7 @@ namespace SMPL
 
 		public void AddTags(params string[] tags)
 		{
+			if (IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (ObjTags[Instance].Contains(tags[j])) continue;
@@ -57,6 +58,7 @@ namespace SMPL
 		}
 		public void RemoveTags(params string[] tags)
 		{
+			if (IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (ObjTags[Instance].Contains(tags[j]) == false) continue;
@@ -72,6 +74,7 @@ namespace SMPL
 		}
 		public bool HasTags(params string[] tags)
 		{
+			if (IsCurrentlyAccessible() == false) return false;
 			for (int i = 0; i < tags.Length; i++)
 			{
 				if (ObjTags[Instance].Contains(tags[i]) == false) return false;

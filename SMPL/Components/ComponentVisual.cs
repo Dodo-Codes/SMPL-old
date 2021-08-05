@@ -3,7 +3,7 @@ using static SMPL.Events;
 
 namespace SMPL
 {
-	public abstract class ComponentVisual
+	public abstract class ComponentVisual : ComponentAccess
 	{
 		protected readonly uint creationFrame;
 		protected readonly double rand;

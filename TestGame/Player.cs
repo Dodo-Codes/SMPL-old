@@ -1,5 +1,4 @@
 ﻿using SMPL;
-using System;
 
 namespace TestGame
 {
@@ -101,7 +100,7 @@ namespace TestGame
 
 						var ang = Number.AngleBetweenPoints(rays[i].StartPosition, rays[i].EndPosition) - Component2D.Angle;
 						var dist = (Point.Distance(rays[i].StartPosition, crossP));
-						var pixelColumnHeight = rayLength - dist * Math.Cos(ang * Math.PI / 180);
+						var pixelColumnHeight = rayLength - dist * Number.Cos(ang * Number.PI / 180);
 						var pixelColumnWidth = Camera.WorldCamera.Size.W / rayAmount;
 						var x = ((i - 1) * pixelColumnWidth) - Camera.WorldCamera.Size.W / 2;
 

@@ -7,6 +7,8 @@ namespace SMPL
 {
 	public static class Number
 	{
+		public const double PI = 3.1415926535897931;
+
 		public enum Limitation
 		{
 			ClosestBound, Overflow
@@ -20,6 +22,9 @@ namespace SMPL
 			TowardEven, AwayFromZero, TowardZero, TowardNegativeInfinity, TowardPositiveInfinity
 		}
 
+		public static double Cos(double number) => Math.Cos(number);
+		public static double Sin(double number) => Math.Sin(number);
+		public static double Tan(double number) => Math.Tan(number);
 		public static double Limit(double number, Bounds bounds, Limitation limitType = Limitation.ClosestBound)
 		{
 			if (limitType == Limitation.ClosestBound)

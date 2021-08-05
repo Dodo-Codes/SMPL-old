@@ -4,7 +4,7 @@ using static SMPL.Events;
 
 namespace SMPL
 {
-	public class Component2D
+	public class Component2D : ComponentAccess
 	{
 		internal Sprite sprite = new();
 		internal SFML.Graphics.Text text = new();
@@ -13,7 +13,16 @@ namespace SMPL
 		private readonly uint creationFrame;
 		private readonly double rand;
 
-		public ComponentHitbox ComponentHitbox { get; set; } = new();
+		private ComponentHitbox componentHitbox;
+		public ComponentHitbox ComponentHitbox
+		{
+			get { return componentHitbox; }
+			set
+			{
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				componentHitbox = value;
+			}
+		}
 
 		internal Point position, lastFramePos;
 		public Point Position
@@ -21,7 +30,7 @@ namespace SMPL
 			get { return PositionFromLocal(LocalPosition); }
 			set
 			{
-				if (Camera.WorldCamera.Component2D == this) return;
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localPosition = PositionToLocal(value);
 				if (position == value) return;
 
@@ -30,10 +39,8 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFramePos = position; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DMoveSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DMove(this, delta); }
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DMoveSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DMove(this, delta); }
 			}
 		}
 		internal double angle, lastFrameAng;
@@ -42,7 +49,7 @@ namespace SMPL
 			get { return AngleFromLocal(LocalAngle); }
 			set
 			{
-				if (Camera.WorldCamera.Component2D == this) return;
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localAngle = AngleToLocal(value);
 				if (angle == value) return;
 
@@ -55,13 +62,13 @@ namespace SMPL
 				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotate(this, delta); }
 			}
 		}
-		internal Size size, lastFrameSz;
+		internal Size size = new(100, 100), lastFrameSz = new(100, 100);
 		public Size Size
 		{
 			get { return size; }
 			set
 			{
-				if (Camera.WorldCamera.Component2D == this) return;
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localSize = SizeToLocal(value);
 				if (size == value) return;
 				var delta = value - size;
@@ -81,6 +88,7 @@ namespace SMPL
 			get { return originPercent; }
 			set
 			{
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
 				if (originPercent == value || Camera.WorldCamera.Component2D == this) return;
@@ -96,46 +104,58 @@ namespace SMPL
 			}
 		}
 
-		private Point localPosition;
+		private Point localPosition, lastFrameLocalPos;
 		public Point LocalPosition
 		{
 			get { return localPosition; }
 			set
 			{
-				if (Camera.WorldCamera.Component2D == this) return;
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				position = PositionFromLocal(value);
 				if (localPosition == value) return;
 				var delta = value - localPosition;
 				localPosition = value;
 				UpdateHitbox();
+
+				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMove(this, delta); }
 			}
 		}
-		private double localAngle;
+		private double localAngle, lastFrameLocalAng;
 		public double LocalAngle
 		{
 			get { return localAngle; }
 			set
 			{
-				if (Camera.WorldCamera.Component2D == this) return;
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				angle = AngleFromLocal(value);
 				if (localAngle == value) return;
 				var delta = value - localAngle;
 				localAngle = value;
 				UpdateHitbox();
+
+				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotate(this, delta); }
 			}
 		}
-		private Size localSize;
+		private Size localSize, lastFrameLocalSz;
 		public Size LocalSize
 		{
 			get { return localSize; }
 			set
 			{
-				if (Camera.WorldCamera.Component2D == this) return;
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				size = SizeFromLocal(value);
 				if (localSize == value) return;
 				var delta = value - localSize;
 				localSize = value;
 				UpdateHitbox();
+
+				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeSetup(this, delta); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResize(this, delta); }
 			}
 		}
 
@@ -145,6 +165,7 @@ namespace SMPL
 			creationFrame = Time.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 
+			ComponentHitbox = new();
 			UpdateHitbox();
 
 			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -223,10 +244,55 @@ namespace SMPL
 				}
 			}
 			//=============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-start", lastFrameLocalPos != localPosition))
+			{
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveStartSetup(this, localPosition - lastFrameLocalPos); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveStart(this, localPosition - lastFrameLocalPos); }
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-end", lastFrameLocalPos == localPosition))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveEndSetup(this); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveEnd(this); }
+				}
+			}
+			//==============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-start", lastFrameLocalAng != localAngle))
+			{
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateStartSetup(this, localAngle - lastFrameLocalAng); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateStart(this, localAngle - lastFrameLocalAng); }
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-end", lastFrameLocalAng == localAngle))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateEndSetup(this); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateEnd(this); }
+				}
+			}
+			//=============================
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-start", lastFrameLocalSz != localSize))
+			{
+				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeStartSetup(this, localSize - lastFrameLocalSz); }
+				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeStart(this, localSize - lastFrameLocalSz); }
+			}
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-end", lastFrameLocalSz == localSize))
+			{
+				if (creationFrame + 1 != Time.frameCount)
+				{
+					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeEndSetup(this); }
+					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeEnd(this); }
+				}
+			}
+			//=============================
 			lastFramePos = position;
 			lastFrameAng = angle;
 			lastFrameSz = size;
 			lastFrameOrPer = originPercent;
+			lastFrameLocalAng = localAngle;
+			lastFrameLocalPos = localPosition;
+			lastFrameLocalSz = localSize;
 		}
 		internal void UpdateHitbox()
 		{

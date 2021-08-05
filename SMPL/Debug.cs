@@ -14,12 +14,23 @@ namespace SMPL
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>
 		public static bool IsActive { get { return Debugger.IsAttached; } }
-		internal static string debugString = "(This error message will not appear after the game is built)";
+		internal static string debugString = "(This error message is for debugging & will not appear after the game is built)";
 
 		public static double CurrentLineNumber(uint depth = 0)
 		{
 			var info = new StackFrame((int)depth + 1, true);
 			return info.GetFileLineNumber();
+		}
+		public static string CurrentMethodName(uint depth = 0)
+		{
+			var info = new StackFrame((int)depth + 1, true);
+			var method = info.GetMethod();
+			var child = method == null ? null : method.ToString().Replace('+', '.');
+			var firstSpaceIndex = child.IndexOf(' ');
+			var parent = method.DeclaringType.ToString().Replace('+', '.') + ".";
+			var result = child.Insert(firstSpaceIndex + 1, parent);
+
+			return method == default ? default : result;
 		}
 		public static string CurrentFileName(uint depth = 0)
 		{
@@ -34,17 +45,6 @@ namespace SMPL
 			var info = new StackFrame((int)depth + 1, true);
 			var a = info.GetFileName();
 			return a;
-		}
-		public static string CurrentMethodName(uint depth = 0)
-		{
-			var info = new StackFrame((int)depth + 1, true);
-			var method = info.GetMethod();
-			var child = method == null ? null : method.ToString().Replace('+', '.');
-			var firstSpaceIndex = child.IndexOf(' ');
-			var parent = method.DeclaringType.ToString().Replace('+', '.') + ".";
-			var result = child.Insert(firstSpaceIndex + 1, parent);
-
-			return method == default ? default : result;
 		}
 		public static string CurrentFileDirectory(uint depth = 0)
 		{

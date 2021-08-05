@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace SMPL
 {
-	public abstract class Events
+	public abstract class Events : ComponentAccess
 	{
 		internal static SortedDictionary<int, List<Events>> instances = new();
 		internal static Dictionary<Events, int> instancesOrder = new();
@@ -414,6 +414,24 @@ namespace SMPL
 		public virtual void On2DResizeStart(Component2D instance, Size delta) { }
 		public virtual void On2DResizeEndSetup(Component2D instance) { }
 		public virtual void On2DResizeEnd(Component2D instance) { }
+		public virtual void On2DLocalMoveSetup(Component2D instance, Point delta) { }
+		public virtual void On2DLocalMove(Component2D instance, Point delta) { }
+		public virtual void On2DLocalMoveStartSetup(Component2D instance, Point delta) { }
+		public virtual void On2DLocalMoveStart(Component2D instance, Point delta) { }
+		public virtual void On2DLocalMoveEndSetup(Component2D instance) { }
+		public virtual void On2DLocalMoveEnd(Component2D instance) { }
+		public virtual void On2DLocalRotateSetup(Component2D instance, double delta) { }
+		public virtual void On2DLocalRotate(Component2D instance, double delta) { }
+		public virtual void On2DLocalRotateStartSetup(Component2D instance, double delta) { }
+		public virtual void On2DLocalRotateStart(Component2D instance, double delta) { }
+		public virtual void On2DLocalRotateEndSetup(Component2D instance) { }
+		public virtual void On2DLocalRotateEnd(Component2D instance) { }
+		public virtual void On2DLocalResizeSetup(Component2D instance, Size delta) { }
+		public virtual void On2DLocalResize(Component2D instance, Size delta) { }
+		public virtual void On2DLocalResizeStartSetup(Component2D instance, Size delta) { }
+		public virtual void On2DLocalResizeStart(Component2D instance, Size delta) { }
+		public virtual void On2DLocalResizeEndSetup(Component2D instance) { }
+		public virtual void On2DLocalResizeEnd(Component2D instance) { }
 		public virtual void On2DOriginateSetup(Component2D instance, Point delta) { }
 		public virtual void On2DOriginate(Component2D instance, Point delta) { }
 		public virtual void On2DOriginateStartSetup(Component2D instance, Point delta) { }

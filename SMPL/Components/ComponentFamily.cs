@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SMPL
 {
-	public class ComponentFamily
+	public class ComponentFamily : ComponentAccess
 	{
 		internal readonly ComponentVisual owner;
 		private ComponentVisual parent;

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace SMPL
 {
-	public class ComponentHitbox
+	public class ComponentHitbox : ComponentAccess
 	{
 		internal Dictionary<string, Line> localLines = new();
 		internal Dictionary<string, Line> lines = new();
