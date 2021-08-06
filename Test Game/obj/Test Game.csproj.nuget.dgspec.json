@@ -59,6 +59,10 @@
             "System.Diagnostics.PerformanceCounter": {
               "target": "Package",
               "version": "[5.0.1, )"
+            },
+            "System.Management": {
+              "target": "Package",
+              "version": "[5.0.0, )"
             }
           },
           "imports": [

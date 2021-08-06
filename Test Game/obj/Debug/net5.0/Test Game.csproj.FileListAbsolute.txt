@@ -102,3 +102,6 @@ D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\ref\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.pdb
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.genruntimeconfig.cache
+D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\System.CodeDom.dll
+D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\System.Management.dll
+D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\runtimes\win\lib\netcoreapp2.0\System.Management.dll

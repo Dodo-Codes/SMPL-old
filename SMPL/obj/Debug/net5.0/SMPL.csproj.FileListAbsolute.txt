@@ -194,3 +194,6 @@ G:\SFML\SMPL\obj\Debug\net5.0\SMPL.dll
 G:\SFML\SMPL\obj\Debug\net5.0\ref\SMPL.dll
 G:\SFML\SMPL\obj\Debug\net5.0\SMPL.pdb
 G:\SFML\SMPL\obj\Debug\net5.0\SMPL.genruntimeconfig.cache
+D:\code\SFML\SMPL\SMPL\bin\Debug\net5.0\System.CodeDom.dll
+D:\code\SFML\SMPL\SMPL\bin\Debug\net5.0\System.Management.dll
+D:\code\SFML\SMPL\SMPL\bin\Debug\net5.0\runtimes\win\lib\netcoreapp2.0\System.Management.dll

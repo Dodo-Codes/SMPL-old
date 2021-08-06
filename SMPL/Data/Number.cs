@@ -21,6 +21,15 @@ namespace SMPL
 		{
 			TowardEven, AwayFromZero, TowardZero, TowardNegativeInfinity, TowardPositiveInfinity
 		}
+		public enum DataSizeConvertion
+		{
+			Bit_Byte, Bit_KB,
+			Byte_Bit, Byte_KB, Byte_MB,
+			KB_Bit, KB_Byte, KB_MB, KB_GB,
+			MB_Byte, MB_KB, MB_GB, MB_TB,
+			GB_KB, GB_MB, GB_TB,
+			TB_MB, TB_GB
+		}
 
 		public static double Cos(double number) => Math.Cos(number);
 		public static double Sin(double number) => Math.Sin(number);
@@ -120,6 +129,31 @@ namespace SMPL
 			var parsed = double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
 
 			return parsed ? result : double.NaN;
+		}
+		public static double FromDataSize(double number, DataSizeConvertion dataSize)
+		{
+			return dataSize switch
+			{
+				DataSizeConvertion.Bit_Byte => number / 8,
+				DataSizeConvertion.Bit_KB => number / 8000,
+				DataSizeConvertion.Byte_Bit => number * 8,
+				DataSizeConvertion.Byte_KB => number / 1024,
+				DataSizeConvertion.Byte_MB => number / 1_048_576,
+				DataSizeConvertion.KB_Bit => number * 8000,
+				DataSizeConvertion.KB_Byte => number * 1024,
+				DataSizeConvertion.KB_MB => number / 1024,
+				DataSizeConvertion.KB_GB => number / 1_048_576,
+				DataSizeConvertion.MB_Byte => number * 1_048_576,
+				DataSizeConvertion.MB_KB => number * 1024,
+				DataSizeConvertion.MB_GB => number / 1024,
+				DataSizeConvertion.MB_TB => number / 1_048_576,
+				DataSizeConvertion.GB_KB => number * 1_048_576,
+				DataSizeConvertion.GB_MB => number * 1024,
+				DataSizeConvertion.GB_TB => number / 1024,
+				DataSizeConvertion.TB_MB => number * 1_048_576,
+				DataSizeConvertion.TB_GB => number * 1024,
+				_ => default,
+			};
 		}
 		public static bool HasChance(double percent)
 		{

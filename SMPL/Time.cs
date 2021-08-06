@@ -38,7 +38,7 @@ namespace SMPL
 		}
 		public enum Convertion
 		{
-			MillisecondsToSeconds,
+			MillisecondsToSeconds, MillisecondsToMinutes,
 			SecondsToMilliseconds, SecondsToMinutes, SecondsToHours,
 			MinutesToMilliseconds, MinutesToSeconds, MinutesToHours, MinutesToDays,
 			HoursToSeconds, HoursToMinutes, HoursToDays, HoursToWeeks,
@@ -107,6 +107,7 @@ namespace SMPL
 			return convertType switch
 			{
 				Convertion.MillisecondsToSeconds => number / 1000,
+				Convertion.MillisecondsToMinutes => number / 1000 / 60,
 				Convertion.SecondsToMilliseconds => number * 1000,
 				Convertion.SecondsToMinutes => number / 60,
 				Convertion.SecondsToHours => number / 3600,
