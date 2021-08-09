@@ -19,7 +19,7 @@ namespace TestGame
 		}
 		public override void OnEachFrame()
 		{
-			Console.Log(Performance.PercentCPU);
+			Camera.WorldCamera.Angle = 45;
 		}
 	}
 }

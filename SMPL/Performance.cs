@@ -14,7 +14,7 @@ namespace SMPL
 		internal static uint frameCount;
 		public static uint FrameCount { get { return frameCount; } }
 		private static uint frameRateLimit;
-		public static uint FrameRateLimit
+		public static uint LimitFPS
 		{
 			get { return frameRateLimit; }
 			set
@@ -24,8 +24,8 @@ namespace SMPL
 				Window.window.SetFramerateLimit(n);
 			}
 		}
-		public static double FrameRate { get { return 1 / frameDeltaTime.ElapsedTime.AsSeconds(); } }
-		public static double FrameRateAverage { get { return frameCount / Time.time.ElapsedTime.AsSeconds(); } }
+		public static double FPS { get { return 1 / frameDeltaTime.ElapsedTime.AsSeconds(); } }
+		public static double AverageFPS { get { return frameCount / Time.time.ElapsedTime.AsSeconds(); } }
 		public static double DeltaTime { get { return frameDeltaTime.ElapsedTime.AsSeconds(); } }
 		private static bool vsync;
 		public static bool VerticalSyncEnabled

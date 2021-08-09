@@ -56,7 +56,8 @@ namespace SMPL
 			get { return new Point(view.Center.X, view.Center.Y); }
 			set
 			{
-				if (Position == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (Position == value || (this != WorldCamera && 
+					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				view.Center = Point.From(value);
 			}
 		}
@@ -65,7 +66,8 @@ namespace SMPL
 			get { return view.Rotation; }
 			set
 			{
-				if (Angle == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (Angle == value || (this != WorldCamera && 
+					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				view.Rotation = (float)value;
 			}
 		}
@@ -74,7 +76,8 @@ namespace SMPL
 			get { return new Size(view.Size.X, view.Size.Y); }
 			set
 			{
-				if (Size == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (Size == value || (this != WorldCamera &&
+					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				view.Size = Size.From(value);
 			}
 		}
@@ -84,7 +87,8 @@ namespace SMPL
 			get { return bgColor; }
 			set
 			{
-				if (bgColor == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (bgColor == value || (this != WorldCamera &&
+					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				bgColor = value;
 			}
 		}
@@ -163,7 +167,8 @@ namespace SMPL
 
 		public bool Snap(string filePath = "folder/picture.png")
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return false;
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false &&
+				 this != WorldCamera) return false;
 			var img = rendTexture.Texture.CopyToImage();
 			var full = File.CreateDirectoryForFile(filePath);
 
