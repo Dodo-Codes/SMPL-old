@@ -30,7 +30,7 @@ namespace SMPL
 		}
 		public static Point MoveAtAngle(Point point, double angle, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
-			if (timeUnit == Time.Unit.Second) speed *= Time.DeltaTime;
+			if (timeUnit == Time.Unit.Second) speed *= Performance.DeltaTime;
 			var dir = Number.AngleToDirection(angle);
 
 			point.X += dir.X * speed;

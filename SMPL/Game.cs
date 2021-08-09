@@ -8,6 +8,11 @@ namespace SMPL
 {
 	public abstract class Game
 	{
+		///<summary>
+		///text, <paramref name="param"/>, <see cref="char"/>, <typeparamref name="Type"/>
+		///</summary>
+		private static void SummaryExample() { }
+
 		internal static Thread resourceLoading;
 		internal static Game instance;
 
@@ -20,7 +25,8 @@ namespace SMPL
 			File.Initialize();
 			Time.Initialize();
 			Window.Initialize(pixelSize);
-			OS.Initialize();
+			Hardware.Initialize();
+			Performance.Initialize();
 
 			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
 			resourceLoading.Name = "ResourcesLoading";

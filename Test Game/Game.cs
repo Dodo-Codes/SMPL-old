@@ -9,8 +9,6 @@ namespace TestGame
       public override void OnStart()
       {
          var p = new Player();
-
-         var driveInfo = Hardware.GetDriveInfo();
       }
    }
 }

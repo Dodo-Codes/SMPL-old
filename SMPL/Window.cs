@@ -106,14 +106,27 @@ namespace SMPL
 			}
 		}
 
-		private static bool hasVsync;
-		public static bool HasVerticalSync
+		private static string iconTexPath;
+		public static string IconTexturePath
 		{
-			get { return hasVsync; }
+			get { return iconTexPath; }
 			set
 			{
-				hasVsync = value;
-				window.SetVerticalSyncEnabled(value);
+				if (value == null)
+				{
+					Debug.LogError(1, $"The icon texture path cannot be 'null'.");
+					return;
+				}
+				if (File.textures.ContainsKey(value) == false)
+				{
+					Debug.LogError(1, $"The texture at '{value}' is not loaded.\n" +
+						$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+						$"{nameof(File.Asset.Texture)}, \"{value}\")' to load it.");
+					return;
+				}
+				iconTexPath = value;
+				var t = File.textures[value];
+				window.SetIcon(t.Size.X, t.Size.Y, t.CopyToImage().Pixels);
 			}
 		}
 

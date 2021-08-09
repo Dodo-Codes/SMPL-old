@@ -171,7 +171,7 @@ namespace SMPL
 		}
 		public static double Move(double number, double speed, Time.Unit motion = Time.Unit.Second)
 		{
-			if (motion == Time.Unit.Second) speed *= Time.DeltaTime;
+			if (motion == Time.Unit.Second) speed *= Performance.DeltaTime;
 			return number + speed;
 		}
 		public static double MoveToward(double number, double targetNumber, double speed, Time.Unit motion = Time.Unit.Second)
@@ -202,7 +202,7 @@ namespace SMPL
 			// stops the rotation with an else when close enough
 			// prevents the rotation from staying behind after the stop
 			var checkedSpeed = speed;
-			if (timeUnit == Time.Unit.Second) checkedSpeed *= Time.DeltaTime;
+			if (timeUnit == Time.Unit.Second) checkedSpeed *= Performance.DeltaTime;
 			if (Math.Abs(difference) < checkedSpeed) angle = targetAngle;
 			else if (difference >= 0 && difference < 180) angle = Move(angle, -speed, timeUnit);
 			else if (difference >= -180 && difference < 0) angle = Move(angle, speed, timeUnit);

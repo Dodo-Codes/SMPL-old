@@ -74,7 +74,7 @@ namespace SMPL
 		{
 			color = TintRed(color, color.R < targetRed ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.R - targetRed);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Performance.DeltaTime * 2 : speed * 2;
 			if (dist < sp) color.R = targetRed;
 			return color;
 		}
@@ -82,7 +82,7 @@ namespace SMPL
 		{
 			color = TintGreen(color, color.G < targetGreen ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.G - targetGreen);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Performance.DeltaTime * 2 : speed * 2;
 			if (dist < sp) color.G = targetGreen;
 			return color;
 		}
@@ -90,7 +90,7 @@ namespace SMPL
 		{
 			color = TintBlue(color, color.B < targetBlue ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.B - targetBlue);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Performance.DeltaTime * 2 : speed * 2;
 			if (dist < sp) color.B = targetBlue;
 			return color;
 		}
@@ -98,7 +98,7 @@ namespace SMPL
 		{
 			Appear(color, color.A < targeto ? speed : -speed, timeUnit);
 			var dist = Math.Abs(color.A - targeto);
-			if (dist < speed * Time.DeltaTime * 2) color.A = targeto;
+			if (dist < speed * Performance.DeltaTime * 2) color.A = targeto;
 			return color;
 		}
 		public static Color TintTowardColor(Color color, Color targetColor, double speed, Time.Unit timeUnit = Time.Unit.Second)
@@ -111,7 +111,7 @@ namespace SMPL
 			var gDist = Math.Abs(targetColor.G - color.G);
 			var bDist = Math.Abs(targetColor.B - color.B);
 
-			if (timeUnit == Time.Unit.Second) speed *= Time.DeltaTime;
+			if (timeUnit == Time.Unit.Second) speed *= Performance.DeltaTime;
 			if (rDist < speed * 2) color.R = targetColor.R;
 			if (gDist < speed * 2) color.G = targetColor.G;
 			if (bDist < speed * 2) color.B = targetColor.B;

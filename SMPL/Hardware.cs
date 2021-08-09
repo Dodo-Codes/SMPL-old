@@ -1,10 +1,17 @@
-﻿using System.IO;
+﻿using System;
 using System.Management;
+using System.Runtime.InteropServices;
 
 namespace SMPL
 {
 	public static class Hardware
 	{
+		#region Total RAM
+		[DllImport("kernel32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		static extern bool GetPhysicallyInstalledSystemMemory(out long TotalMemoryInKilobytes);
+		#endregion
+
 		public struct DriveInfo
 		{
 			public bool IsReady { get; internal set; }
@@ -14,8 +21,12 @@ namespace SMPL
 			public double TotalGB { get; internal set; }
 			public double AvailableGB { get; internal set; }
 		}
+		public enum Platform
+		{
+			Unknown, Windows, Linux, iOS, MacOS
+		}
 
-		private enum DataType
+		internal enum DataType
 		{
 			Account, AccountSID, ACE, ActionCheck, AllocatedResource,
 			ApplicationCommandLine, ApplicationService, AssociatedBattery, AssociatedProcessorMemory, BaseBoard, BaseService,
@@ -89,55 +100,75 @@ namespace SMPL
 			TimeZone, Trustee, TypeLibraryAction, UninterruptiblePowerSupply, USBController, USBControllerDevice, UserAccount,
 			UserDesktop, VideoConfiguration, VideoController, VideoSettings, VoltageProbe, WMIElementSetting, WMISetting
 		}
-		private static object GetData(DataType dataType, string name)
+		internal static object GetData(DataType dataType, string name)
 		{
 #pragma warning disable CA1416
 			var searcher = new ManagementObjectSearcher("select * from Win32_" + $"{dataType}");
 			var result = searcher.Get();
 			foreach (var item in result)
 			{
-				//foreach (var PC in item.Properties)
-				//{
-				//	Console.Log($"{PC.Name} {PC.Value}");
-				//}
+				foreach (var PC in item.Properties)
+				{
+					Console.Log($"{PC.Name} {PC.Value}");
+				}
 				return item[name];
 			}
 			return default;
 #pragma warning restore CA1416
 		}
 
-		public static DriveInfo GetDriveInfo(string drive = "C")
+		public static DriveInfo GetDriveInfo(char drive = 'C')
 		{
 			foreach (var d in System.IO.DriveInfo.GetDrives())
 			{
-				if (d.IsReady)
+				if (d.IsReady == false || drive != d.RootDirectory.Name[0]) continue;
+
+				return new DriveInfo()
 				{
-					return new DriveInfo()
-					{
-						IsReady = true,
-						AvailableGB =
-						Number.FromDataSize(Number.FromDataSize(d.AvailableFreeSpace,
-						Number.DataSizeConvertion.Byte_MB), Number.DataSizeConvertion.MB_GB),
-						TotalGB = Number.FromDataSize(Number.FromDataSize(d.TotalSize,
-						Number.DataSizeConvertion.Byte_MB), Number.DataSizeConvertion.MB_GB),
-						Directory = $"{d.RootDirectory}",
-						Name = d.Name,
-						Type = $"{d.DriveType}"
-					};
-				}
-				else return new DriveInfo()
-					{
-						IsReady = false,
-						AvailableGB = 0,
-						TotalGB = 0,
-						Directory = null,
-						Name = d.Name,
-						Type = $"{d.DriveType}"
-					};
+					IsReady = true,
+					AvailableGB =
+					Number.FromDataSize(Number.FromDataSize(d.AvailableFreeSpace,
+					Number.DataSizeConvertion.Byte_MB), Number.DataSizeConvertion.MB_GB),
+					TotalGB = Number.FromDataSize(Number.FromDataSize(d.TotalSize,
+					Number.DataSizeConvertion.Byte_MB), Number.DataSizeConvertion.MB_GB),
+					Directory = $"{d.RootDirectory}",
+					Name = d.Name,
+					Type = $"{d.DriveType}"
+				};
 			}
-			return new DriveInfo();
+			return new DriveInfo()
+			{
+				IsReady = false,
+				AvailableGB = 0,
+				TotalGB = 0,
+				Directory = null,
+				Name = null,
+				Type = null
+			};
 		}
 		public static string ProcessorName { get { return GetData(DataType.Processor, "Name") as string; } }
+		public static int ProcessorNumberOfCores { get { return Convert.ToInt32(GetData(DataType.Processor, "NumberOfCores")); } }
 		public static string VideoCardName { get { return GetData(DataType.VideoController, "Name") as string; } }
+		public static int KeyboardNumberOfFs { get { return (UInt16)GetData(DataType.Keyboard, "NumberOfFunctionKeys"); } }
+		public static string OperatingSystemName { get { return GetData(DataType.OperatingSystem, "Caption") as string; } }
+		public static string SoundDeviceName { get { return GetData(DataType.SoundDevice, "Name") as string; } }
+		public static double RAM { get; private set; }
+
+		private static Platform platform;
+		public static Platform OperatingSystemType { get { return platform; } }
+
+		internal static void Initialize()
+		{
+			var result = 0L;
+			GetPhysicallyInstalledSystemMemory(out result);
+			RAM = result / 1024f / 1024f;
+
+			platform = Platform.Unknown;
+			if (OperatingSystem.IsWindows()) platform = Platform.Windows;
+			if (OperatingSystem.IsLinux()) platform = Platform.Linux;
+			if (OperatingSystem.IsIOS()) platform = Platform.iOS;
+			if (OperatingSystem.IsMacOS()) platform = Platform.MacOS;
+		}
+
 	}
 }

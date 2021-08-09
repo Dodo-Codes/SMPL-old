@@ -523,7 +523,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-col-end", lastFrameCol == color))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					if (textParent != null)
 					{
@@ -554,7 +554,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outw-end", lastFrameOutW == OutlineWidth))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					if (textParent != null)
 					{
@@ -585,7 +585,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outcol-end", lastFrameOutCol == outlineColor))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					if (textParent != null)
 					{
@@ -652,7 +652,7 @@ namespace SMPL
 
 		public Effects(ComponentVisual owner)
 		{
-			creationFrame = Time.FrameCount;
+			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			this.owner = owner;
 

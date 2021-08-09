@@ -21,7 +21,7 @@ namespace SMPL
 		public static Size ResizeTowardTarget(Size size, Size targetSize, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			size = Resize(size, speed, timeUnit);
-			var sp = timeUnit == Time.Unit.Second ? speed * Time.DeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Time.Unit.Second ? speed * Performance.DeltaTime * 2 : speed * 2;
 			var dist = Point.Distance(new Point(size.W, size.H), new Point(targetSize.W, targetSize.H));
 			if (dist < sp) size = targetSize;
 			return size;

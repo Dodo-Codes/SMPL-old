@@ -116,7 +116,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-off-end", lastFrameOffPer == offsetPercent))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetEnd(this); }
@@ -130,7 +130,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-size-end", lastFrameSzPer == sizePercent))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeEnd(this); }

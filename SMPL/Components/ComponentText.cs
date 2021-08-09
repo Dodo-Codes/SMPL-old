@@ -178,7 +178,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-pos-end", lastFramePos == position))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextMoveEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextMoveEnd(this); }
@@ -192,7 +192,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-ang-end", lastFrameAng == Angle))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRotateEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRotateEnd(this); }
@@ -206,7 +206,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-sc-end", lastFrameSc == Scale))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRescaleEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextRescaleEnd(this); }
@@ -220,7 +220,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-orper-end", lastFrameOrPer == originPercent))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOriginateEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOriginateEnd(this); }
@@ -234,7 +234,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-change-end", lastFrameText == Text))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextChangeEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextChangeEnd(this); }
@@ -248,7 +248,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-sp-end", lastFrameSp == spacing))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextSpacingResizeEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextSpacingResizeEnd(this); }
@@ -263,7 +263,7 @@ namespace SMPL
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-end", lastFrameBgCol == bgColor))
 			{
-				if (creationFrame + 1 != Time.frameCount)
+				if (creationFrame + 1 != Performance.frameCount)
 				{
 					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEndSetup(this); }
 					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextBackgroundRecolorEnd(this); }

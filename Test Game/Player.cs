@@ -1,5 +1,4 @@
 ﻿using SMPL;
-using System;
 
 namespace TestGame
 {
@@ -8,6 +7,19 @@ namespace TestGame
 		public Player()
 		{
 			Subscribe(this, 0);
+
+			File.LoadAsset(File.Asset.Texture, "penka.png");
+		}
+		public override void OnAssetsLoadingEnd()
+		{
+			if (File.AssetIsLoaded("penka.png"))
+			{
+				//Window.IconTexturePath = "penka.png";
+			}
+		}
+		public override void OnEachFrame()
+		{
+			Console.Log(Performance.PercentCPU);
 		}
 	}
 }

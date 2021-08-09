@@ -43,7 +43,7 @@ namespace SMPL
 			{
 				var timer = ComponentIdentity<Timer>.PickByUniqueID(timerUIDs[j]);
 				if (timer.IsPaused) continue;
-				if (timer.Countdown > 0) timer.Countdown -= Time.DeltaTime;
+				if (timer.Countdown > 0) timer.Countdown -= Performance.DeltaTime;
 				if (Gate.EnterOnceWhile(timerUIDs[j] + "as;li3'f2", timer.Countdown <= 0))
 				{
 					timer.EndCount++;

@@ -38,7 +38,7 @@ namespace SMPL
 
 		public ComponentVisual(Component2D component2D)
 		{
-			creationFrame = Time.FrameCount;
+			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			transform = component2D;
 			Family = new(this);

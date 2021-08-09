@@ -50,23 +50,10 @@ namespace SMPL
 			Tick, Second
 		}
 
-		internal static Clock time, frameDeltaTime;
-		internal static uint frameCount;
-		public static uint FrameCount { get { return frameCount; } }
-		public static double DeltaTime { get { return frameDeltaTime.ElapsedTime.AsSeconds(); } }
-		private static uint frameRateLimit;
-		public static uint FrameRateLimit
-		{
-			get { return frameRateLimit; }
-			set
-			{
-				var n = (uint)Number.Limit(value, new Bounds(1, 60));
-				frameRateLimit = n;
-				Window.window.SetFramerateLimit(n);
-			}
-		}
+		internal static Clock time;
 		public static double GameClock { get { return time.ElapsedTime.AsSeconds(); } }
 		public static double Clock { get { return DateTime.Now.TimeOfDay.TotalSeconds; } }
+		public static string Zone { get { return Hardware.GetData(Hardware.DataType.TimeZone, "Caption") as string; } }
 
 		public static string ToText(double timeInSeconds, Format format = new())
 		{
@@ -127,10 +114,6 @@ namespace SMPL
 				_ => 0,
 			};
 		}
-		public static double FrameRate(bool averaged = false)
-		{
-			return averaged ? frameCount / time.ElapsedTime.AsSeconds() : 1 / frameDeltaTime.ElapsedTime.AsSeconds();
-		}
 		internal static void Run()
 		{
 			while (Window.window.IsOpen)
@@ -139,20 +122,17 @@ namespace SMPL
 				Application.DoEvents();
 				Window.window.DispatchEvents();
 
-				frameCount++;
+				Performance.frameCount++;
 				Events.Update();
 
 				Window.Draw();
-				frameDeltaTime.Restart();
+				Performance.frameDeltaTime.Restart();
 
 				File.UpdateMainThreadAssets();
+				if (Gate.EnterOnceWhile("a'diuq1`45gds-0", (int)time.ElapsedTime.AsSeconds() % 2 == 0)) Performance.UpdateCounters();
 			}
 		}
 
-		internal static void Initialize()
-		{
-			time = new();
-			frameDeltaTime = new();
-		}
+		internal static void Initialize() => time = new();
 	}
 }
