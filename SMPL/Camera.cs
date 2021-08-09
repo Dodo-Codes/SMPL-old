@@ -8,8 +8,26 @@ namespace SMPL
 	public class Camera : Events
 	{
 		public static Camera WorldCamera { get; internal set; }
-		public ComponentIdentity<Camera> ComponentIdentity { get; set; }
-		public Component2D Component2D { get; set; }
+		private ComponentIdentity<Camera> componentIdentity;
+		public ComponentIdentity<Camera> ComponentIdentity
+		{
+			get { return componentIdentity; }
+			set
+			{
+				if (componentIdentity == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				componentIdentity = value;
+			}
+		}
+		private Component2D component2D;
+		public Component2D Component2D
+		{
+			get { return component2D; }
+			set
+			{
+				if (component2D == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				component2D = value;
+			}
+		}
 
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
@@ -19,6 +37,7 @@ namespace SMPL
 			get { return depth; }
 			set
 			{
+				if (depth == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var oldDepth = depth;
 				depth = value;
 				sortedCameras[oldDepth].Remove(this);
@@ -35,29 +54,40 @@ namespace SMPL
 		public Point Position
 		{
 			get { return new Point(view.Center.X, view.Center.Y); }
-			set { view.Center = Point.From(value); }
+			set
+			{
+				if (Position == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				view.Center = Point.From(value);
+			}
 		}
 		public double Angle
 		{
 			get { return view.Rotation; }
-			set { view.Rotation = (float)value; }
+			set
+			{
+				if (Angle == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				view.Rotation = (float)value;
+			}
 		}
 		public Size Size
 		{
 			get { return new Size(view.Size.X, view.Size.Y); }
-			set { view.Size = Size.From(value); }
+			set
+			{
+				if (Size == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				view.Size = Size.From(value);
+			}
 		}
-		//private double zoom = 1;
-		//public double Zoom
-		//{
-		//	get { return zoom; }
-		//	set
-		//	{
-		//		zoom = Number.Limit(value, new Bounds(0.001, 500));
-		//		view.Size = Size.From(startSize / zoom);
-		//	}
-		//}
-		public Color BackgroundColor { get; set; }
+		private Color bgColor;
+		public Color BackgroundColor
+		{
+			get { return bgColor; }
+			set
+			{
+				if (bgColor == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				bgColor = value;
+			}
+		}
 
 		public Camera(Point viewPosition, Size viewSize)
 		{
@@ -133,6 +163,7 @@ namespace SMPL
 
 		public bool Snap(string filePath = "folder/picture.png")
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return false;
 			var img = rendTexture.Texture.CopyToImage();
 			var full = File.CreateDirectoryForFile(filePath);
 

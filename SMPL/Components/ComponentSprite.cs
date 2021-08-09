@@ -17,7 +17,8 @@ namespace SMPL
 			get { return transform.sprite.Texture.Repeated; }
 			set
 			{
-				if (transform.sprite.Texture.Repeated == value) return;
+				if (transform.sprite.Texture.Repeated == value ||
+					(Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Repeated = value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteRepeatingChangeSetup(this); }
@@ -29,7 +30,8 @@ namespace SMPL
 			get { return transform.sprite.Texture.Smooth; }
 			set
 			{
-				if (transform.sprite.Texture.Smooth == value) return;
+				if (transform.sprite.Texture.Smooth == value ||
+					(Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Smooth = value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteSmoothingChangeSetup(this); }
@@ -42,6 +44,7 @@ namespace SMPL
 			get { return path; }
 			private set
 			{
+				// validated in constructor
 				var texture = File.textures[value];
 				transform.sprite.Texture = texture;
 
@@ -59,7 +62,7 @@ namespace SMPL
 			get { return offsetPercent; }
 			set
 			{
-				if (offsetPercent == value) return;
+				if (offsetPercent == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - offsetPercent;
 				offsetPercent = value;
 				var rect = transform.sprite.TextureRect;
@@ -78,7 +81,7 @@ namespace SMPL
 			get { return sizePercent; }
 			set
 			{
-				if (sizePercent == value) return;
+				if (sizePercent == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - sizePercent;
 				sizePercent = value;
 				value /= 100;
@@ -97,7 +100,7 @@ namespace SMPL
 			get { return gridSize; }
 			set
 			{
-				if (gridSize == value) return;
+				if (gridSize == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - gridSize;
 				gridSize = value;
 				transform.OriginPercent = transform.OriginPercent;
@@ -163,6 +166,7 @@ namespace SMPL
 
 		public override void Draw(Camera camera)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
 				transform.sprite.Texture == null) return;
 			var w = transform.sprite.TextureRect.Width;

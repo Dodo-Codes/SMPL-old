@@ -13,7 +13,7 @@ namespace SMPL
 			get { return parent; }
 			set
 			{
-				if (parent == value) return;
+				if (parent == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 
 				var pos = Point.From(owner.transform.LocalPosition);
 				var angle = owner.transform.LocalAngle;

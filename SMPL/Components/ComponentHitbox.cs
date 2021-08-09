@@ -52,6 +52,7 @@ namespace SMPL
 		}
 		public void Draw(Camera camera)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			foreach (var kvp in lines) kvp.Value.Draw(camera);
 		}
 
@@ -68,6 +69,7 @@ namespace SMPL
 		public bool Ignores(ComponentHitbox componentHitbox) => ignores.Contains(componentHitbox);
 		public void AddIgnorance(ComponentHitbox componentHitbox)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (componentHitbox == null)
 			{
 				Debug.LogError(1, "The ignored hitbox cannot be 'null'.");
@@ -82,6 +84,7 @@ namespace SMPL
 		}
 		public void RemoveIgnorance(ComponentHitbox componentHitbox)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (ignores.Contains(componentHitbox) == false)
 			{
 				Debug.LogError(1, "The hitbox was not found.");
@@ -126,6 +129,7 @@ namespace SMPL
 		public bool HasUniqueID(string uniqueID) => lines.ContainsKey(uniqueID);
 		public void SetLine(string uniqueID, Line line)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (uniqueID == null)
 			{
 				Debug.LogError(1, $"The unique ID of a line cannot be 'null'.");
@@ -137,6 +141,7 @@ namespace SMPL
 		}
 		public void RemoveLine(string uniqueID)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (lines.ContainsKey(uniqueID) == false)
 			{
 				Debug.LogError(1, $"A line with unique ID '{uniqueID}' was not found.");
@@ -145,6 +150,11 @@ namespace SMPL
 			lines.Remove(uniqueID);
 			localLines.Remove(uniqueID);
 		}
-		public void RemoveAllLines() { lines.Clear(); localLines.Clear(); }
+		public void RemoveAllLines()
+		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			lines.Clear();
+			localLines.Clear();
+		}
 	}
 }

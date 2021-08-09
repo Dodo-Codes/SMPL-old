@@ -10,8 +10,26 @@ namespace SMPL
 		internal Component2D transform;
 		internal ComponentVisual masking;
 
-		public Effects Effects { get; set; }
-		public ComponentFamily Family { get; set; }
+		private Effects effects;
+		public Effects Effects
+		{
+			get { return effects; }
+			set
+			{
+				if (effects == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				effects = value;
+			}
+		}
+		private ComponentFamily family;
+		public ComponentFamily Family
+		{
+			get { return family; }
+			set
+			{
+				if (family == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				family = value;
+			}
+		}
 
 		private bool isHidden;
 		public bool IsHidden
@@ -19,7 +37,7 @@ namespace SMPL
 			get { return isHidden; }
 			set
 			{
-				if (isHidden == value) return;
+				if (isHidden == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				isHidden = value;
 				if (this is ComponentText)
 				{

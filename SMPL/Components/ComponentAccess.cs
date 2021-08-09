@@ -12,7 +12,7 @@ namespace SMPL
 			get { return disabled; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (disabled == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				disabled = value;
 			}
 		}

@@ -42,7 +42,7 @@ namespace SMPL
 
 		public void AddTags(params string[] tags)
 		{
-			if (IsCurrentlyAccessible() == false) return;
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (ObjTags[Instance].Contains(tags[j])) continue;
@@ -58,7 +58,7 @@ namespace SMPL
 		}
 		public void RemoveTags(params string[] tags)
 		{
-			if (IsCurrentlyAccessible() == false) return;
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (ObjTags[Instance].Contains(tags[j]) == false) continue;
@@ -74,7 +74,6 @@ namespace SMPL
 		}
 		public bool HasTags(params string[] tags)
 		{
-			if (IsCurrentlyAccessible() == false) return false;
 			for (int i = 0; i < tags.Length; i++)
 			{
 				if (ObjTags[Instance].Contains(tags[i]) == false) return false;

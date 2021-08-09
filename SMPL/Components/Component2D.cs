@@ -19,7 +19,7 @@ namespace SMPL
 			get { return componentHitbox; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (componentHitbox == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				componentHitbox = value;
 			}
 		}

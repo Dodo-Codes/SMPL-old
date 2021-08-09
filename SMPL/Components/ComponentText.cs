@@ -13,7 +13,7 @@ namespace SMPL
 			get { return bgColor; }
 			set
 			{
-				if (bgColor == value) return;
+				if (bgColor == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = bgColor;
 				bgColor = value;
 
@@ -27,7 +27,7 @@ namespace SMPL
 			get { return position; }
 			set
 			{
-				if (position == value) return;
+				if (position == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 
 				var delta = value - position;
 				position = value;
@@ -46,7 +46,8 @@ namespace SMPL
 			get { return transform.text.Rotation; }
 			set
 			{
-				if (transform.text.Rotation == value) return;
+				if (transform.text.Rotation == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
+					return;
 
 				var delta = value - transform.text.Rotation;
 				transform.text.Rotation = (float)value;
@@ -64,7 +65,7 @@ namespace SMPL
 			set
 			{
 				var v = Size.From(value);
-				if (transform.text.Scale == v) return;
+				if (transform.text.Scale == v || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 
 				var delta = value - Size.To(transform.text.Scale);
 				transform.text.Scale = v;
@@ -80,6 +81,7 @@ namespace SMPL
 			get { return path; }
 			private set
 			{
+				// validated in constructor
 				transform.text.Font = File.fonts[value];
 				path = value;
 			}
@@ -90,6 +92,7 @@ namespace SMPL
 			get { return originPercent; }
 			set
 			{
+				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
 				if (originPercent == value) return;
@@ -108,7 +111,8 @@ namespace SMPL
 			get { return transform.text.CharacterSize; }
 			set
 			{
-				if (transform.text.CharacterSize == value) return;
+				if (transform.text.CharacterSize == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
+					return;
 				var delta = value - transform.text.CharacterSize;
 				transform.text.CharacterSize = value;
 				Position = position;
@@ -125,7 +129,8 @@ namespace SMPL
 			get { return transform.text.DisplayedString; }
 			set
 			{
-				if (transform.text.DisplayedString == value) return;
+				if (transform.text.DisplayedString == value ||
+					(Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var oldStr = transform.text.DisplayedString;
 				transform.text.DisplayedString = value;
 				UpdateOrigin();
@@ -142,7 +147,7 @@ namespace SMPL
 			get { return spacing; }
 			set
 			{
-				if (spacing == value) return;
+				if (spacing == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - spacing;
 				spacing = value;
 				transform.text.LetterSpacing = (float)value.W / 4;
@@ -310,6 +315,7 @@ namespace SMPL
 		}
 		public override void Draw(Camera camera)
 		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.text == null ||
 				transform.text.Font == null) return;
 
