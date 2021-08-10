@@ -2,24 +2,22 @@
 
 namespace TestGame
 {
-	public class Player : Events
+	public class Player
 	{
 		public Player()
 		{
-			Subscribe(this, 0);
-
 			File.LoadAsset(File.Asset.Texture, "penka.png");
+
+			Events.OnStart += new(OnStart);
+			Events.OnAudioStart += new(OnAudioStart);
 		}
-		public override void OnAssetsLoadingEnd()
+		public void OnStart()
 		{
-			if (File.AssetIsLoaded("penka.png"))
-			{
-				//Window.IconTexturePath = "penka.png";
-			}
+
 		}
-		public override void OnEachFrame()
+		void OnAudioStart(Audio instance)
 		{
-			Camera.WorldCamera.Angle = 45;
+
 		}
 	}
 }

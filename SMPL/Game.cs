@@ -2,7 +2,6 @@
 using System;
 using System.Windows.Forms;
 using System.Threading;
-using static SMPL.Events;
 
 namespace SMPL
 {
@@ -35,10 +34,11 @@ namespace SMPL
 
 			instance.OnStart();
 
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				e[i].OnStartSetup(); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				e[i].OnStart(); }
+			Events.TriggerOnStart();
+			//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+			//	e[i].OnStartSetup(); }
+			//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+			//	e[i].OnStart(); }
 
 			Time.Run();
 		}

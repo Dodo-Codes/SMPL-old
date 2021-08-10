@@ -4,12 +4,13 @@ using System.Collections.Generic;
 
 namespace SMPL
 {
-   public class Audio : Events
+   public class Audio
    {
       public enum Type { NotLoaded, Sound, Music }
       internal Sound sound;
       internal Music music;
       private bool stopped;
+      private static List<Audio> audios = new();
 
       public ComponentIdentity<Audio> IdentityComponent { get; set; }
 
@@ -59,20 +60,8 @@ namespace SMPL
                if (value && IsPlaying) music.Pause();
                else if (value == false && IsPaused) music.Play();
             }
-            if (value && IsPlaying)
-            {
-               var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioPauseSetup(this); }
-               var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioPause(this); }
-            }
-            else if (value == false && IsPaused)
-            {
-               var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioPlaySetup(this); }
-               var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioPlay(this); }
-            }
+            if (value && IsPlaying) Events.TriggerOnAudioPause(this);
+            else if (value == false && IsPaused) Events.TriggerOnAudioPlay(this);
          }
       }
       public bool IsPlaying
@@ -97,25 +86,10 @@ namespace SMPL
             }
             if (value)
             {
-               if (IsPaused == false)
-               {
-                  var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                     e[i].OnAudioStartSetup(this); }
-                  var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                     e[i].OnAudioStart(this); }
-               }
-               var n2 = D(instances); foreach (var kvp in n2) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioPlaySetup(this); }
-               var n3 = D(instances); foreach (var kvp in n3) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioPlay(this); }
+               if (IsPaused == false) Events.TriggerOnAudioStart(this);
+               Events.TriggerOnAudioPlay(this);
             }
-            else if (IsPlaying || IsPaused)
-            {
-               var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioStopSetup(this); }
-               var n2 = D(instances); foreach (var kvp in n2) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-                  e[i].OnAudioStop(this); }
-            }
+            else if (IsPlaying || IsPaused) Events.TriggerOnAudioStop(this);
          }
       }
       public double Duration
@@ -203,19 +177,20 @@ namespace SMPL
          }
 			else { IsNotLoaded(); return; }
 
-         Subscribe(this, 0);
+         audios.Add(this);
          Path = audioPath;
          VolumePercent = 50;
       }
 
-		public override void OnEachFrameSetup()
+		internal static void Update()
 		{
-			if (Gate.EnterOnceWhile($"{Path}-enda915'kf", IsPlaying == false && IsPaused == false && stopped == false))
+			for (int i = 0; i < audios.Count; i++)
 			{
-            var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-               e[i].OnAudioEndSetup(this); }
-            var n2 = D(instances); foreach (var kvp in n2) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-               e[i].OnAudioEnd(this); }
+            if (Gate.EnterOnceWhile($"{audios[i].Path}-enda915'kf",
+               audios[i].IsPlaying == false && audios[i].IsPaused == false && audios[i].stopped == false))
+            {
+               Events.TriggerOnAudioEnd(audios[i]);
+            }
          }
 		}
 

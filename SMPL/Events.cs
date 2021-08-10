@@ -5,8 +5,17 @@ using System.Windows.Forms;
 
 namespace SMPL
 {
-	public abstract class Events : ComponentAccess
+	public abstract class Events
 	{
+		public delegate void ParamsZero();
+		public delegate void ParamsOne<T>(T param1);
+		public static event ParamsZero OnStart;
+		public static event ParamsOne<Audio> OnAudioStart;
+		public static event ParamsOne<Audio> OnAudioEnd;
+		public static event ParamsOne<Audio> OnAudioPlay;
+		public static event ParamsOne<Audio> OnAudioPause;
+		public static event ParamsOne<Audio> OnAudioStop;
+
 		internal static SortedDictionary<int, List<Events>> instances = new();
 		internal static Dictionary<Events, int> instancesOrder = new();
 		internal static List<Component2D> transforms = new();
@@ -38,6 +47,8 @@ namespace SMPL
 
 		internal static void Update()
 		{
+			Audio.Update();
+
 			var timerUIDs = ComponentIdentity<Timer>.AllUniqueIDs;
 			for (int j = 0; j < timerUIDs.Length; j++)
 			{
@@ -231,6 +242,12 @@ namespace SMPL
 			OnMouseWheelScrollSetup(wheel, arguments.Delta);
 			OnMouseWheelScroll(wheel, arguments.Delta);
 		}
+		internal static void TriggerOnStart() => OnStart?.Invoke();
+		internal static void TriggerOnAudioStart(Audio instance) => OnAudioStart?.Invoke(instance);
+		internal static void TriggerOnAudioPlay(Audio instance) => OnAudioPlay?.Invoke(instance);
+		internal static void TriggerOnAudioPause(Audio instance) => OnAudioPause?.Invoke(instance);
+		internal static void TriggerOnAudioStop(Audio instance) => OnAudioStop?.Invoke(instance);
+		internal static void TriggerOnAudioEnd(Audio instance) => OnAudioEnd?.Invoke(instance);
 
 		internal void CancelInput()
       {
@@ -246,7 +263,6 @@ namespace SMPL
 		//=================================================================
 
 		public virtual void OnStartSetup() { }
-		public virtual void OnStart() { }
 		public virtual void OnEachFrameSetup() { }
 		public virtual void OnEachFrame() { }
 		public virtual void OnDrawSetup(Camera instance) { }
@@ -308,17 +324,6 @@ namespace SMPL
 		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
-
-		public virtual void OnAudioStartSetup(Audio instance) { }
-		public virtual void OnAudioPlaySetup(Audio instance) { }
-		public virtual void OnAudioPauseSetup(Audio instance) { }
-		public virtual void OnAudioStopSetup(Audio instance) { }
-		public virtual void OnAudioEndSetup(Audio instance) { }
-		public virtual void OnAudioStart(Audio instance) { }
-		public virtual void OnAudioPlay(Audio instance) { }
-		public virtual void OnAudioPause(Audio instance) { }
-		public virtual void OnAudioStop(Audio instance) { }
-		public virtual void OnAudioEnd(Audio instance) { }
 
 		public virtual void OnIdentityCreateSetup<T>(ComponentIdentity<T> instance) { }
 		public virtual void OnIdentityCreate<T>(ComponentIdentity<T> instance) { }
