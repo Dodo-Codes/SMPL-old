@@ -50,6 +50,9 @@ namespace SMPL
 			Tick, Second
 		}
 
+		public static event Events.ParamsZero Always;
+		public static void AlwaysCall(Action method, uint order = uint.MaxValue) => Always = Events.Add(Always, method, order);
+
 		internal static Clock time;
 		public static double GameClock { get { return time.ElapsedTime.AsSeconds(); } }
 		public static double Clock { get { return DateTime.Now.TimeOfDay.TotalSeconds; } }
@@ -123,6 +126,7 @@ namespace SMPL
 				Window.window.DispatchEvents();
 
 				Performance.frameCount++;
+				Always?.Invoke();
 				Events.Update();
 
 				Window.Draw();

@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Test_Game</RootNamespace>
-    <StartupObject>TestGame.Game</StartupObject>
+    <StartupObject>TestGame.TestGame</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

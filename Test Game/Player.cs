@@ -6,18 +6,13 @@ namespace TestGame
 	{
 		public Player()
 		{
-			File.LoadAsset(File.Asset.Texture, "penka.png");
+			File.LoadAsset(File.Asset.Sound, "whistle.wav");
 
-			Events.OnStart += new(OnStart);
-			Events.OnAudioStart += new(OnAudioStart);
+			Time.AlwaysCall(Always, 0);
 		}
-		public void OnStart()
+		void Always()
 		{
-
-		}
-		void OnAudioStart(Audio instance)
-		{
-
+			Console.Log("always");
 		}
 	}
 }

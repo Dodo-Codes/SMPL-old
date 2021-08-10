@@ -9,12 +9,31 @@ namespace SMPL
 	{
 		public delegate void ParamsZero();
 		public delegate void ParamsOne<T>(T param1);
-		public static event ParamsZero OnStart;
-		public static event ParamsOne<Audio> OnAudioStart;
-		public static event ParamsOne<Audio> OnAudioEnd;
-		public static event ParamsOne<Audio> OnAudioPlay;
-		public static event ParamsOne<Audio> OnAudioPause;
-		public static event ParamsOne<Audio> OnAudioStop;
+
+		internal static ParamsZero Add(ParamsZero pz, Action method, uint order)
+		{
+			if (pz == null) { pz = new ParamsZero(method); return pz; }
+			var l = pz.GetInvocationList();
+			for (uint i = 0; i < l.Length; i++)
+			{
+				var a = l[i] as ParamsZero;
+				pz -= a; if (i == order) pz += new ParamsZero(method); pz += a;
+			}
+			if (order >= l.Length) pz += new ParamsZero(method);
+			return pz;
+		}
+		internal static ParamsOne<T> Add<T>(ParamsOne<T> pz, Action<T> method, uint order)
+		{
+			if (pz == null) { pz = new ParamsOne<T>(method); return pz; }
+			var l = pz.GetInvocationList();
+			for (uint i = 0; i < l.Length; i++)
+			{
+				var a = l[i] as ParamsOne<T>;
+				pz -= a; if (i == order) pz += new ParamsOne<T>(method); pz += a;
+			}
+			if (order >= l.Length) pz += new ParamsOne<T>(method);
+			return pz;
+		}
 
 		internal static SortedDictionary<int, List<Events>> instances = new();
 		internal static Dictionary<Events, int> instancesOrder = new();
@@ -48,27 +67,8 @@ namespace SMPL
 		internal static void Update()
 		{
 			Audio.Update();
-
-			var timerUIDs = ComponentIdentity<Timer>.AllUniqueIDs;
-			for (int j = 0; j < timerUIDs.Length; j++)
-			{
-				var timer = ComponentIdentity<Timer>.PickByUniqueID(timerUIDs[j]);
-				if (timer.IsPaused) continue;
-				if (timer.Countdown > 0) timer.Countdown -= Performance.DeltaTime;
-				if (Gate.EnterOnceWhile(timerUIDs[j] + "as;li3'f2", timer.Countdown <= 0))
-				{
-					timer.EndCount++;
-					timer.Countdown = 0;
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTimerEndSetup(timer); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnTimerEnd(timer); }
-				}
-			}
-
-			{ var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnEachFrameSetup(); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnEachFrame(); } }
-
+			Timer.Update();
+			
 			for (int i = 0; i < transforms.Count; i++) transforms[i].Update();
 			for (int i = 0; i < hitboxes.Count; i++) hitboxes[i].Update();
 			for (int i = 0; i < sprites.Count; i++) sprites[i].Update();
@@ -242,12 +242,6 @@ namespace SMPL
 			OnMouseWheelScrollSetup(wheel, arguments.Delta);
 			OnMouseWheelScroll(wheel, arguments.Delta);
 		}
-		internal static void TriggerOnStart() => OnStart?.Invoke();
-		internal static void TriggerOnAudioStart(Audio instance) => OnAudioStart?.Invoke(instance);
-		internal static void TriggerOnAudioPlay(Audio instance) => OnAudioPlay?.Invoke(instance);
-		internal static void TriggerOnAudioPause(Audio instance) => OnAudioPause?.Invoke(instance);
-		internal static void TriggerOnAudioStop(Audio instance) => OnAudioStop?.Invoke(instance);
-		internal static void TriggerOnAudioEnd(Audio instance) => OnAudioEnd?.Invoke(instance);
 
 		internal void CancelInput()
       {
@@ -261,14 +255,6 @@ namespace SMPL
 		internal static List<T> L<T>(List<T> list) => new List<T>(list);
 		internal static SortedDictionary<T, T1> D<T, T1>(SortedDictionary<T, T1> dict) => new SortedDictionary<T, T1>(dict);
 		//=================================================================
-
-		public virtual void OnStartSetup() { }
-		public virtual void OnEachFrameSetup() { }
-		public virtual void OnEachFrame() { }
-		public virtual void OnDrawSetup(Camera instance) { }
-		public virtual void OnDraw(Camera instance) { }
-		public virtual void OnTimerEndSetup(Timer instance) { }
-		public virtual void OnTimerEnd(Timer instance) { }
 
 		public virtual void OnWindowCloseSetup() { }
 		public virtual void OnWindowFocusSetup() { }

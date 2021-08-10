@@ -1,7 +1,13 @@
-﻿namespace SMPL
+﻿using System;
+
+namespace SMPL
 {
    public class Timer
    {
+      public static event Events.ParamsOne<Timer> OnTimerEnd;
+      public static void OnTimerEndCall(Action<Timer> method, uint order = uint.MaxValue) =>
+         OnTimerEnd = Events.Add(OnTimerEnd, method, order);
+
       public int EndCount { get; set; }
       public double Duration { get; private set; }
       private double progress;
@@ -33,6 +39,23 @@
          IdentityComponent = new(this, uniqueID);
          Duration = duration;
          Countdown = duration;
+      }
+
+      internal static void Update()
+      {
+         var timerUIDs = ComponentIdentity<Timer>.AllUniqueIDs;
+         for (int j = 0; j < timerUIDs.Length; j++)
+         {
+            var timer = ComponentIdentity<Timer>.PickByUniqueID(timerUIDs[j]);
+            if (timer.IsPaused) continue;
+            if (timer.Countdown > 0) timer.Countdown -= Performance.DeltaTime;
+            if (Gate.EnterOnceWhile(timerUIDs[j] + "as;li3'f2", timer.Countdown <= 0))
+            {
+               timer.EndCount++;
+               timer.Countdown = 0;
+               OnTimerEnd?.Invoke(timer);
+            }
+         }
       }
    }
 }

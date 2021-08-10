@@ -1,5 +1,6 @@
 ﻿using SFML.Audio;
 using SFML.System;
+using System;
 using System.Collections.Generic;
 
 namespace SMPL
@@ -10,8 +11,15 @@ namespace SMPL
       internal Sound sound;
       internal Music music;
       private bool stopped;
-      private static List<Audio> audios = new();
+      private readonly static List<Audio> audios = new();
 
+      public static event Events.ParamsOne<Audio> OnAudioStart;
+      public static void OnAudioStartCall(Action<Audio> method, uint order = uint.MaxValue) =>
+        OnAudioStart = Events.Add(OnAudioStart, method, order);
+      public static event Events.ParamsOne<Audio> OnAudioEnd;
+      public static event Events.ParamsOne<Audio> OnAudioPlay;
+      public static event Events.ParamsOne<Audio> OnAudioPause;
+      public static event Events.ParamsOne<Audio> OnAudioStop;
       public ComponentIdentity<Audio> IdentityComponent { get; set; }
 
       public static Point ListenerPosition
@@ -60,8 +68,8 @@ namespace SMPL
                if (value && IsPlaying) music.Pause();
                else if (value == false && IsPaused) music.Play();
             }
-            if (value && IsPlaying) Events.TriggerOnAudioPause(this);
-            else if (value == false && IsPaused) Events.TriggerOnAudioPlay(this);
+            if (value && IsPlaying) OnAudioPause?.Invoke(this);
+            else if (value == false && IsPaused) OnAudioPlay?.Invoke(this);
          }
       }
       public bool IsPlaying
@@ -86,10 +94,10 @@ namespace SMPL
             }
             if (value)
             {
-               if (IsPaused == false) Events.TriggerOnAudioStart(this);
-               Events.TriggerOnAudioPlay(this);
+               if (IsPaused == false) OnAudioStart?.Invoke(this);
+               OnAudioPlay?.Invoke(this);
             }
-            else if (IsPlaying || IsPaused) Events.TriggerOnAudioStop(this);
+            else if (IsPlaying || IsPaused) OnAudioStop?.Invoke(this);
          }
       }
       public double Duration
@@ -189,7 +197,7 @@ namespace SMPL
             if (Gate.EnterOnceWhile($"{audios[i].Path}-enda915'kf",
                audios[i].IsPlaying == false && audios[i].IsPaused == false && audios[i].stopped == false))
             {
-               Events.TriggerOnAudioEnd(audios[i]);
+               OnAudioEnd?.Invoke(audios[i]);
             }
          }
 		}

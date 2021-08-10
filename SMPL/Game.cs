@@ -15,7 +15,10 @@ namespace SMPL
 		internal static Thread resourceLoading;
 		internal static Game instance;
 
-		static void Main() { }
+		public static event Events.ParamsZero OnStart;
+		public static void OnStartCall(Action method, uint order = uint.MaxValue) => OnStart = Events.Add(OnStart, method, order);
+
+		private static void Main() { }
 
 		public static void Run(Game game, Size pixelSize)
 		{
@@ -32,9 +35,9 @@ namespace SMPL
 			resourceLoading.IsBackground = true;
 			resourceLoading.Start();
 
-			instance.OnStart();
+			instance.OnGameCreated();
 
-			Events.TriggerOnStart();
+			OnStart?.Invoke();
 			//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
 			//	e[i].OnStartSetup(); }
 			//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
@@ -43,7 +46,7 @@ namespace SMPL
 			Time.Run();
 		}
 
-		public virtual void OnStart() { }
+		public virtual void OnGameCreated() { }
 	}
 
 	internal static class Statics
