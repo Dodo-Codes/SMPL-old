@@ -50,10 +50,10 @@ namespace SMPL
 
 			}
 		}
-		public void Draw(Camera camera)
+		public void Display(Camera camera)
 		{
 			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			foreach (var kvp in lines) kvp.Value.Draw(camera);
+			foreach (var kvp in lines) kvp.Value.Display(camera);
 		}
 
 		public Line GetLine(string uniqueID)

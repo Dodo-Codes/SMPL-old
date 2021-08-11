@@ -216,7 +216,7 @@ namespace SMPL
 		//	}
 		//}
 
-		public void Draw(Camera camera)
+		public void Display(Camera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
 

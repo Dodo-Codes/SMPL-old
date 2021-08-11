@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace SMPL
@@ -53,6 +54,77 @@ namespace SMPL
 			F2 = 86, F3 = 87, F4 = 88, F5 = 89, F6 = 90, F7 = 91, F8 = 92, F9 = 93, F10 = 94, F11 = 95, F12 = 96, F13 = 97,
 			F14 = 98, F15 = 99, Pause = 100,
 		}
-		public static Key[] PressedKeys { get { return Events.keysHeld.ToArray(); } }
+		public static Key[] KeysPressed { get { return keysHeld.ToArray(); } }
+		internal static List<Key> keysHeld = new();
+		public static bool KeyIsPressed(Key key) => keysHeld.Contains(key);
+
+		private static event Events.ParamsOne<Key> OnKeyPress;
+		private static event Events.ParamsOne<Key> OnKeyHold;
+		private static event Events.ParamsOne<Key> OnKeyRelease;
+		private static event Events.ParamsFour<string, bool, bool, bool> OnTextInput;
+		private static event Events.ParamsThree<string, string, string> OnLanguageChange;
+
+		public static void CallOnKeyPress(Action<Key> method, uint order = uint.MaxValue) =>
+			OnKeyPress = Events.Add(OnKeyPress, method, order);
+		public static void CallOnKeyHold(Action<Key> method, uint order = uint.MaxValue) =>
+			OnKeyHold = Events.Add(OnKeyHold, method, order);
+		public static void CallOnKeyRelease(Action<Key> method, uint order = uint.MaxValue) =>
+			OnKeyRelease = Events.Add(OnKeyRelease, method, order);
+		//public virtual void OnTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
+		public static void CallOnTextInput(Action<string, bool, bool, bool> method, uint order = uint.MaxValue) =>
+			OnTextInput = Events.Add(OnTextInput, method, order);
+		//public virtual void OnLanguageChange(string englishName, string nativeName, string languageCode) { }
+		public static void CallOnLanguageChange(Action<string, string, string> method, uint order = uint.MaxValue) =>
+			OnLanguageChange = Events.Add(OnLanguageChange, method, order);
+
+		internal static void Update()
+		{
+			for (int i = 0; i < keysHeld.Count; i++) OnKeyHold?.Invoke(keysHeld[i]);
+		}
+		internal static void Initialize()
+		{
+			Window.window.KeyPressed += new EventHandler<SFML.Window.KeyEventArgs>(OnKeyPress_);
+			Window.window.KeyReleased += new EventHandler<SFML.Window.KeyEventArgs>(OnKeyRelease_);
+			Window.window.SetKeyRepeatEnabled(false);
+			Window.form.KeyPress += new KeyPressEventHandler(OnTextInput_);
+			Window.form.InputLanguageChanged += new InputLanguageChangedEventHandler(OnLanguageChange_);
+		}
+
+		internal static void CancelInput()
+		{
+			for (int i = 0; i < keysHeld.Count; i++) OnKeyRelease?.Invoke(keysHeld[i]);
+			keysHeld.Clear();
+		}
+		internal static void OnKeyPress_(object sender, EventArgs e)
+		{
+			var keyArgs = (SFML.Window.KeyEventArgs)e;
+			var key = (Key)keyArgs.Code;
+			keysHeld.Add(key);
+			OnKeyPress?.Invoke(key);
+		}
+		internal static void OnKeyRelease_(object sender, EventArgs e)
+		{
+			var keyArgs = (SFML.Window.KeyEventArgs)e;
+			var key = (Key)keyArgs.Code;
+			keysHeld.Remove(key);
+			OnKeyRelease?.Invoke(key);
+		}
+		internal static void OnTextInput_(object sender, EventArgs e)
+		{
+			var keyArgs = (KeyPressEventArgs)e;
+			var keyStr = keyArgs.KeyChar.ToString();
+			keyStr = keyStr.Replace('\r', '\n');
+			if (keyStr == "\b") keyStr = "";
+			var isBackSpace = keyStr == "\b";
+			var isEnter = keyStr == Environment.NewLine;
+			var isTab = keyStr == "\t";
+			OnTextInput?.Invoke(keyStr, isBackSpace, isEnter, isTab);
+		}
+		internal static void OnLanguageChange_(object sender, EventArgs e)
+		{
+			var langArgs = (InputLanguageChangedEventArgs)e;
+			var culture = langArgs.InputLanguage.Culture;
+			OnLanguageChange?.Invoke(culture.EnglishName, culture.NativeName, culture.Name);
+		}
 	}
 }

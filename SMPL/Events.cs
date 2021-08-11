@@ -9,6 +9,9 @@ namespace SMPL
 	{
 		public delegate void ParamsZero();
 		public delegate void ParamsOne<T>(T param1);
+		public delegate void ParamsTwo<T1, T2>(T1 param1, T2 param2);
+		public delegate void ParamsThree<T1, T2, T3>(T1 param1, T2 param2, T3 param3);
+		public delegate void ParamsFour<T1, T2, T3, T4>(T1 param1, T2 param2, T3 param3, T4 param4);
 
 		internal static ParamsZero Add(ParamsZero pz, Action method, uint order)
 		{
@@ -22,16 +25,54 @@ namespace SMPL
 			if (order >= l.Length) pz += new ParamsZero(method);
 			return pz;
 		}
-		internal static ParamsOne<T> Add<T>(ParamsOne<T> pz, Action<T> method, uint order)
+		internal static ParamsOne<T1> Add<T1>(ParamsOne<T1> pz, Action<T1> method, uint order)
 		{
-			if (pz == null) { pz = new ParamsOne<T>(method); return pz; }
+			if (pz == null) { pz = new ParamsOne<T1>(method); return pz; }
 			var l = pz.GetInvocationList();
 			for (uint i = 0; i < l.Length; i++)
 			{
-				var a = l[i] as ParamsOne<T>;
-				pz -= a; if (i == order) pz += new ParamsOne<T>(method); pz += a;
+				var a = l[i] as ParamsOne<T1>;
+				pz -= a; if (i == order) pz += new ParamsOne<T1>(method); pz += a;
 			}
-			if (order >= l.Length) pz += new ParamsOne<T>(method);
+			if (order >= l.Length) pz += new ParamsOne<T1>(method);
+			return pz;
+		}
+		internal static ParamsTwo<T1, T2> Add<T1, T2>(ParamsTwo<T1, T2> pz, Action<T1, T2> method, uint order)
+		{
+			if (pz == null) { pz = new ParamsTwo<T1, T2>(method); return pz; }
+			var l = pz.GetInvocationList();
+			for (uint i = 0; i < l.Length; i++)
+			{
+				var a = l[i] as ParamsTwo<T1, T2>;
+				pz -= a; if (i == order) pz += new ParamsTwo<T1, T2>(method); pz += a;
+			}
+			if (order >= l.Length) pz += new ParamsTwo<T1, T2>(method);
+			return pz;
+		}
+		internal static ParamsThree<T1, T2, T3> Add<T1, T2, T3>(
+			ParamsThree<T1, T2, T3> pz, Action<T1, T2, T3> method, uint order)
+		{
+			if (pz == null) { pz = new ParamsThree<T1, T2, T3>(method); return pz; }
+			var l = pz.GetInvocationList();
+			for (uint i = 0; i < l.Length; i++)
+			{
+				var a = l[i] as ParamsThree<T1, T2, T3>;
+				pz -= a; if (i == order) pz += new ParamsThree<T1, T2, T3>(method); pz += a;
+			}
+			if (order >= l.Length) pz += new ParamsThree<T1, T2, T3>(method);
+			return pz;
+		}
+		internal static ParamsFour<T1, T2, T3, T4> Add<T1, T2, T3, T4>(
+			ParamsFour<T1, T2, T3, T4> pz, Action<T1, T2, T3, T4> method, uint order)
+		{
+			if (pz == null) { pz = new ParamsFour<T1, T2, T3, T4>(method); return pz; }
+			var l = pz.GetInvocationList();
+			for (uint i = 0; i < l.Length; i++)
+			{
+				var a = l[i] as ParamsFour<T1, T2, T3, T4>;
+				pz -= a; if (i == order) pz += new ParamsFour<T1, T2, T3, T4>(method); pz += a;
+			}
+			if (order >= l.Length) pz += new ParamsFour<T1, T2, T3, T4>(method);
 			return pz;
 		}
 
@@ -40,7 +81,6 @@ namespace SMPL
 		internal static List<Component2D> transforms = new();
 		internal static List<ComponentText> texts = new();
 		internal static List<ComponentSprite> sprites = new();
-		internal static List<Keyboard.Key> keysHeld = new();
 		internal static List<ComponentHitbox> hitboxes = new();
 
 		private int order;
@@ -68,238 +108,26 @@ namespace SMPL
 		{
 			Audio.Update();
 			Timer.Update();
-			
+
 			for (int i = 0; i < transforms.Count; i++) transforms[i].Update();
 			for (int i = 0; i < hitboxes.Count; i++) hitboxes[i].Update();
 			for (int i = 0; i < sprites.Count; i++) sprites[i].Update();
 			for (int i = 0; i < texts.Count; i++) texts[i].Update();
-         for (int j = 0; j < keysHeld.Count; j++)
-         {
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnKeyHoldSetup(keysHeld[j]); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnKeyHold(keysHeld[j]); }
-			}
 
-			Mouse.lastFrameCursorPosScr = Mouse.CursorPositionScreen;
+			Keyboard.Update();
+			Mouse.Update();
 		}
 
-		public void Subscribe(Events instance, int order)
-		{
-         if (instance == null)
-         {
-				Debug.LogError(1, $"The instance cannot be 'null'.");
-				return;
-			}
-         else if (instancesOrder.ContainsKey(instance))
-         {
-				Debug.LogError(1, $"The instance of '{instance.GetType()}' is already subscribed.");
-				return;
-         }
-			Order = order;
-
-			Window.window.Closed += new EventHandler(OnWindowClose);
-			Window.window.GainedFocus += new EventHandler(OnWindowFocus);
-			Window.window.LostFocus += new EventHandler(OnWindowUnfocus);
-			Window.form.SizeChanged += new EventHandler(OnWindowResize);
-
-			Window.window.KeyPressed += new EventHandler<SFML.Window.KeyEventArgs>(OnKeyPress);
-			Window.window.KeyReleased += new EventHandler<SFML.Window.KeyEventArgs>(OnKeyRelease);
-			Window.window.SetKeyRepeatEnabled(false);
-			Window.form.KeyPress += new KeyPressEventHandler(OnTextInput);
-			Window.form.InputLanguageChanged += new InputLanguageChangedEventHandler(OnLanguageChange);
-
-			Window.window.MouseButtonPressed += new EventHandler<MouseButtonEventArgs>(OnMouseButtonPress);
-			Window.window.MouseButtonReleased += new EventHandler<MouseButtonEventArgs>(OnMouseButtonRelease);
-			Window.form.MouseDoubleClick += new MouseEventHandler(OnMouseButtonDoubleClick);
-			Window.window.MouseMoved += new EventHandler<MouseMoveEventArgs>(OnMouseCursorMove);
-			Window.window.MouseEntered += new EventHandler(OnMouseCursorEnterWindow);
-			Window.window.MouseLeft += new EventHandler(OnMouseCursorLeaveWindow);
-			Window.window.MouseWheelScrolled += new EventHandler<MouseWheelScrollEventArgs>(OnMouseWheelScroll);
-		}
-		public static void Unsubscribe(Events instance)
-		{
-			if (instance == null)
-			{
-				Debug.LogError(1, $"The instance cannot be 'null'.");
-				return;
-			}
-			else if (instancesOrder.ContainsKey(instance) == false)
-			{
-				Debug.LogError(1, $"The instance of '{instance.GetType()}' is not subscribed.");
-				return;
-			}
-			instances[instance.Order].Remove(instance);
-			instancesOrder.Remove(instance);
-		}
-
-		internal void OnWindowClose(object sender, EventArgs e) => Window.Close();
-		internal void OnWindowFocus(object sender, EventArgs e)
-		{
-			OnWindowFocusSetup();
-			OnWindowFocus();
-		}
-		internal void OnWindowUnfocus(object sender, EventArgs e)
-		{
-			CancelInput();
-			OnWindowUnfocusSetup();
-			OnWindowUnfocus();
-		}
-		internal void OnWindowResize(object sender, EventArgs e)
-		{
-			switch (Window.CurrentState)
-			{
-				case Window.State.Floating: { CancelInput(); OnWindowResizeSetup(); OnWindowResize(); break; }
-				case Window.State.Minimized: { OnWindowMinimizeSetup(); OnWindowMinimize(); break; }
-				case Window.State.Maximized: { OnWindowMaximizeSetup(); OnWindowMaximize(); break; }
-			}
-		}
-
-		internal void OnKeyPress(object sender, EventArgs e)
-		{
-			var keyArgs = (SFML.Window.KeyEventArgs)e;
-			var key = (Keyboard.Key)keyArgs.Code;
-			keysHeld.Add(key);
-			OnKeyPressSetup(key);
-			OnKeyPress(key);
-		}
-		internal void OnKeyRelease(object sender, EventArgs e)
-		{
-			var keyArgs = (SFML.Window.KeyEventArgs)e;
-			var key = (Keyboard.Key)keyArgs.Code;
-			keysHeld.Remove(key);
-			OnKeyReleaseSetup(key);
-			OnKeyRelease(key);
-		}
-		internal void OnTextInput(object sender, EventArgs e)
-		{
-			var keyArgs = (KeyPressEventArgs)e;
-			var keyStr = keyArgs.KeyChar.ToString();
-			keyStr = keyStr.Replace('\r', '\n');
-			if (keyStr == "\b") keyStr = "";
-			var isBackSpace = keyStr == "\b";
-			var isEnter = keyStr == Environment.NewLine;
-			var isTab = keyStr == "\t";
-			OnTextInputSetup(keyStr, isBackSpace, isEnter, isTab);
-			OnTextInput(keyStr, isBackSpace, isEnter, isTab);
-		}
-		internal void OnLanguageChange(object sender, EventArgs e)
-		{
-			var langArgs = (InputLanguageChangedEventArgs)e;
-			var culture = langArgs.InputLanguage.Culture;
-			OnLanguageChangeSetup(culture.EnglishName, culture.NativeName, culture.Name);
-			OnLanguageChange(culture.EnglishName, culture.NativeName, culture.Name);
-		}
-
-		internal void OnMouseCursorMove(object sender, EventArgs e)
-		{
-			var delta = Mouse.CursorPositionScreen - Mouse.lastFrameCursorPosScr;
-			OnMouseCursorPositionChangeSetup(delta);
-			OnMouseCursorPositionChange(delta);
-		}
-		internal void OnMouseCursorEnterWindow(object sender, EventArgs e)
-		{
-			OnMouseCursorEnterWindowSetup();
-			OnMouseCursorEnterWindow();
-		}
-		internal void OnMouseCursorLeaveWindow(object sender, EventArgs e)
-		{
-			OnMouseCursorLeaveWindowSetup();
-			OnMouseCursorLeaveWindow();
-		}
-
-		internal void OnMouseButtonPress(object sender, EventArgs e)
-		{
-			var buttonArgs = (MouseButtonEventArgs)e;
-			var button = (Mouse.Button)buttonArgs.Button;
-			OnMouseButtonPressSetup(button);
-			OnMouseButtonPress(button);
-		}
-		internal void OnMouseButtonRelease(object sender, EventArgs e)
-		{
-			var buttonArgs = (MouseButtonEventArgs)e;
-			var button = (Mouse.Button)buttonArgs.Button;
-			OnMouseButtonRelease(button);
-		}
-		internal void OnMouseButtonDoubleClick(object sender, EventArgs e)
-		{
-			var buttonArgs = (MouseEventArgs)e;
-			var button = Mouse.Button.Unknown;
-			switch (buttonArgs.Button)
-			{
-				case MouseButtons.Left: button = Mouse.Button.Left; break;
-				case MouseButtons.Right: button = Mouse.Button.Right; break;
-				case MouseButtons.Middle: button = Mouse.Button.Middle; break;
-				case MouseButtons.XButton1: button = Mouse.Button.ExtraButton1; break;
-				case MouseButtons.XButton2: button = Mouse.Button.ExtraButton2; break;
-			}
-			OnMouseButtonDoubleClick(button);
-		}
-		internal void OnMouseWheelScroll(object sender, EventArgs e)
-		{
-			var arguments = (MouseWheelScrollEventArgs)e;
-			var wheel = (Mouse.Wheel)arguments.Wheel;
-			OnMouseWheelScrollSetup(wheel, arguments.Delta);
-			OnMouseWheelScroll(wheel, arguments.Delta);
-		}
-
-		internal void CancelInput()
-      {
-			for (int i = 0; i < keysHeld.Count; i++)
-			{
-				OnKeyReleaseSetup(keysHeld[i]);
-				OnKeyRelease(keysHeld[i]);
-			}
-			keysHeld.Clear();
-		}
 		internal static List<T> L<T>(List<T> list) => new List<T>(list);
 		internal static SortedDictionary<T, T1> D<T, T1>(SortedDictionary<T, T1> dict) => new SortedDictionary<T, T1>(dict);
 		//=================================================================
 
-		public virtual void OnWindowCloseSetup() { }
-		public virtual void OnWindowFocusSetup() { }
-		public virtual void OnWindowUnfocusSetup() { }
-		public virtual void OnWindowResizeSetup() { }
-		public virtual void OnWindowMinimizeSetup() { }
-		public virtual void OnWindowMaximizeSetup() { }
-		public virtual void OnWindowClose() { }
-		public virtual void OnWindowFocus() { }
-		public virtual void OnWindowUnfocus() { }
-		public virtual void OnWindowResize() { }
-		public virtual void OnWindowMinimize() { }
-		public virtual void OnWindowMaximize() { }
-
-		public virtual void OnAssetsLoadingStartSetup() { }
-		public virtual void OnAssetsLoadingUpdateSetup() { }
-		public virtual void OnAssetsLoadingEndSetup() { }
-		public virtual void OnAssetsLoadingStart() { }
-		public virtual void OnAssetsLoadingUpdate() { }
-		public virtual void OnAssetsLoadingEnd() { }
-
-		public virtual void OnKeyPressSetup(Keyboard.Key key) { }
-		public virtual void OnKeyHoldSetup(Keyboard.Key key) { }
-		public virtual void OnKeyReleaseSetup(Keyboard.Key key) { }
-		public virtual void OnTextInputSetup(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
-		public virtual void OnLanguageChangeSetup(string englishName, string nativeName, string languageCode) { }
-		public virtual void OnKeyPress(Keyboard.Key key) { }
-		public virtual void OnKeyHold(Keyboard.Key key) { }
-		public virtual void OnKeyRelease(Keyboard.Key key) { }
-		public virtual void OnTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
-		public virtual void OnLanguageChange(string englishName, string nativeName, string languageCode) { }
-
-		public virtual void OnMouseCursorPositionChangeSetup(Point delta) { }
 		public virtual void OnMouseCursorPositionChange(Point delta) { }
-		public virtual void OnMouseCursorEnterWindowSetup() { }
 		public virtual void OnMouseCursorEnterWindow() { }
-		public virtual void OnMouseCursorLeaveWindowSetup() { }
 		public virtual void OnMouseCursorLeaveWindow() { }
-		public virtual void OnMouseButtonDoubleClickSetup(Mouse.Button button) { }
 		public virtual void OnMouseButtonDoubleClick(Mouse.Button button) { }
-		public virtual void OnMouseButtonPressSetup(Mouse.Button button) { }
 		public virtual void OnMouseButtonPress(Mouse.Button button) { }
-		public virtual void OnMouseButtonReleaseSetup(Mouse.Button button) { }
 		public virtual void OnMouseButtonRelease(Mouse.Button button) { }
-		public virtual void OnMouseWheelScrollSetup(Mouse.Wheel wheel, double delta) { }
 		public virtual void OnMouseWheelScroll(Mouse.Wheel wheel, double delta) { }
 
 		public virtual void OnMultiplayerTakenClientUniqueIDSetup(string newClientUniqueID) { }

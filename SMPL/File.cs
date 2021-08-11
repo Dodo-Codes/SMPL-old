@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.IO;
-using static SMPL.Events;
 
 namespace SMPL
 {
@@ -29,6 +28,17 @@ namespace SMPL
 		public static double PercentLoaded { get; private set; }
 		public static string Directory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
+		private static event Events.ParamsZero OnAssetLoadStart;
+		private static event Events.ParamsZero OnAssetLoadUpdate;
+		private static event Events.ParamsZero OnAssetLoadEnd;
+
+		public static void CallOnAssetLoadStart(Action method, uint order = uint.MaxValue) =>
+			OnAssetLoadStart = Events.Add(OnAssetLoadStart, method, order);
+		public static void CallOnAssetLoadUpdate(Action method, uint order = uint.MaxValue) =>
+			OnAssetLoadUpdate = Events.Add(OnAssetLoadUpdate, method, order);
+		public static void CallOnAssetLoadEnd(Action method, uint order = uint.MaxValue) =>
+			OnAssetLoadEnd = Events.Add(OnAssetLoadEnd, method, order);
+
 		internal static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
 		internal static List<QueuedAsset> queuedAssets = new();
 		internal static Dictionary<string, Texture> textures = new();
@@ -39,33 +49,15 @@ namespace SMPL
 		internal static void Initialize() => CreateShaderFiles();
 		internal static void UpdateMainThreadAssets()
 		{
-			var instances = new SortedDictionary<int, List<Events>>(Events.instances); // thread safe iteration
-			if (assetLoadBegin)
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnAssetsLoadingStartSetup(); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnAssetsLoadingStart(); }
-			}
-			if (assetLoadUpdate)
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnAssetsLoadingUpdateSetup(); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnAssetsLoadingUpdate(); }
-			}
-			if (assetLoadEnd)
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnAssetsLoadingEndSetup(); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnAssetsLoadingEnd(); }
-			}
+			if (assetLoadBegin) OnAssetLoadStart?.Invoke();
+			if (assetLoadUpdate) OnAssetLoadUpdate?.Invoke();
+			if (assetLoadEnd) OnAssetLoadEnd?.Invoke();
 
 			assetLoadBegin = false;
 			assetLoadUpdate = false;
 			assetLoadEnd = false;
 		}
+
 		// thread for loading resources
 		internal static void LoadQueuedResources()
 		{
@@ -109,6 +101,7 @@ namespace SMPL
 				assetLoadEnd = true;
 			}
 		}
+
 		internal static string CreateDirectoryForFile(string filePath)
 		{
 			filePath = filePath.Replace('/', '\\');

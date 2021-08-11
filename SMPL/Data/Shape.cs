@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace SMPL
 {
-	public struct Shape
+	public struct Quad
 	{
 		public Point PointA { get; set; }
 		public Point PointB { get; set; }
 		public Point PointC { get; set; }
 		public Point PointD { get; set; }
 
-		public Shape(Point pointA, Point pointB, Point pointC, Point pointD)
+		public Quad(Point pointA, Point pointB, Point pointC, Point pointD)
 		{
 			PointA = pointA;
 			PointB = pointB;
 			PointC = pointC;
 			PointD = pointD;
 		}
-		public void Draw(Camera camera)
+		public void Display(Camera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
 

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using static SMPL.Events;
 
 namespace SMPL
 {
@@ -41,6 +40,25 @@ namespace SMPL
 		private static Type currentType;
 		private static bool resizable;
 		internal static Sprite world = new();
+
+		private static event Events.ParamsZero OnResize;
+		private static event Events.ParamsZero OnClose;
+		private static event Events.ParamsZero OnFocus;
+		private static event Events.ParamsZero OnUnfocus;
+		private static event Events.ParamsZero OnMaximize;
+		private static event Events.ParamsZero OnMinimize;
+		public static void CallOnResize(Action method, uint order = uint.MaxValue) =>
+			OnResize = Events.Add(OnResize, method, order);
+		public static void CallOnClose(Action method, uint order = uint.MaxValue) =>
+			OnClose = Events.Add(OnClose, method, order);
+		public static void CallOnFocus(Action method, uint order = uint.MaxValue) =>
+			OnFocus = Events.Add(OnFocus, method, order);
+		public static void CallOnUnocus(Action method, uint order = uint.MaxValue) =>
+			OnUnfocus = Events.Add(OnUnfocus, method, order);
+		public static void CallOnMaximize(Action method, uint order = uint.MaxValue) =>
+			OnMaximize = Events.Add(OnMaximize, method, order);
+		public static void CallOnMinimize(Action method, uint order = uint.MaxValue) =>
+			OnMinimize = Events.Add(OnMinimize, method, order);
 
 		public static State CurrentState
 		{
@@ -136,10 +154,7 @@ namespace SMPL
 
 		public static void Close()
       {
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnWindowCloseSetup(); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnWindowClose(); }
+			OnClose?.Invoke();
 			window.Close();
 		}
 		public static void RequestFocus() => window.RequestFocus();
@@ -209,6 +224,29 @@ namespace SMPL
 
 			CurrentType = Type.Normal;
 			IsResizable = true;
+
+			window.Closed += new EventHandler(OnWindowClose);
+			window.GainedFocus += new EventHandler(OnWindowFocus);
+			window.LostFocus += new EventHandler(OnWindowUnfocus);
+			form.SizeChanged += new EventHandler(OnWindowResize);
+		}
+
+		internal static void OnWindowClose(object sender, EventArgs e) => Close();
+		internal static void OnWindowFocus(object sender, EventArgs e) => OnFocus?.Invoke();
+		internal static void OnWindowUnfocus(object sender, EventArgs e)
+		{
+			Mouse.CancelInput();
+			Keyboard.CancelInput();
+			OnUnfocus?.Invoke();
+		}
+		internal static void OnWindowResize(object sender, EventArgs e)
+		{
+			switch (CurrentState)
+			{
+				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); OnResize?.Invoke(); break; }
+				case State.Minimized: OnMinimize?.Invoke(); break;
+				case State.Maximized: OnMaximize?.Invoke(); break;
+			}
 		}
 	}
 }

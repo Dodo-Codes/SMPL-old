@@ -4,8 +4,8 @@ namespace SMPL
 {
    public class Timer
    {
-      public static event Events.ParamsOne<Timer> OnTimerEnd;
-      public static void OnTimerEndCall(Action<Timer> method, uint order = uint.MaxValue) =>
+      private static event Events.ParamsOne<Timer> OnTimerEnd;
+      public static void CallOnTimerEnd(Action<Timer> method, uint order = uint.MaxValue) =>
          OnTimerEnd = Events.Add(OnTimerEnd, method, order);
 
       public int EndCount { get; set; }

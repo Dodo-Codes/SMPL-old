@@ -29,6 +29,10 @@ namespace SMPL
 			}
 		}
 
+		private static event Events.ParamsOne<Camera> OnDisplay;
+		public static void CallOnDisplay(Action<Camera> method, uint order = uint.MaxValue) =>
+			OnDisplay = Events.Add(OnDisplay, method, order);
+
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 
 		private double depth;
@@ -110,14 +114,14 @@ namespace SMPL
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
-			OnDraw(WorldCamera);
+			OnDisplay?.Invoke(WorldCamera);
 			foreach (var kvpp in sortedCameras)
 			{
 				for (int j = 0; j < kvpp.Value.Count; j++)
 				{
 					if (kvpp.Value[j] == WorldCamera) continue;
 					kvpp.Value[j].StartDraw();
-					OnDraw(kvpp.Value[j]);
+					OnDisplay?.Invoke(kvpp.Value[j]);
 				}
 			}
 			WorldCamera.EndDraw();

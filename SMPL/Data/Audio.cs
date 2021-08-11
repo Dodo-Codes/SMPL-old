@@ -13,13 +13,23 @@ namespace SMPL
       private bool stopped;
       private readonly static List<Audio> audios = new();
 
-      public static event Events.ParamsOne<Audio> OnAudioStart;
-      public static void OnAudioStartCall(Action<Audio> method, uint order = uint.MaxValue) =>
+      private static event Events.ParamsOne<Audio> OnAudioStart;
+      private static event Events.ParamsOne<Audio> OnAudioEnd;
+      private static event Events.ParamsOne<Audio> OnAudioPlay;
+      private static event Events.ParamsOne<Audio> OnAudioPause;
+      private static event Events.ParamsOne<Audio> OnAudioStop;
+
+      public static void CallOnAudioStart(Action<Audio> method, uint order = uint.MaxValue) =>
         OnAudioStart = Events.Add(OnAudioStart, method, order);
-      public static event Events.ParamsOne<Audio> OnAudioEnd;
-      public static event Events.ParamsOne<Audio> OnAudioPlay;
-      public static event Events.ParamsOne<Audio> OnAudioPause;
-      public static event Events.ParamsOne<Audio> OnAudioStop;
+      public static void CallOnAudioEnd(Action<Audio> method, uint order = uint.MaxValue) =>
+         OnAudioEnd = Events.Add(OnAudioEnd, method, order);
+      public static void CallOnAudioPlay(Action<Audio> method, uint order = uint.MaxValue) =>
+         OnAudioPlay = Events.Add(OnAudioPlay, method, order);
+      public static void CallOnAudioPause(Action<Audio> method, uint order = uint.MaxValue) =>
+         OnAudioPause = Events.Add(OnAudioPause, method, order);
+      public static void CallOnAudioStop(Action<Audio> method, uint order = uint.MaxValue) =>
+         OnAudioStop = Events.Add(OnAudioPause, method, order);
+
       public ComponentIdentity<Audio> IdentityComponent { get; set; }
 
       public static Point ListenerPosition

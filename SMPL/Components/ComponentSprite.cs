@@ -164,7 +164,7 @@ namespace SMPL
 			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreate(this); }
 		}
 
-		public override void Draw(Camera camera)
+		public void Display(Camera camera)
 		{
 			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
