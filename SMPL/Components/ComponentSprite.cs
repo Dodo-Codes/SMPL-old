@@ -7,6 +7,8 @@ namespace SMPL
 {
 	public class ComponentSprite : ComponentVisual
 	{
+		internal static List<ComponentSprite> sprites = new();
+
 		internal Image image;
 		internal Texture rawTexture;
 		internal Texture rawTextureShader;

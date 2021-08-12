@@ -127,7 +127,17 @@ namespace SMPL
 
 				Performance.frameCount++;
 				Always?.Invoke();
-				Events.Update();
+
+				Audio.Update();
+				Timer.Update();
+
+				for (int i = 0; i < Component2D.transforms.Count; i++) Component2D.transforms[i].Update();
+				for (int i = 0; i < ComponentHitbox.hitboxes.Count; i++) ComponentHitbox.hitboxes[i].Update();
+				for (int i = 0; i < ComponentSprite.sprites.Count; i++) ComponentSprite.sprites[i].Update();
+				for (int i = 0; i < ComponentText.texts.Count; i++) ComponentText.texts[i].Update();
+
+				Keyboard.Update();
+				Mouse.Update();
 
 				Window.Draw();
 				Performance.frameDeltaTime.Restart();

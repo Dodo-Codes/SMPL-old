@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using static SMPL.Events;
 
 namespace SMPL
 {
@@ -34,11 +34,19 @@ namespace SMPL
 			ObjTags[instance] = new();
 			AddTags(tags);
 
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnIdentityCreateSetup(this); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnIdentityCreate(this); }
+			OnCreate?.Invoke(this);
 		}
+
+		private static event Events.ParamsOne<ComponentIdentity<T>> OnCreate;
+		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnTagAdd;
+		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnTagRemove;
+
+		public static void CallOnCreate(Action<ComponentIdentity<T>> method, uint order = uint.MaxValue) =>
+			OnCreate = Events.Add(OnCreate, method, order);
+		public static void CallOnTagAdd(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			OnTagAdd = Events.Add(OnTagAdd, method, order);
+		public static void CallOnTagRemove(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			OnTagRemove = Events.Add(OnTagRemove, method, order);
 
 		public void AddTags(params string[] tags)
 		{
@@ -50,10 +58,7 @@ namespace SMPL
 				if (TagObjs.ContainsKey(tags[j]) == false) TagObjs[tags[j]] = new List<T>();
 				TagObjs[tags[j]].Add(Instance);
 
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnIdentityTagAddSetup(this, tags[j]); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnIdentityTagAdd(this, tags[j]); }
+				OnTagAdd?.Invoke(this, tags[j]);
 			}
 		}
 		public void RemoveTags(params string[] tags)
@@ -66,10 +71,7 @@ namespace SMPL
 				TagObjs[tags[j]].Remove(Instance);
 				if (TagObjs[tags[j]].Count == 0) TagObjs.Remove(tags[j]);
 
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnIdentityTagRemoveSetup(this, tags[j]); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].OnIdentityTagRemove(this, tags[j]); }
+				OnTagRemove?.Invoke(this, tags[j]);
 			}
 		}
 		public bool HasTags(params string[] tags)

@@ -1,11 +1,13 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System.Collections.Generic;
 using static SMPL.Events;
 
 namespace SMPL
 {
 	public class Component2D : ComponentAccess
 	{
+		internal static List<Component2D> transforms = new();
 		internal Sprite sprite = new();
 		internal SFML.Graphics.Text text = new();
 		internal ComponentFamily family;

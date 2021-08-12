@@ -78,10 +78,6 @@ namespace SMPL
 
 		internal static SortedDictionary<int, List<Events>> instances = new();
 		internal static Dictionary<Events, int> instancesOrder = new();
-		internal static List<Component2D> transforms = new();
-		internal static List<ComponentText> texts = new();
-		internal static List<ComponentSprite> sprites = new();
-		internal static List<ComponentHitbox> hitboxes = new();
 
 		private int order;
 		public int Order
@@ -104,31 +100,9 @@ namespace SMPL
          }
 		}
 
-		internal static void Update()
-		{
-			Audio.Update();
-			Timer.Update();
-
-			for (int i = 0; i < transforms.Count; i++) transforms[i].Update();
-			for (int i = 0; i < hitboxes.Count; i++) hitboxes[i].Update();
-			for (int i = 0; i < sprites.Count; i++) sprites[i].Update();
-			for (int i = 0; i < texts.Count; i++) texts[i].Update();
-
-			Keyboard.Update();
-			Mouse.Update();
-		}
-
 		internal static List<T> L<T>(List<T> list) => new List<T>(list);
 		internal static SortedDictionary<T, T1> D<T, T1>(SortedDictionary<T, T1> dict) => new SortedDictionary<T, T1>(dict);
 		//=================================================================
-
-		public virtual void OnMouseCursorPositionChange(Point delta) { }
-		public virtual void OnMouseCursorEnterWindow() { }
-		public virtual void OnMouseCursorLeaveWindow() { }
-		public virtual void OnMouseButtonDoubleClick(Mouse.Button button) { }
-		public virtual void OnMouseButtonPress(Mouse.Button button) { }
-		public virtual void OnMouseButtonRelease(Mouse.Button button) { }
-		public virtual void OnMouseWheelScroll(Mouse.Wheel wheel, double delta) { }
 
 		public virtual void OnMultiplayerTakenClientUniqueIDSetup(string newClientUniqueID) { }
 		public virtual void OnMultiplayerClientConnectSetup(string clientUniqueID) { }
@@ -138,13 +112,6 @@ namespace SMPL
 		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
 		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
-
-		public virtual void OnIdentityCreateSetup<T>(ComponentIdentity<T> instance) { }
-		public virtual void OnIdentityCreate<T>(ComponentIdentity<T> instance) { }
-		public virtual void OnIdentityTagAddSetup<T>(ComponentIdentity<T> instance, string tag) { }
-		public virtual void OnIdentityTagAdd<T>(ComponentIdentity<T> instance, string tag) { }
-		public virtual void OnIdentityTagRemoveSetup<T>(ComponentIdentity<T> instance, string tag) { }
-		public virtual void OnIdentityTagRemove<T>(ComponentIdentity<T> instance, string tag) { }
 
 		public virtual void OnTextCreateSetup(ComponentText instance) { }
 		public virtual void OnTextCreate(ComponentText instance) { }

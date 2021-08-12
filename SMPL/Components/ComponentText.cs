@@ -7,6 +7,8 @@ namespace SMPL
 {
 	public class ComponentText : ComponentVisual
 	{
+		internal static List<ComponentText> texts = new();
+
 		private Color bgColor, lastFrameBgCol;
 		public Color BackgroundColor
 		{

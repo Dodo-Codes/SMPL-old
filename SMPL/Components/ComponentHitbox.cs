@@ -5,6 +5,11 @@ namespace SMPL
 {
 	public class ComponentHitbox : ComponentAccess
 	{
+		private readonly uint creationFrame;
+		private readonly double rand;
+
+		internal static List<ComponentHitbox> hitboxes = new();
+
 		internal Dictionary<string, Line> localLines = new();
 		internal Dictionary<string, Line> lines = new();
 		internal List<ComponentHitbox> crosses = new();
@@ -39,15 +44,22 @@ namespace SMPL
 			}
 		}
 
-		public ComponentHitbox() => Events.hitboxes.Add(this);
+		public ComponentHitbox()
+		{
+			creationFrame = Performance.FrameCount;
+			rand = Number.Random(new Bounds(-9999, 9999), 5);
+			hitboxes.Add(this);
+		}
 		internal void Update()
 		{
 			crosses.Clear();
 			contains.Clear();
-			ignores.Clear();
-			foreach (var hitbox in Events.hitboxes)
+			for (int i = 0; i < hitboxes.Count; i++)
 			{
+				if (this == hitboxes[i]) continue;
 
+				if (Crosses_(hitboxes[i])) crosses.Add(hitboxes[i]);
+				if (Contains_(hitboxes[i])) contains.Add(hitboxes[i]);
 			}
 		}
 		public void Display(Camera camera)
@@ -96,9 +108,12 @@ namespace SMPL
 		{
 			return Contains(componentHitbox) || Crosses(componentHitbox) || componentHitbox.Contains(this);
 		}
-		public bool Contains(ComponentHitbox componentHitbox)
+
+		public bool Contains(ComponentHitbox componentHitbox) => contains.Contains(componentHitbox);
+		public bool Crosses(ComponentHitbox componentHitbox) => crosses.Contains(componentHitbox);
+		private bool Contains_(ComponentHitbox componentHitbox)
 		{
-			if (componentHitbox == null || componentHitbox.lines.Count < 3) return false;
+			if (componentHitbox == null || componentHitbox.lines.Count < 3 || ignores.Contains(componentHitbox)) return false;
 			var firstLine = new Line();
 			foreach (var kvp in componentHitbox.lines)
 			{
@@ -110,10 +125,10 @@ namespace SMPL
 			foreach (var kvp in lines) crossSum += ray.Crosses(kvp.Value) ? 1 : 0;
 			return crossSum == 1 && Crosses(componentHitbox) == false;
 		}
-		public bool Crosses(ComponentHitbox componentHitbox) => CrossPoints(componentHitbox).Length > 0;
+		private bool Crosses_(ComponentHitbox componentHitbox) => CrossPoints(componentHitbox).Length > 0;
 		public Point[] CrossPoints(ComponentHitbox componentHitbox)
 		{
-			if (componentHitbox == null) return System.Array.Empty<Point>();
+			if (componentHitbox == null || ignores.Contains(componentHitbox)) return System.Array.Empty<Point>();
 			var result = new List<Point>();
 			foreach (var kvp in lines)
 			{
