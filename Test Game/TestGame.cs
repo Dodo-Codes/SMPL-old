@@ -8,7 +8,7 @@ namespace TestGame
 
       public override void OnGameCreated()
       {
-         var p = new Player();
+         new Player();
       }
    }
 }

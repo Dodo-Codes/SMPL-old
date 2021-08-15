@@ -1,7 +1,5 @@
-﻿using SFML.Window;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace SMPL
 {
@@ -104,15 +102,6 @@ namespace SMPL
 		internal static SortedDictionary<T, T1> D<T, T1>(SortedDictionary<T, T1> dict) => new SortedDictionary<T, T1>(dict);
 		//=================================================================
 
-		public virtual void OnMultiplayerTakenClientUniqueIDSetup(string newClientUniqueID) { }
-		public virtual void OnMultiplayerClientConnectSetup(string clientUniqueID) { }
-		public virtual void OnMultiplayerClientDisconnectSetup(string clientUniqueID) { }
-		public virtual void OnMultiplayerMessageReceivedSetup(Multiplayer.Message message) { }
-		public virtual void OnMultiplayerTakenClientUniqueID(string newClientUniqueID) { }
-		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
-		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
-		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
-
 		public virtual void OnTextCreateSetup(ComponentText instance) { }
 		public virtual void OnTextCreate(ComponentText instance) { }
 		public virtual void OnTextMoveSetup(ComponentText instance, Point delta) { }
@@ -180,49 +169,25 @@ namespace SMPL
 		public virtual void OnTextSpacingResizeEndSetup(ComponentText instance) { }
 		public virtual void OnTextSpacingResizeEnd(ComponentText instance) { }
 
-		public virtual void On2DCreateSetup(Component2D instance) { }
-		public virtual void On2DCreate(Component2D instance) { }
-		public virtual void On2DMoveSetup(Component2D instance, Point delta) { }
-		public virtual void On2DMove(Component2D instance, Point delta) { }
-		public virtual void On2DMoveStartSetup(Component2D instance, Point delta) { }
 		public virtual void On2DMoveStart(Component2D instance, Point delta) { }
-		public virtual void On2DMoveEndSetup(Component2D instance) { }
 		public virtual void On2DMoveEnd(Component2D instance) { }
-		public virtual void On2DRotateSetup(Component2D instance, double delta) { }
 		public virtual void On2DRotate(Component2D instance, double delta) { }
-		public virtual void On2DRotateStartSetup(Component2D instance, double delta) { }
 		public virtual void On2DRotateStart(Component2D instance, double delta) { }
-		public virtual void On2DRotateEndSetup(Component2D instance) { }
 		public virtual void On2DRotateEnd(Component2D instance) { }
-		public virtual void On2DResizeSetup(Component2D instance, Size delta) { }
 		public virtual void On2DResize(Component2D instance, Size delta) { }
-		public virtual void On2DResizeStartSetup(Component2D instance, Size delta) { }
 		public virtual void On2DResizeStart(Component2D instance, Size delta) { }
-		public virtual void On2DResizeEndSetup(Component2D instance) { }
 		public virtual void On2DResizeEnd(Component2D instance) { }
-		public virtual void On2DLocalMoveSetup(Component2D instance, Point delta) { }
 		public virtual void On2DLocalMove(Component2D instance, Point delta) { }
-		public virtual void On2DLocalMoveStartSetup(Component2D instance, Point delta) { }
 		public virtual void On2DLocalMoveStart(Component2D instance, Point delta) { }
-		public virtual void On2DLocalMoveEndSetup(Component2D instance) { }
 		public virtual void On2DLocalMoveEnd(Component2D instance) { }
-		public virtual void On2DLocalRotateSetup(Component2D instance, double delta) { }
 		public virtual void On2DLocalRotate(Component2D instance, double delta) { }
-		public virtual void On2DLocalRotateStartSetup(Component2D instance, double delta) { }
 		public virtual void On2DLocalRotateStart(Component2D instance, double delta) { }
-		public virtual void On2DLocalRotateEndSetup(Component2D instance) { }
 		public virtual void On2DLocalRotateEnd(Component2D instance) { }
-		public virtual void On2DLocalResizeSetup(Component2D instance, Size delta) { }
 		public virtual void On2DLocalResize(Component2D instance, Size delta) { }
-		public virtual void On2DLocalResizeStartSetup(Component2D instance, Size delta) { }
 		public virtual void On2DLocalResizeStart(Component2D instance, Size delta) { }
-		public virtual void On2DLocalResizeEndSetup(Component2D instance) { }
 		public virtual void On2DLocalResizeEnd(Component2D instance) { }
-		public virtual void On2DOriginateSetup(Component2D instance, Point delta) { }
 		public virtual void On2DOriginate(Component2D instance, Point delta) { }
-		public virtual void On2DOriginateStartSetup(Component2D instance, Point delta) { }
 		public virtual void On2DOriginateStart(Component2D instance, Point delta) { }
-		public virtual void On2DOriginateEndSetup(Component2D instance) { }
 		public virtual void On2DOriginateEnd(Component2D instance) { }
 
 		public virtual void OnSpriteCreateSetup(ComponentSprite instance) { }

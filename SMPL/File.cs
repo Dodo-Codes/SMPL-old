@@ -21,10 +21,8 @@ namespace SMPL
 			}
 		}
 
-		public enum Asset
-		{
-			Texture, Font, Sound, Music
-		}
+		private enum Side { Top, Left, Right, Bottom }
+		public enum Asset { Texture, Font, Sound, Music }
 		public static double PercentLoaded { get; private set; }
 		public static string Directory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
@@ -172,6 +170,106 @@ namespace SMPL
 				Console.Log($"Could not load file '{full}'.");
 				return default;
 			}
+		}
+		public static void OutlinePictures(Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
+			bool fillDiagonals = false)
+		{
+			EditPictures(color, directoryPath, onlyOutline, fillDiagonals);
+		}
+		public static void FillPictures(Color color, string directoryPath = "folder/pictures")
+		{
+			EditPictures(color, directoryPath, false, false, true);
+		}
+		private static void EditPictures(Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
+			bool fillDiagonals = false, bool fill = false)
+		{
+			if (System.IO.Directory.Exists(directoryPath) == false)
+			{
+				Debug.LogError(1, $"Directory '{directoryPath}' not found.");
+				return;
+			}
+			var files = System.IO.Directory.GetFiles(directoryPath);
+			if (files.Length == 0) return;
+			Console.Log("Outlining pictures...");
+			var outlineOrFill = fill ? "filled" : "outlined";
+			var resultPath = $"{directoryPath}\\____{outlineOrFill} pictures";
+			var errors = new List<string>();
+			var col = Color.From(color);
+			System.IO.Directory.CreateDirectory(resultPath);
+			for (int i = 0; i < files.Length; i++)
+			{
+				try
+				{
+					var img = new Image(files[i]);
+					var transparent = new SFML.Graphics.Color(0, 0, 0, 0);
+					var offset = fill ? 0u : 2u;
+					var resultImg = new Image(img.Size.X + offset, img.Size.Y + offset, transparent);
+					for (uint y = 0; y < img.Size.Y; y++)
+					{
+						for (uint x = 0; x < img.Size.X; x++)
+						{
+							var curCol = img.GetPixel(x, y);
+							if (curCol.A == 0) continue;
+
+							if (fill == false)
+							{
+								var validX = x - 1 != uint.MaxValue && x + 1 != img.Size.X;
+								var validY = y - 1 != uint.MaxValue && y + 1 != img.Size.Y;
+								var valid = validX && validY;
+
+								if (fillDiagonals && valid && img.GetPixel(x - 1, y - 1).A == 0) resultImg.SetPixel(x, y, col);
+								if (fillDiagonals && valid && img.GetPixel(x + 1, y - 1).A == 0) resultImg.SetPixel(x + 2, y, col);
+								if (fillDiagonals && valid && img.GetPixel(x - 1, y + 1).A == 0) resultImg.SetPixel(x, y + 2, col);
+								if (fillDiagonals && valid && img.GetPixel(x + 1, y + 1).A == 0) resultImg.SetPixel(x + 2, y + 2, col);
+
+								if (validX && img.GetPixel(x - 1, y).A == 0) resultImg.SetPixel(x, y + 1, col);
+								if (validX && img.GetPixel(x + 1, y).A == 0) resultImg.SetPixel(x + 2, y + 1, col);
+								if (validY && img.GetPixel(x, y - 1).A == 0) resultImg.SetPixel(x + 1, y, col);
+								if (validY && img.GetPixel(x, y + 1).A == 0) resultImg.SetPixel(x + 1, y + 2, col);
+
+								if (curCol.A != 0)
+								{
+									if (x == 0)
+									{
+										resultImg.SetPixel(x, y + 1, col);
+										if (fillDiagonals) { resultImg.SetPixel(x, y, col); resultImg.SetPixel(x, y + 2, col); }
+									}
+									if (y == 0)
+									{
+										resultImg.SetPixel(x + 1, y, col);
+										if (fillDiagonals) { resultImg.SetPixel(x, y, col); resultImg.SetPixel(x + 2, y, col); }
+									}
+									if (x == img.Size.X - 1)
+									{
+										resultImg.SetPixel(x + 2, y + 1, col);
+										if (fillDiagonals) { resultImg.SetPixel(x + 2, y, col); resultImg.SetPixel(x + 2, y + 2, col); }
+									}
+									if (y == img.Size.Y - 1)
+									{
+										resultImg.SetPixel(x + 1, y + 2, col);
+										if (fillDiagonals) { resultImg.SetPixel(x, y + 2, col); resultImg.SetPixel(x + 2, y + 2, col); }
+									}
+								}
+							}
+							else curCol = Color.From(color);
+							resultImg.SetPixel(x + offset / 2, y + offset / 2, onlyOutline ? transparent : curCol);
+						}
+					}
+
+					var split = files[i].Split('\\');
+					var name = split[^1];
+					var result = resultImg.SaveToFile($"{resultPath}\\{name}");
+					img.Dispose();
+					resultImg.Dispose();
+				}
+				catch (Exception)
+				{
+					errors.Add($"Error with file '{files[i]}'. Skipping...");
+					continue;
+				}
+			}
+			for (int i = 0; i < errors.Count; i++) Console.Log(errors[i]);
+			Console.Log($"Outlining pictures - done. Result can be found in '{resultPath}'.");
 		}
 
 		internal static void CreateShaderFiles()

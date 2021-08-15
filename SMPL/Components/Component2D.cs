@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System;
 using System.Collections.Generic;
 using static SMPL.Events;
 
@@ -14,6 +15,19 @@ namespace SMPL
 
 		private readonly uint creationFrame;
 		private readonly double rand;
+
+		private static event Events.ParamsOne<Component2D> OnCreate;
+		private static event Events.ParamsTwo<Component2D, Point> OnPositionChange;
+		private static event Events.ParamsTwo<Component2D, Point> OnPositionChangeStart;
+		private static event Events.ParamsOne<Component2D> OnPositionChangeEnd;
+		public static void CallOnCreate(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnCreate = Events.Add(OnCreate, method, order);
+		public static void CallOnPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			OnPositionChange = Events.Add(OnPositionChange, method, order);
+		public static void CallOnPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
+		public static void CallOnPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
 
 		private ComponentHitbox componentHitbox;
 		public ComponentHitbox ComponentHitbox
@@ -36,13 +50,12 @@ namespace SMPL
 				localPosition = PositionToLocal(value);
 				if (position == value) return;
 
-				var delta = value - position;
+				var prev = position;
 				position = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFramePos = position; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DMoveSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DMove(this, delta); }
+				OnPositionChange?.Invoke(this, prev);
 			}
 		}
 		internal double angle, lastFrameAng;
@@ -60,8 +73,8 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotateSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotate(this, delta); }
+				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DRotateSetup(this, delta); }
+				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotate(this, delta); }
 			}
 		}
 		internal Size size = new(100, 100), lastFrameSz = new(100, 100);
@@ -78,10 +91,10 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DResizeSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DResize(this, delta); }
+				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DResizeSetup(this, delta); }
+				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DResize(this, delta); }
 			}
 		}
 		internal Point originPercent, lastFrameOrPer;
@@ -99,10 +112,10 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DOriginateSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DOriginate(this, delta); }
+				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DOriginateSetup(this, delta); }
+				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DOriginate(this, delta); }
 			}
 		}
 
@@ -120,8 +133,8 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMove(this, delta); }
+				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveSetup(this, delta); }
+				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMove(this, delta); }
 			}
 		}
 		private double localAngle, lastFrameLocalAng;
@@ -138,8 +151,8 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotate(this, delta); }
+				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateSetup(this, delta); }
+				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotate(this, delta); }
 			}
 		}
 		private Size localSize, lastFrameLocalSz;
@@ -156,8 +169,8 @@ namespace SMPL
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResize(this, delta); }
+				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeSetup(this, delta); }
+				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResize(this, delta); }
 			}
 		}
 
@@ -170,121 +183,106 @@ namespace SMPL
 			ComponentHitbox = new();
 			UpdateHitbox();
 
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].On2DCreateSetup(this); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].On2DCreate(this); }
+			OnCreate?.Invoke(this);
 		}
 		internal void Update()
       {
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-pos-start", lastFramePos != position))
-			{
-				var n = D(instances); foreach (var kvp in n)
-				{ var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DMoveStartSetup(this, position - lastFramePos); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DMoveStart(this, position - lastFramePos); }
-			}
+				OnPositionChangeStart?.Invoke(this, lastFramePos);
          if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-pos-end", lastFramePos == position))
-         {
-            if (creationFrame + 1 != Performance.frameCount)
-            {
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-							e[i].On2DMoveEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DMoveEnd(this); }
-				}
-         }
+				if (creationFrame + 1 != Performance.frameCount)
+					OnPositionChangeEnd?.Invoke(this);
 			//==============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-ang-start", lastFrameAng != angle))
 			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DRotateStartSetup(this, angle - lastFrameAng); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DRotateStart(this, angle - lastFrameAng); }
+				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DRotateStartSetup(this, angle - lastFrameAng); }
+				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DRotateStart(this, angle - lastFrameAng); }
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-ang-end", lastFrameAng == angle))
 			{
 				if (creationFrame + 1 != Performance.frameCount)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-							e[i].On2DRotateEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotateEnd(this); }
+					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					//		e[i].On2DRotateEndSetup(this); }
+					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DRotateEnd(this); }
 				}
 			}
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sz-start", lastFrameSz != size))
 			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DResizeStartSetup(this, size - lastFrameSz); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DResizeStart(this, size - lastFrameSz); }
+				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DResizeStartSetup(this, size - lastFrameSz); }
+				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DResizeStart(this, size - lastFrameSz); }
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sz-end", lastFrameSz == size))
 			{
 				if (creationFrame + 1 != Performance.frameCount)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-							e[i].On2DResizeEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DResizeEnd(this); }
+					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					//		e[i].On2DResizeEndSetup(this); }
+					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DResizeEnd(this); }
 				}
 			}
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-orper-start", lastFrameOrPer != originPercent))
 			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DOriginateStartSetup(this, originPercent - lastFrameOrPer); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-						e[i].On2DOriginateStart(this, originPercent - lastFrameOrPer); }
+				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DOriginateStartSetup(this, originPercent - lastFrameOrPer); }
+				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+				//		e[i].On2DOriginateStart(this, originPercent - lastFrameOrPer); }
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-orper-end", lastFrameOrPer == originPercent))
 			{
 				if (creationFrame + 1 != Performance.frameCount)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-							e[i].On2DOriginateEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DOriginateEnd(this); }
+					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					//		e[i].On2DOriginateEndSetup(this); }
+					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DOriginateEnd(this); }
 				}
 			}
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-start", lastFrameLocalPos != localPosition))
 			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveStartSetup(this, localPosition - lastFrameLocalPos); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveStart(this, localPosition - lastFrameLocalPos); }
+				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveStartSetup(this, localPosition - lastFrameLocalPos); }
+				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveStart(this, localPosition - lastFrameLocalPos); }
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-end", lastFrameLocalPos == localPosition))
 			{
 				if (creationFrame + 1 != Performance.frameCount)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalMoveEnd(this); }
+					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveEndSetup(this); }
+					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveEnd(this); }
 				}
 			}
 			//==============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-start", lastFrameLocalAng != localAngle))
 			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateStartSetup(this, localAngle - lastFrameLocalAng); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateStart(this, localAngle - lastFrameLocalAng); }
+				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateStartSetup(this, localAngle - lastFrameLocalAng); }
+				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateStart(this, localAngle - lastFrameLocalAng); }
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-end", lastFrameLocalAng == localAngle))
 			{
 				if (creationFrame + 1 != Performance.frameCount)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalRotateEnd(this); }
+					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateEndSetup(this); }
+					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateEnd(this); }
 				}
 			}
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-start", lastFrameLocalSz != localSize))
 			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeStartSetup(this, localSize - lastFrameLocalSz); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeStart(this, localSize - lastFrameLocalSz); }
+				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeStartSetup(this, localSize - lastFrameLocalSz); }
+				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeStart(this, localSize - lastFrameLocalSz); }
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-end", lastFrameLocalSz == localSize))
 			{
 				if (creationFrame + 1 != Performance.frameCount)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DLocalResizeEnd(this); }
+					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeEndSetup(this); }
+					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeEnd(this); }
 				}
 			}
 			//=============================
