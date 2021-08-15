@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.IO;
+using System.Linq;
 
 namespace SMPL
 {
@@ -24,7 +25,7 @@ namespace SMPL
 		private enum Side { Top, Left, Right, Bottom }
 		public enum Asset { Texture, Font, Sound, Music }
 		public static double PercentLoaded { get; private set; }
-		public static string Directory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
+		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
 		private static event Events.ParamsZero OnAssetLoadStart;
 		private static event Events.ParamsZero OnAssetLoadUpdate;
@@ -104,12 +105,12 @@ namespace SMPL
 		{
 			filePath = filePath.Replace('/', '\\');
 			var path = filePath.Split('\\');
-			var full = $"{Directory}{filePath}";
-			var curPath = Directory;
+			var full = $"{MainDirectory}{filePath}";
+			var curPath = MainDirectory;
 			for (int i = 0; i < path.Length - 1; i++)
 			{
 				var p = $"{curPath}\\{path[i]}";
-				if (System.IO.Directory.Exists(p) == false) System.IO.Directory.CreateDirectory(p);
+				if (Directory.Exists(p) == false) System.IO.Directory.CreateDirectory(p);
 
 				curPath = p;
 			}
@@ -154,9 +155,9 @@ namespace SMPL
 		public static string LoadText(string filePath = "folder/file.extension")
 		{
 			filePath = filePath.Replace('/', '\\');
-			var full = $"{Directory}\\{filePath}";
+			var full = $"{MainDirectory}\\{filePath}";
 
-			if (System.IO.Directory.Exists(full) == false)
+			if (Directory.Exists(full) == false)
 			{
 				Console.Log($"Could not load file '{full}'. Directory/file not found.");
 				return default;
@@ -183,24 +184,68 @@ namespace SMPL
 		private static void EditPictures(Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
 			bool fillDiagonals = false, bool fill = false)
 		{
-			if (System.IO.Directory.Exists(directoryPath) == false)
+			if (Directory.Exists(directoryPath) == false)
 			{
 				Debug.LogError(1, $"Directory '{directoryPath}' not found.");
 				return;
 			}
-			var files = System.IO.Directory.GetFiles(directoryPath);
-			if (files.Length == 0) return;
-			Console.Log("Outlining pictures...");
 			var outlineOrFill = fill ? "filled" : "outlined";
 			var resultPath = $"{directoryPath}\\____{outlineOrFill} pictures";
-			var errors = new List<string>();
 			var col = Color.From(color);
-			System.IO.Directory.CreateDirectory(resultPath);
-			for (int i = 0; i < files.Length; i++)
+			var done = 0;
+			var errors = 0;
+
+			Console.Log($"Outlining pictures...");
+			Directory.CreateDirectory(resultPath);
+			var directories = Directory.GetDirectories($"{directoryPath}");
+			for (int i = 0; i < directories.Length; i++)
+			{
+				EditFolder(directories[i]);
+			}
+			EditFolder($"{directoryPath}");
+			Console.Log($"Outlining pictures - done. Result can be found in '{resultPath}'.\n" +
+				$"Total {outlineOrFill}: {done}, Skipped: {errors}");
+
+			void EditFolder(string folder)
+			{
+				if (folder == $"{directoryPath}\\____filled pictures" ||
+					folder == $"{directoryPath}\\____outlined pictures") return;
+
+				//var result = "";
+				//var path = folder.Split('\\');
+				//var adding = false;
+				//for (int i = 0; i < path.Length; i++)
+				//{
+				//	if (adding)
+				//	{
+				//		result = result.Insert(result.Length, path[i]);
+				//		if (i != path.Length - 1)
+				//		{
+				//			result = result.Insert(result.Length, "\\");
+				//		}
+				//	}
+				//	if (path[i] == "Content")
+				//	{
+				//		adding = true;
+				//	}
+				//}
+				var files = Directory.GetFiles(folder);
+				for (int i = 0; i < files.Length; i++)
+				{
+					EditFile($"{files[i]}");
+				}
+				var currentDirectories = Directory.GetDirectories(folder).ToList();
+				while (currentDirectories.Count > 0)
+				{
+					EditFolder(currentDirectories[0]);
+					currentDirectories.RemoveAt(0);
+				}
+			}
+			void EditFile(string path)
 			{
 				try
 				{
-					var img = new Image(files[i]);
+					var img = new Image(path);
 					var transparent = new SFML.Graphics.Color(0, 0, 0, 0);
 					var offset = fill ? 0u : 2u;
 					var resultImg = new Image(img.Size.X + offset, img.Size.Y + offset, transparent);
@@ -251,25 +296,29 @@ namespace SMPL
 									}
 								}
 							}
-							else curCol = Color.From(color);
+							else curCol = col;
 							resultImg.SetPixel(x + offset / 2, y + offset / 2, onlyOutline ? transparent : curCol);
 						}
 					}
 
-					var split = files[i].Split('\\');
+					var split = path.Split('\\');
 					var name = split[^1];
-					var result = resultImg.SaveToFile($"{resultPath}\\{name}");
+					var newPath = "";
+					if (split.Length > 2)
+					{
+						for (int i = 1; i < split.Length - 1; i++)
+						{
+							newPath += $"{split[i]}\\";
+						}
+					}
+					Directory.CreateDirectory($"{resultPath}\\{newPath}");
+					var result = resultImg.SaveToFile($"{resultPath}\\{newPath}{split[^1]}");
 					img.Dispose();
 					resultImg.Dispose();
+					done++;
 				}
-				catch (Exception)
-				{
-					errors.Add($"Error with file '{files[i]}'. Skipping...");
-					continue;
-				}
+				catch (Exception) { errors++; }
 			}
-			for (int i = 0; i < errors.Count; i++) Console.Log(errors[i]);
-			Console.Log($"Outlining pictures - done. Result can be found in '{resultPath}'.");
 		}
 
 		internal static void CreateShaderFiles()

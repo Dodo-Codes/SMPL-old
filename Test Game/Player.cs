@@ -6,7 +6,7 @@ namespace TestGame
 	{
 		public Player()
 		{
-			File.OutlinePictures(Color.Red, "pictures");
+			File.OutlinePictures(Color.Red, "pictures", fillDiagonals: true);
 		}
 	}
 }
