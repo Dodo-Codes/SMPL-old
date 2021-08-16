@@ -41,12 +41,8 @@ namespace SMPL
 		private static bool resizable;
 		internal static Sprite world = new();
 
-		private static event Events.ParamsZero OnResize;
-		private static event Events.ParamsZero OnClose;
-		private static event Events.ParamsZero OnFocus;
-		private static event Events.ParamsZero OnUnfocus;
-		private static event Events.ParamsZero OnMaximize;
-		private static event Events.ParamsZero OnMinimize;
+		private static event Events.ParamsZero OnResize, OnClose, OnFocus, OnUnfocus, OnMaximize, OnMinimize;
+
 		public static void CallOnResize(Action method, uint order = uint.MaxValue) =>
 			OnResize = Events.Add(OnResize, method, order);
 		public static void CallOnClose(Action method, uint order = uint.MaxValue) =>

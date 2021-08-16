@@ -20,13 +20,9 @@ namespace SMPL
 		internal static List<Button> buttonsHeld = new();
 		public static bool ButtonIsPressed(Button button) => buttonsHeld.Contains(button);
 
-		private static event Events.ParamsZero OnCursorWindowEnter;
-		private static event Events.ParamsZero OnCursorWindowLeave;
+		private static event Events.ParamsZero OnCursorWindowEnter, OnCursorWindowLeave;
 		private static event Events.ParamsOne<Point> OnCursorPositionChange;
-		private static event Events.ParamsOne<Button> OnButtonDoubleClick;
-		private static event Events.ParamsOne<Button> OnButtonPress;
-		private static event Events.ParamsOne<Button> OnButtonHold;
-		private static event Events.ParamsOne<Button> OnButtonRelease;
+		private static event Events.ParamsOne<Button> OnButtonDoubleClick, OnButtonPress, OnButtonHold, OnButtonRelease;
 		private static event Events.ParamsTwo<Wheel, double> OnWheelScroll;
 
 		public static void CallOnCursorWindowEnter(Action method, uint order = uint.MaxValue) =>

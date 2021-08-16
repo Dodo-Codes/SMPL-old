@@ -27,9 +27,7 @@ namespace SMPL
 		public static double PercentLoaded { get; private set; }
 		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
-		private static event Events.ParamsZero OnAssetLoadStart;
-		private static event Events.ParamsZero OnAssetLoadUpdate;
-		private static event Events.ParamsZero OnAssetLoadEnd;
+		private static event Events.ParamsZero OnAssetLoadStart, OnAssetLoadUpdate, OnAssetLoadEnd;
 
 		public static void CallOnAssetLoadStart(Action method, uint order = uint.MaxValue) =>
 			OnAssetLoadStart = Events.Add(OnAssetLoadStart, method, order);
@@ -116,6 +114,7 @@ namespace SMPL
 			}
 			return full;
 		}
+		public static void CreateFolders(string path = "folder/folder/folder") => Directory.CreateDirectory(path);
 
 		public static bool AssetIsLoaded(string filePath = "folder/file.extension")
 		{

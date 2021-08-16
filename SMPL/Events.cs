@@ -77,27 +77,6 @@ namespace SMPL
 		internal static SortedDictionary<int, List<Events>> instances = new();
 		internal static Dictionary<Events, int> instancesOrder = new();
 
-		private int order;
-		public int Order
-		{
-			get { return order; }
-         set
-         {
-				if (instancesOrder.ContainsKey(this))
-            {
-					if (order == value) return;
-					instancesOrder.Remove(this);
-					instances[order].Remove(this);
-            }
-
-				order = value;
-
-				if (instances.ContainsKey(order) == false) instances[order] = new List<Events>();
-				instances[order].Add(this);
-				instancesOrder.Add(this, order);
-         }
-		}
-
 		internal static List<T> L<T>(List<T> list) => new List<T>(list);
 		internal static SortedDictionary<T, T1> D<T, T1>(SortedDictionary<T, T1> dict) => new SortedDictionary<T, T1>(dict);
 		//=================================================================
@@ -168,27 +147,6 @@ namespace SMPL
 		public virtual void OnTextOutlineResizeEnd(ComponentText instance) { }
 		public virtual void OnTextSpacingResizeEndSetup(ComponentText instance) { }
 		public virtual void OnTextSpacingResizeEnd(ComponentText instance) { }
-
-		public virtual void On2DMoveStart(Component2D instance, Point delta) { }
-		public virtual void On2DMoveEnd(Component2D instance) { }
-		public virtual void On2DRotate(Component2D instance, double delta) { }
-		public virtual void On2DRotateStart(Component2D instance, double delta) { }
-		public virtual void On2DRotateEnd(Component2D instance) { }
-		public virtual void On2DResize(Component2D instance, Size delta) { }
-		public virtual void On2DResizeStart(Component2D instance, Size delta) { }
-		public virtual void On2DResizeEnd(Component2D instance) { }
-		public virtual void On2DLocalMove(Component2D instance, Point delta) { }
-		public virtual void On2DLocalMoveStart(Component2D instance, Point delta) { }
-		public virtual void On2DLocalMoveEnd(Component2D instance) { }
-		public virtual void On2DLocalRotate(Component2D instance, double delta) { }
-		public virtual void On2DLocalRotateStart(Component2D instance, double delta) { }
-		public virtual void On2DLocalRotateEnd(Component2D instance) { }
-		public virtual void On2DLocalResize(Component2D instance, Size delta) { }
-		public virtual void On2DLocalResizeStart(Component2D instance, Size delta) { }
-		public virtual void On2DLocalResizeEnd(Component2D instance) { }
-		public virtual void On2DOriginate(Component2D instance, Point delta) { }
-		public virtual void On2DOriginateStart(Component2D instance, Point delta) { }
-		public virtual void On2DOriginateEnd(Component2D instance) { }
 
 		public virtual void OnSpriteCreateSetup(ComponentSprite instance) { }
 		public virtual void OnSpriteCreate(ComponentSprite instance) { }

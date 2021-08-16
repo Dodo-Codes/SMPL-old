@@ -58,9 +58,7 @@ namespace SMPL
 		internal static List<Key> keysHeld = new();
 		public static bool KeyIsPressed(Key key) => keysHeld.Contains(key);
 
-		private static event Events.ParamsOne<Key> OnKeyPress;
-		private static event Events.ParamsOne<Key> OnKeyHold;
-		private static event Events.ParamsOne<Key> OnKeyRelease;
+		private static event Events.ParamsOne<Key> OnKeyPress, OnKeyHold, OnKeyRelease;
 		private static event Events.ParamsFour<string, bool, bool, bool> OnTextInput;
 		private static event Events.ParamsThree<string, string, string> OnLanguageChange;
 

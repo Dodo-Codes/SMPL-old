@@ -51,13 +51,10 @@ namespace SMPL
 		internal static Server server;
 		internal static Client client;
 
-		private static event Events.ParamsZero OnServerStart;
-		private static event Events.ParamsZero OnServerStop;
-		private static event Events.ParamsOne<string> OnClientConnected;
-		private static event Events.ParamsOne<string> OnClientDisconnected;
-		private static event Events.ParamsOne<string> OnClientTakenUniqueID;
-		private static event Events.ParamsOne<Message> OnMessageReceived;
-		private static event Events.ParamsOne<Message> OnMessageSend;
+		private static event Events.ParamsZero OnServerStart, OnServerStop;
+		private static event Events.ParamsOne<string> OnClientConnected, OnClientDisconnected, OnClientTakenUniqueID;
+		private static event Events.ParamsOne<Message> OnMessageReceived, OnMessageSend;
+
 		public static void CallOnServerStart(Action method, uint order = uint.MaxValue) =>
 			OnServerStart = Events.Add(OnServerStart, method, order);
 		public static void CallOnServerStop(Action method, uint order = uint.MaxValue) =>

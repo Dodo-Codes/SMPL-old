@@ -2,7 +2,6 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
-using static SMPL.Events;
 
 namespace SMPL
 {
@@ -16,18 +15,62 @@ namespace SMPL
 		private readonly uint creationFrame;
 		private readonly double rand;
 
-		private static event Events.ParamsOne<Component2D> OnCreate;
-		private static event Events.ParamsTwo<Component2D, Point> OnPositionChange;
-		private static event Events.ParamsTwo<Component2D, Point> OnPositionChangeStart;
-		private static event Events.ParamsOne<Component2D> OnPositionChangeEnd;
+		private static event Events.ParamsOne<Component2D> OnCreate, OnPositionChangeEnd, OnSizeChangeEnd,
+			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnLocalAngleChangeEnd, OnLocalPositionChangeEnd, OnLocalSizeChangeEnd;
+		private static event Events.ParamsTwo<Component2D, Point> OnPositionChange, OnPositionChangeStart,
+			OnOriginPercentChange, OnOriginPercentChangeStart, OnLocalPositionChange, OnLocalPositionChangeStart;
+		private static event Events.ParamsTwo<Component2D, ComponentHitbox> OnHitboxChange;
+		private static event Events.ParamsTwo<Component2D, double> OnAngleChange, OnAngleChangeStart, OnLocalAngleChange,
+			OnLocalAngleChangeStart;
+		private static event Events.ParamsTwo<Component2D, Size> OnSizeChange, OnSizeChangeStart, OnLocalSizeChange,
+			OnLocalSizeChangeStart;
+
 		public static void CallOnCreate(Action<Component2D> method, uint order = uint.MaxValue) =>
 			OnCreate = Events.Add(OnCreate, method, order);
+		public static void CallOnHitboxChange(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+			OnHitboxChange = Events.Add(OnHitboxChange, method, order);
 		public static void CallOnPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
 			OnPositionChange = Events.Add(OnPositionChange, method, order);
 		public static void CallOnPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
 			OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
 		public static void CallOnPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
 			OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
+		public static void CallOnAngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			OnAngleChange = Events.Add(OnAngleChange, method, order);
+		public static void CallOnAngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			OnAngleChangeStart = Events.Add(OnAngleChangeStart, method, order);
+		public static void CallOnAngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnAngleChangeEnd = Events.Add(OnAngleChangeEnd, method, order);
+		public static void CallOnSizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			OnSizeChange = Events.Add(OnSizeChange, method, order);
+		public static void CallOnSizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			OnSizeChangeStart = Events.Add(OnSizeChangeStart, method, order);
+		public static void CallOnSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnSizeChangeEnd = Events.Add(OnSizeChangeEnd, method, order);
+		public static void CallOnOriginPercentChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			OnOriginPercentChange = Events.Add(OnOriginPercentChange, method, order);
+		public static void CallOnOriginPercentChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			OnOriginPercentChangeStart = Events.Add(OnOriginPercentChangeStart, method, order);
+		public static void CallOnOriginPercentChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnOriginPercentChangeEnd = Events.Add(OnOriginPercentChangeEnd, method, order);
+		public static void CallOnLocalPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			OnLocalPositionChange = Events.Add(OnLocalPositionChange, method, order);
+		public static void CallOnLocalPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			OnLocalPositionChangeStart = Events.Add(OnLocalPositionChangeStart, method, order);
+		public static void CallOnLocalPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnLocalPositionChangeEnd = Events.Add(OnLocalPositionChangeEnd, method, order);
+		public static void CallOnLocalAngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			OnLocalAngleChange = Events.Add(OnLocalAngleChange, method, order);
+		public static void CallOnLocalAngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			OnLocalAngleChangeStart = Events.Add(OnLocalAngleChangeStart, method, order);
+		public static void CallOnLocalAngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnLocalAngleChangeEnd = Events.Add(OnLocalAngleChangeEnd, method, order);
+		public static void CallOnLocalSizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			OnLocalSizeChange = Events.Add(OnLocalSizeChange, method, order);
+		public static void CallOnLocalSizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			OnLocalSizeChangeStart = Events.Add(OnLocalSizeChangeStart, method, order);
+		public static void CallOnLocalSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnLocalSizeChangeEnd = Events.Add(OnLocalSizeChangeEnd, method, order);
 
 		private ComponentHitbox componentHitbox;
 		public ComponentHitbox ComponentHitbox
@@ -36,7 +79,9 @@ namespace SMPL
 			set
 			{
 				if (componentHitbox == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = componentHitbox;
 				componentHitbox = value;
+				OnHitboxChange?.Invoke(this, prev);
 			}
 		}
 
@@ -68,13 +113,12 @@ namespace SMPL
 				localAngle = AngleToLocal(value);
 				if (angle == value) return;
 
-				var delta = value - angle;
+				var prev = angle;
 				angle = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
-				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DRotateSetup(this, delta); }
-				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].On2DRotate(this, delta); }
+				OnAngleChange?.Invoke(this, prev);
 			}
 		}
 		internal Size size = new(100, 100), lastFrameSz = new(100, 100);
@@ -86,15 +130,12 @@ namespace SMPL
 				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localSize = SizeToLocal(value);
 				if (size == value) return;
-				var delta = value - size;
+				var prev = size;
 				size = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
-				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DResizeSetup(this, delta); }
-				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DResize(this, delta); }
+				OnSizeChange?.Invoke(this, prev);
 			}
 		}
 		internal Point originPercent, lastFrameOrPer;
@@ -107,15 +148,12 @@ namespace SMPL
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
 				if (originPercent == value || Camera.WorldCamera.Component2D == this) return;
-				var delta = value - originPercent;
+				var prev = originPercent;
 				originPercent = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
-				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DOriginateSetup(this, delta); }
-				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DOriginate(this, delta); }
+				OnOriginPercentChange?.Invoke(this, prev);
 			}
 		}
 
@@ -128,13 +166,12 @@ namespace SMPL
 				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				position = PositionFromLocal(value);
 				if (localPosition == value) return;
-				var delta = value - localPosition;
+				var prev = localPosition;
 				localPosition = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
-				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveSetup(this, delta); }
-				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMove(this, delta); }
+				OnLocalPositionChange?.Invoke(this, prev);
 			}
 		}
 		private double localAngle, lastFrameLocalAng;
@@ -146,13 +183,12 @@ namespace SMPL
 				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				angle = AngleFromLocal(value);
 				if (localAngle == value) return;
-				var delta = value - localAngle;
+				var prev = localAngle;
 				localAngle = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
-				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateSetup(this, delta); }
-				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotate(this, delta); }
+				OnLocalAngleChange?.Invoke(this, prev);
 			}
 		}
 		private Size localSize, lastFrameLocalSz;
@@ -164,13 +200,12 @@ namespace SMPL
 				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				size = SizeFromLocal(value);
 				if (localSize == value) return;
-				var delta = value - localSize;
+				var prev = localSize;
 				localSize = value;
 				UpdateHitbox();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
-				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeSetup(this, delta); }
-				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResize(this, delta); }
+				OnLocalSizeChange?.Invoke(this, prev);
 			}
 		}
 
@@ -187,104 +222,42 @@ namespace SMPL
 		}
 		internal void Update()
       {
+			var c = creationFrame + 1 != Performance.frameCount;
+
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-pos-start", lastFramePos != position))
 				OnPositionChangeStart?.Invoke(this, lastFramePos);
-         if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-pos-end", lastFramePos == position))
-				if (creationFrame + 1 != Performance.frameCount)
-					OnPositionChangeEnd?.Invoke(this);
+         if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-pos-end", lastFramePos == position) && c)
+				OnPositionChangeEnd?.Invoke(this);
 			//==============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-ang-start", lastFrameAng != angle))
-			{
-				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DRotateStartSetup(this, angle - lastFrameAng); }
-				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DRotateStart(this, angle - lastFrameAng); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-ang-end", lastFrameAng == angle))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					//		e[i].On2DRotateEndSetup(this); }
-					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DRotateEnd(this); }
-				}
-			}
+				OnAngleChangeStart?.Invoke(this, lastFrameAng);
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-ang-end", lastFrameAng == angle) && c)
+				OnAngleChangeEnd?.Invoke(this);
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sz-start", lastFrameSz != size))
-			{
-				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DResizeStartSetup(this, size - lastFrameSz); }
-				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DResizeStart(this, size - lastFrameSz); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sz-end", lastFrameSz == size))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					//		e[i].On2DResizeEndSetup(this); }
-					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DResizeEnd(this); }
-				}
-			}
+				OnSizeChangeStart?.Invoke(this, lastFrameSz);
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sz-end", lastFrameSz == size) && c)
+				OnSizeChangeEnd?.Invoke(this);
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-orper-start", lastFrameOrPer != originPercent))
-			{
-				//var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DOriginateStartSetup(this, originPercent - lastFrameOrPer); }
-				//var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-				//		e[i].On2DOriginateStart(this, originPercent - lastFrameOrPer); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-orper-end", lastFrameOrPer == originPercent))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					//		e[i].On2DOriginateEndSetup(this); }
-					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DOriginateEnd(this); }
-				}
-			}
+				OnOriginPercentChangeStart?.Invoke(this, lastFrameOrPer);
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-orper-end", lastFrameOrPer == originPercent) && c)
+				OnOriginPercentChangeEnd?.Invoke(this);
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-start", lastFrameLocalPos != localPosition))
-			{
-				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveStartSetup(this, localPosition - lastFrameLocalPos); }
-				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveStart(this, localPosition - lastFrameLocalPos); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-end", lastFrameLocalPos == localPosition))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveEndSetup(this); }
-					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalMoveEnd(this); }
-				}
-			}
+				OnLocalPositionChangeStart?.Invoke(this, lastFrameLocalPos);
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-pos-end", lastFrameLocalPos == localPosition) && c)
+				OnLocalPositionChangeEnd?.Invoke(this);
 			//==============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-start", lastFrameLocalAng != localAngle))
-			{
-				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateStartSetup(this, localAngle - lastFrameLocalAng); }
-				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateStart(this, localAngle - lastFrameLocalAng); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-end", lastFrameLocalAng == localAngle))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateEndSetup(this); }
-					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalRotateEnd(this); }
-				}
-			}
+				OnLocalAngleChangeStart?.Invoke(this, lastFrameLocalAng);
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-ang-end", lastFrameLocalAng == localAngle) && c)
+				OnLocalAngleChangeEnd?.Invoke(this);
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-start", lastFrameLocalSz != localSize))
-			{
-				//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeStartSetup(this, localSize - lastFrameLocalSz); }
-				//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeStart(this, localSize - lastFrameLocalSz); }
-			}
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-end", lastFrameLocalSz == localSize))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					//ar n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeEndSetup(this); }
-					//ar n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e//[i].On2DLocalResizeEnd(this); }
-				}
-			}
+				OnLocalSizeChangeStart?.Invoke(this, lastFrameLocalSz);
+			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-loc-sz-end", lastFrameLocalSz == localSize) && c)
+				OnLocalSizeChangeEnd?.Invoke(this);
 			//=============================
 			lastFramePos = position;
 			lastFrameAng = angle;
