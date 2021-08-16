@@ -8,16 +8,6 @@ namespace SMPL
 	public class Camera : ComponentAccess
 	{
 		public static Camera WorldCamera { get; internal set; }
-		private ComponentIdentity<Camera> componentIdentity;
-		public ComponentIdentity<Camera> ComponentIdentity
-		{
-			get { return componentIdentity; }
-			set
-			{
-				if (componentIdentity == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				componentIdentity = value;
-			}
-		}
 		private Component2D component2D;
 		public Component2D Component2D
 		{

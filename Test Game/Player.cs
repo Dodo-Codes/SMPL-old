@@ -2,33 +2,13 @@
 
 namespace TestGame
 {
-	public class Player
+	public class Player : ComponentAccess
 	{
-		Component2D component2D = new();
+		ComponentIdentity<Camera> id = new ComponentIdentity<Camera>(Camera.WorldCamera, "world");
 
 		public Player()
 		{
-			Component2D.CallOnAngleChange(Change);
-			Component2D.CallOnAngleChangeStart(Start);
-			Component2D.CallOnAngleChangeEnd(End);
-			Keyboard.CallOnKeyHold(KeyPressed);
-		}
 
-		void KeyPressed(Keyboard.Key key)
-		{
-			component2D.Angle++;
-		}
-		void Start(Component2D component2D, double prevAngle)
-		{
-			Console.Log("start");
-		}
-		void Change(Component2D component2D, double prevAngle)
-		{
-			Console.Log("change");
-		}
-		void End(Component2D component2D)
-		{
-			Console.Log("end");
 		}
 	}
 }

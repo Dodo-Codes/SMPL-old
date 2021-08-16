@@ -5,20 +5,23 @@ namespace SMPL
 	public class ComponentAccess
 	{
 		internal List<string> accessPaths = new();
+		public enum Access { Varying, Allowed, Denied }
 
-		private bool disabled;
-		public bool Disabled
+		private Access access;
+		public Access AllAccess
 		{
-			get { return disabled; }
+			get { return access; }
 			set
 			{
-				if (disabled == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				disabled = value;
+				if (access == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				access = value;
 			}
 		}
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{
-			if (Disabled) return true;
+			if (AllAccess == Access.Allowed) return true;
+			else if (AllAccess == Access.Denied) return false;
+
 			var filePath = Debug.CurrentFilePath(2);
 			if (accessPaths.Contains(filePath)) return true;
 			if (displayError == false) return false;
@@ -58,7 +61,12 @@ namespace SMPL
 			}
 			accessPaths.Add(fullFilePath);
 		}
-		public bool FileHasAccess(string fullFilePath) => accessPaths.Contains(fullFilePath);
+		public bool FileHasAccess(string fullFilePath)
+		{
+			if (AllAccess == Access.Allowed) return true;
+			else if (AllAccess == Access.Denied) return false;
+			return accessPaths.Contains(fullFilePath);
+		}
 
 		public ComponentAccess() => accessPaths.Add(Debug.CurrentFilePath(2));
 	}

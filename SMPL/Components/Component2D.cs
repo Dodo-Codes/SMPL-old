@@ -11,6 +11,7 @@ namespace SMPL
 		internal Sprite sprite = new();
 		internal SFML.Graphics.Text text = new();
 		internal ComponentFamily family;
+		private readonly List<ComponentHitbox> hitboxes = new();
 
 		private readonly uint creationFrame;
 		private readonly double rand;
@@ -19,7 +20,6 @@ namespace SMPL
 			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnLocalAngleChangeEnd, OnLocalPositionChangeEnd, OnLocalSizeChangeEnd;
 		private static event Events.ParamsTwo<Component2D, Point> OnPositionChange, OnPositionChangeStart,
 			OnOriginPercentChange, OnOriginPercentChangeStart, OnLocalPositionChange, OnLocalPositionChangeStart;
-		private static event Events.ParamsTwo<Component2D, ComponentHitbox> OnHitboxChange;
 		private static event Events.ParamsTwo<Component2D, double> OnAngleChange, OnAngleChangeStart, OnLocalAngleChange,
 			OnLocalAngleChangeStart;
 		private static event Events.ParamsTwo<Component2D, Size> OnSizeChange, OnSizeChangeStart, OnLocalSizeChange,
@@ -27,8 +27,6 @@ namespace SMPL
 
 		public static void CallOnCreate(Action<Component2D> method, uint order = uint.MaxValue) =>
 			OnCreate = Events.Add(OnCreate, method, order);
-		public static void CallOnHitboxChange(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnHitboxChange = Events.Add(OnHitboxChange, method, order);
 		public static void CallOnPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
 			OnPositionChange = Events.Add(OnPositionChange, method, order);
 		public static void CallOnPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
@@ -72,17 +70,39 @@ namespace SMPL
 		public static void CallOnLocalSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
 			OnLocalSizeChangeEnd = Events.Add(OnLocalSizeChangeEnd, method, order);
 
-		private ComponentHitbox componentHitbox;
-		public ComponentHitbox ComponentHitbox
+		public void AddHitboxes(params ComponentHitbox[] instances)
 		{
-			get { return componentHitbox; }
-			set
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'."); return; }
+			for (int i = 0; i < instances.Length; i++)
 			{
-				if (componentHitbox == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				var prev = componentHitbox;
-				componentHitbox = value;
-				OnHitboxChange?.Invoke(this, prev);
+				if (hitboxes.Contains(instances[i])) continue;
+				hitboxes.Add(instances[i]);
 			}
+		}
+		public void RemoveHitboxes(params ComponentHitbox[] instances)
+		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'."); return; }
+			for (int i = 0; i < instances.Length; i++)
+			{
+				if (hitboxes.Contains(instances[i]) == false) continue;
+				hitboxes.Remove(instances[i]);
+			}
+		}
+		public void RemoveAllHitboxes()
+		{
+			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			hitboxes.Clear();
+		}
+		public bool HasHitboxes(params ComponentHitbox[] instances)
+		{
+			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
+				return false; }
+			for (int i = 0; i < hitboxes.Count; i++)
+				if (hitboxes.Contains(instances[i]) == false)
+					return false;
+			return true;
 		}
 
 		internal Point position, lastFramePos;
@@ -97,7 +117,7 @@ namespace SMPL
 
 				var prev = position;
 				position = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFramePos = position; return; }
 				OnPositionChange?.Invoke(this, prev);
@@ -115,7 +135,7 @@ namespace SMPL
 
 				var prev = angle;
 				angle = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
 				OnAngleChange?.Invoke(this, prev);
@@ -132,7 +152,7 @@ namespace SMPL
 				if (size == value) return;
 				var prev = size;
 				size = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
 				OnSizeChange?.Invoke(this, prev);
@@ -150,7 +170,7 @@ namespace SMPL
 				if (originPercent == value || Camera.WorldCamera.Component2D == this) return;
 				var prev = originPercent;
 				originPercent = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
 				OnOriginPercentChange?.Invoke(this, prev);
@@ -168,7 +188,7 @@ namespace SMPL
 				if (localPosition == value) return;
 				var prev = localPosition;
 				localPosition = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
 				OnLocalPositionChange?.Invoke(this, prev);
@@ -185,7 +205,7 @@ namespace SMPL
 				if (localAngle == value) return;
 				var prev = localAngle;
 				localAngle = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
 				OnLocalAngleChange?.Invoke(this, prev);
@@ -202,7 +222,7 @@ namespace SMPL
 				if (localSize == value) return;
 				var prev = localSize;
 				localSize = value;
-				UpdateHitbox();
+				UpdateHitboxes();
 
 				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
 				OnLocalSizeChange?.Invoke(this, prev);
@@ -215,8 +235,7 @@ namespace SMPL
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 
-			ComponentHitbox = new();
-			UpdateHitbox();
+			UpdateHitboxes();
 
 			OnCreate?.Invoke(this);
 		}
@@ -267,16 +286,20 @@ namespace SMPL
 			lastFrameLocalPos = localPosition;
 			lastFrameLocalSz = localSize;
 		}
-		internal void UpdateHitbox()
+		internal void UpdateHitboxes()
 		{
 			sprite.Position = Point.From(Position);
 			sprite.Rotation = (float)Angle;
-			foreach (var kvp in ComponentHitbox.lines)
+			for (int i = 0; i < hitboxes.Count; i++)
 			{
-				var localLine = ComponentHitbox.localLines[kvp.Key];
-				var sp = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.StartPosition)));
-				var ep = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.EndPosition)));
-				ComponentHitbox.SetLine(kvp.Key, new Line(sp, ep));
+				var lines = hitboxes[i].lines;
+				foreach (var kvp in lines)
+				{
+					var localLine = hitboxes[i].localLines[kvp.Key];
+					var sp = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.StartPosition)));
+					var ep = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.EndPosition)));
+					hitboxes[i].SetLine(kvp.Key, new Line(sp, ep));
+				}
 			}
 		}
 
