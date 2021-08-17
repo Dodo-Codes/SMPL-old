@@ -189,12 +189,13 @@ namespace SMPL
 				return;
 			}
 			var outlineOrFill = fill ? "filled" : "outlined";
+			var outliningOrFilling = fill ? "Filling" : "Outlining";
 			var resultPath = $"{directoryPath}\\____{outlineOrFill} pictures";
 			var col = Color.From(color);
 			var done = 0;
 			var errors = 0;
 
-			Console.Log($"Outlining pictures...");
+			Console.Log($"{outliningOrFilling} pictures...");
 			Directory.CreateDirectory(resultPath);
 			var directories = Directory.GetDirectories($"{directoryPath}");
 			for (int i = 0; i < directories.Length; i++)
@@ -202,7 +203,7 @@ namespace SMPL
 				EditFolder(directories[i]);
 			}
 			EditFolder($"{directoryPath}");
-			Console.Log($"Outlining pictures - done. Result can be found in '{resultPath}'.\n" +
+			Console.Log($"{outliningOrFilling} pictures - done. Result can be found in '{resultPath}'.\n" +
 				$"Total {outlineOrFill}: {done}, Skipped: {errors}");
 
 			void EditFolder(string folder)

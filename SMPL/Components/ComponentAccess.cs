@@ -13,7 +13,7 @@ namespace SMPL
 			get { return access; }
 			set
 			{
-				if (access == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (access == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				access = value;
 			}
 		}
@@ -38,7 +38,7 @@ namespace SMPL
 		}
 		public void GrantAccessToFile(string fullFilePath)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (fullFilePath == null)
 			{
 				Debug.LogError(1, "The file path cannot be 'null'.");
@@ -53,13 +53,13 @@ namespace SMPL
 		}
 		public void DenyAccessToFile(string fullFilePath)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (accessPaths.Contains(fullFilePath) == false)
 			{
 				Debug.LogError(1, $"The file '{fullFilePath}' access is already denied.");
 				return;
 			}
-			accessPaths.Add(fullFilePath);
+			accessPaths.Remove(fullFilePath);
 		}
 		public bool FileHasAccess(string fullFilePath)
 		{

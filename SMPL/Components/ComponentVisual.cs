@@ -16,7 +16,7 @@ namespace SMPL
 			get { return effects; }
 			set
 			{
-				if (effects == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (effects == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				effects = value;
 			}
 		}
@@ -26,7 +26,7 @@ namespace SMPL
 			get { return family; }
 			set
 			{
-				if (family == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (family == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				family = value;
 			}
 		}
@@ -37,7 +37,7 @@ namespace SMPL
 			get { return isHidden; }
 			set
 			{
-				if (isHidden == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (isHidden == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				isHidden = value;
 				if (this is ComponentText)
 				{
@@ -54,7 +54,7 @@ namespace SMPL
 			}
 		}
 
-		public ComponentVisual(Component2D component2D)
+		public ComponentVisual(Component2D component2D) : base()
 		{
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);

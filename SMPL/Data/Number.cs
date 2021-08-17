@@ -30,10 +30,94 @@ namespace SMPL
 			GB_KB, GB_MB, GB_TB,
 			TB_MB, TB_GB
 		}
+		public enum AnimationType
+		{
+			BendWeak, // Sine
+			Bend, // Cubic
+			BendStrong, // Quint
+			Circle, // Circ
+			Elastic, // Elastic
+			Swing, // Back
+			Bounce // Bounce
+		}
+		public enum AnimationCurve { In, Out, InOut }
 
 		public static double Cos(double number) => Math.Cos(number);
 		public static double Sin(double number) => Math.Sin(number);
 		public static double Tan(double number) => Math.Tan(number);
+		public static double Power(double number, double power) => Math.Pow(number, power);
+		public static double SquareRoot(double number) => Math.Sqrt(number);
+
+		public static double Animate(double progressPercent, AnimationType animationType, AnimationCurve animationCurve)
+		{
+			var result = 0d;
+			progressPercent /= 100;
+			var x = progressPercent;
+			switch (animationType)
+			{
+				case AnimationType.BendWeak:
+					{
+						result = animationCurve == AnimationCurve.In ? 1 - Cos(x * PI / 2) :
+							animationCurve == AnimationCurve.Out ? 1 - Sin(x * PI / 2) :
+							-(Cos(PI * x) - 1) / 2;
+						break;
+					}
+				case AnimationType.Bend:
+					{
+						result = animationCurve == AnimationCurve.In ? x * x * x :
+							animationCurve == AnimationCurve.Out ? 1 - Power(1 - x, 3) :
+							(x < 0.5 ? 4 * x * x * x : 1 - Power(-2 * x + 2, 3) / 2);
+						break;
+					}
+				case AnimationType.BendStrong:
+					{
+						result = animationCurve == AnimationCurve.In ? x * x * x * x :
+							animationCurve == AnimationCurve.Out ? 1 - Power(1 - x, 5) :
+							(x < 0.5 ? 16 * x * x * x * x * x : 1 - Power(-2 * x + 2, 5) / 2);
+						break;
+					}
+				case AnimationType.Circle:
+					{
+						result = animationCurve == AnimationCurve.In ? 1 - SquareRoot(1 - Power(x, 2)) :
+							animationCurve == AnimationCurve.Out ? SquareRoot(1 - Power(x - 1, 2)) :
+							(x < 0.5 ? (1 - SquareRoot(1 - Power(2 * x, 2))) / 2 : (SquareRoot(1 - Power(-2 * x + 2, 2)) + 1) / 2);
+						break;
+					}
+				case AnimationType.Elastic:
+					{
+						result = animationCurve == AnimationCurve.In ?
+							(x == 0 ? 0 : x == 1 ? 1 : -Power(2, 10 * x - 10) * Sin((x * 10 - 10.75) * ((2 * PI) / 3))) :
+							animationCurve == AnimationCurve.Out ?
+							(x == 0 ? 0 : x == 1 ? 1 : Power(2, -10 * x) * Sin((x * 10 - 0.75) * (2 * PI) / 3) + 1) :
+							(x == 0 ? 0 : x == 1 ? 1 : x < 0.5 ? -(Power(2, 20 * x - 10) * Sin((20 * x - 11.125) * (2 * PI) / 4.5)) / 2 :
+							(Power(2, -20 * x + 10) * Sin((20 * x - 11.125) * (2 * PI) / 4.5)) / 2 + 1);
+						break;
+					}
+				case AnimationType.Swing:
+					{
+						result = animationCurve == AnimationCurve.In ? 2.70158 * x * x * x - 1.70158 * x * x :
+							animationCurve == AnimationCurve.Out ? 1 + 2.70158 * Power(x - 1, 3) + 1.70158 * Power(x - 1, 2) :
+							(x < 0.5 ? (Power(2 * x, 2) * ((2.59491 + 1) * 2 * x - 2.59491)) / 2 :
+							(Power(2 * x - 2, 2) * ((2.59491 + 1) * (x * 2 - 2) + 2.59491) + 2) / 2);
+						break;
+					}
+				case AnimationType.Bounce:
+					{
+						result = animationCurve == AnimationCurve.In ? 1 - easeOutBounce(1 - x) :
+							animationCurve == AnimationCurve.Out ? easeOutBounce(x) :
+							(x < 0.5 ? (1 - easeOutBounce(1 - 2 * x)) / 2 : (1 + easeOutBounce(2 * x - 1)) / 2);
+						break;
+					}
+			}
+			return result * 100;
+
+			double easeOutBounce(double x)
+			{
+				return x < 1 / 2.75 ? 7.5625 * x * x : x < 2 / 2.75 ? 7.5625 * (x -= 1.5 / 2.75) * x + 0.75 :
+					x < 2.5 / 2.75 ? 7.5625 * (x -= 2.25 / 2.75) * x + 0.9375 : 7.5625 * (x -= 2.625 / 2.75) * x + 0.984375;
+			}
+		}
+
 		public static double Limit(double number, Bounds bounds, Limitation limitType = Limitation.ClosestBound)
 		{
 			if (limitType == Limitation.ClosestBound)

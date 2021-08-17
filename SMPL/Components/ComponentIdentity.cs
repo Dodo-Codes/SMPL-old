@@ -14,7 +14,7 @@ namespace SMPL
 		public string UniqueID { get; private set; }
 		public string[] Tags { get { return objTags[Instance].ToArray(); } }
 
-		public ComponentIdentity(T instance, string uniqueID, params string[] tags)
+		public ComponentIdentity(T instance, string uniqueID, params string[] tags) : base()
 		{
 			if (uniqueIDs.ContainsKey(uniqueID))
 			{
@@ -50,7 +50,7 @@ namespace SMPL
 
 		public void AddTags(params string[] tags)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (objTags[Instance].Contains(tags[j])) continue;
@@ -63,7 +63,7 @@ namespace SMPL
 		}
 		public void RemoveTags(params string[] tags)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (objTags[Instance].Contains(tags[j]) == false) continue;
@@ -76,7 +76,7 @@ namespace SMPL
 		}
 		public void RemoveAllTags()
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			tagObjs.Clear();
 			objTags.Clear();
 		}

@@ -15,7 +15,7 @@ namespace SMPL
 			get { return bgColor; }
 			set
 			{
-				if (bgColor == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (bgColor == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = bgColor;
 				bgColor = value;
 
@@ -29,7 +29,7 @@ namespace SMPL
 			get { return position; }
 			set
 			{
-				if (position == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (position == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 
 				var delta = value - position;
 				position = value;
@@ -48,7 +48,7 @@ namespace SMPL
 			get { return transform.text.Rotation; }
 			set
 			{
-				if (transform.text.Rotation == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
+				if (transform.text.Rotation == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
 					return;
 
 				var delta = value - transform.text.Rotation;
@@ -67,7 +67,7 @@ namespace SMPL
 			set
 			{
 				var v = Size.From(value);
-				if (transform.text.Scale == v || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (transform.text.Scale == v || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 
 				var delta = value - Size.To(transform.text.Scale);
 				transform.text.Scale = v;
@@ -94,7 +94,7 @@ namespace SMPL
 			get { return originPercent; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
 				if (originPercent == value) return;
@@ -113,7 +113,7 @@ namespace SMPL
 			get { return transform.text.CharacterSize; }
 			set
 			{
-				if (transform.text.CharacterSize == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
+				if (transform.text.CharacterSize == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
 					return;
 				var delta = value - transform.text.CharacterSize;
 				transform.text.CharacterSize = value;
@@ -132,7 +132,7 @@ namespace SMPL
 			set
 			{
 				if (transform.text.DisplayedString == value ||
-					(Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var oldStr = transform.text.DisplayedString;
 				transform.text.DisplayedString = value;
 				UpdateOrigin();
@@ -149,7 +149,7 @@ namespace SMPL
 			get { return spacing; }
 			set
 			{
-				if (spacing == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (spacing == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - spacing;
 				spacing = value;
 				transform.text.LetterSpacing = (float)value.W / 4;
@@ -289,6 +289,11 @@ namespace SMPL
 		public ComponentText(Component2D component2D, string fontPath = "folder/font.ttf")
 			: base(component2D)
 		{
+			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
+			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
+			// and usually it goes as [2]User -> [1]Component -> [0]Access
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 			if (File.fonts.ContainsKey(fontPath) == false)
 			{
 				Debug.LogError(1, $"The font at '{fontPath}' is not loaded.\n" +
@@ -317,7 +322,7 @@ namespace SMPL
 		}
 		public void Display(Camera camera)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.text == null ||
 				transform.text.Font == null) return;
 

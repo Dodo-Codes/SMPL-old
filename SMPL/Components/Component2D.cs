@@ -72,7 +72,7 @@ namespace SMPL
 
 		public void AddHitboxes(params ComponentHitbox[] instances)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'."); return; }
 			for (int i = 0; i < instances.Length; i++)
 			{
@@ -82,7 +82,7 @@ namespace SMPL
 		}
 		public void RemoveHitboxes(params ComponentHitbox[] instances)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'."); return; }
 			for (int i = 0; i < instances.Length; i++)
 			{
@@ -92,7 +92,7 @@ namespace SMPL
 		}
 		public void RemoveAllHitboxes()
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			hitboxes.Clear();
 		}
 		public bool HasHitboxes(params ComponentHitbox[] instances)
@@ -111,7 +111,7 @@ namespace SMPL
 			get { return PositionFromLocal(LocalPosition); }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localPosition = PositionToLocal(value);
 				if (position == value) return;
 
@@ -119,7 +119,7 @@ namespace SMPL
 				position = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFramePos = position; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFramePos = position; return; }
 				OnPositionChange?.Invoke(this, prev);
 			}
 		}
@@ -129,7 +129,7 @@ namespace SMPL
 			get { return AngleFromLocal(LocalAngle); }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localAngle = AngleToLocal(value);
 				if (angle == value) return;
 
@@ -137,7 +137,7 @@ namespace SMPL
 				angle = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
 				OnAngleChange?.Invoke(this, prev);
 			}
 		}
@@ -147,14 +147,14 @@ namespace SMPL
 			get { return size; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				localSize = SizeToLocal(value);
 				if (size == value) return;
 				var prev = size;
 				size = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
 				OnSizeChange?.Invoke(this, prev);
 			}
 		}
@@ -164,7 +164,7 @@ namespace SMPL
 			get { return originPercent; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
 				if (originPercent == value || Camera.WorldCamera.Component2D == this) return;
@@ -172,7 +172,7 @@ namespace SMPL
 				originPercent = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
 				OnOriginPercentChange?.Invoke(this, prev);
 			}
 		}
@@ -183,14 +183,14 @@ namespace SMPL
 			get { return localPosition; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				position = PositionFromLocal(value);
 				if (localPosition == value) return;
 				var prev = localPosition;
 				localPosition = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
 				OnLocalPositionChange?.Invoke(this, prev);
 			}
 		}
@@ -200,14 +200,14 @@ namespace SMPL
 			get { return localAngle; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				angle = AngleFromLocal(value);
 				if (localAngle == value) return;
 				var prev = localAngle;
 				localAngle = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
 				OnLocalAngleChange?.Invoke(this, prev);
 			}
 		}
@@ -217,19 +217,19 @@ namespace SMPL
 			get { return localSize; }
 			set
 			{
-				if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				size = SizeFromLocal(value);
 				if (localSize == value) return;
 				var prev = localSize;
 				localSize = value;
 				UpdateHitboxes();
 
-				if (Debug.currentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
+				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
 				OnLocalSizeChange?.Invoke(this, prev);
 			}
 		}
 
-		public Component2D()
+		public Component2D() : base()
 		{
 			transforms.Add(this);
 			creationFrame = Performance.FrameCount;

@@ -92,8 +92,8 @@ namespace SMPL
 			set { brightness = value; shader.SetUniform("Brightness", (float)value / 100f); }
 		}
 
-		private float replaceColorBounds, lastFrameRepColB;
-		public float ReplaceColorBounds
+		private double replaceColorBounds, lastFrameRepColB;
+		public double ReplaceColorBounds
 		{
 			get { return replaceColorBounds; }
 			set

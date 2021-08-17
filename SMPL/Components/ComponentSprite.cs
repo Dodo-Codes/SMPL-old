@@ -20,7 +20,7 @@ namespace SMPL
 			set
 			{
 				if (transform.sprite.Texture.Repeated == value ||
-					(Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Repeated = value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteRepeatingChangeSetup(this); }
@@ -33,7 +33,7 @@ namespace SMPL
 			set
 			{
 				if (transform.sprite.Texture.Smooth == value ||
-					(Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Smooth = value;
 
 				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteSmoothingChangeSetup(this); }
@@ -64,7 +64,7 @@ namespace SMPL
 			get { return offsetPercent; }
 			set
 			{
-				if (offsetPercent == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (offsetPercent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - offsetPercent;
 				offsetPercent = value;
 				var rect = transform.sprite.TextureRect;
@@ -83,7 +83,7 @@ namespace SMPL
 			get { return sizePercent; }
 			set
 			{
-				if (sizePercent == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (sizePercent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - sizePercent;
 				sizePercent = value;
 				value /= 100;
@@ -102,7 +102,7 @@ namespace SMPL
 			get { return gridSize; }
 			set
 			{
-				if (gridSize == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (gridSize == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - gridSize;
 				gridSize = value;
 				transform.OriginPercent = transform.OriginPercent;
@@ -149,6 +149,11 @@ namespace SMPL
 		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png")
 			: base(component2D)
 		{
+			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
+			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
+			// and usually it goes as [2]User -> [1]Component -> [0]Access
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 			if (File.textures.ContainsKey(texturePath) == false)
 			{
 				Debug.LogError(1, $"The texture at '{texturePath}' is not loaded.\n" +
@@ -168,7 +173,7 @@ namespace SMPL
 
 		public void Display(Camera camera)
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
 				transform.sprite.Texture == null) return;
 			var w = transform.sprite.TextureRect.Width;

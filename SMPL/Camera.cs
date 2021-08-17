@@ -14,7 +14,7 @@ namespace SMPL
 			get { return component2D; }
 			set
 			{
-				if (component2D == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (component2D == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				component2D = value;
 			}
 		}
@@ -31,7 +31,7 @@ namespace SMPL
 			get { return depth; }
 			set
 			{
-				if (depth == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (depth == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var oldDepth = depth;
 				depth = value;
 				sortedCameras[oldDepth].Remove(this);
@@ -51,7 +51,7 @@ namespace SMPL
 			set
 			{
 				if (Position == value || (this != WorldCamera && 
-					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				view.Center = Point.From(value);
 			}
 		}
@@ -61,7 +61,7 @@ namespace SMPL
 			set
 			{
 				if (Angle == value || (this != WorldCamera && 
-					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				view.Rotation = (float)value;
 			}
 		}
@@ -71,7 +71,7 @@ namespace SMPL
 			set
 			{
 				if (Size == value || (this != WorldCamera &&
-					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				view.Size = Size.From(value);
 			}
 		}
@@ -82,7 +82,7 @@ namespace SMPL
 			set
 			{
 				if (bgColor == value || (this != WorldCamera &&
-					Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				bgColor = value;
 			}
 		}
@@ -154,7 +154,7 @@ namespace SMPL
 
 		public bool Snap(string filePath = "folder/picture.png")
 		{
-			if (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false &&
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false &&
 				 this != WorldCamera) return false;
 			var img = rendTexture.Texture.CopyToImage();
 			var full = File.CreateDirectoryForFile(filePath);

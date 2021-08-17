@@ -5,7 +5,7 @@ namespace SMPL
 	public static class Debug
 	{
 		private readonly static string engineKey = "_tas8lf1d5ku346";
-		public static bool currentMethodIsCalledByUser
+		internal static bool CurrentMethodIsCalledByUser
 		{
 			get { return System.IO.File.Exists($"{CurrentFileDirectory(2)}\\{engineKey}.txt") == false; }
 		}
@@ -43,8 +43,7 @@ namespace SMPL
 		public static string CurrentFilePath(uint depth = 0)
 		{
 			var info = new StackFrame((int)depth + 1, true);
-			var a = info.GetFileName();
-			return a;
+			return info.GetFileName();
 		}
 		public static string CurrentFileDirectory(uint depth = 0)
 		{

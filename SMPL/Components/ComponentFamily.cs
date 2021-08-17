@@ -13,7 +13,7 @@ namespace SMPL
 			get { return parent; }
 			set
 			{
-				if (parent == value || (Debug.currentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (parent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 
 				var pos = Point.From(owner.transform.LocalPosition);
 				var angle = owner.transform.LocalAngle;
@@ -45,6 +45,6 @@ namespace SMPL
 		}
 		internal List<ComponentVisual> children = new();
 
-		public ComponentFamily(ComponentVisual owner) => this.owner = owner;
+		public ComponentFamily(ComponentVisual owner) : base() => this.owner = owner;
 	}
 }
