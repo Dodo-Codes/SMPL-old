@@ -722,11 +722,7 @@ namespace SMPL
 
 		internal RenderTexture DrawMasks(Sprite spr)
 		{
-			var sz = new Vector2u((uint)Number.Sign(owner.transform.Size.W, false),
-				(uint)Number.Sign(owner.transform.Size.H, false));
-			if (sz.X < spr.Texture.Size.X) sz.X = spr.Texture.Size.X;
-			if (sz.Y < spr.Texture.Size.Y) sz.Y = spr.Texture.Size.Y;
-			var rend = new RenderTexture(sz.X, sz.Y);
+			var rend = new RenderTexture(spr.Texture.Size.X, spr.Texture.Size.Y);
 			var sc = new Vector2f(
 				(float)owner.transform.Size.W / spr.Texture.Size.X,
 				(float)owner.transform.Size.H / spr.Texture.Size.Y);

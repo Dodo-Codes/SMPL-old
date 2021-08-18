@@ -7,23 +7,49 @@ namespace SMPL
 {
 	public class Camera : ComponentAccess
 	{
+		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
+		internal View view;
+		internal Sprite sprite = new();
+		internal RenderTexture rendTexture;
+		internal Size startSize;
+
+		private static event Events.ParamsOne<Camera> OnDisplay;
+		private static event Events.ParamsTwo<Camera, Component2D> OnDisplay2DChanged;
+		private static event Events.ParamsTwo<Camera, ComponentIdentity<Camera>> OnIdentityChange;
+		public static void CallOnDisplay(Action<Camera> method, uint order = uint.MaxValue) =>
+			OnDisplay = Events.Add(OnDisplay, method, order);
+		public static void CallOnDisplay2DChanged(Action<Camera, Component2D> method, uint order = uint.MaxValue) =>
+			OnDisplay2DChanged = Events.Add(OnDisplay2DChanged, method, order);
+		public static void CallOnIdentityChange(Action<Camera, ComponentIdentity<Camera>> method,
+			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+
 		public static Camera WorldCamera { get; internal set; }
-		private Component2D component2D;
-		public Component2D Component2D
+
+		private Component2D display2D;
+		public Component2D Display2D
 		{
-			get { return component2D; }
+			get { return display2D; }
 			set
 			{
-				if (component2D == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				component2D = value;
+				if (display2D == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = display2D;
+				display2D = value;
+				OnDisplay2DChanged?.Invoke(this, prev);
 			}
 		}
 
-		private static event Events.ParamsOne<Camera> OnDisplay;
-		public static void CallOnDisplay(Action<Camera> method, uint order = uint.MaxValue) =>
-			OnDisplay = Events.Add(OnDisplay, method, order);
-
-		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
+		private ComponentIdentity<Camera> identity;
+		public ComponentIdentity<Camera> Identity
+		{
+			get { return identity; }
+			set
+			{
+				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = identity;
+				identity = value;
+				OnIdentityChange?.Invoke(this, prev);
+			}
+		}
 
 		private double depth;
 		public double Depth
@@ -39,11 +65,6 @@ namespace SMPL
 				sortedCameras[depth].Add(this);
 			}
 		}
-		internal View view;
-		internal Sprite sprite = new();
-
-		internal RenderTexture rendTexture;
-		internal Size startSize;
 
 		public Point Position
 		{
@@ -93,7 +114,7 @@ namespace SMPL
 			sortedCameras[0].Add(this);
 
 			var pos = Point.From(viewPosition);
-			Component2D = new();
+			Display2D = new();
 			view = new View(pos, Size.From(viewSize));
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
 			BackgroundColor = Color.Black;
@@ -124,18 +145,18 @@ namespace SMPL
 		internal void EndDraw()
 		{
 			rendTexture.Display();
-			var pos = Point.From(Component2D.Position);
+			var pos = Point.From(Display2D.Position);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
 			var sc = new Vector2f(
-				(float)Component2D.Size.W / (float)tsz.X,
-				(float)Component2D.Size.H / (float)tsz.Y);
+				(float)Display2D.Size.W / (float)tsz.X,
+				(float)Display2D.Size.H / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;
 			sprite.Texture = rendTexture.Texture;
-			sprite.Rotation = (float)Component2D.Angle;
+			sprite.Rotation = (float)Display2D.Angle;
 			sprite.Position = pos;
 			sprite.TextureRect = new IntRect(new Vector2i(), sz);
 
@@ -152,20 +173,14 @@ namespace SMPL
 			}
 		}
 
-		public bool Snap(string filePath = "folder/picture.png")
+		public void Snap(string filePath = "folder/picture.png")
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false &&
-				 this != WorldCamera) return false;
+			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false && this != WorldCamera) return;
 			var img = rendTexture.Texture.CopyToImage();
 			var full = File.CreateDirectoryForFile(filePath);
 
 			if (img.SaveToFile(filePath)) img.Dispose();
-			else
-			{
-				Debug.LogError(1, $"Could not save picture '{full}'.");
-				return false;
-			}
-			return true;
+			else Debug.LogError(1, $"Could not save picture '{full}'.");
 		}
    }
 }

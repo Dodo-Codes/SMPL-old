@@ -4,23 +4,18 @@ namespace TestGame
 {
 	public class Player
 	{
-		Component2D tr = new();
-		ComponentSprite spr;
+		Component2D comp2D = new();
+		ComponentHitbox hitbox = new();
 
 		public Player()
 		{
-			File.CallOnAssetLoadEnd(End);
-			Camera.CallOnDisplay(OnDisplay);
-			File.LoadAsset(File.Asset.Texture, "pictures\\objects\\Houses\\1.png");
+			Component2D.CallOnAddHitbox(OnHitboxAdd);
+			comp2D.AddHitboxes(hitbox);
 		}
-		void End()
+
+		void OnHitboxAdd(Component2D comp2D, ComponentHitbox compHitbox)
 		{
-			spr = new(tr, "pictures\\objects\\Houses\\1.png");
-		}
-		void OnDisplay(Camera camera)
-		{
-			if (spr == null) return;
-			spr.Display(camera);
+			Console.Log("test");
 		}
 	}
 }

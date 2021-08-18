@@ -112,6 +112,30 @@ namespace SMPL
 			}
 		}
 
+		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png")
+			: base(component2D)
+		{
+			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
+			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
+			// and usually it goes as [2]User -> [1]Component -> [0]Access
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+			if (File.textures.ContainsKey(texturePath) == false)
+			{
+				Debug.LogError(1, $"The texture at '{texturePath}' is not loaded.\n" +
+					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+					$"{nameof(File.Asset.Texture)}, \"{texturePath}\")' to load it.");
+				return;
+			}
+			sprites.Add(this);
+			TexturePath = texturePath;
+			transform.sprite.Texture.Repeated = true;
+			sizePercent = new Size(100, 100);
+			lastFrameSzPer = sizePercent;
+
+			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreateSetup(this); }
+			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreate(this); }
+		}
 		internal void Update()
       {
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-off-start", lastFrameOffPer != offsetPercent))
@@ -146,51 +170,28 @@ namespace SMPL
 			lastFrameSzPer = sizePercent;
 		}
 
-		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png")
-			: base(component2D)
-		{
-			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
-			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
-			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
-			if (File.textures.ContainsKey(texturePath) == false)
-			{
-				Debug.LogError(1, $"The texture at '{texturePath}' is not loaded.\n" +
-					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
-					$"{nameof(File.Asset.Texture)}, \"{texturePath}\")' to load it.");
-				return;
-			}
-			sprites.Add(this);
-			TexturePath = texturePath;
-			transform.sprite.Texture.Repeated = true;
-			sizePercent = new Size(100, 100);
-			lastFrameSzPer = sizePercent;
-
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreateSetup(this); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreate(this); }
-		}
-
 		public void Display(Camera camera)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
 				transform.sprite.Texture == null) return;
-			var w = transform.sprite.TextureRect.Width;
-			var h = transform.sprite.TextureRect.Height;
-			var p = transform.OriginPercent / 100;
-			var x = w * (float)p.X * ((float)GridSize.W / 2f) + (w * (float)p.X / 2f);
-			var y = h * (float)p.Y * ((float)GridSize.H / 2f) + (h * (float)p.Y / 2f);
 
 			transform.sprite.Position = new Vector2f();
 			transform.sprite.Rotation = 0;
 			transform.sprite.Scale = new Vector2f(1, 1);
+			transform.sprite.Origin = new Vector2f(0, 0);
 
 			transform.sprite.Texture = rawTexture;
 			var drawMaskResult = Effects.DrawMasks(transform.sprite);
 			transform.sprite.Texture = drawMaskResult.Texture;
 
+			var w = transform.sprite.TextureRect.Width;
+			var h = transform.sprite.TextureRect.Height;
+			var p = transform.OriginPercent / 100;
+			var x = w * (float)p.X * ((float)GridSize.W / 2f) + (w * (float)p.X / 2f);
+			var y = h * (float)p.Y * ((float)GridSize.H / 2f) + (h * (float)p.Y / 2f);
 			transform.sprite.Origin = new Vector2f(x, y);
+
 			transform.sprite.Position = Point.From(transform.Position);
 			transform.sprite.Rotation = (float)transform.Angle;
 			transform.sprite.Scale = new Vector2f(

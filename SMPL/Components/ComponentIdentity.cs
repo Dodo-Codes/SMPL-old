@@ -6,13 +6,25 @@ namespace SMPL
 {
 	public class ComponentIdentity<T> : ComponentAccess
 	{
-		private static Dictionary<string, T> uniqueIDs = new();
-		private static Dictionary<string, List<T>> tagObjs = new();
-		private static Dictionary<T, List<string>> objTags = new();
+		private static readonly Dictionary<string, T> uniqueIDs = new();
+		private static readonly Dictionary<string, List<T>> tagObjs = new();
+		private static readonly Dictionary<T, List<string>> objTags = new();
 		private T Instance { get; set; }
 
+		private static event Events.ParamsOne<ComponentIdentity<T>> OnRemoveAllTags;
+		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnCreate, OnAddTag, OnRemoveTag;
+
+		public static void CallOnCreate(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			OnCreate = Events.Add(OnCreate, method, order);
+		public static void CallOnTagAdd(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			OnAddTag = Events.Add(OnAddTag, method, order);
+		public static void CallOnTagRemove(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			OnRemoveTag = Events.Add(OnRemoveTag, method, order);
+		public static void CallOnRemoveAllTags(Action<ComponentIdentity<T>> method, uint order = uint.MaxValue) =>
+			OnRemoveAllTags = Events.Add(OnRemoveAllTags, method, order);
+
 		public string UniqueID { get; private set; }
-		public string[] Tags { get { return objTags[Instance].ToArray(); } }
+		public string[] Tags => objTags[Instance].ToArray();
 
 		public ComponentIdentity(T instance, string uniqueID, params string[] tags) : base()
 		{
@@ -33,20 +45,8 @@ namespace SMPL
 			uniqueIDs.Add(uniqueID, Instance);
 			objTags[instance] = new();
 			AddTags(tags);
-
-			OnCreate?.Invoke(this);
+			OnCreate?.Invoke(this, UniqueID);
 		}
-
-		private static event Events.ParamsOne<ComponentIdentity<T>> OnCreate;
-		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnTagAdd;
-		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnTagRemove;
-
-		public static void CallOnCreate(Action<ComponentIdentity<T>> method, uint order = uint.MaxValue) =>
-			OnCreate = Events.Add(OnCreate, method, order);
-		public static void CallOnTagAdd(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
-			OnTagAdd = Events.Add(OnTagAdd, method, order);
-		public static void CallOnTagRemove(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
-			OnTagRemove = Events.Add(OnTagRemove, method, order);
 
 		public void AddTags(params string[] tags)
 		{
@@ -57,8 +57,7 @@ namespace SMPL
 				objTags[Instance].Add(tags[j]);
 				if (tagObjs.ContainsKey(tags[j]) == false) tagObjs[tags[j]] = new List<T>();
 				tagObjs[tags[j]].Add(Instance);
-
-				OnTagAdd?.Invoke(this, tags[j]);
+				OnAddTag?.Invoke(this, tags[j]);
 			}
 		}
 		public void RemoveTags(params string[] tags)
@@ -70,15 +69,16 @@ namespace SMPL
 				objTags[Instance].Remove(tags[j]);
 				tagObjs[tags[j]].Remove(Instance);
 				if (tagObjs[tags[j]].Count == 0) tagObjs.Remove(tags[j]);
-
-				OnTagRemove?.Invoke(this, tags[j]);
+				OnRemoveTag?.Invoke(this, tags[j]);
 			}
 		}
 		public void RemoveAllTags()
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			foreach (var kvp in tagObjs) OnRemoveTag?.Invoke(this, kvp.Key);
 			tagObjs.Clear();
 			objTags.Clear();
+			OnRemoveAllTags?.Invoke(this);
 		}
 		public bool HasTags(params string[] tags)
 		{

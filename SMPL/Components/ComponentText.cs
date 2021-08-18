@@ -162,6 +162,40 @@ namespace SMPL
 			}
 		}
 
+		public ComponentText(Component2D component2D, string fontPath = "folder/font.ttf")
+			: base(component2D)
+		{
+			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
+			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
+			// and usually it goes as [2]User -> [1]Component -> [0]Access
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+			if (File.fonts.ContainsKey(fontPath) == false)
+			{
+				Debug.LogError(1, $"The font at '{fontPath}' is not loaded.\n" +
+					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
+				return;
+			}
+			texts.Add(this);
+			transform.text.DisplayedString = "Hello World!";
+			transform.text.CharacterSize = 64;
+			transform.text.LetterSpacing = 1;
+			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
+			transform.text.FillColor = Color.From(Color.White);
+			transform.text.OutlineColor = Color.From(Color.Black);
+
+			spacing = new Size(4, 4);
+			lastFrameText = transform.text.DisplayedString;
+			lastFrameSp = spacing;
+			lastFrameSc = new Size(1, 1);
+			FontPath = fontPath;
+
+			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					e[i].OnTextCreateSetup(this); }
+			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
+					e[i].OnTextCreate(this); }
+		}
 		private void UpdateOrigin()
       {
 			transform.text.DisplayedString += "\n";
@@ -175,7 +209,6 @@ namespace SMPL
 			transform.text.Origin = Point.From(pos * (originPercent / 100));
 			transform.text.DisplayedString = transform.text.DisplayedString.Remove(Text.Length - 1, 1);
 		}
-
 		internal void Update()
       {
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-pos-start", lastFramePos != position))
@@ -286,40 +319,6 @@ namespace SMPL
 			lastFrameBgCol = bgColor;
 		}
 
-		public ComponentText(Component2D component2D, string fontPath = "folder/font.ttf")
-			: base(component2D)
-		{
-			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
-			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
-			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
-			if (File.fonts.ContainsKey(fontPath) == false)
-			{
-				Debug.LogError(1, $"The font at '{fontPath}' is not loaded.\n" +
-					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
-					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
-				return;
-			}
-			texts.Add(this);
-			transform.text.DisplayedString = "Hello World!";
-			transform.text.CharacterSize = 64;
-			transform.text.LetterSpacing = 1;
-			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
-			transform.text.FillColor = Color.From(Color.White);
-			transform.text.OutlineColor = Color.From(Color.Black);
-
-			spacing = new Size(4, 4);
-			lastFrameText = transform.text.DisplayedString;
-			lastFrameSp = spacing;
-			lastFrameSc = new Size(1, 1);
-			FontPath = fontPath;
-
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnTextCreateSetup(this); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-					e[i].OnTextCreate(this); }
-		}
 		public void Display(Camera camera)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;

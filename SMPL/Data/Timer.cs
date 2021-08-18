@@ -34,11 +34,11 @@ namespace SMPL
 
       public ComponentIdentity<Timer> IdentityComponent { get; set; }
 
-      public Timer(string uniqueID, double duration)
+      public Timer(string uniqueID, double durationInSeconds)
       {
          IdentityComponent = new(this, uniqueID);
-         Duration = duration;
-         Countdown = duration;
+         Duration = durationInSeconds;
+         Countdown = durationInSeconds;
       }
 
       internal static void Update()
@@ -46,10 +46,12 @@ namespace SMPL
          var timerUIDs = ComponentIdentity<Timer>.AllUniqueIDs;
          for (int j = 0; j < timerUIDs.Length; j++)
          {
+            var dt = Performance.DeltaTime;
             var timer = ComponentIdentity<Timer>.PickByUniqueID(timerUIDs[j]);
             if (timer.IsPaused) continue;
-            if (timer.Countdown > 0) timer.Countdown -= Performance.DeltaTime;
-            if (Gate.EnterOnceWhile(timerUIDs[j] + "as;li3'f2", timer.Countdown <= 0))
+            timer.Countdown -= dt;
+            if (Gate.EnterOnceWhile(timerUIDs[j] + "as;li3'f2", timer.Countdown <= 0) ||
+               dt > timer.Duration)
             {
                timer.EndCount++;
                timer.Countdown = 0;

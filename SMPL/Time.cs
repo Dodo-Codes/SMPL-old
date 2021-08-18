@@ -129,7 +129,6 @@ namespace SMPL
 				Always?.Invoke();
 
 				Audio.Update();
-				Timer.Update();
 
 				for (int i = 0; i < Component2D.transforms.Count; i++) Component2D.transforms[i].Update();
 				for (int i = 0; i < ComponentHitbox.hitboxes.Count; i++) ComponentHitbox.hitboxes[i].Update();
@@ -140,6 +139,7 @@ namespace SMPL
 				Mouse.Update();
 
 				Window.Draw();
+				Timer.Update();
 				Performance.frameDeltaTime.Restart();
 
 				File.UpdateMainThreadAssets();

@@ -16,6 +16,9 @@ namespace SMPL
 		private readonly uint creationFrame;
 		private readonly double rand;
 
+		private static event Events.ParamsTwo<Component2D, ComponentHitbox> OnHitboxAdd, OnHitboxRemove;
+		private static event Events.ParamsTwo<Component2D, ComponentIdentity<Component2D>> OnIdentityChange;
+		private static event Events.ParamsOne<Component2D> OnHitboxesRemoveAll;
 		private static event Events.ParamsOne<Component2D> OnCreate, OnPositionChangeEnd, OnSizeChangeEnd,
 			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnLocalAngleChangeEnd, OnLocalPositionChangeEnd, OnLocalSizeChangeEnd;
 		private static event Events.ParamsTwo<Component2D, Point> OnPositionChange, OnPositionChangeStart,
@@ -27,6 +30,8 @@ namespace SMPL
 
 		public static void CallOnCreate(Action<Component2D> method, uint order = uint.MaxValue) =>
 			OnCreate = Events.Add(OnCreate, method, order);
+		public static void CallOnIdentityChange(Action<Component2D, ComponentIdentity<Component2D>> method,
+			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
 		public static void CallOnPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
 			OnPositionChange = Events.Add(OnPositionChange, method, order);
 		public static void CallOnPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
@@ -69,40 +74,74 @@ namespace SMPL
 			OnLocalSizeChangeStart = Events.Add(OnLocalSizeChangeStart, method, order);
 		public static void CallOnLocalSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
 			OnLocalSizeChangeEnd = Events.Add(OnLocalSizeChangeEnd, method, order);
+		public static void CallOnAddHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+			OnHitboxAdd = Events.Add(OnHitboxAdd, method, order);
+		public static void CallOnRemoveHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+			OnHitboxRemove = Events.Add(OnHitboxRemove, method, order);
+		public static void CallOnRemoveAllHitboxes(Action<Component2D> method, uint order = uint.MaxValue) =>
+			OnHitboxesRemoveAll = Events.Add(OnHitboxesRemoveAll, method, order);
 
-		public void AddHitboxes(params ComponentHitbox[] instances)
+		public void AddHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'."); return; }
-			for (int i = 0; i < instances.Length; i++)
+			if (hitboxInstances == null)
 			{
-				if (hitboxes.Contains(instances[i])) continue;
-				hitboxes.Add(instances[i]);
+				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
+				return;
+			}
+			for (int i = 0; i < hitboxInstances.Length; i++)
+			{
+				if (hitboxes.Contains(hitboxInstances[i])) continue;
+				hitboxes.Add(hitboxInstances[i]);
+				OnHitboxAdd?.Invoke(this, hitboxInstances[i]);
 			}
 		}
-		public void RemoveHitboxes(params ComponentHitbox[] instances)
+		public void RemoveHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'."); return; }
-			for (int i = 0; i < instances.Length; i++)
+			if (hitboxInstances == null)
 			{
-				if (hitboxes.Contains(instances[i]) == false) continue;
-				hitboxes.Remove(instances[i]);
+				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
+				return;
+			}
+			for (int i = 0; i < hitboxInstances.Length; i++)
+			{
+				if (hitboxes.Contains(hitboxInstances[i]) == false) continue;
+				hitboxes.Remove(hitboxInstances[i]);
+				OnHitboxRemove?.Invoke(this, hitboxInstances[i]);
 			}
 		}
 		public void RemoveAllHitboxes()
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			for (int i = 0; i < hitboxes.Count; i++) OnHitboxRemove?.Invoke(this, hitboxes[i]);
 			hitboxes.Clear();
+			OnHitboxesRemoveAll?.Invoke(this);
 		}
-		public bool HasHitboxes(params ComponentHitbox[] instances)
+		public bool HasHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
-			if (instances == null) { Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
-				return false; }
+			if (hitboxInstances == null)
+			{
+				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
+				return false;
+			}
 			for (int i = 0; i < hitboxes.Count; i++)
-				if (hitboxes.Contains(instances[i]) == false)
+				if (hitboxes.Contains(hitboxInstances[i]) == false)
 					return false;
 			return true;
+		}
+
+		private ComponentIdentity<Component2D> identity;
+		public ComponentIdentity<Component2D> Identity
+		{
+			get { return identity; }
+			set
+			{
+				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = identity;
+				identity = value;
+				OnIdentityChange?.Invoke(this, prev);
+			}
 		}
 
 		internal Point position, lastFramePos;
@@ -167,7 +206,7 @@ namespace SMPL
 				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value || Camera.WorldCamera.Component2D == this) return;
+				if (originPercent == value || Camera.WorldCamera.Display2D == this) return;
 				var prev = originPercent;
 				originPercent = value;
 				UpdateHitboxes();
