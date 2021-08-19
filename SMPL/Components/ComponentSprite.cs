@@ -1,18 +1,71 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using System;
 using System.Collections.Generic;
-using static SMPL.Events;
 
 namespace SMPL
 {
 	public class ComponentSprite : ComponentVisual
 	{
 		internal static List<ComponentSprite> sprites = new();
-
 		internal Image image;
-		internal Texture rawTexture;
-		internal Texture rawTextureShader;
+		internal Texture rawTexture, rawTextureShader;
 		internal byte[] rawTextureData;
+
+		private static event Events.ParamsTwo<ComponentSprite, string> OnCreate;
+		private static event Events.ParamsOne<ComponentSprite> OnVisibilityChange, OnRepeatingChange, OnSmoothnessChange,
+			OnOffsetPercentChangeEnd, OnSizePercentChangeEnd;
+		private static event Events.ParamsTwo<ComponentSprite, ComponentFamily> OnFamilyChange;
+		private static event Events.ParamsTwo<ComponentSprite, ComponentEffects> OnEffectsChange;
+		private static event Events.ParamsTwo<ComponentSprite, ComponentIdentity<ComponentSprite>> OnIdentityChange;
+		private static event Events.ParamsTwo<ComponentSprite, Point> OnOffsetPercentChange, OnOffsetPercentChangeStart;
+		private static event Events.ParamsTwo<ComponentSprite, Size> OnSizePercentChange, OnSizePercentChangeStart,
+			OnGridSizeChange;
+
+		public static class CallWhen
+		{
+			public static void Create(Action<ComponentSprite, string> method, uint order = uint.MaxValue) =>
+				OnCreate = Events.Add(OnCreate, method, order);
+			public static void IdentityChange(Action<ComponentSprite, ComponentIdentity<ComponentSprite>> method,
+				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+			public static void VisibilityChange(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnVisibilityChange = Events.Add(OnVisibilityChange, method, order);
+			public static void FamilyChange(Action<ComponentSprite, ComponentFamily> method, uint order = uint.MaxValue) =>
+				OnFamilyChange = Events.Add(OnFamilyChange, method, order);
+			public static void EffectsChange(Action<ComponentSprite, ComponentEffects> method, uint order = uint.MaxValue) =>
+				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
+			public static void RepeatingChange(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnRepeatingChange = Events.Add(OnRepeatingChange, method, order);
+			public static void SmoothnessChange(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnSmoothnessChange = Events.Add(OnSmoothnessChange, method, order);
+			public static void OffsetPercentChangeStart(Action<ComponentSprite, Point> method, uint order = uint.MaxValue) =>
+				OnOffsetPercentChangeStart = Events.Add(OnOffsetPercentChangeStart, method, order);
+			public static void OffsetPercentChange(Action<ComponentSprite, Point> method, uint order = uint.MaxValue) =>
+				OnOffsetPercentChange = Events.Add(OnOffsetPercentChange, method, order);
+			public static void OffsetPercentChangeEnd(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnOffsetPercentChangeEnd = Events.Add(OnOffsetPercentChangeEnd, method, order);
+			public static void SizePercentChangeStart(Action<ComponentSprite, Size> method, uint order = uint.MaxValue) =>
+				OnSizePercentChangeStart = Events.Add(OnSizePercentChangeStart, method, order);
+			public static void SizePercentChange(Action<ComponentSprite, Size> method, uint order = uint.MaxValue) =>
+				OnSizePercentChange = Events.Add(OnSizePercentChange, method, order);
+			public static void SizePercentChangeEnd(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnSizePercentChangeEnd = Events.Add(OnSizePercentChangeEnd, method, order);
+			public static void GridSizeChange(Action<ComponentSprite, Size> method, uint order = uint.MaxValue) =>
+				OnGridSizeChange = Events.Add(OnGridSizeChange, method, order);
+		}
+
+		private ComponentIdentity<ComponentSprite> identity;
+		public ComponentIdentity<ComponentSprite> Identity
+		{
+			get { return identity; }
+			set
+			{
+				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = identity;
+				identity = value;
+				OnIdentityChange?.Invoke(this, prev);
+			}
+		}
 
 		public bool IsRepeated
 		{
@@ -22,9 +75,7 @@ namespace SMPL
 				if (transform.sprite.Texture.Repeated == value ||
 					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Repeated = value;
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteRepeatingChangeSetup(this); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteRepeatingChange(this); }
+				OnRepeatingChange?.Invoke(this);
 			}
 		}
 		public bool IsSmooth
@@ -35,9 +86,7 @@ namespace SMPL
 				if (transform.sprite.Texture.Smooth == value ||
 					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Smooth = value;
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteSmoothingChangeSetup(this); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteSmoothingChange(this); }
+				OnSmoothnessChange?.Invoke(this);
 			}
 		}
 		private string path;
@@ -65,16 +114,15 @@ namespace SMPL
 			set
 			{
 				if (offsetPercent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				var delta = value - offsetPercent;
+				var prev = offsetPercent;
 				offsetPercent = value;
 				var rect = transform.sprite.TextureRect;
 				var sz = transform.sprite.Texture.Size;
 				transform.sprite.TextureRect = new IntRect(
 					(int)(sz.X * (offsetPercent.X / 100)), (int)(sz.Y * (offsetPercent.Y / 100)),
 					rect.Width, rect.Height);
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffset(this, delta); }
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				OnOffsetPercentChange?.Invoke(this, prev);
 			}
 		}
 		private Size sizePercent, lastFrameSzPer;
@@ -84,16 +132,15 @@ namespace SMPL
 			set
 			{
 				if (sizePercent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				var delta = value - sizePercent;
+				var prev = sizePercent;
 				sizePercent = value;
 				value /= 100;
 
 				var sz = transform.sprite.Texture.Size;
 				var textRect = transform.sprite.TextureRect;
 				transform.sprite.TextureRect = new IntRect(textRect.Left, textRect.Top, (int)(sz.X * value.W), (int)(sz.Y * value.H));
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResize(this, delta); }
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				OnSizePercentChange?.Invoke(this, prev);
 			}
 		}
 		private Size gridSize;
@@ -103,17 +150,15 @@ namespace SMPL
 			set
 			{
 				if (gridSize == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				var delta = value - gridSize;
+				var prev = gridSize;
 				gridSize = value;
 				transform.OriginPercent = transform.OriginPercent;
-
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteGridResizeSetup(this, delta); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteGridResize(this, delta); }
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				OnGridSizeChange?.Invoke(this, prev);
 			}
 		}
 
-		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png")
-			: base(component2D)
+		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png") : base(component2D)
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
@@ -133,42 +178,26 @@ namespace SMPL
 			sizePercent = new Size(100, 100);
 			lastFrameSzPer = sizePercent;
 
-			var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreateSetup(this); }
-			var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteCreate(this); }
+			OnCreate?.Invoke(this, texturePath);
 		}
 		internal void Update()
       {
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-off-start", lastFrameOffPer != offsetPercent))
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetStartSetup(this, offsetPercent - lastFrameOffPer); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetStart(this, offsetPercent - lastFrameOffPer); }
-			}
+				OnOffsetPercentChangeStart?.Invoke(this, lastFrameOffPer);
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-off-end", lastFrameOffPer == offsetPercent))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOffsetEnd(this); }
-				}
-			}
+				if (creationFrame + 1 != Performance.frameCount) OnOffsetPercentChangeEnd?.Invoke(this);
 			//=============================
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-size-start", lastFrameSzPer != sizePercent))
-			{
-				var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeStartSetup(this, sizePercent - lastFrameSzPer); }
-				var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeStart(this, sizePercent - lastFrameSzPer); }
-			}
+				OnSizePercentChangeStart?.Invoke(this, lastFrameSzPer);
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-size-end", lastFrameSzPer == sizePercent))
-			{
-				if (creationFrame + 1 != Performance.frameCount)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeEndSetup(this); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteResizeEnd(this); }
-				}
-			}
+				if (creationFrame + 1 != Performance.frameCount) OnSizePercentChangeEnd?.Invoke(this);
 			//=============================
 			lastFrameOffPer = offsetPercent;
 			lastFrameSzPer = sizePercent;
 		}
+		internal static void TriggerOnVisibilityChange(ComponentSprite instance) => OnVisibilityChange?.Invoke(instance);
+		internal static void TriggerOnFamilyChange(ComponentSprite i, ComponentFamily f) => OnFamilyChange?.Invoke(i, f);
+		internal static void TriggerOnEffectsChange(ComponentSprite i, ComponentEffects e) => OnEffectsChange?.Invoke(i, e);
 
 		public void Display(Camera camera)
 		{

@@ -16,7 +16,10 @@ namespace SMPL
 		internal static Game instance;
 
 		private static event Events.ParamsZero OnStart;
-		public static void CallOnStart(Action method, uint order = uint.MaxValue) => OnStart = Events.Add(OnStart, method, order);
+		public static class CallWhen
+		{
+			public static void Start(Action method, uint order = uint.MaxValue) => OnStart = Events.Add(OnStart, method, order);
+		}
 
 		private static void Main() { }
 

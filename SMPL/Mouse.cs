@@ -25,22 +25,25 @@ namespace SMPL
 		private static event Events.ParamsOne<Button> OnButtonDoubleClick, OnButtonPress, OnButtonHold, OnButtonRelease;
 		private static event Events.ParamsTwo<Wheel, double> OnWheelScroll;
 
-		public static void CallOnCursorWindowEnter(Action method, uint order = uint.MaxValue) =>
+		public static class CallWhen
+		{
+			public static void CursorWindowEnter(Action method, uint order = uint.MaxValue) =>
 			OnCursorWindowEnter = Events.Add(OnCursorWindowEnter, method, order);
-		public static void CallOnCursorWindowLeave(Action method, uint order = uint.MaxValue) =>
-			OnCursorWindowLeave = Events.Add(OnCursorWindowLeave, method, order);
-		public static void CallOnCursorPositionChange(Action<Point> method, uint order = uint.MaxValue) =>
-			OnCursorPositionChange = Events.Add(OnCursorPositionChange, method, order);
-		public static void CallOnButtonDoubleClick(Action<Button> method, uint order = uint.MaxValue) =>
-			OnButtonDoubleClick = Events.Add(OnButtonDoubleClick, method, order);
-		public static void CallOnButtonPress(Action<Button> method, uint order = uint.MaxValue) =>
-			OnButtonPress = Events.Add(OnButtonPress, method, order);
-		public static void CallOnButtonHold(Action<Button> method, uint order = uint.MaxValue) =>
-			OnButtonHold = Events.Add(OnButtonHold, method, order);
-		public static void CallOnButtonRelease(Action<Button> method, uint order = uint.MaxValue) =>
-			OnButtonRelease = Events.Add(OnButtonRelease, method, order);
-		public static void CallOnWheelScroll(Action<Wheel, double> method, uint order = uint.MaxValue) =>
-			OnWheelScroll = Events.Add(OnWheelScroll, method, order);
+			public static void CursorWindowLeave(Action method, uint order = uint.MaxValue) =>
+				OnCursorWindowLeave = Events.Add(OnCursorWindowLeave, method, order);
+			public static void CursorPositionChange(Action<Point> method, uint order = uint.MaxValue) =>
+				OnCursorPositionChange = Events.Add(OnCursorPositionChange, method, order);
+			public static void ButtonDoubleClick(Action<Button> method, uint order = uint.MaxValue) =>
+				OnButtonDoubleClick = Events.Add(OnButtonDoubleClick, method, order);
+			public static void ButtonPress(Action<Button> method, uint order = uint.MaxValue) =>
+				OnButtonPress = Events.Add(OnButtonPress, method, order);
+			public static void ButtonHold(Action<Button> method, uint order = uint.MaxValue) =>
+				OnButtonHold = Events.Add(OnButtonHold, method, order);
+			public static void ButtonRelease(Action<Button> method, uint order = uint.MaxValue) =>
+				OnButtonRelease = Events.Add(OnButtonRelease, method, order);
+			public static void WheelScroll(Action<Wheel, double> method, uint order = uint.MaxValue) =>
+				OnWheelScroll = Events.Add(OnWheelScroll, method, order);
+		}
 
 		internal static Point lastFrameCursorPosScr;
 		public static Point CursorPositionWindow

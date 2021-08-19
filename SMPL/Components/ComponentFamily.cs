@@ -14,18 +14,21 @@ namespace SMPL
 		private static event Events.ParamsOne<ComponentFamily> OnCreate, OnRemoveAllChildren;
 		private static event Events.ParamsTwo<ComponentFamily, ComponentVisual> OnParentChange, OnAddChild, OnRemoveChild;
 
-		public static void CallOnIdentityChange(Action<ComponentFamily, ComponentIdentity<ComponentFamily>> method,
-			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-		public static void CallOnCreate(Action<ComponentFamily> method, uint order = uint.MaxValue) =>
-			OnCreate = Events.Add(OnCreate, method, order);
-		public static void CallOnParentChange(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
-			OnParentChange = Events.Add(OnParentChange, method, order);
-		public static void CallOnAddChildren(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
-			OnAddChild = Events.Add(OnAddChild, method, order);
-		public static void CallOnRemoveChildren(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
-			OnRemoveChild = Events.Add(OnRemoveChild, method, order);
-		public static void CallOnRemoveAllChildren(Action<ComponentFamily> method, uint order = uint.MaxValue) =>
-			OnRemoveAllChildren = Events.Add(OnRemoveAllChildren, method, order);
+		public static class CallWhen
+		{
+			public static void IdentityChange(Action<ComponentFamily, ComponentIdentity<ComponentFamily>> method,
+				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+			public static void Create(Action<ComponentFamily> method, uint order = uint.MaxValue) =>
+				OnCreate = Events.Add(OnCreate, method, order);
+			public static void ParentChange(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
+				OnParentChange = Events.Add(OnParentChange, method, order);
+			public static void AddChildren(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
+				OnAddChild = Events.Add(OnAddChild, method, order);
+			public static void RemoveChildren(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
+				OnRemoveChild = Events.Add(OnRemoveChild, method, order);
+			public static void RemoveAllChildren(Action<ComponentFamily> method, uint order = uint.MaxValue) =>
+				OnRemoveAllChildren = Events.Add(OnRemoveAllChildren, method, order);
+		}
 
 		private ComponentIdentity<ComponentFamily> identity;
 		public ComponentIdentity<ComponentFamily> Identity

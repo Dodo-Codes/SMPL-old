@@ -12,14 +12,17 @@ namespace SMPL
 		private static event Events.ParamsTwo<ComponentAccess, Access> OnAllAccessChange;
 		private static event Events.ParamsTwo<ComponentAccess, string> OnGrantAccess, OnDenyAccess;
 
-		public static void CallOnIdentityChange(Action<ComponentAccess, ComponentIdentity<ComponentAccess>> method,
-			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-		public static void CallOnAllAccessChange(Action<ComponentAccess, Access> method, uint order = uint.MaxValue) =>
-			OnAllAccessChange = Events.Add(OnAllAccessChange, method, order);
-		public static void CallOnGrantAccess(Action<ComponentAccess, string> method, uint order = uint.MaxValue) =>
-			OnGrantAccess = Events.Add(OnGrantAccess, method, order);
-		public static void CallOnDenyAccess(Action<ComponentAccess, string> method, uint order = uint.MaxValue) =>
-			OnDenyAccess = Events.Add(OnDenyAccess, method, order);
+		public static class CallWhenAccess
+		{
+			public static void IdentityChange(Action<ComponentAccess, ComponentIdentity<ComponentAccess>> method,
+				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+			public static void AllAccessChange(Action<ComponentAccess, Access> method, uint order = uint.MaxValue) =>
+				OnAllAccessChange = Events.Add(OnAllAccessChange, method, order);
+			public static void GrantChange(Action<ComponentAccess, string> method, uint order = uint.MaxValue) =>
+				OnGrantAccess = Events.Add(OnGrantAccess, method, order);
+			public static void DenyChange(Action<ComponentAccess, string> method, uint order = uint.MaxValue) =>
+				OnDenyAccess = Events.Add(OnDenyAccess, method, order);
+		}
 
 		private ComponentIdentity<ComponentAccess> identity;
 		public ComponentIdentity<ComponentAccess> AccessIdentity
@@ -43,6 +46,7 @@ namespace SMPL
 				if (access == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = access;
 				access = value;
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
 				OnAllAccessChange?.Invoke(this, prev);
 			}
 		}
@@ -60,6 +64,8 @@ namespace SMPL
 				return;
 			}
 			accessPaths.Add(fullFilePath);
+			if (Debug.CurrentMethodIsCalledByUser == false) return;
+			OnGrantAccess?.Invoke(this, fullFilePath);
 		}
 		public void DenyAccessToFile(string fullFilePath)
 		{
@@ -70,6 +76,8 @@ namespace SMPL
 				return;
 			}
 			accessPaths.Remove(fullFilePath);
+			if (Debug.CurrentMethodIsCalledByUser == false) return;
+			OnDenyAccess?.Invoke(this, fullFilePath);
 		}
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{

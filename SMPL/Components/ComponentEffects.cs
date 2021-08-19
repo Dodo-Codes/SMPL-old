@@ -5,10 +5,8 @@ using static SMPL.Events;
 
 namespace SMPL
 {
-	public class Effects
+	public class ComponentEffects
 	{
-		//https://github.com/anissen/ld34/blob/master/assets/shaders/isolate_bright.glsl
-
 		private readonly uint creationFrame;
 		private readonly double rand;
 		internal ComponentVisual owner;
@@ -144,15 +142,11 @@ namespace SMPL
 				{
 					var spriteParent = owner as ComponentSprite;
 					spriteParent.transform.sprite.Color = c;
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolor(spriteParent, delta); }
 				}
 				else
 				{
 					var textParent = owner as ComponentText;
 					textParent.transform.text.FillColor = c;
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolor(textParent, delta); }
 				}
 			}
 		}
@@ -169,9 +163,6 @@ namespace SMPL
 				{
 					var textParent = owner as ComponentText;
 					textParent.transform.text.OutlineColor = Color.From(value);
-
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolor(textParent, delta); }
 				}
 				else
 				{
@@ -180,9 +171,6 @@ namespace SMPL
 					shader.SetUniform("OutlineGreen", (float)value.G / 255f);
 					shader.SetUniform("OutlineBlue", (float)value.B / 255f);
 					shader.SetUniform("OutlineOpacity", (float)value.A / 255f);
-
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolor(spriteParent, delta); }
 				}
 			}
 		}
@@ -212,15 +200,11 @@ namespace SMPL
 				{
 					var spriteParent = owner as ComponentSprite;
 					shader.SetUniform("OutlineOffset", (float)value / 500f);
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResize(spriteParent, delta); }
 				}
 				else
 				{
 					var textParent = owner as ComponentText;
 					textParent.transform.text.OutlineThickness = (float)value;
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResize(textParent, delta); }
 				}
 			}
 		}
@@ -512,13 +496,11 @@ namespace SMPL
 				var delta = color - lastFrameCol;
 				if (textParent != null)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorStartSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorStart(textParent, delta); }
+
 				}
 				else
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorStartSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorStart(spriteParent, delta); }
+
 				}
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-col-end", lastFrameCol == color))
@@ -527,13 +509,11 @@ namespace SMPL
 				{
 					if (textParent != null)
 					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorEndSetup(textParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextTintRecolorEnd(textParent); }
+
 					}
 					else
 					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorEndSetup(spriteParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteTintRecolorEnd(spriteParent); }
+
 					}
 				}
 			}
@@ -543,13 +523,11 @@ namespace SMPL
 				var delta = OutlineWidth - lastFrameOutW;
 				if (textParent != null)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeStartSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeStart(textParent, delta); }
+
 				}
 				else
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeStartSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeStart(spriteParent, delta); }
+
 				}
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outw-end", lastFrameOutW == OutlineWidth))
@@ -558,13 +536,11 @@ namespace SMPL
 				{
 					if (textParent != null)
 					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeEndSetup(textParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineResizeEnd(textParent); }
+
 					}
 					else
 					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeEndSetup(spriteParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineResizeEnd(spriteParent); }
+
 					}
 				}
 			}
@@ -574,13 +550,11 @@ namespace SMPL
 				var delta = outlineColor - lastFrameOutCol;
 				if (textParent != null)
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorStartSetup(textParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorStart(textParent, delta); }
+
 				}
 				else
 				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorStartSetup(spriteParent, delta); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorStart(spriteParent, delta); }
+
 				}
 			}
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-outcol-end", lastFrameOutCol == outlineColor))
@@ -589,13 +563,11 @@ namespace SMPL
 				{
 					if (textParent != null)
 					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorEndSetup(textParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnTextOutlineRecolorEnd(textParent); }
+
 					}
 					else
 					{
-						var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorEndSetup(spriteParent); }
-						var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteOutlineRecolorEnd(spriteParent); }
+
 					}
 				}
 			}
@@ -650,7 +622,7 @@ namespace SMPL
 			owner.Effects.shader.SetUniform("HasMask", add);
 		}
 
-		public Effects(ComponentVisual owner)
+		public ComponentEffects(ComponentVisual owner)
 		{
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);

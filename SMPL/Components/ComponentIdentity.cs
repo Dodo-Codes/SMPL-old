@@ -14,37 +14,39 @@ namespace SMPL
 		private static event Events.ParamsOne<ComponentIdentity<T>> OnRemoveAllTags;
 		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnCreate, OnAddTag, OnRemoveTag;
 
-		public static void CallOnCreate(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
-			OnCreate = Events.Add(OnCreate, method, order);
-		public static void CallOnTagAdd(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
-			OnAddTag = Events.Add(OnAddTag, method, order);
-		public static void CallOnTagRemove(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
-			OnRemoveTag = Events.Add(OnRemoveTag, method, order);
-		public static void CallOnRemoveAllTags(Action<ComponentIdentity<T>> method, uint order = uint.MaxValue) =>
-			OnRemoveAllTags = Events.Add(OnRemoveAllTags, method, order);
+		public static class CallWhen
+		{
+			public static void Create(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+				OnCreate = Events.Add(OnCreate, method, order);
+			public static void TagAdd(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+				OnAddTag = Events.Add(OnAddTag, method, order);
+			public static void TagRemove(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+				OnRemoveTag = Events.Add(OnRemoveTag, method, order);
+			public static void RemoveAllTags(Action<ComponentIdentity<T>> method, uint order = uint.MaxValue) =>
+				OnRemoveAllTags = Events.Add(OnRemoveAllTags, method, order);
+		}
 
 		public string UniqueID { get; private set; }
 		public string[] Tags => objTags[Instance].ToArray();
 
-		public ComponentIdentity(T instance, string uniqueID, params string[] tags) : base()
+		public ComponentIdentity(T instance, string uniqueID) : base()
 		{
-			if (uniqueIDs.ContainsKey(uniqueID))
-			{
-				Debug.LogError(1, $"Cannot create the identity of this instance ({instance}). " +
-					$"The UniqueID '{uniqueID}' already exists.");
-				return;
-			}
 			if (uniqueID == null)
 			{
 				Debug.LogError(1, $"Cannot create the identity of this instance ({instance}). " +
 					$"The UniqueID cannot be 'null'.");
 				return;
 			}
+			if (uniqueIDs.ContainsKey(uniqueID))
+			{
+				Debug.LogError(1, $"Cannot create the identity of this instance ({instance}). " +
+					$"The UniqueID '{uniqueID}' already exists.");
+				return;
+			}
 			Instance = instance;
 			UniqueID = uniqueID;
 			uniqueIDs.Add(uniqueID, Instance);
 			objTags[instance] = new();
-			AddTags(tags);
 			OnCreate?.Invoke(this, UniqueID);
 		}
 

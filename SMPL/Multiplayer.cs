@@ -55,21 +55,24 @@ namespace SMPL
 		private static event Events.ParamsOne<string> OnClientConnected, OnClientDisconnected, OnClientTakenUniqueID;
 		private static event Events.ParamsOne<Message> OnMessageReceived, OnMessageSend;
 
-		public static void CallOnServerStart(Action method, uint order = uint.MaxValue) =>
+		public static class CallWhen
+		{
+			public static void ServerStart(Action method, uint order = uint.MaxValue) =>
 			OnServerStart = Events.Add(OnServerStart, method, order);
-		public static void CallOnServerStop(Action method, uint order = uint.MaxValue) =>
-			OnServerStop = Events.Add(OnServerStop, method, order);
-		public static void CallOnClientConnect(Action<string> method, uint order = uint.MaxValue) =>
-			OnClientConnected = Events.Add(OnClientConnected, method, order);
-		public static void CallOnClientDisconnect(Action<string> method, uint order = uint.MaxValue) =>
-			OnClientDisconnected = Events.Add(OnClientDisconnected, method, order);
-		// string = oldID
-		public static void CallOnClientTakenUniqueID(Action<string> method, uint order = uint.MaxValue) =>
-			OnClientTakenUniqueID = Events.Add(OnClientTakenUniqueID, method, order);
-		public static void CallOnMessageReceive(Action<Message> method, uint order = uint.MaxValue) =>
-			OnMessageReceived = Events.Add(OnMessageReceived, method, order);
-		public static void CallOnMessageSend(Action<Message> method, uint order = uint.MaxValue) =>
-			OnMessageSend = Events.Add(OnMessageSend, method, order);
+			public static void ServerStop(Action method, uint order = uint.MaxValue) =>
+				OnServerStop = Events.Add(OnServerStop, method, order);
+			public static void ClientConnect(Action<string> method, uint order = uint.MaxValue) =>
+				OnClientConnected = Events.Add(OnClientConnected, method, order);
+			public static void ClientDisconnect(Action<string> method, uint order = uint.MaxValue) =>
+				OnClientDisconnected = Events.Add(OnClientDisconnected, method, order);
+			// string = oldID
+			public static void ClientTakenUniqueID(Action<string> method, uint order = uint.MaxValue) =>
+				OnClientTakenUniqueID = Events.Add(OnClientTakenUniqueID, method, order);
+			public static void MessageReceive(Action<Message> method, uint order = uint.MaxValue) =>
+				OnMessageReceived = Events.Add(OnMessageReceived, method, order);
+			public static void MessageSend(Action<Message> method, uint order = uint.MaxValue) =>
+				OnMessageSend = Events.Add(OnMessageSend, method, order);
+		}
 
 		private static Dictionary<string, string> clientRealIDs = new();
 		private static List<string> clientIDs = new();

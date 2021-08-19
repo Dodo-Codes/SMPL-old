@@ -35,6 +35,30 @@ namespace SMPL
 		{
 			Normal, NoIcon, Tool
 		}
+		public enum PopUpIcon
+		{
+			None, Info, Error, Warning
+		}
+		public enum PopUpButtons
+		{
+			OK = 0,
+			OKCancel = 1,
+			AbortRetryIgnore = 2,
+			YesNoCancel = 3,
+			YesNo = 4,
+			RetryCancel = 5
+		}
+		public enum PopUpResult
+		{
+			None = 0,
+			OK = 1,
+			Cancel = 2,
+			Abort = 3,
+			Retry = 4,
+			Ignore = 5,
+			Yes = 6,
+			No = 7
+		}
 
 		private static State currentState;
 		private static Type currentType;
@@ -43,18 +67,21 @@ namespace SMPL
 
 		private static event Events.ParamsZero OnResize, OnClose, OnFocus, OnUnfocus, OnMaximize, OnMinimize;
 
-		public static void CallOnResize(Action method, uint order = uint.MaxValue) =>
-			OnResize = Events.Add(OnResize, method, order);
-		public static void CallOnClose(Action method, uint order = uint.MaxValue) =>
-			OnClose = Events.Add(OnClose, method, order);
-		public static void CallOnFocus(Action method, uint order = uint.MaxValue) =>
-			OnFocus = Events.Add(OnFocus, method, order);
-		public static void CallOnUnocus(Action method, uint order = uint.MaxValue) =>
-			OnUnfocus = Events.Add(OnUnfocus, method, order);
-		public static void CallOnMaximize(Action method, uint order = uint.MaxValue) =>
-			OnMaximize = Events.Add(OnMaximize, method, order);
-		public static void CallOnMinimize(Action method, uint order = uint.MaxValue) =>
-			OnMinimize = Events.Add(OnMinimize, method, order);
+		public static class CallWhen
+		{
+			public static void Resize(Action method, uint order = uint.MaxValue) =>
+				OnResize = Events.Add(OnResize, method, order);
+			public static void Close(Action method, uint order = uint.MaxValue) =>
+				OnClose = Events.Add(OnClose, method, order);
+			public static void Focus(Action method, uint order = uint.MaxValue) =>
+				OnFocus = Events.Add(OnFocus, method, order);
+			public static void Unocus(Action method, uint order = uint.MaxValue) =>
+				OnUnfocus = Events.Add(OnUnfocus, method, order);
+			public static void Maximize(Action method, uint order = uint.MaxValue) =>
+				OnMaximize = Events.Add(OnMaximize, method, order);
+			public static void Minimize(Action method, uint order = uint.MaxValue) =>
+				OnMinimize = Events.Add(OnMinimize, method, order);
+		}
 
 		public static State CurrentState
 		{
@@ -154,6 +181,20 @@ namespace SMPL
 			window.Close();
 		}
 		public static void RequestFocus() => window.RequestFocus();
+		public static PopUpResult PopUp(object message, string title = "", PopUpIcon icon = PopUpIcon.None,
+			PopUpButtons buttons = PopUpButtons.OK)
+		{
+			var msgIcon = MessageBoxIcon.None;
+			var btn = (MessageBoxButtons)buttons;
+			switch (icon)
+			{
+				case PopUpIcon.Info: msgIcon = MessageBoxIcon.Information; break;
+				case PopUpIcon.Error: msgIcon = MessageBoxIcon.Error; break;
+				case PopUpIcon.Warning: msgIcon = MessageBoxIcon.Warning; break;
+				case PopUpIcon.None: msgIcon = MessageBoxIcon.None; break;
+			}
+			return (PopUpResult)MessageBox.Show($"{message}", title, btn, msgIcon);
+		}
 
 		private static void Update()
 		{
@@ -215,7 +256,7 @@ namespace SMPL
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
 			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
-			Camera.WorldCamera.Component2D.Size = size;
+			Camera.WorldCamera.Display2D.Size = size;
 			window.SetView(Camera.WorldCamera.view);
 
 			CurrentType = Type.Normal;

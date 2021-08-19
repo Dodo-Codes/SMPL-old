@@ -22,22 +22,25 @@ namespace SMPL
 		private static event Events.ParamsTwo<ComponentHitbox, ComponentHitbox> OnAddIgnorance, OnRemoveIgnorance;
 		private static event Events.ParamsTwo<ComponentHitbox, string> OnSetLine, OnRemoveLine;
 
-		public static void CallOnIdentityChange(Action<ComponentHitbox, ComponentIdentity<ComponentHitbox>> method,
-			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-		public static void CallOnCreate(Action<ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnCreate = Events.Add(OnCreate, method, order);
-		public static void CallOnSetLine(Action<ComponentHitbox, string> method, uint order = uint.MaxValue) =>
-			OnSetLine = Events.Add(OnSetLine, method, order);
-		public static void CallOnRemoveLine(Action<ComponentHitbox, string> method, uint order = uint.MaxValue) =>
-			OnRemoveLine = Events.Add(OnRemoveLine, method, order);
-		public static void CallOnAddIgnorance(Action<ComponentHitbox, ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnAddIgnorance = Events.Add(OnAddIgnorance, method, order);
-		public static void CallOnRemoveIgnorance(Action<ComponentHitbox, ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnRemoveIgnorance = Events.Add(OnRemoveIgnorance, method, order);
-		public static void CallOnRemoveAllIgnorance(Action<ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnRemoveAllIgnorance = Events.Add(OnRemoveAllIgnorance, method, order);
-		public static void CallOnRemoveAllLines(Action<ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnRemoveAllLines = Events.Add(OnRemoveAllLines, method, order);
+		public static class CallWhen
+		{
+			public static void IdentityChange(Action<ComponentHitbox, ComponentIdentity<ComponentHitbox>> method,
+				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+			public static void Create(Action<ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnCreate = Events.Add(OnCreate, method, order);
+			public static void SetLine(Action<ComponentHitbox, string> method, uint order = uint.MaxValue) =>
+				OnSetLine = Events.Add(OnSetLine, method, order);
+			public static void RemoveLine(Action<ComponentHitbox, string> method, uint order = uint.MaxValue) =>
+				OnRemoveLine = Events.Add(OnRemoveLine, method, order);
+			public static void AddIgnorance(Action<ComponentHitbox, ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnAddIgnorance = Events.Add(OnAddIgnorance, method, order);
+			public static void RemoveIgnorance(Action<ComponentHitbox, ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnRemoveIgnorance = Events.Add(OnRemoveIgnorance, method, order);
+			public static void RemoveAllIgnorance(Action<ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnRemoveAllIgnorance = Events.Add(OnRemoveAllIgnorance, method, order);
+			public static void RemoveAllLines(Action<ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnRemoveAllLines = Events.Add(OnRemoveAllLines, method, order);
+		}
 
 		private ComponentIdentity<ComponentHitbox> identity;
 		public ComponentIdentity<ComponentHitbox> Identity

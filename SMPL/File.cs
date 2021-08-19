@@ -29,12 +29,15 @@ namespace SMPL
 
 		private static event Events.ParamsZero OnAssetLoadStart, OnAssetLoadUpdate, OnAssetLoadEnd;
 
-		public static void CallOnAssetLoadStart(Action method, uint order = uint.MaxValue) =>
+		public static class CallWhen
+		{
+			public static void AssetLoadStart(Action method, uint order = uint.MaxValue) =>
 			OnAssetLoadStart = Events.Add(OnAssetLoadStart, method, order);
-		public static void CallOnAssetLoadUpdate(Action method, uint order = uint.MaxValue) =>
-			OnAssetLoadUpdate = Events.Add(OnAssetLoadUpdate, method, order);
-		public static void CallOnAssetLoadEnd(Action method, uint order = uint.MaxValue) =>
-			OnAssetLoadEnd = Events.Add(OnAssetLoadEnd, method, order);
+			public static void AssetLoadUpdate(Action method, uint order = uint.MaxValue) =>
+				OnAssetLoadUpdate = Events.Add(OnAssetLoadUpdate, method, order);
+			public static void AssetLoadEnd(Action method, uint order = uint.MaxValue) =>
+				OnAssetLoadEnd = Events.Add(OnAssetLoadEnd, method, order);
+		}
 
 		internal static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
 		internal static List<QueuedAsset> queuedAssets = new();

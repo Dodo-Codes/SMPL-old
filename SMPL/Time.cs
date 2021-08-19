@@ -51,7 +51,10 @@ namespace SMPL
 		}
 
 		private static event Events.ParamsZero Always;
-		public static void CallAlways(Action method, uint order = uint.MaxValue) => Always = Events.Add(Always, method, order);
+		public static class CallWhen
+		{
+			public static void Pass(Action method, uint order = uint.MaxValue) => Always = Events.Add(Always, method, order);
+		}
 
 		internal static Clock time;
 		public static double GameClock { get { return time.ElapsedTime.AsSeconds(); } }
@@ -139,7 +142,7 @@ namespace SMPL
 				Mouse.Update();
 
 				Window.Draw();
-				Timer.Update();
+				ComponentTimer.Update();
 				Performance.frameDeltaTime.Restart();
 
 				File.UpdateMainThreadAssets();

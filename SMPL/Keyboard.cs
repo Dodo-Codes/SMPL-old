@@ -62,18 +62,21 @@ namespace SMPL
 		private static event Events.ParamsFour<string, bool, bool, bool> OnTextInput;
 		private static event Events.ParamsThree<string, string, string> OnLanguageChange;
 
-		public static void CallOnKeyPress(Action<Key> method, uint order = uint.MaxValue) =>
-			OnKeyPress = Events.Add(OnKeyPress, method, order);
-		public static void CallOnKeyHold(Action<Key> method, uint order = uint.MaxValue) =>
-			OnKeyHold = Events.Add(OnKeyHold, method, order);
-		public static void CallOnKeyRelease(Action<Key> method, uint order = uint.MaxValue) =>
-			OnKeyRelease = Events.Add(OnKeyRelease, method, order);
-		//public virtual void OnTextInput(string textSymbol, bool isBackspace, bool isEnter, bool isTab) { }
-		public static void CallOnTextInput(Action<string, bool, bool, bool> method, uint order = uint.MaxValue) =>
-			OnTextInput = Events.Add(OnTextInput, method, order);
-		//public virtual void OnLanguageChange(string englishName, string nativeName, string languageCode) { }
-		public static void CallOnLanguageChange(Action<string, string, string> method, uint order = uint.MaxValue) =>
-			OnLanguageChange = Events.Add(OnLanguageChange, method, order);
+		public static class CallWhen
+		{
+			public static void KeyPress(Action<Key> method, uint order = uint.MaxValue) =>
+				OnKeyPress = Events.Add(OnKeyPress, method, order);
+			public static void KeyHold(Action<Key> method, uint order = uint.MaxValue) =>
+				OnKeyHold = Events.Add(OnKeyHold, method, order);
+			public static void KeyRelease(Action<Key> method, uint order = uint.MaxValue) =>
+				OnKeyRelease = Events.Add(OnKeyRelease, method, order);
+			//string textSymbol, bool isBackspace, bool isEnter, bool isTab
+			public static void TextInput(Action<string, bool, bool, bool> method, uint order = uint.MaxValue) =>
+				OnTextInput = Events.Add(OnTextInput, method, order);
+			//string englishName, string nativeName, string languageCode
+			public static void LanguageChange(Action<string, string, string> method, uint order = uint.MaxValue) =>
+				OnLanguageChange = Events.Add(OnLanguageChange, method, order);
+		}
 
 		internal static void Update()
 		{

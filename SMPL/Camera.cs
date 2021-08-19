@@ -16,12 +16,16 @@ namespace SMPL
 		private static event Events.ParamsOne<Camera> OnDisplay;
 		private static event Events.ParamsTwo<Camera, Component2D> OnDisplay2DChanged;
 		private static event Events.ParamsTwo<Camera, ComponentIdentity<Camera>> OnIdentityChange;
-		public static void CallOnDisplay(Action<Camera> method, uint order = uint.MaxValue) =>
+
+		public static class CallWhen
+		{
+			public static void Display(Action<Camera> method, uint order = uint.MaxValue) =>
 			OnDisplay = Events.Add(OnDisplay, method, order);
-		public static void CallOnDisplay2DChanged(Action<Camera, Component2D> method, uint order = uint.MaxValue) =>
-			OnDisplay2DChanged = Events.Add(OnDisplay2DChanged, method, order);
-		public static void CallOnIdentityChange(Action<Camera, ComponentIdentity<Camera>> method,
-			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+			public static void Display2DChanged(Action<Camera, Component2D> method, uint order = uint.MaxValue) =>
+				OnDisplay2DChanged = Events.Add(OnDisplay2DChanged, method, order);
+			public static void IdentityChange(Action<Camera, ComponentIdentity<Camera>> method,
+				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+		}
 
 		public static Camera WorldCamera { get; internal set; }
 
@@ -34,6 +38,7 @@ namespace SMPL
 				if (display2D == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = display2D;
 				display2D = value;
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
 				OnDisplay2DChanged?.Invoke(this, prev);
 			}
 		}

@@ -19,16 +19,19 @@ namespace SMPL
       private static event Events.ParamsOne<Audio> OnAudioPause;
       private static event Events.ParamsOne<Audio> OnAudioStop;
 
-      public static void CallOnAudioStart(Action<Audio> method, uint order = uint.MaxValue) =>
+      public static class CallWhen
+      {
+         public static void Start(Action<Audio> method, uint order = uint.MaxValue) =>
         OnAudioStart = Events.Add(OnAudioStart, method, order);
-      public static void CallOnAudioEnd(Action<Audio> method, uint order = uint.MaxValue) =>
-         OnAudioEnd = Events.Add(OnAudioEnd, method, order);
-      public static void CallOnAudioPlay(Action<Audio> method, uint order = uint.MaxValue) =>
-         OnAudioPlay = Events.Add(OnAudioPlay, method, order);
-      public static void CallOnAudioPause(Action<Audio> method, uint order = uint.MaxValue) =>
-         OnAudioPause = Events.Add(OnAudioPause, method, order);
-      public static void CallOnAudioStop(Action<Audio> method, uint order = uint.MaxValue) =>
-         OnAudioStop = Events.Add(OnAudioPause, method, order);
+         public static void End(Action<Audio> method, uint order = uint.MaxValue) =>
+            OnAudioEnd = Events.Add(OnAudioEnd, method, order);
+         public static void Play(Action<Audio> method, uint order = uint.MaxValue) =>
+            OnAudioPlay = Events.Add(OnAudioPlay, method, order);
+         public static void Pause(Action<Audio> method, uint order = uint.MaxValue) =>
+            OnAudioPause = Events.Add(OnAudioPause, method, order);
+         public static void Stop(Action<Audio> method, uint order = uint.MaxValue) =>
+            OnAudioStop = Events.Add(OnAudioPause, method, order);
+      }
 
       public ComponentIdentity<Audio> IdentityComponent { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿using SFML.Graphics;
-using static SMPL.Events;
+using System;
 
 namespace SMPL
 {
@@ -10,14 +10,18 @@ namespace SMPL
 		internal Component2D transform;
 		internal ComponentVisual masking;
 
-		private Effects effects;
-		public Effects Effects
+		private ComponentEffects effects;
+		public ComponentEffects Effects
 		{
 			get { return effects; }
 			set
 			{
 				if (effects == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = effects;
 				effects = value;
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				if (this is ComponentText) ComponentText.TriggerOnEffectsChange(this as ComponentText, prev);
+				else ComponentSprite.TriggerOnEffectsChange(this as ComponentSprite, prev);
 			}
 		}
 		private ComponentFamily family;
@@ -27,7 +31,11 @@ namespace SMPL
 			set
 			{
 				if (family == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				var prev = family;
 				family = value;
+				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				if (this is ComponentText) ComponentText.TriggerOnFamilyChange(this as ComponentText, prev);
+				else ComponentSprite.TriggerOnFamilyChange(this as ComponentSprite, prev);
 			}
 		}
 
@@ -39,18 +47,8 @@ namespace SMPL
 			{
 				if (isHidden == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				isHidden = value;
-				if (this is ComponentText)
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-							e[i].OnTextVisibilityChangeSetup(this as ComponentText); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++)
-							e[i].OnTextVisibilityChange(this as ComponentText); }
-				}
-				else
-				{
-					var n = D(instances); foreach (var kvp in n) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteVisibilityChangeSetup(this as ComponentSprite); }
-					var n1 = D(instances); foreach (var kvp in n1) { var e = L(kvp.Value); for (int i = 0; i < e.Count; i++) e[i].OnSpriteVisibilityChange(this as ComponentSprite); }
-				}
+				if (this is ComponentText) ComponentText.TriggerOnVisibilityChange(this as ComponentText);
+				else ComponentSprite.TriggerOnVisibilityChange(this as ComponentSprite);
 			}
 		}
 

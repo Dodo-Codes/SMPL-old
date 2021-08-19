@@ -28,58 +28,61 @@ namespace SMPL
 		private static event Events.ParamsTwo<Component2D, Size> OnSizeChange, OnSizeChangeStart, OnLocalSizeChange,
 			OnLocalSizeChangeStart;
 
-		public static void CallOnCreate(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnCreate = Events.Add(OnCreate, method, order);
-		public static void CallOnIdentityChange(Action<Component2D, ComponentIdentity<Component2D>> method,
-			uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-		public static void CallOnPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
-			OnPositionChange = Events.Add(OnPositionChange, method, order);
-		public static void CallOnPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
-			OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
-		public static void CallOnPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
-		public static void CallOnAngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
-			OnAngleChange = Events.Add(OnAngleChange, method, order);
-		public static void CallOnAngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
-			OnAngleChangeStart = Events.Add(OnAngleChangeStart, method, order);
-		public static void CallOnAngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnAngleChangeEnd = Events.Add(OnAngleChangeEnd, method, order);
-		public static void CallOnSizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
-			OnSizeChange = Events.Add(OnSizeChange, method, order);
-		public static void CallOnSizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
-			OnSizeChangeStart = Events.Add(OnSizeChangeStart, method, order);
-		public static void CallOnSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnSizeChangeEnd = Events.Add(OnSizeChangeEnd, method, order);
-		public static void CallOnOriginPercentChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
-			OnOriginPercentChange = Events.Add(OnOriginPercentChange, method, order);
-		public static void CallOnOriginPercentChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
-			OnOriginPercentChangeStart = Events.Add(OnOriginPercentChangeStart, method, order);
-		public static void CallOnOriginPercentChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnOriginPercentChangeEnd = Events.Add(OnOriginPercentChangeEnd, method, order);
-		public static void CallOnLocalPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
-			OnLocalPositionChange = Events.Add(OnLocalPositionChange, method, order);
-		public static void CallOnLocalPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
-			OnLocalPositionChangeStart = Events.Add(OnLocalPositionChangeStart, method, order);
-		public static void CallOnLocalPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnLocalPositionChangeEnd = Events.Add(OnLocalPositionChangeEnd, method, order);
-		public static void CallOnLocalAngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
-			OnLocalAngleChange = Events.Add(OnLocalAngleChange, method, order);
-		public static void CallOnLocalAngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
-			OnLocalAngleChangeStart = Events.Add(OnLocalAngleChangeStart, method, order);
-		public static void CallOnLocalAngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnLocalAngleChangeEnd = Events.Add(OnLocalAngleChangeEnd, method, order);
-		public static void CallOnLocalSizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
-			OnLocalSizeChange = Events.Add(OnLocalSizeChange, method, order);
-		public static void CallOnLocalSizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
-			OnLocalSizeChangeStart = Events.Add(OnLocalSizeChangeStart, method, order);
-		public static void CallOnLocalSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnLocalSizeChangeEnd = Events.Add(OnLocalSizeChangeEnd, method, order);
-		public static void CallOnAddHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnHitboxAdd = Events.Add(OnHitboxAdd, method, order);
-		public static void CallOnRemoveHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
-			OnHitboxRemove = Events.Add(OnHitboxRemove, method, order);
-		public static void CallOnRemoveAllHitboxes(Action<Component2D> method, uint order = uint.MaxValue) =>
-			OnHitboxesRemoveAll = Events.Add(OnHitboxesRemoveAll, method, order);
+		public static class CallWhen
+		{
+			public static void Create(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnCreate = Events.Add(OnCreate, method, order);
+			public static void IdentityChange(Action<Component2D, ComponentIdentity<Component2D>> method,
+				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
+			public static void PositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+				OnPositionChange = Events.Add(OnPositionChange, method, order);
+			public static void PositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+				OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
+			public static void PositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
+			public static void AngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+				OnAngleChange = Events.Add(OnAngleChange, method, order);
+			public static void AngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+				OnAngleChangeStart = Events.Add(OnAngleChangeStart, method, order);
+			public static void AngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnAngleChangeEnd = Events.Add(OnAngleChangeEnd, method, order);
+			public static void SizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+				OnSizeChange = Events.Add(OnSizeChange, method, order);
+			public static void SizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+				OnSizeChangeStart = Events.Add(OnSizeChangeStart, method, order);
+			public static void SizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnSizeChangeEnd = Events.Add(OnSizeChangeEnd, method, order);
+			public static void OriginPercentChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+				OnOriginPercentChange = Events.Add(OnOriginPercentChange, method, order);
+			public static void OriginPercentChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+				OnOriginPercentChangeStart = Events.Add(OnOriginPercentChangeStart, method, order);
+			public static void OriginPercentChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnOriginPercentChangeEnd = Events.Add(OnOriginPercentChangeEnd, method, order);
+			public static void LocalPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+				OnLocalPositionChange = Events.Add(OnLocalPositionChange, method, order);
+			public static void LocalPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+				OnLocalPositionChangeStart = Events.Add(OnLocalPositionChangeStart, method, order);
+			public static void LocalPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnLocalPositionChangeEnd = Events.Add(OnLocalPositionChangeEnd, method, order);
+			public static void LocalAngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+				OnLocalAngleChange = Events.Add(OnLocalAngleChange, method, order);
+			public static void LocalAngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+				OnLocalAngleChangeStart = Events.Add(OnLocalAngleChangeStart, method, order);
+			public static void LocalAngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnLocalAngleChangeEnd = Events.Add(OnLocalAngleChangeEnd, method, order);
+			public static void LocalSizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+				OnLocalSizeChange = Events.Add(OnLocalSizeChange, method, order);
+			public static void LocalSizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+				OnLocalSizeChangeStart = Events.Add(OnLocalSizeChangeStart, method, order);
+			public static void LocalSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnLocalSizeChangeEnd = Events.Add(OnLocalSizeChangeEnd, method, order);
+			public static void AddHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnHitboxAdd = Events.Add(OnHitboxAdd, method, order);
+			public static void RemoveHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+				OnHitboxRemove = Events.Add(OnHitboxRemove, method, order);
+			public static void RemoveAllHitboxes(Action<Component2D> method, uint order = uint.MaxValue) =>
+				OnHitboxesRemoveAll = Events.Add(OnHitboxesRemoveAll, method, order);
+		}
 
 		public void AddHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
