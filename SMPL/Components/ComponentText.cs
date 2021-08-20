@@ -96,7 +96,8 @@ namespace SMPL
 			get { return bgColor; }
 			set
 			{
-				if (bgColor == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (bgColor == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = bgColor;
 				bgColor = value;
 				OnBackgroundColorChange?.Invoke(this, prev);
@@ -108,7 +109,8 @@ namespace SMPL
 			get { return position; }
 			set
 			{
-				if (position == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (position == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = position;
 				position = value;
 				transform.text.Position = Point.From(value);
@@ -122,8 +124,8 @@ namespace SMPL
 			get { return angle; }
 			set
 			{
-				if (Angle == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
-					return;
+				if (Angle == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = Angle;
 				angle = value;
 				transform.text.Rotation = (float)value;
@@ -138,7 +140,8 @@ namespace SMPL
 			set
 			{
 				var v = Size.From(value);
-				if (transform.text.Scale == v || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (transform.text.Scale == v || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var delta = value - Size.To(transform.text.Scale);
 				scale = value;
 				transform.text.Scale = v;
@@ -155,7 +158,7 @@ namespace SMPL
 				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value) return;
+				if (originPercent == value || IsNotLoaded()) return;
 				var prev = originPercent;
 				originPercent = value;
 				UpdateOrigin();
@@ -164,23 +167,13 @@ namespace SMPL
 			}
 		}
 
-		private string path;
-		public string FontPath
-		{
-			get { return path; }
-			private set
-			{
-				// validated in constructor
-				transform.text.Font = File.fonts[value];
-				path = value;
-			}
-		}
+		public string FontPath { get; private set; }
 		public string Text
 		{
 			get { return transform.text.DisplayedString; }
 			set
 			{
-				if (transform.text.DisplayedString == value ||
+				if (transform.text.DisplayedString == value || IsNotLoaded() ||
 					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = transform.text.DisplayedString;
 				transform.text.DisplayedString = value;
@@ -193,8 +186,8 @@ namespace SMPL
 			get { return transform.text.CharacterSize; }
 			set
 			{
-				if (transform.text.CharacterSize == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
-					return;
+				if (transform.text.CharacterSize == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = transform.text.CharacterSize;
 				transform.text.CharacterSize = value;
 				Position = position;
@@ -207,7 +200,8 @@ namespace SMPL
 			get { return spacing; }
 			set
 			{
-				if (spacing == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (spacing == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = spacing;
 				spacing = value;
 				transform.text.LetterSpacing = (float)value.W / 4;
@@ -226,14 +220,14 @@ namespace SMPL
 			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 			if (File.fonts.ContainsKey(fontPath) == false)
 			{
-				Debug.LogError(1, $"The font at '{fontPath}' is not loaded.\n" +
+				Debug.LogError(1, $"The font '{fontPath}' is not loaded.\n" +
 					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
 					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
 				return;
 			}
 			texts.Add(this);
 			transform.text.DisplayedString = "Hello World!";
-			transform.text.CharacterSize = 64;
+			transform.text.CharacterSize = 20;
 			transform.text.LetterSpacing = 1;
 			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
 			transform.text.FillColor = Color.From(Color.White);
@@ -242,7 +236,10 @@ namespace SMPL
 			spacing = new Size(4, 4);
 			lastFrameSp = spacing;
 			lastFrameSc = new Size(1, 1);
+
 			FontPath = fontPath;
+			transform.text.Font = File.fonts[fontPath];
+			HasLoadedAssetFile = true;
 
 			OnCreate?.Invoke(this, fontPath);
 		}
@@ -302,11 +299,11 @@ namespace SMPL
 		internal static void TriggerOnFamilyChange(ComponentText i, ComponentFamily f) => OnFamilyChange?.Invoke(i, f);
 		internal static void TriggerOnEffectsChange(ComponentText i, ComponentEffects e) => OnEffectsChange?.Invoke(i, e);
 
-		public void Display(Camera camera)
+		public void Display(ComponentCamera camera)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.text == null ||
-				transform.text.Font == null) return;
+			if (Window.DrawNotAllowed() || IsNotLoaded() || masking != null || IsHidden || transform == null ||
+				transform.text == null || transform.text.Font == null) return;
 
 			var rend = new RenderTexture((uint)Number.Sign(transform.Size.W, false), (uint)Number.Sign(transform.Size.H, false));
 			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));

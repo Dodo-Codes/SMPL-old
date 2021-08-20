@@ -53,7 +53,7 @@ namespace SMPL
 		private static event Events.ParamsZero Always;
 		public static class CallWhen
 		{
-			public static void Pass(Action method, uint order = uint.MaxValue) => Always = Events.Add(Always, method, order);
+			public static void Update(Action method, uint order = uint.MaxValue) => Always = Events.Add(Always, method, order);
 		}
 
 		internal static Clock time;
@@ -131,7 +131,7 @@ namespace SMPL
 				Performance.frameCount++;
 				Always?.Invoke();
 
-				Audio.Update();
+				ComponentAudio.Update();
 
 				for (int i = 0; i < Component2D.transforms.Count; i++) Component2D.transforms[i].Update();
 				for (int i = 0; i < ComponentHitbox.hitboxes.Count; i++) ComponentHitbox.hitboxes[i].Update();

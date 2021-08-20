@@ -16,7 +16,7 @@ namespace SMPL
 			X = x;
 			Y = y;
 		}
-		public void Display(Camera camera)
+		public void Display(ComponentCamera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
 			var vert = new Vertex[] { new(From(this), Color.From(Color)) };

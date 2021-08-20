@@ -200,7 +200,7 @@ namespace SMPL
 				OnSizeChange?.Invoke(this, prev);
 			}
 		}
-		internal Point originPercent, lastFrameOrPer;
+		internal Point originPercent = new(50, 50), lastFrameOrPer = new(50, 50);
 		public Point OriginPercent
 		{
 			get { return originPercent; }
@@ -209,7 +209,7 @@ namespace SMPL
 				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value || Camera.WorldCamera.Display2D == this) return;
+				if (originPercent == value || ComponentCamera.WorldCamera.Display2D == this) return;
 				var prev = originPercent;
 				originPercent = value;
 				UpdateHitboxes();
@@ -345,7 +345,7 @@ namespace SMPL
 			}
 		}
 
-		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
+		public static Point PositionToParallax(Point position, Size parallaxPercent, ComponentCamera camera)
 		{
 			parallaxPercent += new Size(100, 100);
 			var x = Number.FromPercent(parallaxPercent.W, new Bounds(-camera.Position.X, position.X));
@@ -362,7 +362,7 @@ namespace SMPL
 			return family == null || family.Parent == null ? position :
 				Point.To(family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
-		public static double AngleToParallax(double angle, double parallaxPercent, Camera camera)
+		public static double AngleToParallax(double angle, double parallaxPercent, ComponentCamera camera)
 		{
 			parallaxPercent /= 100;
 			return Number.MoveTowardAngle(angle, camera.Angle, (camera.Angle - angle) * parallaxPercent, Time.Unit.Tick);
@@ -377,7 +377,7 @@ namespace SMPL
 			return family == null || family.Parent == null ? angle :
 				-(family.Parent.transform.localAngle - angle);
 		}
-		public static Size SizeToParallax(Size size, Size parallaxPercent, Camera camera)
+		public static Size SizeToParallax(Size size, Size parallaxPercent, ComponentCamera camera)
 		{
 			parallaxPercent /= 100;
 			var sc = (camera.Size / camera.startSize) * parallaxPercent;

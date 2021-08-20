@@ -17,7 +17,7 @@ namespace SMPL
 			PointC = pointC;
 			PointD = pointD;
 		}
-		public void Display(Camera camera)
+		public void Display(ComponentCamera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
 

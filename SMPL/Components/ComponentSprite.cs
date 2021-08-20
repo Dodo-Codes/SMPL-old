@@ -72,7 +72,7 @@ namespace SMPL
 			get { return transform.sprite.Texture.Repeated; }
 			set
 			{
-				if (transform.sprite.Texture.Repeated == value ||
+				if (transform.sprite.Texture.Repeated == value || IsNotLoaded() ||
 					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Repeated = value;
 				OnRepeatingChange?.Invoke(this);
@@ -83,37 +83,21 @@ namespace SMPL
 			get { return transform.sprite.Texture.Smooth; }
 			set
 			{
-				if (transform.sprite.Texture.Smooth == value ||
+				if (transform.sprite.Texture.Smooth == value || IsNotLoaded() ||
 					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Smooth = value;
 				OnSmoothnessChange?.Invoke(this);
 			}
 		}
-		private string path;
-		public string TexturePath
-		{
-			get { return path; }
-			private set
-			{
-				// validated in constructor
-				var texture = File.textures[value];
-				transform.sprite.Texture = texture;
-
-				image = new Image(transform.sprite.Texture.CopyToImage());
-				rawTextureData = image.Pixels;
-				rawTexture = new Texture(image);
-				image.FlipVertically();
-				rawTextureShader = new Texture(image);
-				path = value;
-			}
-		}
+		public string TexturePath { get; private set; }
 		private Point offsetPercent, lastFrameOffPer;
 		public Point OffsetPercent
 		{
 			get { return offsetPercent; }
 			set
 			{
-				if (offsetPercent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (offsetPercent == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = offsetPercent;
 				offsetPercent = value;
 				var rect = transform.sprite.TextureRect;
@@ -131,7 +115,8 @@ namespace SMPL
 			get { return sizePercent; }
 			set
 			{
-				if (sizePercent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (sizePercent == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = sizePercent;
 				sizePercent = value;
 				value /= 100;
@@ -149,7 +134,8 @@ namespace SMPL
 			get { return gridSize; }
 			set
 			{
-				if (gridSize == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (gridSize == value || IsNotLoaded() ||
+					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = gridSize;
 				gridSize = value;
 				transform.OriginPercent = transform.OriginPercent;
@@ -168,15 +154,26 @@ namespace SMPL
 			if (File.textures.ContainsKey(texturePath) == false)
 			{
 				Debug.LogError(1, $"The texture at '{texturePath}' is not loaded.\n" +
-					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+					$"Use '{nameof(File)}.{nameof(File.LoadAsset)}({nameof(File)}.{nameof(File.Asset)}." +
 					$"{nameof(File.Asset.Texture)}, \"{texturePath}\")' to load it.");
 				return;
 			}
 			sprites.Add(this);
+
 			TexturePath = texturePath;
+			var texture = File.textures[texturePath];
+			transform.sprite.Texture = texture;
+
+			image = new Image(transform.sprite.Texture.CopyToImage());
+			rawTextureData = image.Pixels;
+			rawTexture = new Texture(image);
+			image.FlipVertically();
+			rawTextureShader = new Texture(image);
+
 			transform.sprite.Texture.Repeated = true;
 			sizePercent = new Size(100, 100);
 			lastFrameSzPer = sizePercent;
+			HasLoadedAssetFile = true;
 
 			OnCreate?.Invoke(this, texturePath);
 		}
@@ -199,11 +196,11 @@ namespace SMPL
 		internal static void TriggerOnFamilyChange(ComponentSprite i, ComponentFamily f) => OnFamilyChange?.Invoke(i, f);
 		internal static void TriggerOnEffectsChange(ComponentSprite i, ComponentEffects e) => OnEffectsChange?.Invoke(i, e);
 
-		public void Display(Camera camera)
+		public void Display(ComponentCamera camera)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null || transform.sprite == null ||
-				transform.sprite.Texture == null) return;
+			if (Window.DrawNotAllowed() || IsNotLoaded() || masking != null || IsHidden || transform == null ||
+				transform.sprite == null || transform.sprite.Texture == null) return;
 
 			transform.sprite.Position = new Vector2f();
 			transform.sprite.Rotation = 0;

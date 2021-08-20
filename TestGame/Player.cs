@@ -11,7 +11,7 @@ namespace TestGame
 		private double fov = 90;
 		private Component2D Component2D { get; set; }
 		private ComponentHitbox Map { get; set; }
-		private Camera Cam { get; set; }
+		private ComponentCamera Cam { get; set; }
 
 		public Player()
 		{
@@ -58,15 +58,15 @@ namespace TestGame
 			Component2D.Position = Point.MoveAtAngle(Component2D.Position, Component2D.Angle, sp);
 		}
 
-		public override void OnDraw(Camera camera)
+		public override void OnDraw(ComponentCamera camera)
       {
 			Cam.Position = Component2D.Position;
 			Cam.Angle = Component2D.Angle + 90;
 
 			var rays = Component2D.ComponentHitbox.Lines;
-			if (camera == Camera.WorldCamera)
+			if (camera == ComponentCamera.WorldCamera)
 			{
-				var scrSz = Camera.WorldCamera.Size;
+				var scrSz = ComponentCamera.WorldCamera.Size;
 				var topL = new Point(-scrSz.W / 2, -scrSz.H / 2);
 				var topR = new Point(scrSz.W / 2, -scrSz.H / 2);
 				var botR = new Point(scrSz.W / 2, 0);
@@ -101,8 +101,8 @@ namespace TestGame
 						var ang = Number.AngleBetweenPoints(rays[i].StartPosition, rays[i].EndPosition) - Component2D.Angle;
 						var dist = (Point.Distance(rays[i].StartPosition, crossP));
 						var pixelColumnHeight = rayLength - dist * Number.Cos(ang * Number.PI / 180);
-						var pixelColumnWidth = Camera.WorldCamera.Size.W / rayAmount;
-						var x = ((i - 1) * pixelColumnWidth) - Camera.WorldCamera.Size.W / 2;
+						var pixelColumnWidth = ComponentCamera.WorldCamera.Size.W / rayAmount;
+						var x = ((i - 1) * pixelColumnWidth) - ComponentCamera.WorldCamera.Size.W / 2;
 
 						var topLeft = new Point(x, -pixelColumnHeight / 2);
 						var topRight = new Point(x + pixelColumnWidth, -pixelColumnHeight / 2);

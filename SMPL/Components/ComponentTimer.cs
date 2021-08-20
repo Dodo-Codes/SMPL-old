@@ -8,6 +8,7 @@ namespace SMPL
       private static event Events.ParamsTwo<ComponentTimer, int> OnEndCountChange;
       private static event Events.ParamsTwo<ComponentTimer, double> OnCreateAndStart, OnDurationChange, OnCountdownChange,
          OnProgressChange, OnProgressPercentChange;
+      private static event Events.ParamsFour<ComponentTimer, double, double, double> OnUpdate;
       private static event Events.ParamsTwo<ComponentTimer, ComponentIdentity<ComponentTimer>> OnIdentityChange;
 
       public static class CallWhen
@@ -24,6 +25,8 @@ namespace SMPL
             OnEndCountChange = Events.Add(OnEndCountChange, method, order);
          public static void DurationChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
             OnDurationChange = Events.Add(OnDurationChange, method, order);
+         public static void Update(Action<ComponentTimer, double, double, double> method, uint order = uint.MaxValue) =>
+            OnUpdate = Events.Add(OnUpdate, method, order);
          public static void ProgressChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
             OnProgressChange = Events.Add(OnProgressChange, method, order);
          public static void CountdownChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
@@ -68,13 +71,13 @@ namespace SMPL
             if (progress == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
             var prevCd = Countdown;
             var prevPr = Progress;
+            var prevPrPer = ProgressPercent;
             progress = value;
             countdown = Duration - value;
-            var prevPrPer = ProgressPercent;
             if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnCountdownChange?.Invoke(this, prevCd);
             OnProgressChange?.Invoke(this, prevPr);
             OnProgressPercentChange?.Invoke(this, prevPrPer);
+            OnCountdownChange?.Invoke(this, prevCd);
          }
       }
       public double ProgressPercent
@@ -87,12 +90,12 @@ namespace SMPL
             if (prPer == progress || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
             var prevCd = Countdown;
             var prevPr = Progress;
-            progress = prPer;
             var prevPrPer = ProgressPercent;
+            progress = prPer;
             if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnCountdownChange?.Invoke(this, prevCd);
             OnProgressChange?.Invoke(this, prevPr);
             OnProgressPercentChange?.Invoke(this, prevPrPer);
+            OnCountdownChange?.Invoke(this, prevCd);
          }
       }
       private double countdown;
@@ -104,13 +107,13 @@ namespace SMPL
             if (countdown == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
             var prevCd = Countdown;
             var prevPr = Progress;
+            var prevPrPer = ProgressPercent;
             countdown = value;
             progress = Duration - value;
-            var prevPrPer = ProgressPercent;
             if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnCountdownChange?.Invoke(this, prevCd);
             OnProgressChange?.Invoke(this, prevPr);
             OnProgressPercentChange?.Invoke(this, prevPrPer);
+            OnCountdownChange?.Invoke(this, prevCd);
          }
       }
       private bool isPaused;
@@ -150,11 +153,9 @@ namespace SMPL
             if (timer.IsPaused || timer.Countdown == 0) continue;
             var prevCd = timer.Countdown;
             var prevPr = timer.Progress;
-            timer.Countdown -= dt;
             var prevPrPer = timer.ProgressPercent;
-            OnCountdownChange?.Invoke(timer, prevCd);
-            OnProgressChange?.Invoke(timer, prevPr);
-            OnProgressPercentChange?.Invoke(timer, prevPrPer);
+            timer.Countdown -= dt;
+            OnUpdate?.Invoke(timer, prevCd, prevPr, prevPrPer);
             if (Gate.EnterOnceWhile(timerUIDs[j] + "end-as;li3'f2", timer.Countdown <= 0) ||
                dt > timer.Duration)
             {

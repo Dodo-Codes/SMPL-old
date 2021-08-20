@@ -5,29 +5,29 @@ using System.Collections.Generic;
 
 namespace SMPL
 {
-	public class Camera : ComponentAccess
+	public class ComponentCamera : ComponentAccess
 	{
-		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
+		internal static SortedDictionary<double, List<ComponentCamera>> sortedCameras = new();
 		internal View view;
 		internal Sprite sprite = new();
 		internal RenderTexture rendTexture;
 		internal Size startSize;
 
-		private static event Events.ParamsOne<Camera> OnDisplay;
-		private static event Events.ParamsTwo<Camera, Component2D> OnDisplay2DChanged;
-		private static event Events.ParamsTwo<Camera, ComponentIdentity<Camera>> OnIdentityChange;
+		private static event Events.ParamsOne<ComponentCamera> OnDisplay;
+		private static event Events.ParamsTwo<ComponentCamera, Component2D> OnDisplay2DChanged;
+		private static event Events.ParamsTwo<ComponentCamera, ComponentIdentity<ComponentCamera>> OnIdentityChange;
 
 		public static class CallWhen
 		{
-			public static void Display(Action<Camera> method, uint order = uint.MaxValue) =>
+			public static void Display(Action<ComponentCamera> method, uint order = uint.MaxValue) =>
 			OnDisplay = Events.Add(OnDisplay, method, order);
-			public static void Display2DChanged(Action<Camera, Component2D> method, uint order = uint.MaxValue) =>
+			public static void Display2DChanged(Action<ComponentCamera, Component2D> method, uint order = uint.MaxValue) =>
 				OnDisplay2DChanged = Events.Add(OnDisplay2DChanged, method, order);
-			public static void IdentityChange(Action<Camera, ComponentIdentity<Camera>> method,
+			public static void IdentityChange(Action<ComponentCamera, ComponentIdentity<ComponentCamera>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
 		}
 
-		public static Camera WorldCamera { get; internal set; }
+		public static ComponentCamera WorldCamera { get; internal set; }
 
 		private Component2D display2D;
 		public Component2D Display2D
@@ -43,8 +43,8 @@ namespace SMPL
 			}
 		}
 
-		private ComponentIdentity<Camera> identity;
-		public ComponentIdentity<Camera> Identity
+		private ComponentIdentity<ComponentCamera> identity;
+		public ComponentIdentity<ComponentCamera> Identity
 		{
 			get { return identity; }
 			set
@@ -66,7 +66,7 @@ namespace SMPL
 				var oldDepth = depth;
 				depth = value;
 				sortedCameras[oldDepth].Remove(this);
-				if (sortedCameras.ContainsKey(depth) == false) sortedCameras[depth] = new List<Camera>();
+				if (sortedCameras.ContainsKey(depth) == false) sortedCameras[depth] = new List<ComponentCamera>();
 				sortedCameras[depth].Add(this);
 			}
 		}
@@ -113,9 +113,9 @@ namespace SMPL
 			}
 		}
 
-		public Camera(Point viewPosition, Size viewSize)
+		public ComponentCamera(Point viewPosition, Size viewSize)
 		{
-			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
+			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<ComponentCamera>();
 			sortedCameras[0].Add(this);
 
 			var pos = Point.From(viewPosition);

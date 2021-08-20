@@ -102,7 +102,7 @@ namespace SMPL
 				if (Contains_(hitboxes[i])) contains.Add(hitboxes[i]);
 			}
 		}
-		public void Display(Camera camera)
+		public void Display(ComponentCamera camera)
 		{
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			foreach (var kvp in lines) kvp.Value.Display(camera);

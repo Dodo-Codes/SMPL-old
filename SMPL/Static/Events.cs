@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace SMPL
 {
-	public abstract class Events
+	internal static class Events
 	{
-		public delegate void ParamsZero();
-		public delegate void ParamsOne<T>(T param1);
-		public delegate void ParamsTwo<T1, T2>(T1 param1, T2 param2);
-		public delegate void ParamsThree<T1, T2, T3>(T1 param1, T2 param2, T3 param3);
-		public delegate void ParamsFour<T1, T2, T3, T4>(T1 param1, T2 param2, T3 param3, T4 param4);
+		internal delegate void ParamsZero();
+		internal delegate void ParamsOne<T>(T param1);
+		internal delegate void ParamsTwo<T1, T2>(T1 param1, T2 param2);
+		internal delegate void ParamsThree<T1, T2, T3>(T1 param1, T2 param2, T3 param3);
+		internal delegate void ParamsFour<T1, T2, T3, T4>(T1 param1, T2 param2, T3 param3, T4 param4);
 
 		internal static ParamsZero Add(ParamsZero pz, Action method, uint order)
 		{
@@ -73,8 +72,5 @@ namespace SMPL
 			if (order >= l.Length) pz += new ParamsFour<T1, T2, T3, T4>(method);
 			return pz;
 		}
-
-		internal static SortedDictionary<int, List<Events>> instances = new();
-		internal static Dictionary<Events, int> instancesOrder = new();
 	}
 }

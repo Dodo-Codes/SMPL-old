@@ -226,7 +226,7 @@ namespace SMPL
 			window.SetActive(true);
 			window.Clear();
 			isDrawing = true;
-			Camera.DrawCameras();
+			ComponentCamera.DrawCameras();
 			isDrawing = false;
 			window.Display();
 			window.SetActive(false);
@@ -255,9 +255,9 @@ namespace SMPL
 
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
-			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
-			Camera.WorldCamera.Display2D.Size = size;
-			window.SetView(Camera.WorldCamera.view);
+			ComponentCamera.WorldCamera = new(new Point(0, 0), size / pixelSize);
+			ComponentCamera.WorldCamera.Display2D.Size = size;
+			window.SetView(ComponentCamera.WorldCamera.view);
 
 			CurrentType = Type.Normal;
 			IsResizable = true;
