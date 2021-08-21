@@ -93,7 +93,7 @@ namespace SMPL
 		private Color bgColor, lastFrameBgCol;
 		public Color BackgroundColor
 		{
-			get { return bgColor; }
+			get { return IsNotLoaded() ? default : bgColor; }
 			set
 			{
 				if (bgColor == value || IsNotLoaded() ||
@@ -106,7 +106,7 @@ namespace SMPL
 		private Point position, lastFramePos;
 		public Point Position
 		{
-			get { return position; }
+			get { return IsNotLoaded() ? default : position; }
 			set
 			{
 				if (position == value || IsNotLoaded() ||
@@ -121,7 +121,7 @@ namespace SMPL
 		private double angle, lastFrameAng;
 		public double Angle
 		{
-			get { return angle; }
+			get { return IsNotLoaded() ? default : angle; }
 			set
 			{
 				if (Angle == value || IsNotLoaded() ||
@@ -136,7 +136,7 @@ namespace SMPL
 		private Size scale, lastFrameSc;
 		public Size Scale
 		{
-			get { return scale; }
+			get { return IsNotLoaded() ? default : scale; }
 			set
 			{
 				var v = Size.From(value);
@@ -152,7 +152,7 @@ namespace SMPL
 		private Point originPercent, lastFrameOrPer;
 		public Point OriginPercent
 		{
-			get { return originPercent; }
+			get { return IsNotLoaded() ? default : originPercent; }
 			set
 			{
 				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
@@ -170,7 +170,7 @@ namespace SMPL
 		public string FontPath { get; private set; }
 		public string Text
 		{
-			get { return transform.text.DisplayedString; }
+			get { return IsNotLoaded() ? default : transform.text.DisplayedString; }
 			set
 			{
 				if (transform.text.DisplayedString == value || IsNotLoaded() ||
@@ -183,7 +183,7 @@ namespace SMPL
 		}
 		public uint CharacterSize
 		{
-			get { return transform.text.CharacterSize; }
+			get { return IsNotLoaded() ? default : transform.text.CharacterSize; }
 			set
 			{
 				if (transform.text.CharacterSize == value || IsNotLoaded() ||
@@ -197,7 +197,7 @@ namespace SMPL
 		private Size spacing, lastFrameSp;
 		public Size Spacing
 		{
-			get { return spacing; }
+			get { return IsNotLoaded() ? default : spacing; }
 			set
 			{
 				if (spacing == value || IsNotLoaded() ||

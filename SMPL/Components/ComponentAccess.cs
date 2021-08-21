@@ -6,7 +6,7 @@ namespace SMPL
 	public class ComponentAccess
 	{
 		internal List<string> accessPaths = new();
-		public enum Access { Varying, Allowed, Denied }
+		public enum Access { Varying, Allowed, Denied, Destroyed }
 
 		private static event Events.ParamsTwo<ComponentAccess, ComponentIdentity<ComponentAccess>> OnIdentityChange;
 		private static event Events.ParamsTwo<ComponentAccess, Access> OnAllAccessChange;
@@ -46,6 +46,25 @@ namespace SMPL
 				if (access == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = access;
 				access = value;
+				if (value == Access.Destroyed)
+				{
+					completeMe
+					if (this is ComponentSprite)
+					{
+					}
+					else if (this is ComponentText)
+					{
+
+					}
+					else if (this is Component2D)
+					{
+
+					}
+					else if (this is ComponentAudio)
+					{
+
+					}
+				}
 				if (Debug.CurrentMethodIsCalledByUser == false) return;
 				OnAllAccessChange?.Invoke(this, prev);
 			}
@@ -82,7 +101,20 @@ namespace SMPL
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{
 			if (AllAccess == Access.Allowed) return true;
-			else if (AllAccess == Access.Denied) return false;
+			else if (AllAccess == Access.Denied)
+			{
+				Debug.LogError(2, $"Access was denied for '{filePath}'.\n" +
+					$"'{Debug.CurrentMethodName(1)}'\ncan be accessed from the following files:\n" +
+					filesWithAccess);
+				return false;
+			}
+			else if (AllAccess == Access.Destroyed)
+			{
+				Debug.LogError(2, $"Access was denied for '{filePath}'.\n" +
+					$"'{Debug.CurrentMethodName(1)}'\ncan be accessed from the following files:\n" +
+					filesWithAccess);
+				return false;
+			}
 
 			var filePath = Debug.CurrentFilePath(2);
 			if (accessPaths.Contains(filePath)) return true;
@@ -100,9 +132,12 @@ namespace SMPL
 		}
 		public bool FileHasAccess(string fullFilePath)
 		{
-			if (AllAccess == Access.Allowed) return true;
-			else if (AllAccess == Access.Denied) return false;
-			return accessPaths.Contains(fullFilePath);
+			return AllAccess switch
+			{
+				Access.Allowed => true,
+				Access.Denied or Access.Destroyed => false,
+				_ => accessPaths.Contains(fullFilePath),
+			};
 		}
 
 		public ComponentAccess() => accessPaths.Add(Debug.CurrentFilePath(2));

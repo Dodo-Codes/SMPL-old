@@ -1,5 +1,4 @@
 ﻿using SFML.Graphics;
-using System;
 
 namespace SMPL
 {
@@ -37,28 +36,6 @@ namespace SMPL
 			UpdateLength();
 		}
 		private void UpdateLength() => Length = Point.Distance(StartPosition, EndPosition);
-
-		public Point CrossPoint(Line line)
-		{
-			var segmentsCross = false;
-			var linesCross = false;
-			var intersection = new Point(0, 0);
-			var closestCrossPointToMe = new Point(0, 0);
-			var closestCrossPointToLine = new Point(0, 0);
-
-			GetCrossPointOfTwoLines(startPosition, EndPosition, line.StartPosition, line.EndPosition,
-				out linesCross, out segmentsCross, out intersection, out closestCrossPointToMe, out closestCrossPointToLine);
-			return segmentsCross ? intersection : new Point(double.NaN, double.NaN);
-		}
-		public bool ContainsPoint(Point point)
-		{
-			var AB = Length;
-			var AP = Point.Distance(StartPosition, point);
-			var PB = Point.Distance(EndPosition, point);
-			var sum = AP + PB;
-			return Number.IsBetween(sum, new Bounds(AB - 0.01, AB + 0.01));
-		}
-		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
 		internal static void GetCrossPointOfTwoLines(Point startA, Point endA, Point startB, Point endB,
 			 out bool lines_intersect, out bool segments_intersect,
 			 out Point intersection,
@@ -107,114 +84,28 @@ namespace SMPL
 			close_p1 = new Point(startA.X + dx12 * t1, startA.Y + dy12 * t1);
 			close_p2 = new Point(startB.X + dx34 * t2, startB.Y + dy34 * t2);
 		}
-		//public static bool LineCrossesLine(Line lineA, Line lineB)
-		//{
-		//	return ccw(lineA.startPosition, lineB.startPosition, lineB.EndPosition) !=
-		//		ccw(lineA.endPosition, lineB.StartPosition, lineB.EndPosition) &&
-		//		ccw(lineA.StartPosition, lineA.EndPosition, lineB.StartPosition) !=
-		//		ccw(lineA.StartPosition, lineA.EndPosition, lineB.EndPosition);
-		//
-		//	static bool ccw(Point a, Point b, Point c) => (c.Y - a.Y * (b.X - a.X) > (b.Y - a.Y) * (c.Y - a.Y));
-		//}
-		//public Point[] GetCrossPointsWithCircle(Circle circle)
-		//{
-		//	return circle.GetCrossPointsWithLine(this);
-		//}
-		//public bool IsCrossingCircle(Circle circle)
-		//{
-		//	return circle.IsCrossedByLine(this);
-		//}
-		//private static Point[] GetLineCircleCrossPoints(Point circlePosition, float circleRadius, Point pointA, Point pointB)
-		//{
-		//	var t = 0f;
-		//	var dx = pointB.GetX() - pointA.GetX();
-		//	var dy = pointB.GetY() - pointA.GetY();
-		//	var cx = circlePosition.GetX();
-		//	var cy = circlePosition.GetY();
-		//	var r = circleRadius;
-		//	var A = dx * dx + dy * dy;
-		//	var B = 2 * (dx * (pointA.GetX() - cx) + dy * (pointA.GetY() - cy));
-		//	var C = (pointA.GetX() - cx) * (pointA.GetX() - cx) + (pointA.GetY() - cy) * (pointA.GetY() - cy) - r * r;
-		//	var det = B * B - 4 * A * C;
-		//	var lineLength = Point.GetDistance(pointA, pointB);
-		//
-		//	if ((A <= 0.0000001) || (det < 0))
-		//	{
-		//		// no real solutions
-		//		return new Point[0];
-		//	}
-		//	else if (det == 0)
-		//	{
-		//		// one solution
-		//		t = -B / (2 * A);
-		//		var point = new Point(pointA.GetX() + t * dx, pointA.GetY() + t * dy);
-		//		if (Point.GetDistance(point, pointA) >= lineLength) return new Point[1] { point };
-		//	}
-		//	else
-		//	{
-		//		var result = new Point[2];
-		//		// two solutions
-		//		t = (float)((-B + Math.Sqrt(det)) / (2 * A));
-		//		var point1 = new Point(pointA.GetX() + t * dx, pointA.GetY() + t * dy);
-		//		if (Point.GetDistance(point1, pointA) <= lineLength) result[0] = point1;
-		//
-		//		t = (float)((-B - Math.Sqrt(det)) / (2 * A));
-		//		var point2 = new Point(pointA.GetX() + t * dx, pointA.GetY() + t * dy);
-		//		if (Point.GetDistance(point2, pointA) <= lineLength) result[1] = point2;
-		//		return result;
-		//	}
-		//	return new Point[0];
-		//}
-		//private static Point[] GetCircleCircleCrossPoints(float cx0, float cy0, float radius0, float cx1, float cy1, float radius1)
-		//{
-		//	// Find the distance between the centers.
-		//	float dx = cx0 - cx1;
-		//	float dy = cy0 - cy1;
-		//	double dist = Math.Sqrt(dx * dx + dy * dy);
-		//
-		//	// See how many solutions there are.
-		//	if (dist > radius0 + radius1)
-		//	{
-		//		// No solutions, the circles are too far apart.
-		//		return new Point[0];
-		//	}
-		//	else if (dist < Math.Abs(radius0 - radius1))
-		//	{
-		//		// No solutions, one circle contains the other.
-		//		return new Point[0];
-		//	}
-		//	else if ((dist == 0) && (radius0 == radius1))
-		//	{
-		//		// No solutions, the circles coincide.
-		//		return new Point[0];
-		//	}
-		//	else
-		//	{
-		//		var resultA = new Point[1];
-		//		var resultA2 = new Point[1];
-		//		var resultB = new Point[2];
-		//		// Find a and h.
-		//		double a = (radius0 * radius0 -
-		//			 radius1 * radius1 + dist * dist) / (2 * dist);
-		//		double h = Math.Sqrt(radius0 * radius0 - a * a);
-		//
-		//		// Find P2.
-		//		double cx2 = cx0 + a * (cx1 - cx0) / dist;
-		//		double cy2 = cy0 + a * (cy1 - cy0) / dist;
-		//
-		//		// Get the points P3.
-		//		var point1 = new Point((float)(cx2 + h * (cy1 - cy0) / dist), (float)(cy2 - h * (cx1 - cx0) / dist));
-		//		var point2 = new Point((float)(cx2 - h * (cy1 - cy0) / dist), (float)(cy2 + h * (cx1 - cx0) / dist));
-		//		resultA[0] = point1;
-		//		resultA2[0] = point2;
-		//		resultB[0] = point1;
-		//		resultB[1] = point2;
-		//
-		//		// See if we have 1 or 2 solutions.
-		//		if (dist == radius0 + radius1) return resultA[0] == default ? resultA2 : resultA;
-		//		return resultB;
-		//	}
-		//}
+
+		public Point CrossPoint(Line line)
+		{
+			var segmentsCross = false;
+			var linesCross = false;
+			var intersection = new Point(0, 0);
+			var closestCrossPointToMe = new Point(0, 0);
+			var closestCrossPointToLine = new Point(0, 0);
+
+			GetCrossPointOfTwoLines(startPosition, EndPosition, line.StartPosition, line.EndPosition,
+				out linesCross, out segmentsCross, out intersection, out closestCrossPointToMe, out closestCrossPointToLine);
+			return segmentsCross ? intersection : new Point(double.NaN, double.NaN);
+		}
+		public bool ContainsPoint(Point point)
+		{
+			var AB = Length;
+			var AP = Point.Distance(StartPosition, point);
+			var PB = Point.Distance(EndPosition, point);
+			var sum = AP + PB;
+			return Number.IsBetween(sum, new Bounds(AB - 0.01, AB + 0.01));
+		}
+		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
 
 		public void Display(ComponentCamera camera)
 		{

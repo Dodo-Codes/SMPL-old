@@ -15,7 +15,12 @@ namespace SMPL
 
       private static event Events.ParamsTwo<ComponentAudio, ComponentIdentity<ComponentAudio>> OnIdentityChange;
       private static event Events.ParamsTwo<ComponentAudio, string> OnCreate;
-      private static event Events.ParamsOne<ComponentAudio> OnAudioStart, OnAudioPlay, OnAudioPause, OnAudioStop, OnAudioEnd;
+      private static event Events.ParamsTwo<ComponentAudio, Point> OnPositionChange;
+      private static event Events.ParamsOne<Point> OnListenerPositionChange;
+      private static event Events.ParamsOne<ComponentAudio> OnStart, OnPlay, OnPause, OnStop, OnEnd, 
+         OnLoop, OnLoopChange, OnPlayChange, OnPauseChange, OnUpdate;
+      private static event Events.ParamsTwo<ComponentAudio, double> OnVolumeChange, OnProgressChange, OnProgressPercentChange,
+         OnFileProgressChange, OnSpeedChange, OnDistanceFadeChange;
 
       public static class CallWhen
       {
@@ -24,15 +29,41 @@ namespace SMPL
          public static void IdentityChange(Action<ComponentAudio, ComponentIdentity<ComponentAudio>> method,
             uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
          public static void Start(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
-        OnAudioStart = Events.Add(OnAudioStart, method, order);
+            OnStart = Events.Add(OnStart, method, order);
          public static void End(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
-            OnAudioEnd = Events.Add(OnAudioEnd, method, order);
+            OnEnd = Events.Add(OnEnd, method, order);
          public static void Play(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
-            OnAudioPlay = Events.Add(OnAudioPlay, method, order);
+            OnPlay = Events.Add(OnPlay, method, order);
          public static void Pause(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
-            OnAudioPause = Events.Add(OnAudioPause, method, order);
+            OnPause = Events.Add(OnPause, method, order);
          public static void Stop(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
-            OnAudioStop = Events.Add(OnAudioPause, method, order);
+            OnStop = Events.Add(OnPause, method, order);
+         public static void Loop(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+            OnLoop = Events.Add(OnLoop, method, order);
+         public static void LoopChange(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+            OnLoopChange = Events.Add(OnLoopChange, method, order);
+         public static void PauseChange(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+            OnPauseChange = Events.Add(OnPauseChange, method, order);
+         public static void PlayChange(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+            OnPlayChange = Events.Add(OnPlayChange, method, order);
+         public static void VolumeChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+            OnVolumeChange = Events.Add(OnVolumeChange, method, order);
+         public static void Update(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+            OnUpdate = Events.Add(OnUpdate, method, order);
+         public static void ProgressChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+            OnProgressChange = Events.Add(OnProgressChange, method, order);
+         public static void ProgressPercentChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+            OnProgressPercentChange = Events.Add(OnProgressPercentChange, method, order);
+         public static void FileProgressChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+            OnFileProgressChange = Events.Add(OnFileProgressChange, method, order);
+         public static void SpeedChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+            OnSpeedChange = Events.Add(OnSpeedChange, method, order);
+         public static void DistanceFadeChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+            OnDistanceFadeChange = Events.Add(OnDistanceFadeChange, method, order);
+         public static void PositionChange(Action<ComponentAudio, Point> method, uint order = uint.MaxValue) =>
+            OnPositionChange = Events.Add(OnPositionChange, method, order);
+         public static void ListenerPositionChange(Action<Point> method, uint order = uint.MaxValue) =>
+            OnListenerPositionChange = Events.Add(OnListenerPositionChange, method, order);
       }
 
       private ComponentIdentity<ComponentAudio> identity;
@@ -51,29 +82,29 @@ namespace SMPL
       public static Point ListenerPosition
       {
          get { return new Point(Listener.Position.X, Listener.Position.Z); }
-         set { Listener.Position = new Vector3f((float)value.X, 0, (float)value.Y); }
+         set
+         {
+            if (ListenerPosition == value) return;
+            var prev = ListenerPosition;
+            Listener.Position = new Vector3f((float)value.X, 0, (float)value.Y);
+            OnListenerPositionChange?.Invoke(prev);
+         }
       }
 
+      private bool rewindIsNotLoop;
+      private double lastFrameProg;
       public string FilePath { get; private set; }
       public bool IsLooping
       {
          get { return !IsNotLoaded() && (CurrentType == Type.Sound ? sound.Loop : music.Loop); }
          set
          {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (IsLooping == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
             if (CurrentType == Type.Sound) sound.Loop = value;
             else music.Loop = value;
-         }
-      }
-      public double VolumePercent
-      {
-         get { return IsNotLoaded() ? default : CurrentType == Type.Sound ? sound.Volume : music.Volume; }
-         set
-         {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-            
-            if (CurrentType == Type.Sound) sound.Volume = (float)value;
-            else music.Volume = (float)value;
+            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            OnLoopChange?.Invoke(this);
          }
       }
       public bool IsPaused 
@@ -83,7 +114,9 @@ namespace SMPL
                 (CurrentType == Type.Sound ? sound.Status == SoundStatus.Paused : music.Status == SoundStatus.Paused); }
          set
          {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (IsPaused == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (Debug.CurrentMethodIsCalledByUser) OnPauseChange?.Invoke(this);
             if (CurrentType == Type.Sound)
             {
                if (value && IsPlaying) sound.Pause();
@@ -94,8 +127,8 @@ namespace SMPL
                if (value && IsPlaying) music.Pause();
                else if (value == false && IsPaused) music.Play();
             }
-            if (value && IsPlaying) OnAudioPause?.Invoke(this);
-            else if (value == false && IsPaused) OnAudioPlay?.Invoke(this);
+            if (value && IsPlaying) OnPause?.Invoke(this);
+            else if (value == false && IsPaused) OnPlay?.Invoke(this);
          }
       }
       public bool IsPlaying
@@ -105,7 +138,9 @@ namespace SMPL
                (CurrentType == Type.Sound ? sound.Status == SoundStatus.Playing : music.Status == SoundStatus.Playing); }
          set
          {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (IsPlaying == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (Debug.CurrentMethodIsCalledByUser) OnPlayChange?.Invoke(this);
             if (CurrentType == Type.Sound)
             {
                stopped = !value;
@@ -120,36 +155,85 @@ namespace SMPL
             }
             if (value)
             {
-               if (IsPaused == false) OnAudioStart?.Invoke(this);
-               OnAudioPlay?.Invoke(this);
+               if (IsPaused == false) OnStart?.Invoke(this);
+               OnPlay?.Invoke(this);
             }
-            else if (IsPlaying || IsPaused) OnAudioStop?.Invoke(this);
+            else if (IsPlaying || IsPaused) OnStop?.Invoke(this);
          }
       }
-      public double Duration
+      public double Duration => IsNotLoaded() ? default : FileDuration / Speed;
+      public double FileDuration => IsNotLoaded() ? default :
+         CurrentType == Type.Sound ? sound.SoundBuffer.Duration.AsSeconds() : music.Duration.AsSeconds();
+      public double VolumePercent
       {
-         get { return IsNotLoaded() ? default :
-               CurrentType == Type.Sound ? sound.SoundBuffer.Duration.AsSeconds() : music.Duration.AsSeconds(); }
+         get { return IsNotLoaded() ? default : CurrentType == Type.Sound ? sound.Volume : music.Volume; }
+         set
+         {
+            if (VolumePercent == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prev = VolumePercent;
+            if (CurrentType == Type.Sound) sound.Volume = (float)value;
+            else music.Volume = (float)value;
+            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            OnVolumeChange?.Invoke(this, prev);
+         }
       }
       public double Progress
+      {
+         get { return IsNotLoaded() ? default : FileProgress / Speed; }
+         set
+         {
+            if (Progress == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prevPrg = Progress;
+            var prevFlPrg = FileProgress;
+            var prevPerPrg = ProgressPercent;
+            FileProgress = value * Speed;
+            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            OnProgressChange?.Invoke(this, prevPrg);
+            OnFileProgressChange?.Invoke(this, prevFlPrg);
+            OnProgressPercentChange?.Invoke(this, prevPerPrg);
+         }
+      }
+      public double FileProgress
       {
          get { return IsNotLoaded() ? default :
                CurrentType == Type.Sound ? sound.PlayingOffset.AsSeconds() : music.PlayingOffset.AsSeconds(); }
          set
          {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-            var v = SFML.System.Time.FromSeconds((float)Number.Limit(value, new Bounds(0, Duration))); ;
+            value = Number.Limit(value, new Bounds(0, FileDuration));
+            if (FileProgress == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prevPrg = Progress;
+            var prevFlPrg = FileProgress;
+            var prevPerPrg = ProgressPercent;
+            var v = SFML.System.Time.FromSeconds((float)value);
             if (CurrentType == Type.Sound) sound.PlayingOffset = v;
             else music.PlayingOffset = v;
+            rewindIsNotLoop = true;
+            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            OnProgressChange?.Invoke(this, prevPrg);
+            OnFileProgressChange?.Invoke(this, prevFlPrg);
+            OnProgressPercentChange?.Invoke(this, prevPerPrg);
          }
       }
       public double ProgressPercent
       {
-         get { return 100 - Number.ToPercent(Duration - Progress, new Bounds(0, Duration)); }
+         get { return IsNotLoaded() ? default : 100 - Number.ToPercent(FileDuration - FileProgress,
+            new Bounds(0, FileDuration)); }
          set
          {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-            Progress = Number.FromPercent(value, new Bounds(0, Duration));
+            value = Number.FromPercent(value, new Bounds(0, FileDuration));
+            if (FileProgress == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prevPrg = Progress;
+            var prevFlPrg = FileProgress;
+            var prevPerPrg = ProgressPercent;
+            FileProgress = value;
+            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            OnProgressChange?.Invoke(this, prevPrg);
+            OnFileProgressChange?.Invoke(this, prevFlPrg);
+            OnProgressPercentChange?.Invoke(this, prevPerPrg);
          }
       }
       public double Speed
@@ -157,9 +241,12 @@ namespace SMPL
          get { return IsNotLoaded() ? default : CurrentType == Type.Sound ? sound.Pitch : music.Pitch; }
          set
          {
-            if (IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (Speed == value || IsNotLoaded() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prev = Speed;
             if (CurrentType == Type.Sound) sound.Pitch = (float)value;
             else music.Pitch = (float)value;
+            OnSpeedChange?.Invoke(this, prev);
          }
       }
       public double DistanceFade
@@ -167,9 +254,12 @@ namespace SMPL
          get { return IsNotLoaded() ? default : CurrentType == Type.Sound ? sound.Attenuation : music.Attenuation; }
          set
          {
-            if (IsNotLoaded() || IsMono() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (DistanceFade == value || IsNotLoaded() || IsMono() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prev = DistanceFade;
             if (CurrentType == Type.Sound) sound.Attenuation = (float)value;
             else music.Attenuation = (float)value;
+            OnDistanceFadeChange?.Invoke(this, prev);
          }
       }
       public Point Position
@@ -183,9 +273,12 @@ namespace SMPL
 			}
 			set
          {
-            if (IsNotLoaded() || IsMono() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (Position == value || IsNotLoaded() || IsMono() ||
+               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            var prev = Position;
             if (CurrentType == Type.Sound) sound.Position = new Vector3f((float)value.X, 0, (float)value.Y);
 				else music.Position = new Vector3f((float)value.X, 0, (float)value.Y);
+            OnPositionChange?.Invoke(this, prev);
          }
       }
       public Type CurrentType { get; private set; }
@@ -218,11 +311,15 @@ namespace SMPL
 		{
 			for (int i = 0; i < audios.Count; i++)
 			{
+            if (audios[i].IsPlaying) OnUpdate?.Invoke(audios[i]);
             if (Gate.EnterOnceWhile($"{audios[i].FilePath}-enda915'kf",
                audios[i].IsPlaying == false && audios[i].IsPaused == false && audios[i].stopped == false))
-            {
-               OnAudioEnd?.Invoke(audios[i]);
-            }
+                  OnEnd?.Invoke(audios[i]);
+            if (audios[i].FileProgress + audios[i].FileDuration / 2 < audios[i].lastFrameProg &&
+               audios[i].rewindIsNotLoop == false)
+                  OnLoop?.Invoke(audios[i]);
+            audios[i].lastFrameProg = audios[i].FileProgress;
+            audios[i].rewindIsNotLoop = false;
          }
 		}
 

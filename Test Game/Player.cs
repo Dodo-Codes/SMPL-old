@@ -4,24 +4,29 @@ namespace TestGame
 {
 	public class Player
 	{
+		ComponentAudio spr;
 		public Player()
 		{
 			File.CallWhen.AssetLoadEnd(AssetLoadEnd);
-			ComponentCamera.CallWhen.Display(OnDisplay);
+			ComponentAudio.CallWhen.Loop(OnLoop);
+			Keyboard.CallWhen.KeyPress(OnKeyPress);
 
-			File.LoadAsset(File.Asset.Font, "Munro.ttf");
+			File.LoadAsset(File.Asset.Music, "music.ogg");
+		}
+		void OnKeyPress(Keyboard.Key key)
+		{
+			spr.FileProgress = 0;
 		}
 		void AssetLoadEnd()
 		{
-			var spr = new ComponentText(new Component2D(), "Munro.ttf");
-			spr.Identity = new(spr, "explosive");
+			spr = new ComponentAudio("music.ogg");
+			spr.IsPlaying = true;
+			spr.IsLooping = true;
+			Console.Log(spr.Duration);
 		}
-		void OnDisplay(ComponentCamera camera)
+		void OnLoop(ComponentAudio audio)
 		{
-			var spr = ComponentIdentity<ComponentText>.PickByUniqueID("explosive");
-			if (spr == null) return;
-			spr.BackgroundColor = Color.Red;
-			spr.Display(camera);
+			Console.Log("loop");
 		}
 	}
 }

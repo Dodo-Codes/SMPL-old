@@ -69,7 +69,7 @@ namespace SMPL
 
 		public bool IsRepeated
 		{
-			get { return transform.sprite.Texture.Repeated; }
+			get { return !IsNotLoaded() && transform.sprite.Texture.Repeated; }
 			set
 			{
 				if (transform.sprite.Texture.Repeated == value || IsNotLoaded() ||
@@ -80,7 +80,7 @@ namespace SMPL
 		}
 		public bool IsSmooth
 		{
-			get { return transform.sprite.Texture.Smooth; }
+			get { return !IsNotLoaded() && transform.sprite.Texture.Smooth; }
 			set
 			{
 				if (transform.sprite.Texture.Smooth == value || IsNotLoaded() ||
@@ -93,7 +93,7 @@ namespace SMPL
 		private Point offsetPercent, lastFrameOffPer;
 		public Point OffsetPercent
 		{
-			get { return offsetPercent; }
+			get { return IsNotLoaded() ? default : offsetPercent; }
 			set
 			{
 				if (offsetPercent == value || IsNotLoaded() ||
@@ -112,7 +112,7 @@ namespace SMPL
 		private Size sizePercent, lastFrameSzPer;
 		public Size SizePercent
 		{
-			get { return sizePercent; }
+			get { return IsNotLoaded() ? default : sizePercent; }
 			set
 			{
 				if (sizePercent == value || IsNotLoaded() ||
@@ -131,7 +131,7 @@ namespace SMPL
 		private Size gridSize;
 		public Size GridSize
 		{
-			get { return gridSize; }
+			get { return IsNotLoaded() ? default : gridSize; }
 			set
 			{
 				if (gridSize == value || IsNotLoaded() ||

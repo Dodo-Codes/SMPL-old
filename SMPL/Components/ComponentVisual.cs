@@ -13,7 +13,7 @@ namespace SMPL
 		private ComponentEffects effects;
 		public ComponentEffects Effects
 		{
-			get { return effects; }
+			get { return IsNotLoaded() ? default : effects; }
 			set
 			{
 				if (effects == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
@@ -28,7 +28,7 @@ namespace SMPL
 		private ComponentFamily family;
 		public ComponentFamily Family
 		{
-			get { return family; }
+			get { return IsNotLoaded() ? default : family; }
 			set
 			{
 				if (family == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
@@ -44,7 +44,7 @@ namespace SMPL
 		private bool isHidden;
 		public bool IsHidden
 		{
-			get { return isHidden; }
+			get { return !IsNotLoaded() && isHidden; }
 			set
 			{
 				if (isHidden == value || IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
