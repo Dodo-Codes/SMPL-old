@@ -6,9 +6,9 @@ namespace SMPL
 {
 	public class ComponentIdentity<T> : ComponentAccess
 	{
-		private static readonly Dictionary<string, T> uniqueIDs = new();
-		private static readonly Dictionary<string, List<T>> tagObjs = new();
-		private static readonly Dictionary<T, List<string>> objTags = new();
+		internal static readonly Dictionary<string, T> uniqueIDs = new();
+		internal static readonly Dictionary<string, List<T>> tagObjs = new();
+		internal static readonly Dictionary<T, List<string>> objTags = new();
 		private T Instance { get; set; }
 
 		private static event Events.ParamsOne<ComponentIdentity<T>> OnRemoveAllTags;

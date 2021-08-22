@@ -4,29 +4,21 @@ namespace TestGame
 {
 	public class Player
 	{
-		ComponentAudio spr;
+		ComponentSprite ComponentSprite;
+
 		public Player()
 		{
-			File.CallWhen.AssetLoadEnd(AssetLoadEnd);
-			ComponentAudio.CallWhen.Loop(OnLoop);
 			Keyboard.CallWhen.KeyPress(OnKeyPress);
-
-			File.LoadAsset(File.Asset.Music, "music.ogg");
+			Keyboard.CallWhen.KeyRelease(OnKeyRelease);
+			File.LoadAsset(File.Asset.Texture, "big.jpg");
 		}
 		void OnKeyPress(Keyboard.Key key)
 		{
-			spr.FileProgress = 0;
+			ComponentSprite = new ComponentSprite(new Component2D(), "big.jpg");
 		}
-		void AssetLoadEnd()
+		void OnKeyRelease(Keyboard.Key key)
 		{
-			spr = new ComponentAudio("music.ogg");
-			spr.IsPlaying = true;
-			spr.IsLooping = true;
-			Console.Log(spr.Duration);
-		}
-		void OnLoop(ComponentAudio audio)
-		{
-			Console.Log("loop");
+			ComponentSprite.AllAccess = ComponentAccess.Access.Removed;
 		}
 	}
 }

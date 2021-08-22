@@ -119,6 +119,45 @@ namespace SMPL
 		}
 		public static void CreateFolders(string path = "folder/folder/folder") => Directory.CreateDirectory(path);
 
+		public static void UnloadAsset(Asset asset, string filePath = "folder/file.extension")
+		{
+			switch (asset)
+			{
+				case Asset.Texture:
+					{
+						if (NotLoaded(textures, filePath, "Texture")) return;
+						textures[filePath].Dispose();
+						textures.Remove(filePath);
+						break;
+					}
+				case Asset.Font:
+					{
+						if (NotLoaded(fonts, filePath, "Font")) return;
+						fonts.Remove(filePath);
+						break;
+					}
+				case Asset.Sound:
+					{
+						if (NotLoaded(sounds, filePath, "Sound")) return;
+						sounds[filePath].Dispose();
+						sounds.Remove(filePath);
+						break;
+					}
+				case Asset.Music:
+					{
+						if (NotLoaded(sounds, filePath, "Music")) return;
+						music.Remove(filePath);
+						break;
+					}
+			}
+
+			bool NotLoaded<T>(Dictionary<string, T> dict, string filePath, string name)
+			{
+				if (dict.ContainsKey(filePath)) return false;
+				Debug.LogError(2, $"Cannot unload {name} asset '{filePath}' since it is not loaded.");
+				return true;
+			}
+		}
 		public static bool AssetIsLoaded(string filePath = "folder/file.extension")
 		{
 			return textures.ContainsKey(filePath) || fonts.ContainsKey(filePath) ||

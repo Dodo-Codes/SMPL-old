@@ -6,7 +6,7 @@ namespace SMPL
 	public class ComponentAccess
 	{
 		internal List<string> accessPaths = new();
-		public enum Access { Varying, Allowed, Denied, Destroyed }
+		public enum Access { Varying, Allowed, Denied, Removed }
 
 		private static event Events.ParamsTwo<ComponentAccess, ComponentIdentity<ComponentAccess>> OnIdentityChange;
 		private static event Events.ParamsTwo<ComponentAccess, Access> OnAllAccessChange;
@@ -46,11 +46,26 @@ namespace SMPL
 				if (access == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = access;
 				access = value;
-				if (value == Access.Destroyed)
+				if (value == Access.Removed)
 				{
-					completeMe
 					if (this is ComponentSprite)
 					{
+						var sprite = this as ComponentSprite;
+						if (sprite.image != null) sprite.image.Dispose();
+						if (sprite.rawTexture != null) sprite.rawTexture.Dispose();
+						if (sprite.rawTextureShader != null) sprite.rawTextureShader.Dispose();
+						if (sprite.Effects.shader != null) sprite.Effects.shader.Dispose();
+						if (sprite.transform.sprite != null) sprite.transform.sprite.Dispose();
+						if (sprite.Identity != null)
+						{
+							ComponentIdentity<ComponentSprite>.uniqueIDs.Remove(sprite.identity.UniqueID);
+							if (ComponentIdentity<ComponentSprite>.objTags.ContainsKey(sprite))
+							{
+								sprite.Identity.RemoveAllTags();
+								ComponentIdentity<ComponentSprite>.objTags.Remove(sprite);
+							}
+						}
+						ComponentSprite.sprites.Remove(sprite);
 					}
 					else if (this is ComponentText)
 					{
@@ -103,16 +118,14 @@ namespace SMPL
 			if (AllAccess == Access.Allowed) return true;
 			else if (AllAccess == Access.Denied)
 			{
-				Debug.LogError(2, $"Access was denied for '{filePath}'.\n" +
-					$"'{Debug.CurrentMethodName(1)}'\ncan be accessed from the following files:\n" +
-					filesWithAccess);
+				Debug.LogError(2, $"All access to this component is denied.\n" +
+					$"No interaction is allowed but information can still be retrieved from it.");
 				return false;
 			}
-			else if (AllAccess == Access.Destroyed)
+			else if (AllAccess == Access.Removed)
 			{
-				Debug.LogError(2, $"Access was denied for '{filePath}'.\n" +
-					$"'{Debug.CurrentMethodName(1)}'\ncan be accessed from the following files:\n" +
-					filesWithAccess);
+				Debug.LogError(2, $"All access to this component is removed.\n" +
+					$"The component is destroyed due to this.");
 				return false;
 			}
 
@@ -126,8 +139,8 @@ namespace SMPL
 				if (i < accessPaths.Count - 1) filesWithAccess += "\n";
 			}
 			Debug.LogError(2, $"Access was denied for '{filePath}'.\n" +
-				$"'{Debug.CurrentMethodName(1)}'\ncan be accessed from the following files:\n" +
-				filesWithAccess);
+				$"'{Debug.CurrentMethodName(1)}'\n" +
+				$"can be accessed from the following files:\n{filesWithAccess}");
 			return false;
 		}
 		public bool FileHasAccess(string fullFilePath)
@@ -135,7 +148,7 @@ namespace SMPL
 			return AllAccess switch
 			{
 				Access.Allowed => true,
-				Access.Denied or Access.Destroyed => false,
+				Access.Denied or Access.Removed => false,
 				_ => accessPaths.Contains(fullFilePath),
 			};
 		}

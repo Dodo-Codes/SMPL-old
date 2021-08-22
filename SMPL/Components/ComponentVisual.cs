@@ -28,11 +28,10 @@ namespace SMPL
 		private ComponentFamily family;
 		public ComponentFamily Family
 		{
-			get { return IsNotLoaded() ? default : family; }
+			get { return family; }
 			set
 			{
 				if (family == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				if (Debug.CurrentMethodIsCalledByUser && IsNotLoaded()) return;
 				var prev = family;
 				family = value;
 				if (Debug.CurrentMethodIsCalledByUser == false) return;
