@@ -144,16 +144,50 @@ namespace SMPL
 			}
 		}
 
-		public ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png") : base(component2D)
+		public static void Create(string uniqueID, Component2D component2D, string texturePath = "folder/texture.png")
+		{
+			if (ComponentIdentity<ComponentSprite>.CannotCreate(uniqueID)) return;
+			var instance = new ComponentSprite(component2D, texturePath);
+			instance.Identity = new(instance, uniqueID);
+		}
+		public void Destroy()
+		{
+			if (image != null) image.Dispose();
+			if (rawTexture != null) rawTexture.Dispose();
+			if (rawTextureShader != null) rawTextureShader.Dispose();
+
+			if (Identity != null)
+			{
+				ComponentIdentity<ComponentSprite>.uniqueIDs.Remove(Identity.UniqueID);
+				if (ComponentIdentity<ComponentSprite>.objTags.ContainsKey(this))
+				{
+					Identity.RemoveAllTags();
+					ComponentIdentity<ComponentSprite>.objTags.Remove(this);
+				}
+				Identity.instance = null;
+				Identity = null;
+			}
+			if (Effects != null)
+			{
+				if (Effects.shader != null) Effects.shader.Dispose();
+				Effects.owner = null;
+				Effects = null;
+			}
+			if (Family != null) Family.owner = null;
+			sprites.Remove(this);
+
+			AllAccess = Access.Removed;
+		}
+		private ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png") : base(component2D)
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
 			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 			if (File.textures.ContainsKey(texturePath) == false)
 			{
-				Debug.LogError(1, $"The texture at '{texturePath}' is not loaded.\n" +
+				Debug.LogError(2, $"The texture at '{texturePath}' is not loaded.\n" +
 					$"Use '{nameof(File)}.{nameof(File.LoadAsset)}({nameof(File)}.{nameof(File.Asset)}." +
 					$"{nameof(File.Asset.Texture)}, \"{texturePath}\")' to load it.");
 				return;

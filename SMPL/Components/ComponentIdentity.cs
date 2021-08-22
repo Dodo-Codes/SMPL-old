@@ -9,7 +9,7 @@ namespace SMPL
 		internal static readonly Dictionary<string, T> uniqueIDs = new();
 		internal static readonly Dictionary<string, List<T>> tagObjs = new();
 		internal static readonly Dictionary<T, List<string>> objTags = new();
-		private T Instance { get; set; }
+		internal T instance;
 
 		private static event Events.ParamsOne<ComponentIdentity<T>> OnRemoveAllTags;
 		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnCreate, OnAddTag, OnRemoveTag;
@@ -27,25 +27,29 @@ namespace SMPL
 		}
 
 		public string UniqueID { get; private set; }
-		public string[] Tags => objTags[Instance].ToArray();
+		public string[] Tags => objTags[instance].ToArray();
 
-		public ComponentIdentity(T instance, string uniqueID) : base()
+		internal static bool CannotCreate(string uniqueID)
 		{
 			if (uniqueID == null)
 			{
-				Debug.LogError(1, $"Cannot create the identity of this instance ({instance}). " +
+				Debug.LogError(2, $"Cannot create the identity of this instance ({typeof(T)}). " +
 					$"The UniqueID cannot be 'null'.");
-				return;
+				return true;
 			}
 			if (uniqueIDs.ContainsKey(uniqueID))
 			{
-				Debug.LogError(1, $"Cannot create the identity of this instance ({instance}). " +
+				Debug.LogError(2, $"Cannot create the identity of this instance ({typeof(T)}). " +
 					$"The UniqueID '{uniqueID}' already exists.");
-				return;
+				return true;
 			}
-			Instance = instance;
+			return false;
+		}
+		public ComponentIdentity(T instance, string uniqueID) : base()
+		{
+			this.instance = instance;
 			UniqueID = uniqueID;
-			uniqueIDs.Add(uniqueID, Instance);
+			uniqueIDs.Add(uniqueID, instance);
 			objTags[instance] = new();
 			OnCreate?.Invoke(this, UniqueID);
 		}
@@ -55,10 +59,10 @@ namespace SMPL
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
-				if (objTags[Instance].Contains(tags[j])) continue;
-				objTags[Instance].Add(tags[j]);
+				if (objTags[instance].Contains(tags[j])) continue;
+				objTags[instance].Add(tags[j]);
 				if (tagObjs.ContainsKey(tags[j]) == false) tagObjs[tags[j]] = new List<T>();
-				tagObjs[tags[j]].Add(Instance);
+				tagObjs[tags[j]].Add(instance);
 				OnAddTag?.Invoke(this, tags[j]);
 			}
 		}
@@ -67,9 +71,9 @@ namespace SMPL
 			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
-				if (objTags[Instance].Contains(tags[j]) == false) continue;
-				objTags[Instance].Remove(tags[j]);
-				tagObjs[tags[j]].Remove(Instance);
+				if (objTags[instance].Contains(tags[j]) == false) continue;
+				objTags[instance].Remove(tags[j]);
+				tagObjs[tags[j]].Remove(instance);
 				if (tagObjs[tags[j]].Count == 0) tagObjs.Remove(tags[j]);
 				OnRemoveTag?.Invoke(this, tags[j]);
 			}
@@ -86,7 +90,7 @@ namespace SMPL
 		{
 			if (tags == null) { Debug.LogError(1, "The tag collection cannot be 'null'."); return false; }
 			for (int i = 0; i < tags.Length; i++)
-				if (objTags[Instance].Contains(tags[i]) == false)
+				if (objTags[instance].Contains(tags[i]) == false)
 					return false;
 			return true;
 		}
@@ -99,6 +103,13 @@ namespace SMPL
 		{
 			for (int i = 0; i < tags.Length; i++)
 				if (tagObjs.ContainsKey(tags[i]) == false)
+					return false;
+			return true;
+		}
+		public static bool UniqueIDsExits(params string[] uniqueIDs)
+		{
+			for (int i = 0; i < uniqueIDs.Length; i++)
+				if (ComponentIdentity<T>.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
 					return false;
 			return true;
 		}

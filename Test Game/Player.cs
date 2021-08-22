@@ -4,21 +4,22 @@ namespace TestGame
 {
 	public class Player
 	{
-		ComponentSprite ComponentSprite;
-
+		ComponentSprite sprite;
 		public Player()
 		{
-			Keyboard.CallWhen.KeyPress(OnKeyPress);
+			Keyboard.CallWhen.KeyHold(OnKeyPress);
 			Keyboard.CallWhen.KeyRelease(OnKeyRelease);
 			File.LoadAsset(File.Asset.Texture, "big.jpg");
 		}
 		void OnKeyPress(Keyboard.Key key)
 		{
-			ComponentSprite = new ComponentSprite(new Component2D(), "big.jpg");
+			ComponentSprite.Create("test", new Component2D(), "big.jpg");
+			sprite = ComponentIdentity<ComponentSprite>.PickByUniqueID("test");
+			sprite.Destroy();
 		}
 		void OnKeyRelease(Keyboard.Key key)
 		{
-			ComponentSprite.AllAccess = ComponentAccess.Access.Removed;
+
 		}
 	}
 }

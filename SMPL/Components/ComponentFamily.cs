@@ -7,7 +7,7 @@ namespace SMPL
 {
 	public class ComponentFamily : ComponentAccess
 	{
-		internal readonly ComponentVisual owner;
+		internal ComponentVisual owner;
 		internal List<ComponentVisual> children = new();
 
 		private static event Events.ParamsTwo<ComponentFamily, ComponentIdentity<ComponentFamily>> OnIdentityChange;

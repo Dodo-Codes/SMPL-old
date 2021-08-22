@@ -46,27 +46,9 @@ namespace SMPL
 				if (access == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
 				var prev = access;
 				access = value;
-				if (value == Access.Removed)
+				if (Debug.CurrentMethodIsCalledByUser && value == Access.Removed)
 				{
-					if (this is ComponentSprite)
-					{
-						var sprite = this as ComponentSprite;
-						if (sprite.image != null) sprite.image.Dispose();
-						if (sprite.rawTexture != null) sprite.rawTexture.Dispose();
-						if (sprite.rawTextureShader != null) sprite.rawTextureShader.Dispose();
-						if (sprite.Effects.shader != null) sprite.Effects.shader.Dispose();
-						if (sprite.transform.sprite != null) sprite.transform.sprite.Dispose();
-						if (sprite.Identity != null)
-						{
-							ComponentIdentity<ComponentSprite>.uniqueIDs.Remove(sprite.identity.UniqueID);
-							if (ComponentIdentity<ComponentSprite>.objTags.ContainsKey(sprite))
-							{
-								sprite.Identity.RemoveAllTags();
-								ComponentIdentity<ComponentSprite>.objTags.Remove(sprite);
-							}
-						}
-						ComponentSprite.sprites.Remove(sprite);
-					}
+					if (this is ComponentSprite) (this as ComponentSprite).Destroy();
 					else if (this is ComponentText)
 					{
 
@@ -124,8 +106,9 @@ namespace SMPL
 			}
 			else if (AllAccess == Access.Removed)
 			{
-				Debug.LogError(2, $"All access to this component is removed.\n" +
-					$"The component is destroyed due to this.");
+				Debug.LogError(2, $"All access to this component is removed (as well as the component itself).\n" +
+					$"Note: Make sure to have no references (fields & properties) towards destroyed components.\n" +
+					$"This way the GarbageCollector will be able to dispose of them.");
 				return false;
 			}
 
