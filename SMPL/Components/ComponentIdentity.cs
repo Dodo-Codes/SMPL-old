@@ -56,35 +56,35 @@ namespace SMPL
 
 		public void AddTags(params string[] tags)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (objTags[instance].Contains(tags[j])) continue;
 				objTags[instance].Add(tags[j]);
 				if (tagObjs.ContainsKey(tags[j]) == false) tagObjs[tags[j]] = new List<T>();
 				tagObjs[tags[j]].Add(instance);
-				OnAddTag?.Invoke(this, tags[j]);
+				if (Debug.CalledBySMPL == false) OnAddTag?.Invoke(this, tags[j]);
 			}
 		}
 		public void RemoveTags(params string[] tags)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (objTags[instance].Contains(tags[j]) == false) continue;
 				objTags[instance].Remove(tags[j]);
 				tagObjs[tags[j]].Remove(instance);
 				if (tagObjs[tags[j]].Count == 0) tagObjs.Remove(tags[j]);
-				OnRemoveTag?.Invoke(this, tags[j]);
+				if (Debug.CalledBySMPL == false) OnRemoveTag?.Invoke(this, tags[j]);
 			}
 		}
 		public void RemoveAllTags()
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			foreach (var kvp in tagObjs) OnRemoveTag?.Invoke(this, kvp.Key);
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false) foreach (var kvp in tagObjs) OnRemoveTag?.Invoke(this, kvp.Key);
 			tagObjs.Clear();
 			objTags.Clear();
-			OnRemoveAllTags?.Invoke(this);
+			if (Debug.CalledBySMPL == false) OnRemoveAllTags?.Invoke(this);
 		}
 		public bool HasTags(params string[] tags)
 		{

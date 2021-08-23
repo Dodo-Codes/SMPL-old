@@ -19,7 +19,7 @@ namespace SMPL
 		private static event Events.ParamsTwo<ComponentText, uint> OnCharacterSizeChange;
 		private static event Events.ParamsTwo<ComponentText, Size> OnSpacingChange, OnSpacingChangeStart;
 		private static event Events.ParamsOne<ComponentText> OnVisibilityChange, OnBackgroundColorChangeEnd, OnPositionChangeEnd,
-			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd;
+			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd, OnDestroy, OnDisplay;
 		private static event Events.ParamsTwo<ComponentText, ComponentFamily> OnFamilyChange;
 		private static event Events.ParamsTwo<ComponentText, ComponentEffects> OnEffectsChange;
 
@@ -75,154 +75,184 @@ namespace SMPL
 				OnFamilyChange = Events.Add(OnFamilyChange, method, order);
 			public static void EffectsChange(Action<ComponentText, ComponentEffects> method, uint order = uint.MaxValue) =>
 				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
+			public static void Destroy(Action<ComponentText> method, uint order = uint.MaxValue) =>
+				OnDestroy = Events.Add(OnDestroy, method, order);
+			public static void Display(Action<ComponentText> method, uint order = uint.MaxValue) =>
+				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
 
+		private bool isDestroyed;
+		public bool IsDestroyed
+		{
+			get { return isDestroyed; }
+			set
+			{
+				if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				isDestroyed = value;
+
+				if (Identity != null)
+				{
+					ComponentIdentity<ComponentText>.uniqueIDs.Remove(Identity.UniqueID);
+					if (ComponentIdentity<ComponentText>.objTags.ContainsKey(this))
+					{
+						Identity.RemoveAllTags();
+						ComponentIdentity<ComponentText>.objTags.Remove(this);
+					}
+					Identity.instance = null;
+					Identity = null;
+				}
+				texts.Remove(this);
+				Dispose();
+				if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
+			}
+		}
 		private ComponentIdentity<ComponentText> identity;
 		public ComponentIdentity<ComponentText> Identity
 		{
-			get { return identity; }
+			get { return AllAccess == Access.Removed ? default : identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
 		private Color bgColor, lastFrameBgCol;
 		public Color BackgroundColor
 		{
-			get { return IsNotLoaded() ? default : bgColor; }
+			get { return AllAccess == Access.Removed ? new Color(double.NaN, double.NaN, double.NaN, double.NaN) : bgColor; }
 			set
 			{
-				if (bgColor == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (bgColor == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = bgColor;
 				bgColor = value;
-				OnBackgroundColorChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnBackgroundColorChange?.Invoke(this, prev);
 			}
 		}
 		private Point position, lastFramePos;
 		public Point Position
 		{
-			get { return IsNotLoaded() ? default : position; }
+			get { return AllAccess == Access.Removed ? new Point(double.NaN, double.NaN) : position; }
 			set
 			{
-				if (position == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (position == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = position;
 				position = value;
 				transform.text.Position = Point.From(value);
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnPositionChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnPositionChange?.Invoke(this, prev);
 			}
 		}
 		private double angle, lastFrameAng;
 		public double Angle
 		{
-			get { return IsNotLoaded() ? default : angle; }
+			get { return AllAccess == Access.Removed ? double.NaN : angle; }
 			set
 			{
-				if (Angle == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (Angle == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = Angle;
 				angle = value;
 				transform.text.Rotation = (float)value;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnAngleChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnAngleChange?.Invoke(this, prev);
 			}
 		}
 		private Size scale, lastFrameSc;
 		public Size Scale
 		{
-			get { return IsNotLoaded() ? default : scale; }
+			get { return AllAccess == Access.Removed ? new Size(double.NaN, double.NaN) : scale; }
 			set
 			{
 				var v = Size.From(value);
-				if (transform.text.Scale == v || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (transform.text.Scale == v ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var delta = value - Size.To(transform.text.Scale);
 				scale = value;
 				transform.text.Scale = v;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnScaleChange?.Invoke(this, scale);
+				if (Debug.CalledBySMPL == false) OnScaleChange?.Invoke(this, scale);
 			}
 		}
 		private Point originPercent, lastFrameOrPer;
 		public Point OriginPercent
 		{
-			get { return IsNotLoaded() ? default : originPercent; }
+			get { return AllAccess == Access.Removed ? new Point(double.NaN, double.NaN) : originPercent; }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value || IsNotLoaded()) return;
+				if (originPercent == value) return;
 				var prev = originPercent;
 				originPercent = value;
 				UpdateOrigin();
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnOriginPercentChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnOriginPercentChange?.Invoke(this, prev);
 			}
 		}
 
 		public string FontPath { get; private set; }
 		public string Text
 		{
-			get { return IsNotLoaded() ? default : transform.text.DisplayedString; }
+			get { return AllAccess == Access.Removed ? default : transform.text.DisplayedString; }
 			set
 			{
-				if (transform.text.DisplayedString == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (transform.text.DisplayedString == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = transform.text.DisplayedString;
 				transform.text.DisplayedString = value;
 				UpdateOrigin();
-				OnTextChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnTextChange?.Invoke(this, prev);
 			}
 		}
 		public uint CharacterSize
 		{
-			get { return IsNotLoaded() ? default : transform.text.CharacterSize; }
+			get { return AllAccess == Access.Removed ? default : transform.text.CharacterSize; }
 			set
 			{
-				if (transform.text.CharacterSize == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (transform.text.CharacterSize == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = transform.text.CharacterSize;
 				transform.text.CharacterSize = value;
 				Position = position;
-				OnCharacterSizeChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnCharacterSizeChange?.Invoke(this, prev);
 			}
 		}
 		private Size spacing, lastFrameSp;
 		public Size Spacing
 		{
-			get { return IsNotLoaded() ? default : spacing; }
+			get { return AllAccess == Access.Removed ? new Size(double.NaN, double.NaN) : spacing; }
 			set
 			{
-				if (spacing == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (spacing == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = spacing;
 				spacing = value;
 				transform.text.LetterSpacing = (float)value.W / 4;
 				transform.text.LineSpacing = (float)value.H / 16 + (float)CharacterSize / 112;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnSpacingChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL) return;
+				if (Debug.CalledBySMPL == false) OnSpacingChange?.Invoke(this, prev);
 			}
 		}
 
-		public ComponentText(Component2D component2D, string fontPath = "folder/font.ttf") : base(component2D)
+		public static void Create(string uniqueID, Component2D component2D, string fontPath = "folder/font.ttf")
+		{
+			if (ComponentIdentity<ComponentText>.CannotCreate(uniqueID)) return;
+			var instance = new ComponentText(component2D, fontPath);
+			instance.Identity = new(instance, uniqueID);
+		}
+		private ComponentText(Component2D component2D, string fontPath = "folder/font.ttf") : base(component2D)
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
 			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
 			if (File.fonts.ContainsKey(fontPath) == false)
 			{
 				Debug.LogError(1, $"The font '{fontPath}' is not loaded.\n" +
 					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
 					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
+				IsDestroyed = true;
 				return;
 			}
 			texts.Add(this);
@@ -239,7 +269,6 @@ namespace SMPL
 
 			FontPath = fontPath;
 			transform.text.Font = File.fonts[fontPath];
-			HasLoadedAssetFile = true;
 
 			OnCreate?.Invoke(this, fontPath);
 		}
@@ -301,8 +330,8 @@ namespace SMPL
 
 		public void Display(ComponentCamera camera)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || IsNotLoaded() || masking != null || IsHidden || transform == null ||
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null ||
 				transform.text == null || transform.text.Font == null) return;
 
 			var rend = new RenderTexture((uint)Number.Sign(transform.Size.W, false), (uint)Number.Sign(transform.Size.H, false));
@@ -331,6 +360,7 @@ namespace SMPL
 			drawMaskResult.Dispose();
 			rend.Dispose();
 			sprite.Dispose();
+			if (Debug.CalledBySMPL == false) OnDisplay?.Invoke(this);
 		}
 	}
 }

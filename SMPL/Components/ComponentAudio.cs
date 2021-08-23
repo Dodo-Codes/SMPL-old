@@ -72,10 +72,10 @@ namespace SMPL
          get { return identity; }
          set
          {
-            if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = identity;
             identity = value;
-            OnIdentityChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
          }
       }
 
@@ -87,7 +87,7 @@ namespace SMPL
             if (ListenerPosition == value) return;
             var prev = ListenerPosition;
             Listener.Position = new Vector3f((float)value.X, 0, (float)value.Y);
-            OnListenerPositionChange?.Invoke(prev);
+            if (Debug.CalledBySMPL == false) OnListenerPositionChange?.Invoke(prev);
          }
       }
 
@@ -100,11 +100,10 @@ namespace SMPL
          set
          {
             if (IsLooping == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             if (CurrentType == Type.Sound) sound.Loop = value;
             else music.Loop = value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnLoopChange?.Invoke(this);
+            if (Debug.CalledBySMPL == false) OnLoopChange?.Invoke(this);
          }
       }
       public bool IsPaused 
@@ -115,8 +114,8 @@ namespace SMPL
          set
          {
             if (IsPaused == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-            if (Debug.CurrentMethodIsCalledByUser) OnPauseChange?.Invoke(this);
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+            if (Debug.CalledBySMPL == false) OnPauseChange?.Invoke(this);
             if (CurrentType == Type.Sound)
             {
                if (value && IsPlaying) sound.Pause();
@@ -127,8 +126,8 @@ namespace SMPL
                if (value && IsPlaying) music.Pause();
                else if (value == false && IsPaused) music.Play();
             }
-            if (value && IsPlaying) OnPause?.Invoke(this);
-            else if (value == false && IsPaused) OnPlay?.Invoke(this);
+            if (value && IsPlaying && Debug.CalledBySMPL == false) OnPause?.Invoke(this);
+            else if (value == false && IsPaused && Debug.CalledBySMPL == false) OnPlay?.Invoke(this);
          }
       }
       public bool IsPlaying
@@ -139,8 +138,8 @@ namespace SMPL
          set
          {
             if (IsPlaying == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-            if (Debug.CurrentMethodIsCalledByUser) OnPlayChange?.Invoke(this);
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+            if (Debug.CalledBySMPL == false) OnPlayChange?.Invoke(this);
             if (CurrentType == Type.Sound)
             {
                stopped = !value;
@@ -153,12 +152,12 @@ namespace SMPL
                if (value) music.Play();
                else if (IsPlaying || IsPaused) music.Stop();
             }
-            if (value)
+            if (value && Debug.CalledBySMPL == false)
             {
                if (IsPaused == false) OnStart?.Invoke(this);
                OnPlay?.Invoke(this);
             }
-            else if (IsPlaying || IsPaused) OnStop?.Invoke(this);
+            else if ((IsPlaying || IsPaused) && Debug.CalledBySMPL == false) OnStop?.Invoke(this);
          }
       }
       public double Duration => IsNotLoaded() ? default : FileDuration / Speed;
@@ -170,12 +169,11 @@ namespace SMPL
          set
          {
             if (VolumePercent == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = VolumePercent;
             if (CurrentType == Type.Sound) sound.Volume = (float)value;
             else music.Volume = (float)value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnVolumeChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnVolumeChange?.Invoke(this, prev);
          }
       }
       public double Progress
@@ -184,12 +182,12 @@ namespace SMPL
          set
          {
             if (Progress == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prevPrg = Progress;
             var prevFlPrg = FileProgress;
             var prevPerPrg = ProgressPercent;
             FileProgress = value * Speed;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            if (Debug.CalledBySMPL) return;
             OnProgressChange?.Invoke(this, prevPrg);
             OnFileProgressChange?.Invoke(this, prevFlPrg);
             OnProgressPercentChange?.Invoke(this, prevPerPrg);
@@ -203,7 +201,7 @@ namespace SMPL
          {
             value = Number.Limit(value, new Bounds(0, FileDuration));
             if (FileProgress == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prevPrg = Progress;
             var prevFlPrg = FileProgress;
             var prevPerPrg = ProgressPercent;
@@ -211,7 +209,7 @@ namespace SMPL
             if (CurrentType == Type.Sound) sound.PlayingOffset = v;
             else music.PlayingOffset = v;
             rewindIsNotLoop = true;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            if (Debug.CalledBySMPL) return;
             OnProgressChange?.Invoke(this, prevPrg);
             OnFileProgressChange?.Invoke(this, prevFlPrg);
             OnProgressPercentChange?.Invoke(this, prevPerPrg);
@@ -225,12 +223,12 @@ namespace SMPL
          {
             value = Number.FromPercent(value, new Bounds(0, FileDuration));
             if (FileProgress == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prevPrg = Progress;
             var prevFlPrg = FileProgress;
             var prevPerPrg = ProgressPercent;
             FileProgress = value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            if (Debug.CalledBySMPL) return;
             OnProgressChange?.Invoke(this, prevPrg);
             OnFileProgressChange?.Invoke(this, prevFlPrg);
             OnProgressPercentChange?.Invoke(this, prevPerPrg);
@@ -242,11 +240,11 @@ namespace SMPL
          set
          {
             if (Speed == value || IsNotLoaded() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = Speed;
             if (CurrentType == Type.Sound) sound.Pitch = (float)value;
             else music.Pitch = (float)value;
-            OnSpeedChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnSpeedChange?.Invoke(this, prev);
          }
       }
       public double DistanceFade
@@ -255,11 +253,11 @@ namespace SMPL
          set
          {
             if (DistanceFade == value || IsNotLoaded() || IsMono() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = DistanceFade;
             if (CurrentType == Type.Sound) sound.Attenuation = (float)value;
             else music.Attenuation = (float)value;
-            OnDistanceFadeChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnDistanceFadeChange?.Invoke(this, prev);
          }
       }
       public Point Position
@@ -274,11 +272,11 @@ namespace SMPL
 			set
          {
             if (Position == value || IsNotLoaded() || IsMono() ||
-               (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+               (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = Position;
             if (CurrentType == Type.Sound) sound.Position = new Vector3f((float)value.X, 0, (float)value.Y);
 				else music.Position = new Vector3f((float)value.X, 0, (float)value.Y);
-            OnPositionChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnPositionChange?.Invoke(this, prev);
          }
       }
       public Type CurrentType { get; private set; }

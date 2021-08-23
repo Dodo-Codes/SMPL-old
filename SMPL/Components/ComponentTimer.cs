@@ -41,10 +41,10 @@ namespace SMPL
          get { return identity; }
          set
          {
-            if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = identity;
             identity = value;
-            OnIdentityChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
          }
       }
 
@@ -54,11 +54,10 @@ namespace SMPL
          get { return endCount; }
          set
          {
-            if (endCount == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (endCount == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prev = endCount;
             endCount = value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnEndCountChange?.Invoke(this, prev);
+            if (Debug.CalledBySMPL == false) OnEndCountChange?.Invoke(this, prev);
          }
       }
       public double Duration { get; private set; }
@@ -68,13 +67,13 @@ namespace SMPL
          get { return progress; }
          set
          {
-            if (progress == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (progress == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prevCd = Countdown;
             var prevPr = Progress;
             var prevPrPer = ProgressPercent;
             progress = value;
             countdown = Duration - value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            if (Debug.CalledBySMPL) return;
             OnProgressChange?.Invoke(this, prevPr);
             OnProgressPercentChange?.Invoke(this, prevPrPer);
             OnCountdownChange?.Invoke(this, prevCd);
@@ -87,12 +86,12 @@ namespace SMPL
          {
             value = Number.Limit(value, new Bounds(0, 100));
             var prPer = Number.FromPercent(value, new Bounds(0, Duration));
-            if (prPer == progress || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (prPer == progress || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prevCd = Countdown;
             var prevPr = Progress;
             var prevPrPer = ProgressPercent;
             progress = prPer;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            if (Debug.CalledBySMPL) return;
             OnProgressChange?.Invoke(this, prevPr);
             OnProgressPercentChange?.Invoke(this, prevPrPer);
             OnCountdownChange?.Invoke(this, prevCd);
@@ -104,13 +103,13 @@ namespace SMPL
          get { return countdown; }
          set
          {
-            if (countdown == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (countdown == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             var prevCd = Countdown;
             var prevPr = Progress;
             var prevPrPer = ProgressPercent;
             countdown = value;
             progress = Duration - value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
+            if (Debug.CalledBySMPL) return;
             OnProgressChange?.Invoke(this, prevPr);
             OnProgressPercentChange?.Invoke(this, prevPrPer);
             OnCountdownChange?.Invoke(this, prevCd);
@@ -122,10 +121,9 @@ namespace SMPL
          get { return isPaused; }
          set
          {
-            if (isPaused == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+            if (isPaused == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             isPaused = value;
-            if (Debug.CurrentMethodIsCalledByUser == false) return;
-            OnPause?.Invoke(this);
+            if (Debug.CalledBySMPL == false) OnPause?.Invoke(this);
          }
       }
 

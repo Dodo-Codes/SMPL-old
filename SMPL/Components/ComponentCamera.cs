@@ -14,6 +14,7 @@ namespace SMPL
 		internal Size startSize;
 
 		private static event Events.ParamsOne<ComponentCamera> OnDisplay;
+		private static event Events.ParamsTwo<ComponentCamera, string> OnSnap;
 		private static event Events.ParamsTwo<ComponentCamera, Component2D> OnDisplay2DChanged;
 		private static event Events.ParamsTwo<ComponentCamera, ComponentIdentity<ComponentCamera>> OnIdentityChange;
 
@@ -23,6 +24,8 @@ namespace SMPL
 			OnDisplay = Events.Add(OnDisplay, method, order);
 			public static void Display2DChanged(Action<ComponentCamera, Component2D> method, uint order = uint.MaxValue) =>
 				OnDisplay2DChanged = Events.Add(OnDisplay2DChanged, method, order);
+			public static void Snap(Action<ComponentCamera, string> method, uint order = uint.MaxValue) =>
+				OnSnap = Events.Add(OnSnap, method, order);
 			public static void IdentityChange(Action<ComponentCamera, ComponentIdentity<ComponentCamera>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
 		}
@@ -35,11 +38,10 @@ namespace SMPL
 			get { return display2D; }
 			set
 			{
-				if (display2D == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (display2D == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = display2D;
 				display2D = value;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnDisplay2DChanged?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnDisplay2DChanged?.Invoke(this, prev);
 			}
 		}
 
@@ -49,10 +51,10 @@ namespace SMPL
 			get { return identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
@@ -62,7 +64,7 @@ namespace SMPL
 			get { return depth; }
 			set
 			{
-				if (depth == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (depth == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var oldDepth = depth;
 				depth = value;
 				sortedCameras[oldDepth].Remove(this);
@@ -76,8 +78,8 @@ namespace SMPL
 			get { return new Point(view.Center.X, view.Center.Y); }
 			set
 			{
-				if (Position == value || (this != WorldCamera && 
-					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (Position == value || (this != WorldCamera &&
+					Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				view.Center = Point.From(value);
 			}
 		}
@@ -86,8 +88,8 @@ namespace SMPL
 			get { return view.Rotation; }
 			set
 			{
-				if (Angle == value || (this != WorldCamera && 
-					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (Angle == value || (this != WorldCamera &&
+					Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				view.Rotation = (float)value;
 			}
 		}
@@ -97,7 +99,7 @@ namespace SMPL
 			set
 			{
 				if (Size == value || (this != WorldCamera &&
-					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				view.Size = Size.From(value);
 			}
 		}
@@ -108,7 +110,7 @@ namespace SMPL
 			set
 			{
 				if (bgColor == value || (this != WorldCamera &&
-					Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+					Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				bgColor = value;
 			}
 		}
@@ -180,12 +182,13 @@ namespace SMPL
 
 		public void Snap(string filePath = "folder/picture.png")
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false && this != WorldCamera) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false && this != WorldCamera) return;
 			var img = rendTexture.Texture.CopyToImage();
 			var full = File.CreateDirectoryForFile(filePath);
 
 			if (img.SaveToFile(filePath)) img.Dispose();
-			else Debug.LogError(1, $"Could not save picture '{full}'.");
+			else { Debug.LogError(1, $"Could not save picture '{full}'."); return; }
+			if (Debug.CalledBySMPL == false) OnSnap?.Invoke(this, filePath);
 		}
    }
 }

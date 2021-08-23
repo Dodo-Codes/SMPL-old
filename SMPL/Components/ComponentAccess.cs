@@ -30,10 +30,10 @@ namespace SMPL
 			get { return identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
@@ -43,13 +43,14 @@ namespace SMPL
 			get { return access; }
 			set
 			{
-				if (access == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (access == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = access;
 				access = value;
-				if (Debug.CurrentMethodIsCalledByUser && value == Access.Removed)
+				if (Debug.CalledBySMPL == false && value == Access.Removed)
 				{
-					if (this is ComponentSprite) (this as ComponentSprite).Destroy();
-					else if (this is ComponentText)
+					if (this is ComponentSprite) (this as ComponentSprite).IsDestroyed = true;
+					else if (this is ComponentText) (this as ComponentText).IsDestroyed = true;
+					else if (this is ComponentAudio)
 					{
 
 					}
@@ -57,18 +58,13 @@ namespace SMPL
 					{
 
 					}
-					else if (this is ComponentAudio)
-					{
-
-					}
 				}
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnAllAccessChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnAllAccessChange?.Invoke(this, prev);
 			}
 		}
 		public void GrantAccessToFile(string fullFilePath)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (fullFilePath == null)
 			{
 				Debug.LogError(1, "The file path cannot be 'null'.");
@@ -80,20 +76,18 @@ namespace SMPL
 				return;
 			}
 			accessPaths.Add(fullFilePath);
-			if (Debug.CurrentMethodIsCalledByUser == false) return;
-			OnGrantAccess?.Invoke(this, fullFilePath);
+			if (Debug.CalledBySMPL == false) OnGrantAccess?.Invoke(this, fullFilePath);
 		}
 		public void DenyAccessToFile(string fullFilePath)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (accessPaths.Contains(fullFilePath) == false)
 			{
 				Debug.LogError(1, $"The file '{fullFilePath}' access is already denied.");
 				return;
 			}
 			accessPaths.Remove(fullFilePath);
-			if (Debug.CurrentMethodIsCalledByUser == false) return;
-			OnDenyAccess?.Invoke(this, fullFilePath);
+			if (Debug.CalledBySMPL == false) OnDenyAccess?.Invoke(this, fullFilePath);
 		}
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{
@@ -107,8 +101,9 @@ namespace SMPL
 			else if (AllAccess == Access.Removed)
 			{
 				Debug.LogError(2, $"All access to this component is removed (as well as the component itself).\n" +
-					$"Note: Make sure to have no references (fields & properties) towards destroyed components.\n" +
-					$"This way the GarbageCollector will be able to dispose of them.");
+					$"Make sure to have no references (fields & properties) towards destroyed\n" +
+					$"components (or set them to null when destroyed). This way the Garbage Collector\n" +
+					$"will be able to dispose of them completely.");
 				return false;
 			}
 

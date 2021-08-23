@@ -165,11 +165,25 @@ namespace SMPL
 		}
 		public static void LoadAsset(Asset asset, string filePath = "folder/file.extension")
 		{
+			switch (asset)
+			{
+				case Asset.Texture: { if (AlreadyLoaded(textures, filePath, "Texture")) return; break; }
+				case Asset.Font: { if (AlreadyLoaded(fonts, filePath, "Font")) return; break; }
+				case Asset.Sound: { if (AlreadyLoaded(sounds, filePath, "Sound")) return; break; }
+				case Asset.Music: { if (AlreadyLoaded(sounds, filePath, "Music")) return; break; }
+			}
 			queuedAssets.Add(new QueuedAsset()
 			{
 				asset = asset,
 				path = filePath
 			});
+
+			bool AlreadyLoaded<T>(Dictionary<string, T> dict, string path, string name)
+			{
+				if (dict.ContainsKey(filePath) == false) return false;
+				Debug.LogError(2, $"Cannot load {name} asset '{filePath}' since it is already loaded.");
+				return true;
+			}
 		}
 		/// <summary>
 		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="LoadText"/>.<br></br><br></br>

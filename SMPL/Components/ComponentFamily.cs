@@ -36,10 +36,10 @@ namespace SMPL
 			get { return identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
@@ -49,7 +49,7 @@ namespace SMPL
 			get { return parent; }
 			set
 			{
-				if (parent == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (parent == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 
 				var pos = Point.From(owner.transform.LocalPosition);
 				var angle = owner.transform.LocalAngle;
@@ -77,43 +77,43 @@ namespace SMPL
 					owner.transform.Size = owner.transform.Size;
 					owner.transform.LocalAngle = parAng + angle;
 				}
-				OnParentChange?.Invoke(this, prevPar);
+				if (Debug.CalledBySMPL == false) OnParentChange?.Invoke(this, prevPar);
 			}
 		}
 		public ComponentVisual[] Children => children.ToArray();
 		public int ChildrenCount => children.Count;
 
-		public void AddChildren(params ComponentVisual[] childrenInstances)
+		public void ParentChildren(params ComponentVisual[] childrenInstances)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (childrenInstances == null) { Debug.LogError(1, "ComponentVisual children cannot be 'null'."); return; }
 			for (int i = 0; i < childrenInstances.Length; i++)
 			{
 				if (children.Contains(childrenInstances[i])) continue;
 				childrenInstances[i].Family.Parent = owner;
-				OnAddChild?.Invoke(this, childrenInstances[i]);
+				if (Debug.CalledBySMPL == false) OnAddChild?.Invoke(this, childrenInstances[i]);
 			}
 		}
-		public void RemoveChildren(params ComponentVisual[] childrenInstances)
+		public void UnparentChildren(params ComponentVisual[] childrenInstances)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (childrenInstances == null) { Debug.LogError(1, "ComponentVisual children cannot be 'null'."); return; }
 			for (int i = 0; i < childrenInstances.Length; i++)
 			{
 				if (children.Contains(childrenInstances[i]) == false) continue;
 				childrenInstances[i].Family.Parent = null;
-				OnRemoveChild?.Invoke(this, childrenInstances[i]);
+				if (Debug.CalledBySMPL == false) OnRemoveChild?.Invoke(this, childrenInstances[i]);
 			}
 		}
-		public void RemoveAllChildren()
+		public void UnparentAllChildren()
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			for (int i = 0; i < children.Count; i++)
 			{
 				children[i].Family.Parent = null;
-				OnRemoveChild?.Invoke(this, children[i]);
+				if (Debug.CalledBySMPL == false) OnRemoveChild?.Invoke(this, children[i]);
 			}
-			OnRemoveAllChildren?.Invoke(this);
+			if (Debug.CalledBySMPL == false) OnRemoveAllChildren?.Invoke(this);
 		}
 		public bool HasChildren(params ComponentVisual[] childrenInstances)
 		{

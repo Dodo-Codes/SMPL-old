@@ -4,22 +4,24 @@ namespace TestGame
 {
 	public class Player
 	{
-		ComponentSprite sprite;
 		public Player()
 		{
-			Keyboard.CallWhen.KeyHold(OnKeyPress);
+			Keyboard.CallWhen.KeyHold(OnKeyHold);
 			Keyboard.CallWhen.KeyRelease(OnKeyRelease);
-			File.LoadAsset(File.Asset.Texture, "big.jpg");
+			File.LoadAsset(File.Asset.Font, "Munro.ttf");
 		}
-		void OnKeyPress(Keyboard.Key key)
+		void OnKeyHold(Keyboard.Key key)
 		{
-			ComponentSprite.Create("test", new Component2D(), "big.jpg");
-			sprite = ComponentIdentity<ComponentSprite>.PickByUniqueID("test");
-			sprite.Destroy();
+			ComponentText.Create($"{Performance.FrameCount}", new Component2D(), "Munro.ttf");
+			ComponentIdentity<ComponentText>.PickByUniqueID($"{Performance.FrameCount}").IsDestroyed = true;
 		}
 		void OnKeyRelease(Keyboard.Key key)
 		{
-
+			//File.UnloadAsset(File.Asset.Texture, "big.jpg");
+			//var spr = ComponentIdentity<ComponentSprite>.PickByUniqueID("test");
+			//spr.IsDestroyed = true;
+			//Console.Log(spr.SizePercent);
+			//spr.IsDestroyed = false;
 		}
 	}
 }

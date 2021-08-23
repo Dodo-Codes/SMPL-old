@@ -13,14 +13,13 @@ namespace SMPL
 		private ComponentEffects effects;
 		public ComponentEffects Effects
 		{
-			get { return IsNotLoaded() ? default : effects; }
+			get { return AllAccess == Access.Removed ? default : effects; }
 			set
 			{
-				if (effects == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
-				if (Debug.CurrentMethodIsCalledByUser && IsNotLoaded()) return;
+				if (effects == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = effects;
 				effects = value;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				if (Debug.CalledBySMPL) return;
 				if (this is ComponentText) ComponentText.TriggerOnEffectsChange(this as ComponentText, prev);
 				else ComponentSprite.TriggerOnEffectsChange(this as ComponentSprite, prev);
 			}
@@ -28,13 +27,13 @@ namespace SMPL
 		private ComponentFamily family;
 		public ComponentFamily Family
 		{
-			get { return family; }
+			get { return AllAccess == Access.Removed ? default : family; }
 			set
 			{
-				if (family == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (family == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = family;
 				family = value;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
+				if (Debug.CalledBySMPL) return;
 				if (this is ComponentText) ComponentText.TriggerOnFamilyChange(this as ComponentText, prev);
 				else ComponentSprite.TriggerOnFamilyChange(this as ComponentSprite, prev);
 			}
@@ -43,32 +42,33 @@ namespace SMPL
 		private bool isHidden;
 		public bool IsHidden
 		{
-			get { return !IsNotLoaded() && isHidden; }
+			get { return AllAccess != Access.Removed && isHidden; }
 			set
 			{
-				if (isHidden == value || IsNotLoaded() || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false))
-					return;
+				if (isHidden == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				isHidden = value;
 				if (this is ComponentText) ComponentText.TriggerOnVisibilityChange(this as ComponentText);
 				else ComponentSprite.TriggerOnVisibilityChange(this as ComponentSprite);
 			}
 		}
 
-		public bool HasLoadedAssetFile { get; internal set; }
-
-		internal bool IsNotLoaded()
+		internal void Dispose()
 		{
-			if (HasLoadedAssetFile) return false;
-
-			var comp = this is ComponentSprite ? nameof(ComponentSprite) : nameof(ComponentText);
-			var asset = this is ComponentSprite ? nameof(File.Asset.Texture) : nameof(File.Asset.Font);
-			Debug.LogError(2, $"This will have no effect due to this {comp}'s file not being loaded.\n" +
-				$"To load it use '{nameof(File)}.{nameof(File.LoadAsset)}({nameof(File)}.{nameof(File.Asset)}." +
-				$"{asset}, \"folder/file.extension\")'\n" +
-				$"and recreate the component with it.");
-			return true;
+			if (Effects != null)
+			{
+				if (Effects.shader != null) Effects.shader.Dispose();
+				Effects.owner = null;
+				Effects = null;
+			}
+			if (Family != null)
+			{
+				if (Family.Parent != null) Family.Parent.Family.children.Remove(this);
+				Family.UnparentAllChildren();
+				Family.owner = null;
+			}
+			if (masking != null && masking.Effects != null) masking.Effects.masks.Remove(this);
+			AllAccess = Access.Removed;
 		}
-
 		public ComponentVisual(Component2D component2D) : base()
 		{
 			creationFrame = Performance.FrameCount;

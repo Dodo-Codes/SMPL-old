@@ -86,7 +86,7 @@ namespace SMPL
 
 		public void AddHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
@@ -96,12 +96,12 @@ namespace SMPL
 			{
 				if (hitboxes.Contains(hitboxInstances[i])) continue;
 				hitboxes.Add(hitboxInstances[i]);
-				OnHitboxAdd?.Invoke(this, hitboxInstances[i]);
+				if (Debug.CalledBySMPL == false) OnHitboxAdd?.Invoke(this, hitboxInstances[i]);
 			}
 		}
 		public void RemoveHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
@@ -111,15 +111,15 @@ namespace SMPL
 			{
 				if (hitboxes.Contains(hitboxInstances[i]) == false) continue;
 				hitboxes.Remove(hitboxInstances[i]);
-				OnHitboxRemove?.Invoke(this, hitboxInstances[i]);
+				if (Debug.CalledBySMPL == false) OnHitboxRemove?.Invoke(this, hitboxInstances[i]);
 			}
 		}
 		public void RemoveAllHitboxes()
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			for (int i = 0; i < hitboxes.Count; i++) OnHitboxRemove?.Invoke(this, hitboxes[i]);
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false) for (int i = 0; i < hitboxes.Count; i++) OnHitboxRemove?.Invoke(this, hitboxes[i]);
 			hitboxes.Clear();
-			OnHitboxesRemoveAll?.Invoke(this);
+			if (Debug.CalledBySMPL == false) OnHitboxesRemoveAll?.Invoke(this);
 		}
 		public bool HasHitboxes(params ComponentHitbox[] hitboxInstances)
 		{
@@ -140,10 +140,10 @@ namespace SMPL
 			get { return identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
@@ -153,7 +153,7 @@ namespace SMPL
 			get { return PositionFromLocal(LocalPosition); }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				localPosition = PositionToLocal(value);
 				if (position == value) return;
 
@@ -161,7 +161,7 @@ namespace SMPL
 				position = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFramePos = position; return; }
+				if (Debug.CalledBySMPL) { lastFramePos = position; return; }
 				OnPositionChange?.Invoke(this, prev);
 			}
 		}
@@ -171,7 +171,7 @@ namespace SMPL
 			get { return AngleFromLocal(LocalAngle); }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				localAngle = AngleToLocal(value);
 				if (angle == value) return;
 
@@ -179,7 +179,7 @@ namespace SMPL
 				angle = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameAng = angle; return; }
+				if (Debug.CalledBySMPL) { lastFrameAng = angle; return; }
 				OnAngleChange?.Invoke(this, prev);
 			}
 		}
@@ -189,14 +189,14 @@ namespace SMPL
 			get { return size; }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				localSize = SizeToLocal(value);
 				if (size == value) return;
 				var prev = size;
 				size = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameSz = size; return; }
+				if (Debug.CalledBySMPL) { lastFrameSz = size; return; }
 				OnSizeChange?.Invoke(this, prev);
 			}
 		}
@@ -206,7 +206,7 @@ namespace SMPL
 			get { return originPercent; }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
 				if (originPercent == value || ComponentCamera.WorldCamera.Display2D == this) return;
@@ -214,7 +214,7 @@ namespace SMPL
 				originPercent = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameOrPer = originPercent; return; }
+				if (Debug.CalledBySMPL) { lastFrameOrPer = originPercent; return; }
 				OnOriginPercentChange?.Invoke(this, prev);
 			}
 		}
@@ -225,14 +225,14 @@ namespace SMPL
 			get { return localPosition; }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				position = PositionFromLocal(value);
 				if (localPosition == value) return;
 				var prev = localPosition;
 				localPosition = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameLocalPos = localPosition; return; }
+				if (Debug.CalledBySMPL) { lastFrameLocalPos = localPosition; return; }
 				OnLocalPositionChange?.Invoke(this, prev);
 			}
 		}
@@ -242,14 +242,14 @@ namespace SMPL
 			get { return localAngle; }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				angle = AngleFromLocal(value);
 				if (localAngle == value) return;
 				var prev = localAngle;
 				localAngle = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameLocalAng = localAngle; return; }
+				if (Debug.CalledBySMPL) { lastFrameLocalAng = localAngle; return; }
 				OnLocalAngleChange?.Invoke(this, prev);
 			}
 		}
@@ -259,14 +259,14 @@ namespace SMPL
 			get { return localSize; }
 			set
 			{
-				if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				size = SizeFromLocal(value);
 				if (localSize == value) return;
 				var prev = localSize;
 				localSize = value;
 				UpdateHitboxes();
 
-				if (Debug.CurrentMethodIsCalledByUser == false) { lastFrameLocalSz = localSize; return; }
+				if (Debug.CalledBySMPL) { lastFrameLocalSz = localSize; return; }
 				OnLocalSizeChange?.Invoke(this, prev);
 			}
 		}

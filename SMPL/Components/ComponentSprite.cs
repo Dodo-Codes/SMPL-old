@@ -14,7 +14,7 @@ namespace SMPL
 
 		private static event Events.ParamsTwo<ComponentSprite, string> OnCreate;
 		private static event Events.ParamsOne<ComponentSprite> OnVisibilityChange, OnRepeatingChange, OnSmoothnessChange,
-			OnOffsetPercentChangeEnd, OnSizePercentChangeEnd;
+			OnOffsetPercentChangeEnd, OnSizePercentChangeEnd, OnDestroy, OnDisplay;
 		private static event Events.ParamsTwo<ComponentSprite, ComponentFamily> OnFamilyChange;
 		private static event Events.ParamsTwo<ComponentSprite, ComponentEffects> OnEffectsChange;
 		private static event Events.ParamsTwo<ComponentSprite, ComponentIdentity<ComponentSprite>> OnIdentityChange;
@@ -52,52 +52,85 @@ namespace SMPL
 				OnSizePercentChangeEnd = Events.Add(OnSizePercentChangeEnd, method, order);
 			public static void GridSizeChange(Action<ComponentSprite, Size> method, uint order = uint.MaxValue) =>
 				OnGridSizeChange = Events.Add(OnGridSizeChange, method, order);
+			public static void Destroy(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnDestroy = Events.Add(OnDestroy, method, order);
+			public static void Display(Action<ComponentSprite> method, uint order = uint.MaxValue) =>
+				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
 
 		private ComponentIdentity<ComponentSprite> identity;
 		public ComponentIdentity<ComponentSprite> Identity
 		{
-			get { return identity; }
+			get { return AllAccess == Access.Removed ? default : identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
-		public bool IsRepeated
+		private bool isDestroyed;
+		public bool IsDestroyed
 		{
-			get { return !IsNotLoaded() && transform.sprite.Texture.Repeated; }
+			get { return isDestroyed; }
 			set
 			{
-				if (transform.sprite.Texture.Repeated == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				isDestroyed = value;
+
+				if (image != null) image.Dispose();
+				if (rawTexture != null) rawTexture.Dispose();
+				if (rawTextureShader != null) rawTextureShader.Dispose();
+
+				if (Identity != null)
+				{
+					ComponentIdentity<ComponentSprite>.uniqueIDs.Remove(Identity.UniqueID);
+					if (ComponentIdentity<ComponentSprite>.objTags.ContainsKey(this))
+					{
+						Identity.RemoveAllTags();
+						ComponentIdentity<ComponentSprite>.objTags.Remove(this);
+					}
+					Identity.instance = null;
+					Identity = null;
+				}
+				sprites.Remove(this);
+				Dispose();
+				if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
+			}
+		}
+		public bool IsRepeated
+		{
+			get { return AllAccess != Access.Removed && transform.sprite.Texture.Repeated; }
+			set
+			{
+				if (transform.sprite.Texture.Repeated == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Repeated = value;
-				OnRepeatingChange?.Invoke(this);
+				if (Debug.CalledBySMPL == false) OnRepeatingChange?.Invoke(this);
 			}
 		}
 		public bool IsSmooth
 		{
-			get { return !IsNotLoaded() && transform.sprite.Texture.Smooth; }
+			get { return AllAccess != Access.Removed && transform.sprite.Texture.Smooth; }
 			set
 			{
-				if (transform.sprite.Texture.Smooth == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (transform.sprite.Texture.Smooth == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				transform.sprite.Texture.Smooth = value;
-				OnSmoothnessChange?.Invoke(this);
+				if (Debug.CalledBySMPL == false) OnSmoothnessChange?.Invoke(this);
 			}
 		}
 		public string TexturePath { get; private set; }
 		private Point offsetPercent, lastFrameOffPer;
 		public Point OffsetPercent
 		{
-			get { return IsNotLoaded() ? default : offsetPercent; }
+			get { return AllAccess == Access.Removed ? new Point(double.NaN, double.NaN) : offsetPercent; }
 			set
 			{
-				if (offsetPercent == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (offsetPercent == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = offsetPercent;
 				offsetPercent = value;
 				var rect = transform.sprite.TextureRect;
@@ -105,18 +138,17 @@ namespace SMPL
 				transform.sprite.TextureRect = new IntRect(
 					(int)(sz.X * (offsetPercent.X / 100)), (int)(sz.Y * (offsetPercent.Y / 100)),
 					rect.Width, rect.Height);
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnOffsetPercentChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnOffsetPercentChange?.Invoke(this, prev);
 			}
 		}
 		private Size sizePercent, lastFrameSzPer;
 		public Size SizePercent
 		{
-			get { return IsNotLoaded() ? default : sizePercent; }
+			get { return AllAccess == Access.Removed ? new Size(double.NaN, double.NaN) : sizePercent; }
 			set
 			{
-				if (sizePercent == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (sizePercent == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = sizePercent;
 				sizePercent = value;
 				value /= 100;
@@ -124,23 +156,21 @@ namespace SMPL
 				var sz = transform.sprite.Texture.Size;
 				var textRect = transform.sprite.TextureRect;
 				transform.sprite.TextureRect = new IntRect(textRect.Left, textRect.Top, (int)(sz.X * value.W), (int)(sz.Y * value.H));
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnSizePercentChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnSizePercentChange?.Invoke(this, prev);
 			}
 		}
 		private Size gridSize;
 		public Size GridSize
 		{
-			get { return IsNotLoaded() ? default : gridSize; }
+			get { return AllAccess == Access.Removed ? new Size(double.NaN, double.NaN) : gridSize; }
 			set
 			{
-				if (gridSize == value || IsNotLoaded() ||
-					(Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (gridSize == value ||
+					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = gridSize;
 				gridSize = value;
 				transform.OriginPercent = transform.OriginPercent;
-				if (Debug.CurrentMethodIsCalledByUser == false) return;
-				OnGridSizeChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnGridSizeChange?.Invoke(this, prev);
 			}
 		}
 
@@ -149,34 +179,6 @@ namespace SMPL
 			if (ComponentIdentity<ComponentSprite>.CannotCreate(uniqueID)) return;
 			var instance = new ComponentSprite(component2D, texturePath);
 			instance.Identity = new(instance, uniqueID);
-		}
-		public void Destroy()
-		{
-			if (image != null) image.Dispose();
-			if (rawTexture != null) rawTexture.Dispose();
-			if (rawTextureShader != null) rawTextureShader.Dispose();
-
-			if (Identity != null)
-			{
-				ComponentIdentity<ComponentSprite>.uniqueIDs.Remove(Identity.UniqueID);
-				if (ComponentIdentity<ComponentSprite>.objTags.ContainsKey(this))
-				{
-					Identity.RemoveAllTags();
-					ComponentIdentity<ComponentSprite>.objTags.Remove(this);
-				}
-				Identity.instance = null;
-				Identity = null;
-			}
-			if (Effects != null)
-			{
-				if (Effects.shader != null) Effects.shader.Dispose();
-				Effects.owner = null;
-				Effects = null;
-			}
-			if (Family != null) Family.owner = null;
-			sprites.Remove(this);
-
-			AllAccess = Access.Removed;
 		}
 		private ComponentSprite(Component2D component2D, string texturePath = "folder/texture.png") : base(component2D)
 		{
@@ -190,6 +192,7 @@ namespace SMPL
 				Debug.LogError(2, $"The texture at '{texturePath}' is not loaded.\n" +
 					$"Use '{nameof(File)}.{nameof(File.LoadAsset)}({nameof(File)}.{nameof(File.Asset)}." +
 					$"{nameof(File.Asset.Texture)}, \"{texturePath}\")' to load it.");
+				IsDestroyed = true;
 				return;
 			}
 			sprites.Add(this);
@@ -207,12 +210,11 @@ namespace SMPL
 			transform.sprite.Texture.Repeated = true;
 			sizePercent = new Size(100, 100);
 			lastFrameSzPer = sizePercent;
-			HasLoadedAssetFile = true;
 
 			OnCreate?.Invoke(this, texturePath);
 		}
 		internal void Update()
-      {
+		{
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-off-start", lastFrameOffPer != offsetPercent))
 				OnOffsetPercentChangeStart?.Invoke(this, lastFrameOffPer);
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-sprite-off-end", lastFrameOffPer == offsetPercent))
@@ -232,8 +234,8 @@ namespace SMPL
 
 		public void Display(ComponentCamera camera)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || IsNotLoaded() || masking != null || IsHidden || transform == null ||
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null ||
 				transform.sprite == null || transform.sprite.Texture == null) return;
 
 			transform.sprite.Position = new Vector2f();
@@ -274,6 +276,7 @@ namespace SMPL
 				}
 			}
 			drawMaskResult.Dispose();
+			if (Debug.CalledBySMPL == false) OnDisplay?.Invoke(this);
 		}
 	}
 }

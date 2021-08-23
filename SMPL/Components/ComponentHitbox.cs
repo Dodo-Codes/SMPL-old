@@ -48,10 +48,10 @@ namespace SMPL
 			get { return identity; }
 			set
 			{
-				if (identity == value || (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false)) return;
+				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = identity;
 				identity = value;
-				OnIdentityChange?.Invoke(this, prev);
+				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
 			}
 		}
 
@@ -104,38 +104,38 @@ namespace SMPL
 		}
 		public void Display(ComponentCamera camera)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			foreach (var kvp in lines) kvp.Value.Display(camera);
 		}
 
 		public void AddIgnorance(params ComponentHitbox[] hitboxInstances)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (hitboxInstances == null) { Debug.LogError(1, "The ignored hitboxes cannot be 'null'."); return; }
 			for (int i = 0; i < hitboxInstances.Length; i++)
 			{
 				if (ignores.Contains(hitboxInstances[i])) continue;
 				ignores.Add(hitboxInstances[i]);
-				OnAddIgnorance?.Invoke(this, hitboxInstances[i]);
+				if (Debug.CalledBySMPL == false) OnAddIgnorance?.Invoke(this, hitboxInstances[i]);
 			}
 		}
 		public void RemoveIgnorance(params ComponentHitbox[] hitboxInstances)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (hitboxInstances == null) { Debug.LogError(1, "The ignored hitboxes cannot be 'null'."); return; }
 			for (int i = 0; i < hitboxInstances.Length; i++)
 			{
 				if (ignores.Contains(hitboxInstances[i]) == false) continue;
 				ignores.Remove(hitboxInstances[i]);
-				OnRemoveIgnorance?.Invoke(this, hitboxInstances[i]);
+				if (Debug.CalledBySMPL == false) OnRemoveIgnorance?.Invoke(this, hitboxInstances[i]);
 			}
 		}
 		public void RemoveAllIgnorance()
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			for (int i = 0; i < ignores.Count; i++) OnRemoveIgnorance?.Invoke(this, ignores[i]);
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false) for (int i = 0; i < ignores.Count; i++) OnRemoveIgnorance?.Invoke(this, ignores[i]);
 			ignores.Clear();
-			OnRemoveAllIgnorance?.Invoke(this);
+			if (Debug.CalledBySMPL == false) OnRemoveAllIgnorance?.Invoke(this);
 		}
 		public bool Ignores(params ComponentHitbox[] hitboxInstances)
 		{
@@ -174,7 +174,7 @@ namespace SMPL
 
 		public void SetLine(string uniqueID, Line line)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (uniqueID == null)
 			{
 				Debug.LogError(1, $"The unique ID of a line cannot be 'null'.");
@@ -183,27 +183,27 @@ namespace SMPL
 			lines[uniqueID] = line;
 			if (localLines.ContainsKey(uniqueID)) return;
 			localLines[uniqueID] = line;
-			OnSetLine?.Invoke(this, uniqueID);
+			if (Debug.CalledBySMPL == false) OnSetLine?.Invoke(this, uniqueID);
 		}
 		public void RemoveLines(params string[] uniqueIDs)
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (uniqueIDs == null) { Debug.LogError(1, "The uniqueIDs cannot be 'null'."); return; }
 			for (int i = 0; i < uniqueIDs.Length; i++)
 			{
 				if (lines.ContainsKey(uniqueIDs[i]) == false) continue;
 				lines.Remove(uniqueIDs[i]);
 				localLines.Remove(uniqueIDs[i]);
-				OnRemoveLine?.Invoke(this, uniqueIDs[i]);
+				if (Debug.CalledBySMPL == false) OnRemoveLine?.Invoke(this, uniqueIDs[i]);
 			}
 		}
 		public void RemoveAllLines()
 		{
-			if (Debug.CurrentMethodIsCalledByUser && IsCurrentlyAccessible() == false) return;
-			foreach (var kvp in lines) OnRemoveLine?.Invoke(this, kvp.Key);
+			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (Debug.CalledBySMPL == false) foreach (var kvp in lines) OnRemoveLine?.Invoke(this, kvp.Key);
 			lines.Clear();
 			localLines.Clear();
-			OnRemoveAllLines?.Invoke(this);
+			if (Debug.CalledBySMPL == false) OnRemoveAllLines?.Invoke(this);
 		}
 		public bool Contains(params ComponentHitbox[] hitboxInstances)
 		{
