@@ -6,22 +6,23 @@ namespace TestGame
 	{
 		public Player()
 		{
-			Keyboard.CallWhen.KeyHold(OnKeyHold);
-			Keyboard.CallWhen.KeyRelease(OnKeyRelease);
-			File.LoadAsset(File.Asset.Font, "Munro.ttf");
+			File.LoadAsset(File.Asset.Texture, "explosive.jpg");
+			ComponentCamera.CallWhen.Display(OnDraw);
+			File.CallWhen.AssetLoadEnd(OnAssetLoadEnd);
 		}
-		void OnKeyHold(Keyboard.Key key)
+		void OnAssetLoadEnd()
 		{
-			ComponentText.Create($"{Performance.FrameCount}", new Component2D(), "Munro.ttf");
-			ComponentIdentity<ComponentText>.PickByUniqueID($"{Performance.FrameCount}").IsDestroyed = true;
+			var tr = new Component2D();
+			tr.Identity = new ComponentIdentity<Component2D>(tr, "test-tr");
+			ComponentSprite.Create("test", tr, "explosive.jpg");
 		}
-		void OnKeyRelease(Keyboard.Key key)
+		void OnDraw(ComponentCamera camera)
 		{
-			//File.UnloadAsset(File.Asset.Texture, "big.jpg");
-			//var spr = ComponentIdentity<ComponentSprite>.PickByUniqueID("test");
-			//spr.IsDestroyed = true;
-			//Console.Log(spr.SizePercent);
-			//spr.IsDestroyed = false;
+			var spr = ComponentIdentity<ComponentSprite>.PickByUniqueID("test");
+			var tr = ComponentIdentity<Component2D>.PickByUniqueID("test-tr");
+			if (spr == null) return;
+			tr.Angle++;
+			spr.DisplayTest(camera);
 		}
 	}
 }

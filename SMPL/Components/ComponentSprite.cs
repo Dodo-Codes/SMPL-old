@@ -278,5 +278,56 @@ namespace SMPL
 			drawMaskResult.Dispose();
 			if (Debug.CalledBySMPL == false) OnDisplay?.Invoke(this);
 		}
+		public void DisplayTest(ComponentCamera camera)
+		{
+			var verts = new Vertex[]
+			{
+				new Vertex(new Vector2f(0, 0), Color.From(Color.White), new Vector2f(0,  0)),
+				new Vertex(new Vector2f(64, 0), Color.From(Color.White), new Vector2f(64, 0)),
+				new Vertex(new Vector2f(64, 64), Color.From(Color.White), new Vector2f(64, 64)),
+				new Vertex(new Vector2f(0, 64), Color.From(Color.White), new Vector2f(0,  64)),
+				new Vertex(new Vector2f(64 + 0,  64 + 0 ), Color.From(Color.White), new Vector2f(0,  0)),
+				new Vertex(new Vector2f(64 + 64, 64 + 0 ), Color.From(Color.White), new Vector2f(64, 0)),
+				new Vertex(new Vector2f(64 + 64, 64 + 64), Color.From(Color.White), new Vector2f(64, 64)),
+				new Vertex(new Vector2f(64 + 0,  64 + 64), Color.From(Color.White), new Vector2f(0,  64)),
+			};
+			var vertArr = new VertexArray();
+			for (int i = 0; i < verts.Length; i++)
+			{
+				vertArr.Append(verts[i]);
+			}
+			var bounds = vertArr.Bounds;
+			vertArr.Dispose();
+
+			transform.sprite.Position = new Vector2f();
+			transform.sprite.Rotation = 0;
+			transform.sprite.Scale = new Vector2f(1, 1);
+			transform.sprite.Origin = new Vector2f(0, 0);
+
+			var rend = new RenderTexture((uint)bounds.Width, (uint)bounds.Height);
+			rend.Draw(verts, PrimitiveType.Quads,
+				new RenderStates(BlendMode.Alpha, Transform.Identity, File.textures["explosive.jpg"], null));
+			rend.Display();
+			transform.sprite.TextureRect = new IntRect((int)bounds.Left, (int)bounds.Top, (int)bounds.Width, (int)bounds.Height);
+			transform.sprite.Texture = rend.Texture;
+
+			Effects.shader.SetUniform("Texture", transform.sprite.Texture);
+			Effects.shader.SetUniform("RawTexture", rawTextureShader);
+
+			var w = transform.sprite.TextureRect.Width;
+			var h = transform.sprite.TextureRect.Height;
+			var p = transform.OriginPercent / 100;
+
+			transform.sprite.Origin = new Vector2f((float)(w * p.X), (float)(h * (float)p.Y));
+			transform.sprite.Position = Point.From(transform.Position);
+			transform.sprite.Rotation = (float)transform.Angle;
+			transform.sprite.Scale = new Vector2f(
+				(float)transform.Size.W / transform.sprite.TextureRect.Width,
+				(float)transform.Size.H / transform.sprite.TextureRect.Height);
+
+			camera.rendTexture.Draw(transform.sprite,
+				new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
+			rend.Dispose();
+		}
 	}
 }

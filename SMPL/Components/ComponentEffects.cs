@@ -90,7 +90,7 @@ namespace SMPL
 		}
 
 		private double replaceColorBounds, lastFrameRepColB;
-		public double ReplaceColorBounds
+		public double ReplacedColorBounds
 		{
 			get { return replaceColorBounds; }
 			set
