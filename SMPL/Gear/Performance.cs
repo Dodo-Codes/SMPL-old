@@ -1,7 +1,8 @@
 ﻿using SFML.System;
+using SMPL.Data;
 using System.Diagnostics;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Performance
 	{

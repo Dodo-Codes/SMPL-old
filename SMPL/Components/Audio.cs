@@ -2,72 +2,74 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-   public class ComponentAudio : ComponentAccess
+   public class Audio : Access
    {
       public enum Type { NotLoaded, Sound, Music }
       internal Sound sound;
       internal Music music;
       private bool stopped;
-      private readonly static List<ComponentAudio> audios = new();
+      private readonly static List<Audio> audios = new();
 
-      private static event Events.ParamsTwo<ComponentAudio, ComponentIdentity<ComponentAudio>> OnIdentityChange;
-      private static event Events.ParamsTwo<ComponentAudio, string> OnCreate;
-      private static event Events.ParamsTwo<ComponentAudio, Point> OnPositionChange;
+      private static event Events.ParamsTwo<Audio, Identity<Audio>> OnIdentityChange;
+      private static event Events.ParamsTwo<Audio, string> OnCreate;
+      private static event Events.ParamsTwo<Audio, Point> OnPositionChange;
       private static event Events.ParamsOne<Point> OnListenerPositionChange;
-      private static event Events.ParamsOne<ComponentAudio> OnStart, OnPlay, OnPause, OnStop, OnEnd, 
+      private static event Events.ParamsOne<Audio> OnStart, OnPlay, OnPause, OnStop, OnEnd, 
          OnLoop, OnLoopChange, OnPlayChange, OnPauseChange, OnUpdate;
-      private static event Events.ParamsTwo<ComponentAudio, double> OnVolumeChange, OnProgressChange, OnProgressPercentChange,
+      private static event Events.ParamsTwo<Audio, double> OnVolumeChange, OnProgressChange, OnProgressPercentChange,
          OnFileProgressChange, OnSpeedChange, OnDistanceFadeChange;
 
       public static class CallWhen
       {
-         public static void Create(Action<ComponentAudio, string> method, uint order = uint.MaxValue) =>
+         public static void Create(Action<Audio, string> method, uint order = uint.MaxValue) =>
             OnCreate = Events.Add(OnCreate, method, order);
-         public static void IdentityChange(Action<ComponentAudio, ComponentIdentity<ComponentAudio>> method,
+         public static void IdentityChange(Action<Audio, Identity<Audio>> method,
             uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-         public static void Start(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void Start(Action<Audio> method, uint order = uint.MaxValue) =>
             OnStart = Events.Add(OnStart, method, order);
-         public static void End(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void End(Action<Audio> method, uint order = uint.MaxValue) =>
             OnEnd = Events.Add(OnEnd, method, order);
-         public static void Play(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void Play(Action<Audio> method, uint order = uint.MaxValue) =>
             OnPlay = Events.Add(OnPlay, method, order);
-         public static void Pause(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void Pause(Action<Audio> method, uint order = uint.MaxValue) =>
             OnPause = Events.Add(OnPause, method, order);
-         public static void Stop(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void Stop(Action<Audio> method, uint order = uint.MaxValue) =>
             OnStop = Events.Add(OnPause, method, order);
-         public static void Loop(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void Loop(Action<Audio> method, uint order = uint.MaxValue) =>
             OnLoop = Events.Add(OnLoop, method, order);
-         public static void LoopChange(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void LoopChange(Action<Audio> method, uint order = uint.MaxValue) =>
             OnLoopChange = Events.Add(OnLoopChange, method, order);
-         public static void PauseChange(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void PauseChange(Action<Audio> method, uint order = uint.MaxValue) =>
             OnPauseChange = Events.Add(OnPauseChange, method, order);
-         public static void PlayChange(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void PlayChange(Action<Audio> method, uint order = uint.MaxValue) =>
             OnPlayChange = Events.Add(OnPlayChange, method, order);
-         public static void VolumeChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+         public static void VolumeChange(Action<Audio, double> method, uint order = uint.MaxValue) =>
             OnVolumeChange = Events.Add(OnVolumeChange, method, order);
-         public static void Update(Action<ComponentAudio> method, uint order = uint.MaxValue) =>
+         public static void Update(Action<Audio> method, uint order = uint.MaxValue) =>
             OnUpdate = Events.Add(OnUpdate, method, order);
-         public static void ProgressChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+         public static void ProgressChange(Action<Audio, double> method, uint order = uint.MaxValue) =>
             OnProgressChange = Events.Add(OnProgressChange, method, order);
-         public static void ProgressPercentChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+         public static void ProgressPercentChange(Action<Audio, double> method, uint order = uint.MaxValue) =>
             OnProgressPercentChange = Events.Add(OnProgressPercentChange, method, order);
-         public static void FileProgressChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+         public static void FileProgressChange(Action<Audio, double> method, uint order = uint.MaxValue) =>
             OnFileProgressChange = Events.Add(OnFileProgressChange, method, order);
-         public static void SpeedChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+         public static void SpeedChange(Action<Audio, double> method, uint order = uint.MaxValue) =>
             OnSpeedChange = Events.Add(OnSpeedChange, method, order);
-         public static void DistanceFadeChange(Action<ComponentAudio, double> method, uint order = uint.MaxValue) =>
+         public static void DistanceFadeChange(Action<Audio, double> method, uint order = uint.MaxValue) =>
             OnDistanceFadeChange = Events.Add(OnDistanceFadeChange, method, order);
-         public static void PositionChange(Action<ComponentAudio, Point> method, uint order = uint.MaxValue) =>
+         public static void PositionChange(Action<Audio, Point> method, uint order = uint.MaxValue) =>
             OnPositionChange = Events.Add(OnPositionChange, method, order);
          public static void ListenerPositionChange(Action<Point> method, uint order = uint.MaxValue) =>
             OnListenerPositionChange = Events.Add(OnListenerPositionChange, method, order);
       }
 
-      private ComponentIdentity<ComponentAudio> identity;
-      public ComponentIdentity<ComponentAudio> Identity
+      private Identity<Audio> identity;
+      public Identity<Audio> Identity
       {
          get { return identity; }
          set
@@ -81,7 +83,7 @@ namespace SMPL
 
       public static Point ListenerPosition
       {
-         get { return new Point(Listener.Position.X, Listener.Position.Z); }
+         get { return new() { X = Listener.Position.X, Y = Listener.Position.Z }; }
          set
          {
             if (ListenerPosition == value) return;
@@ -281,7 +283,7 @@ namespace SMPL
       }
       public Type CurrentType { get; private set; }
 
-      public ComponentAudio(string audioPath = "folder/audio.extension")
+      public Audio(string audioPath = "folder/audio.extension")
       {
          if (File.sounds.ContainsKey(audioPath))
          {
@@ -338,7 +340,7 @@ namespace SMPL
       {
          if (CurrentType != Type.NotLoaded) return false;
 
-         Debug.LogError(2, $"This will have no effect due to this {nameof(ComponentAudio)}'s file is not loaded.\n" +
+         Debug.LogError(2, $"This will have no effect due to this {nameof(Audio)}'s file is not loaded.\n" +
             $"To load it use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
             $"{nameof(File.Asset.Sound)}, \"folder/audio.extension\")' or" +
             $"'{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +

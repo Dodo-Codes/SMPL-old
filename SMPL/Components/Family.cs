@@ -2,36 +2,38 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public class ComponentFamily : ComponentAccess
+	public class Family : Access
 	{
-		internal ComponentVisual owner;
-		internal List<ComponentVisual> children = new();
+		internal Visual owner;
+		internal List<Visual> children = new();
 
-		private static event Events.ParamsTwo<ComponentFamily, ComponentIdentity<ComponentFamily>> OnIdentityChange;
-		private static event Events.ParamsOne<ComponentFamily> OnCreate, OnRemoveAllChildren;
-		private static event Events.ParamsTwo<ComponentFamily, ComponentVisual> OnParentChange, OnAddChild, OnRemoveChild;
+		private static event Events.ParamsTwo<Family, Identity<Family>> OnIdentityChange;
+		private static event Events.ParamsOne<Family> OnCreate, OnRemoveAllChildren;
+		private static event Events.ParamsTwo<Family, Visual> OnParentChange, OnAddChild, OnRemoveChild;
 
 		public static class CallWhen
 		{
-			public static void IdentityChange(Action<ComponentFamily, ComponentIdentity<ComponentFamily>> method,
+			public static void IdentityChange(Action<Family, Identity<Family>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void Create(Action<ComponentFamily> method, uint order = uint.MaxValue) =>
+			public static void Create(Action<Family> method, uint order = uint.MaxValue) =>
 				OnCreate = Events.Add(OnCreate, method, order);
-			public static void ParentChange(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
+			public static void ParentChange(Action<Family, Visual> method, uint order = uint.MaxValue) =>
 				OnParentChange = Events.Add(OnParentChange, method, order);
-			public static void AddChildren(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
+			public static void AddChildren(Action<Family, Visual> method, uint order = uint.MaxValue) =>
 				OnAddChild = Events.Add(OnAddChild, method, order);
-			public static void RemoveChildren(Action<ComponentFamily, ComponentVisual> method, uint order = uint.MaxValue) =>
+			public static void RemoveChildren(Action<Family, Visual> method, uint order = uint.MaxValue) =>
 				OnRemoveChild = Events.Add(OnRemoveChild, method, order);
-			public static void RemoveAllChildren(Action<ComponentFamily> method, uint order = uint.MaxValue) =>
+			public static void RemoveAllChildren(Action<Family> method, uint order = uint.MaxValue) =>
 				OnRemoveAllChildren = Events.Add(OnRemoveAllChildren, method, order);
 		}
 
-		private ComponentIdentity<ComponentFamily> identity;
-		public ComponentIdentity<ComponentFamily> Identity
+		private Identity<Family> identity;
+		public Identity<Family> Identity
 		{
 			get { return identity; }
 			set
@@ -43,8 +45,8 @@ namespace SMPL
 			}
 		}
 
-		private ComponentVisual parent;
-		public ComponentVisual Parent
+		private Visual parent;
+		public Visual Parent
 		{
 			get { return parent; }
 			set
@@ -80,10 +82,10 @@ namespace SMPL
 				if (Debug.CalledBySMPL == false) OnParentChange?.Invoke(this, prevPar);
 			}
 		}
-		public ComponentVisual[] Children => children.ToArray();
+		public Visual[] Children => children.ToArray();
 		public int ChildrenCount => children.Count;
 
-		public void ParentChildren(params ComponentVisual[] childrenInstances)
+		public void ParentChildren(params Visual[] childrenInstances)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (childrenInstances == null) { Debug.LogError(1, "ComponentVisual children cannot be 'null'."); return; }
@@ -94,7 +96,7 @@ namespace SMPL
 				if (Debug.CalledBySMPL == false) OnAddChild?.Invoke(this, childrenInstances[i]);
 			}
 		}
-		public void UnparentChildren(params ComponentVisual[] childrenInstances)
+		public void UnparentChildren(params Visual[] childrenInstances)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (childrenInstances == null) { Debug.LogError(1, "ComponentVisual children cannot be 'null'."); return; }
@@ -115,7 +117,7 @@ namespace SMPL
 			}
 			if (Debug.CalledBySMPL == false) OnRemoveAllChildren?.Invoke(this);
 		}
-		public bool HasChildren(params ComponentVisual[] childrenInstances)
+		public bool HasChildren(params Visual[] childrenInstances)
 		{
 			if (childrenInstances == null)
 			{
@@ -128,7 +130,13 @@ namespace SMPL
 			return true;
 		}
 
-		public ComponentFamily(ComponentVisual owner) : base()
+		public static void Create(string uniqueID, Visual owner)
+		{
+			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
+			var instance = new Family(owner);
+			instance.Identity = new(instance, uniqueID);
+		}
+		private Family(Visual owner) : base()
 		{
 			this.owner = owner;
 			OnCreate?.Invoke(this);

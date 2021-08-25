@@ -1,11 +1,15 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using System;
+using SMPL.Components;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public struct Point
 	{
+		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
+
 		public double X { get; set; }
 		public double Y { get; set; }
 		public Color Color { get; set; }
@@ -16,7 +20,7 @@ namespace SMPL
 			X = x;
 			Y = y;
 		}
-		public void Display(ComponentCamera camera)
+		public void Display(Camera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
 			var vert = new Vertex[] { new(From(this), Color.From(Color)) };
@@ -28,9 +32,10 @@ namespace SMPL
 		{
 			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
 		}
-		public static Point MoveAtAngle(Point point, double angle, double speed, Time.Unit timeUnit = Time.Unit.Second)
+		public static Point MoveAtAngle(Point point, double angle, double speed,
+			Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
 		{
-			if (timeUnit == Time.Unit.Second) speed *= Performance.DeltaTime;
+			if (timeUnit == Gear.Time.Unit.Second) speed *= Performance.DeltaTime;
 			var dir = Number.AngleToDirection(angle);
 
 			point.X += dir.X * speed;
@@ -38,7 +43,7 @@ namespace SMPL
 			return point;
 		}
 		public static Point MoveTowardTarget(Point point, Point targetPoint, double speed,
-			Time.Unit timeUnit = Time.Unit.Second)
+			Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
 		{
 			var ang = Number.AngleBetweenPoints(point, targetPoint);
 			return MoveAtAngle(point, ang, speed, timeUnit);

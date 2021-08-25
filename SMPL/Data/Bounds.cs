@@ -1,4 +1,4 @@
-﻿namespace SMPL
+﻿namespace SMPL.Data
 {
 	public struct Bounds
 	{

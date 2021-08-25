@@ -1,28 +1,29 @@
-﻿using System;
+﻿using SMPL.Gear;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public class ComponentIdentity<T> : ComponentAccess
+	public class Identity<T> : Access
 	{
 		internal static readonly Dictionary<string, T> uniqueIDs = new();
 		internal static readonly Dictionary<string, List<T>> tagObjs = new();
 		internal static readonly Dictionary<T, List<string>> objTags = new();
 		internal T instance;
 
-		private static event Events.ParamsOne<ComponentIdentity<T>> OnRemoveAllTags;
-		private static event Events.ParamsTwo<ComponentIdentity<T>, string> OnCreate, OnAddTag, OnRemoveTag;
+		private static event Events.ParamsOne<Identity<T>> OnRemoveAllTags;
+		private static event Events.ParamsTwo<Identity<T>, string> OnCreate, OnAddTag, OnRemoveTag;
 
 		public static class CallWhen
 		{
-			public static void Create(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			public static void Create(Action<Identity<T>, string> method, uint order = uint.MaxValue) =>
 				OnCreate = Events.Add(OnCreate, method, order);
-			public static void TagAdd(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			public static void TagAdd(Action<Identity<T>, string> method, uint order = uint.MaxValue) =>
 				OnAddTag = Events.Add(OnAddTag, method, order);
-			public static void TagRemove(Action<ComponentIdentity<T>, string> method, uint order = uint.MaxValue) =>
+			public static void TagRemove(Action<Identity<T>, string> method, uint order = uint.MaxValue) =>
 				OnRemoveTag = Events.Add(OnRemoveTag, method, order);
-			public static void RemoveAllTags(Action<ComponentIdentity<T>> method, uint order = uint.MaxValue) =>
+			public static void RemoveAllTags(Action<Identity<T>> method, uint order = uint.MaxValue) =>
 				OnRemoveAllTags = Events.Add(OnRemoveAllTags, method, order);
 		}
 
@@ -33,19 +34,19 @@ namespace SMPL
 		{
 			if (uniqueID == null)
 			{
-				Debug.LogError(2, $"Cannot create the identity of this instance ({typeof(T)}). " +
-					$"The UniqueID cannot be 'null'.");
+				Debug.LogError(2, $"Cannot create the identity of this '{typeof(T)}' instance\n" +
+					$"because the uniqueID cannot be 'null'.");
 				return true;
 			}
 			if (uniqueIDs.ContainsKey(uniqueID))
 			{
-				Debug.LogError(2, $"Cannot create the identity of this instance ({typeof(T)}). " +
-					$"The UniqueID '{uniqueID}' already exists.");
+				Debug.LogError(2, $"Cannot create the identity of this '{typeof(T)}' instance\n" +
+					$"because the uniqueID '{uniqueID}' already exists.");
 				return true;
 			}
 			return false;
 		}
-		public ComponentIdentity(T instance, string uniqueID) : base()
+		public Identity(T instance, string uniqueID) : base()
 		{
 			this.instance = instance;
 			UniqueID = uniqueID;
@@ -109,7 +110,7 @@ namespace SMPL
 		public static bool UniqueIDsExits(params string[] uniqueIDs)
 		{
 			for (int i = 0; i < uniqueIDs.Length; i++)
-				if (ComponentIdentity<T>.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
+				if (Identity<T>.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
 					return false;
 			return true;
 		}

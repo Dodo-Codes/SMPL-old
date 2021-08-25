@@ -1,9 +1,10 @@
 ﻿using SFML.System;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public struct Size
 	{
+		public static Size Invalid => new(double.NaN, double.NaN);
 		public double W { get; set; }
 		public double H { get; set; }
 
@@ -12,16 +13,17 @@ namespace SMPL
 			W = width;
 			H = height;
 		}
-		public static Size Resize(Size size, double speed, Time.Unit timeUnit = Time.Unit.Second)
+		public static Size Resize(Size size, double speed, Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
 		{
 			size.W = Number.Move(size.W, speed, timeUnit);
 			size.H = Number.Move(size.H, speed, timeUnit);
 			return size;
 		}
-		public static Size ResizeTowardTarget(Size size, Size targetSize, double speed, Time.Unit timeUnit = Time.Unit.Second)
+		public static Size ResizeTowardTarget(Size size, Size targetSize, double speed,
+			Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
 		{
 			size = Resize(size, speed, timeUnit);
-			var sp = timeUnit == Time.Unit.Second ? speed * Performance.DeltaTime * 2 : speed * 2;
+			var sp = timeUnit == Gear.Time.Unit.Second ? speed * Gear.Performance.DeltaTime * 2 : speed * 2;
 			var dist = Point.Distance(new Point(size.W, size.H), new Point(targetSize.W, targetSize.H));
 			if (dist < sp) size = targetSize;
 			return size;

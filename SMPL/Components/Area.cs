@@ -2,89 +2,91 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public class Component2D : ComponentAccess
+	public class Area : Access
 	{
-		internal static List<Component2D> transforms = new();
-		internal Sprite sprite = new();
+		internal static List<Area> transforms = new();
+		internal SFML.Graphics.Sprite sprite = new();
 		internal SFML.Graphics.Text text = new();
-		internal ComponentFamily family;
-		private readonly List<ComponentHitbox> hitboxes = new();
+		internal Family family;
+		private readonly List<Hitbox> hitboxes = new();
 
 		private readonly uint creationFrame;
 		private readonly double rand;
 
-		private static event Events.ParamsTwo<Component2D, ComponentHitbox> OnHitboxAdd, OnHitboxRemove;
-		private static event Events.ParamsTwo<Component2D, ComponentIdentity<Component2D>> OnIdentityChange;
-		private static event Events.ParamsOne<Component2D> OnHitboxesRemoveAll;
-		private static event Events.ParamsOne<Component2D> OnCreate, OnPositionChangeEnd, OnSizeChangeEnd,
+		private static event Events.ParamsTwo<Area, Hitbox> OnHitboxAdd, OnHitboxRemove;
+		private static event Events.ParamsTwo<Area, Identity<Area>> OnIdentityChange;
+		private static event Events.ParamsOne<Area> OnHitboxesRemoveAll;
+		private static event Events.ParamsOne<Area> OnCreate, OnPositionChangeEnd, OnSizeChangeEnd,
 			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnLocalAngleChangeEnd, OnLocalPositionChangeEnd, OnLocalSizeChangeEnd;
-		private static event Events.ParamsTwo<Component2D, Point> OnPositionChange, OnPositionChangeStart,
+		private static event Events.ParamsTwo<Area, Point> OnPositionChange, OnPositionChangeStart,
 			OnOriginPercentChange, OnOriginPercentChangeStart, OnLocalPositionChange, OnLocalPositionChangeStart;
-		private static event Events.ParamsTwo<Component2D, double> OnAngleChange, OnAngleChangeStart, OnLocalAngleChange,
+		private static event Events.ParamsTwo<Area, double> OnAngleChange, OnAngleChangeStart, OnLocalAngleChange,
 			OnLocalAngleChangeStart;
-		private static event Events.ParamsTwo<Component2D, Size> OnSizeChange, OnSizeChangeStart, OnLocalSizeChange,
+		private static event Events.ParamsTwo<Area, Size> OnSizeChange, OnSizeChangeStart, OnLocalSizeChange,
 			OnLocalSizeChangeStart;
 
 		public static class CallWhen
 		{
-			public static void Create(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void Create(Action<Area> method, uint order = uint.MaxValue) =>
 				OnCreate = Events.Add(OnCreate, method, order);
-			public static void IdentityChange(Action<Component2D, ComponentIdentity<Component2D>> method,
+			public static void IdentityChange(Action<Area, Identity<Area>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void PositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			public static void PositionChange(Action<Area, Point> method, uint order = uint.MaxValue) =>
 				OnPositionChange = Events.Add(OnPositionChange, method, order);
-			public static void PositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			public static void PositionChangeStart(Action<Area, Point> method, uint order = uint.MaxValue) =>
 				OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
-			public static void PositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void PositionChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
-			public static void AngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			public static void AngleChange(Action<Area, double> method, uint order = uint.MaxValue) =>
 				OnAngleChange = Events.Add(OnAngleChange, method, order);
-			public static void AngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			public static void AngleChangeStart(Action<Area, double> method, uint order = uint.MaxValue) =>
 				OnAngleChangeStart = Events.Add(OnAngleChangeStart, method, order);
-			public static void AngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void AngleChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnAngleChangeEnd = Events.Add(OnAngleChangeEnd, method, order);
-			public static void SizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			public static void SizeChange(Action<Area, Size> method, uint order = uint.MaxValue) =>
 				OnSizeChange = Events.Add(OnSizeChange, method, order);
-			public static void SizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			public static void SizeChangeStart(Action<Area, Size> method, uint order = uint.MaxValue) =>
 				OnSizeChangeStart = Events.Add(OnSizeChangeStart, method, order);
-			public static void SizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void SizeChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnSizeChangeEnd = Events.Add(OnSizeChangeEnd, method, order);
-			public static void OriginPercentChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChange(Action<Area, Point> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChange = Events.Add(OnOriginPercentChange, method, order);
-			public static void OriginPercentChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChangeStart(Action<Area, Point> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChangeStart = Events.Add(OnOriginPercentChangeStart, method, order);
-			public static void OriginPercentChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChangeEnd = Events.Add(OnOriginPercentChangeEnd, method, order);
-			public static void LocalPositionChange(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			public static void LocalPositionChange(Action<Area, Point> method, uint order = uint.MaxValue) =>
 				OnLocalPositionChange = Events.Add(OnLocalPositionChange, method, order);
-			public static void LocalPositionChangeStart(Action<Component2D, Point> method, uint order = uint.MaxValue) =>
+			public static void LocalPositionChangeStart(Action<Area, Point> method, uint order = uint.MaxValue) =>
 				OnLocalPositionChangeStart = Events.Add(OnLocalPositionChangeStart, method, order);
-			public static void LocalPositionChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void LocalPositionChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnLocalPositionChangeEnd = Events.Add(OnLocalPositionChangeEnd, method, order);
-			public static void LocalAngleChange(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			public static void LocalAngleChange(Action<Area, double> method, uint order = uint.MaxValue) =>
 				OnLocalAngleChange = Events.Add(OnLocalAngleChange, method, order);
-			public static void LocalAngleChangeStart(Action<Component2D, double> method, uint order = uint.MaxValue) =>
+			public static void LocalAngleChangeStart(Action<Area, double> method, uint order = uint.MaxValue) =>
 				OnLocalAngleChangeStart = Events.Add(OnLocalAngleChangeStart, method, order);
-			public static void LocalAngleChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void LocalAngleChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnLocalAngleChangeEnd = Events.Add(OnLocalAngleChangeEnd, method, order);
-			public static void LocalSizeChange(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			public static void LocalSizeChange(Action<Area, Size> method, uint order = uint.MaxValue) =>
 				OnLocalSizeChange = Events.Add(OnLocalSizeChange, method, order);
-			public static void LocalSizeChangeStart(Action<Component2D, Size> method, uint order = uint.MaxValue) =>
+			public static void LocalSizeChangeStart(Action<Area, Size> method, uint order = uint.MaxValue) =>
 				OnLocalSizeChangeStart = Events.Add(OnLocalSizeChangeStart, method, order);
-			public static void LocalSizeChangeEnd(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void LocalSizeChangeEnd(Action<Area> method, uint order = uint.MaxValue) =>
 				OnLocalSizeChangeEnd = Events.Add(OnLocalSizeChangeEnd, method, order);
-			public static void AddHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+			public static void AddHitbox(Action<Area, Hitbox> method, uint order = uint.MaxValue) =>
 				OnHitboxAdd = Events.Add(OnHitboxAdd, method, order);
-			public static void RemoveHitbox(Action<Component2D, ComponentHitbox> method, uint order = uint.MaxValue) =>
+			public static void RemoveHitbox(Action<Area, Hitbox> method, uint order = uint.MaxValue) =>
 				OnHitboxRemove = Events.Add(OnHitboxRemove, method, order);
-			public static void RemoveAllHitboxes(Action<Component2D> method, uint order = uint.MaxValue) =>
+			public static void RemoveAllHitboxes(Action<Area> method, uint order = uint.MaxValue) =>
 				OnHitboxesRemoveAll = Events.Add(OnHitboxesRemoveAll, method, order);
 		}
 
-		public void AddHitboxes(params ComponentHitbox[] hitboxInstances)
+		public void AddHitboxes(params Hitbox[] hitboxInstances)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (hitboxInstances == null)
@@ -99,7 +101,7 @@ namespace SMPL
 				if (Debug.CalledBySMPL == false) OnHitboxAdd?.Invoke(this, hitboxInstances[i]);
 			}
 		}
-		public void RemoveHitboxes(params ComponentHitbox[] hitboxInstances)
+		public void RemoveHitboxes(params Hitbox[] hitboxInstances)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (hitboxInstances == null)
@@ -121,7 +123,7 @@ namespace SMPL
 			hitboxes.Clear();
 			if (Debug.CalledBySMPL == false) OnHitboxesRemoveAll?.Invoke(this);
 		}
-		public bool HasHitboxes(params ComponentHitbox[] hitboxInstances)
+		public bool HasHitboxes(params Hitbox[] hitboxInstances)
 		{
 			if (hitboxInstances == null)
 			{
@@ -134,8 +136,8 @@ namespace SMPL
 			return true;
 		}
 
-		private ComponentIdentity<Component2D> identity;
-		public ComponentIdentity<Component2D> Identity
+		private Identity<Area> identity;
+		public Identity<Area> Identity
 		{
 			get { return identity; }
 			set
@@ -200,7 +202,7 @@ namespace SMPL
 				OnSizeChange?.Invoke(this, prev);
 			}
 		}
-		internal Point originPercent = new(50, 50), lastFrameOrPer = new(50, 50);
+		internal Point originPercent = new() { X = 50, Y = 50 }, lastFrameOrPer = new() { X = 50, Y = 50 };
 		public Point OriginPercent
 		{
 			get { return originPercent; }
@@ -209,7 +211,7 @@ namespace SMPL
 				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value || ComponentCamera.WorldCamera.Display2D == this) return;
+				if (originPercent == value || Camera.WorldCamera.Display2D == this) return;
 				var prev = originPercent;
 				originPercent = value;
 				UpdateHitboxes();
@@ -271,7 +273,7 @@ namespace SMPL
 			}
 		}
 
-		public Component2D() : base()
+		public Area() : base()
 		{
 			transforms.Add(this);
 			creationFrame = Performance.FrameCount;
@@ -345,7 +347,7 @@ namespace SMPL
 			}
 		}
 
-		public static Point PositionToParallax(Point position, Size parallaxPercent, ComponentCamera camera)
+		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{
 			parallaxPercent += new Size(100, 100);
 			var x = Number.FromPercent(parallaxPercent.W, new Bounds(-camera.Position.X, position.X));
@@ -362,10 +364,10 @@ namespace SMPL
 			return family == null || family.Parent == null ? position :
 				Point.To(family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
-		public static double AngleToParallax(double angle, double parallaxPercent, ComponentCamera camera)
+		public static double AngleToParallax(double angle, double parallaxPercent, Camera camera)
 		{
 			parallaxPercent /= 100;
-			return Number.MoveTowardAngle(angle, camera.Angle, (camera.Angle - angle) * parallaxPercent, Time.Unit.Tick);
+			return Number.MoveTowardAngle(angle, camera.Angle, (camera.Angle - angle) * parallaxPercent, Gear.Time.Unit.Tick);
 		}
 		public double AngleFromLocal(double localAngle)
 		{
@@ -377,7 +379,7 @@ namespace SMPL
 			return family == null || family.Parent == null ? angle :
 				-(family.Parent.transform.localAngle - angle);
 		}
-		public static Size SizeToParallax(Size size, Size parallaxPercent, ComponentCamera camera)
+		public static Size SizeToParallax(Size size, Size parallaxPercent, Camera camera)
 		{
 			parallaxPercent /= 100;
 			var sc = (camera.Size / camera.startSize) * parallaxPercent;
@@ -385,12 +387,12 @@ namespace SMPL
 		}
 		public Size SizeFromLocal(Size localSize)
 		{
-			return family == null || family.Parent == null || family.owner is ComponentText ? localSize :
+			return family == null || family.Parent == null || family.owner is Text ? localSize :
 				localSize + family.Parent.transform.Size;
 		}
 		public Size SizeToLocal(Size size)
 		{
-			return family == null || family.Parent == null || family.owner is ComponentText ? size :
+			return family == null || family.Parent == null || family.owner is Text ? size :
 				size - family.Parent.transform.Size;
 		}
 	}

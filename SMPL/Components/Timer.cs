@@ -1,42 +1,44 @@
 ﻿using System;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-   public class ComponentTimer : ComponentAccess
+	public class Timer : Access
    {
-      private static event Events.ParamsOne<ComponentTimer> OnEnd, OnPause;
-      private static event Events.ParamsTwo<ComponentTimer, int> OnEndCountChange;
-      private static event Events.ParamsTwo<ComponentTimer, double> OnCreateAndStart, OnDurationChange, OnCountdownChange,
+      private static event Events.ParamsOne<Timer> OnEnd, OnPause;
+      private static event Events.ParamsTwo<Timer, int> OnEndCountChange;
+      private static event Events.ParamsTwo<Timer, double> OnCreateAndStart, OnDurationChange, OnCountdownChange,
          OnProgressChange, OnProgressPercentChange;
-      private static event Events.ParamsFour<ComponentTimer, double, double, double> OnUpdate;
-      private static event Events.ParamsTwo<ComponentTimer, ComponentIdentity<ComponentTimer>> OnIdentityChange;
+      private static event Events.ParamsFour<Timer, double, double, double> OnUpdate;
+      private static event Events.ParamsTwo<Timer, Identity<Timer>> OnIdentityChange;
 
       public static class CallWhen
       {
-         public static void CreateAndStart(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
+         public static void CreateAndStart(Action<Timer, double> method, uint order = uint.MaxValue) =>
          OnCreateAndStart = Events.Add(OnCreateAndStart, method, order);
-         public static void IdentityChange(Action<ComponentTimer, ComponentIdentity<ComponentTimer>> method,
+         public static void IdentityChange(Action<Timer, Identity<Timer>> method,
             uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-         public static void End(Action<ComponentTimer> method, uint order = uint.MaxValue) =>
+         public static void End(Action<Timer> method, uint order = uint.MaxValue) =>
             OnEnd = Events.Add(OnEnd, method, order);
-         public static void Pause(Action<ComponentTimer> method, uint order = uint.MaxValue) =>
+         public static void Pause(Action<Timer> method, uint order = uint.MaxValue) =>
             OnPause = Events.Add(OnPause, method, order);
-         public static void EndCountChange(Action<ComponentTimer, int> method, uint order = uint.MaxValue) =>
+         public static void EndCountChange(Action<Timer, int> method, uint order = uint.MaxValue) =>
             OnEndCountChange = Events.Add(OnEndCountChange, method, order);
-         public static void DurationChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
+         public static void DurationChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
             OnDurationChange = Events.Add(OnDurationChange, method, order);
-         public static void Update(Action<ComponentTimer, double, double, double> method, uint order = uint.MaxValue) =>
+         public static void Update(Action<Timer, double, double, double> method, uint order = uint.MaxValue) =>
             OnUpdate = Events.Add(OnUpdate, method, order);
-         public static void ProgressChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
+         public static void ProgressChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
             OnProgressChange = Events.Add(OnProgressChange, method, order);
-         public static void CountdownChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
+         public static void CountdownChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
             OnCountdownChange = Events.Add(OnCountdownChange, method, order);
-         public static void ProgressPercentChange(Action<ComponentTimer, double> method, uint order = uint.MaxValue) =>
+         public static void ProgressPercentChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
             OnProgressPercentChange = Events.Add(OnProgressPercentChange, method, order);
       }
 
-      private ComponentIdentity<ComponentTimer> identity;
-      public ComponentIdentity<ComponentTimer> Identity
+      private Identity<Timer> identity;
+      public Identity<Timer> Identity
       {
          get { return identity; }
          set
@@ -127,7 +129,7 @@ namespace SMPL
          }
       }
 
-      public ComponentTimer(string uniqueID, double durationInSeconds)
+      public Timer(string uniqueID, double durationInSeconds)
       {
 			if (uniqueID == null)
 			{
@@ -142,11 +144,11 @@ namespace SMPL
 
       internal static void Update()
       {
-         var timerUIDs = ComponentIdentity<ComponentTimer>.AllUniqueIDs;
+         var timerUIDs = Identity<Timer>.AllUniqueIDs;
          for (int j = 0; j < timerUIDs.Length; j++)
          {
             var dt = Performance.DeltaTime;
-            var timer = ComponentIdentity<ComponentTimer>.PickByUniqueID(timerUIDs[j]);
+            var timer = Identity<Timer>.PickByUniqueID(timerUIDs[j]);
             if (timer.Countdown < 0) timer.Countdown = 0;
             if (timer.IsPaused || timer.Countdown == 0) continue;
             var prevCd = timer.Countdown;

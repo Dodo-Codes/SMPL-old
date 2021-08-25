@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.IO;
 using System.Linq;
+using SMPL.Data;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class File
 	{
@@ -227,16 +228,16 @@ namespace SMPL
 				return default;
 			}
 		}
-		public static void OutlinePictures(Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
+		public static void OutlinePictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
 			bool fillDiagonals = false)
 		{
 			EditPictures(color, directoryPath, onlyOutline, fillDiagonals);
 		}
-		public static void FillPictures(Color color, string directoryPath = "folder/pictures")
+		public static void FillPictures(Data.Color color, string directoryPath = "folder/pictures")
 		{
 			EditPictures(color, directoryPath, false, false, true);
 		}
-		private static void EditPictures(Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
+		private static void EditPictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
 			bool fillDiagonals = false, bool fill = false)
 		{
 			if (Directory.Exists(directoryPath) == false)
@@ -247,7 +248,7 @@ namespace SMPL
 			var outlineOrFill = fill ? "filled" : "outlined";
 			var outliningOrFilling = fill ? "Filling" : "Outlining";
 			var resultPath = $"{directoryPath}\\____{outlineOrFill} pictures";
-			var col = Color.From(color);
+			var col = Data.Color.From(color);
 			var done = 0;
 			var errors = 0;
 

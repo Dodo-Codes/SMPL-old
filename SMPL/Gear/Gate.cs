@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Gate
 	{

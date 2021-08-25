@@ -1,31 +1,35 @@
-﻿using System;
+﻿using SMPL.Gear;
+using System;
 using System.Collections.Generic;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public class ComponentAccess
+	public class Access
 	{
 		internal List<string> accessPaths = new();
-		public enum Access { Varying, Allowed, Denied, Removed }
+		public enum Extent { Varying, Allowed, Denied, Removed }
 
-		private static event Events.ParamsTwo<ComponentAccess, ComponentIdentity<ComponentAccess>> OnIdentityChange;
-		private static event Events.ParamsTwo<ComponentAccess, Access> OnAllAccessChange;
-		private static event Events.ParamsTwo<ComponentAccess, string> OnGrantAccess, OnDenyAccess;
+		private static event Events.ParamsTwo<Access, Identity<Access>> OnIdentityChange;
+		private static event Events.ParamsOne<Access> OnCreate;
+		private static event Events.ParamsTwo<Access, Extent> OnAllAccessChange;
+		private static event Events.ParamsTwo<Access, string> OnGrantAccess, OnDenyAccess;
 
 		public static class CallWhenAccess
 		{
-			public static void IdentityChange(Action<ComponentAccess, ComponentIdentity<ComponentAccess>> method,
+			public static void Create(Action<Access> method, uint order = uint.MaxValue) =>
+				OnCreate = Events.Add(OnCreate, method, order);
+			public static void IdentityChange(Action<Access, Identity<Components.Access>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void AllAccessChange(Action<ComponentAccess, Access> method, uint order = uint.MaxValue) =>
+			public static void AllAccessChange(Action<Access, Extent> method, uint order = uint.MaxValue) =>
 				OnAllAccessChange = Events.Add(OnAllAccessChange, method, order);
-			public static void GrantChange(Action<ComponentAccess, string> method, uint order = uint.MaxValue) =>
+			public static void GrantChange(Action<Access, string> method, uint order = uint.MaxValue) =>
 				OnGrantAccess = Events.Add(OnGrantAccess, method, order);
-			public static void DenyChange(Action<ComponentAccess, string> method, uint order = uint.MaxValue) =>
+			public static void DenyChange(Action<Access, string> method, uint order = uint.MaxValue) =>
 				OnDenyAccess = Events.Add(OnDenyAccess, method, order);
 		}
 
-		private ComponentIdentity<ComponentAccess> identity;
-		public ComponentIdentity<ComponentAccess> AccessIdentity
+		private Identity<Access> identity;
+		public Identity<Access> AccessIdentity
 		{
 			get { return identity; }
 			set
@@ -37,8 +41,8 @@ namespace SMPL
 			}
 		}
 
-		private Access access;
-		public Access AllAccess
+		private Extent access;
+		public Extent AllAccess
 		{
 			get { return access; }
 			set
@@ -46,15 +50,15 @@ namespace SMPL
 				if (access == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = access;
 				access = value;
-				if (Debug.CalledBySMPL == false && value == Access.Removed)
+				if (Debug.CalledBySMPL == false && value == Extent.Removed)
 				{
-					if (this is ComponentSprite) (this as ComponentSprite).IsDestroyed = true;
-					else if (this is ComponentText) (this as ComponentText).IsDestroyed = true;
-					else if (this is ComponentAudio)
+					if (this is Sprite) (this as Sprite).IsDestroyed = true;
+					else if (this is Text) (this as Text).IsDestroyed = true;
+					else if (this is Audio)
 					{
 
 					}
-					else if (this is Component2D)
+					else if (this is Area)
 					{
 
 					}
@@ -91,14 +95,14 @@ namespace SMPL
 		}
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{
-			if (AllAccess == Access.Allowed) return true;
-			else if (AllAccess == Access.Denied)
+			if (AllAccess == Extent.Allowed) return true;
+			else if (AllAccess == Extent.Denied)
 			{
 				Debug.LogError(2, $"All access to this component is denied.\n" +
 					$"No interaction is allowed but information can still be retrieved from it.");
 				return false;
 			}
-			else if (AllAccess == Access.Removed)
+			else if (AllAccess == Extent.Removed)
 			{
 				Debug.LogError(2, $"All access to this component is removed (as well as the component itself).\n" +
 					$"Make sure to have no references (fields & properties) towards destroyed\n" +
@@ -125,12 +129,22 @@ namespace SMPL
 		{
 			return AllAccess switch
 			{
-				Access.Allowed => true,
-				Access.Denied or Access.Removed => false,
+				Extent.Allowed => true,
+				Extent.Denied or Extent.Removed => false,
 				_ => accessPaths.Contains(fullFilePath),
 			};
 		}
 
-		public ComponentAccess() => accessPaths.Add(Debug.CurrentFilePath(2));
+		public static void Create(string uniqueID)
+		{
+			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
+			var instance = new Access();
+			instance.AccessIdentity = new(instance, uniqueID);
+		}
+		internal Access()
+		{
+			accessPaths.Add(Debug.CurrentFilePath(2));
+			OnCreate?.Invoke(this);
+		}
 	}
 }

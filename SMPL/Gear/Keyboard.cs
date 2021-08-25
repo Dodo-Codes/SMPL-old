@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Keyboard
 	{

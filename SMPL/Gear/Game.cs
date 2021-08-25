@@ -2,8 +2,9 @@
 using System;
 using System.Windows.Forms;
 using System.Threading;
+using SMPL.Data;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public abstract class Game
 	{

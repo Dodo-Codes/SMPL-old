@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	internal static class Events
 	{

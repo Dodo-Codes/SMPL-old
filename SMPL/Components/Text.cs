@@ -2,82 +2,77 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public class ComponentText : ComponentVisual
+	public class Text : Visual
 	{
-		internal static List<ComponentText> texts = new();
+		internal static List<Text> texts = new();
 
-		private static event Events.ParamsTwo<ComponentText, string> OnCreate, OnTextChange;
-		private static event Events.ParamsTwo<ComponentText, ComponentIdentity<ComponentText>> OnIdentityChange;
-		private static event Events.ParamsTwo<ComponentText, Color> OnBackgroundColorChange, OnBackgroundColorChangeStart;
-		private static event Events.ParamsTwo<ComponentText, Point> OnPositionChange, OnOriginPercentChange, OnPositionChangeStart,
+		private static event Events.ParamsTwo<Text, string> OnCreate, OnTextChange;
+		private static event Events.ParamsTwo<Text, Identity<Text>> OnIdentityChange;
+		private static event Events.ParamsTwo<Text, Point> OnPositionChange, OnOriginPercentChange, OnPositionChangeStart,
 			OnOriginPercentChangeStart;
-		private static event Events.ParamsTwo<ComponentText, double> OnAngleChange, OnAngleChangeStart;
-		private static event Events.ParamsTwo<ComponentText, Size> OnScaleChange, OnScaleChangeStart;
-		private static event Events.ParamsTwo<ComponentText, uint> OnCharacterSizeChange;
-		private static event Events.ParamsTwo<ComponentText, Size> OnSpacingChange, OnSpacingChangeStart;
-		private static event Events.ParamsOne<ComponentText> OnVisibilityChange, OnBackgroundColorChangeEnd, OnPositionChangeEnd,
+		private static event Events.ParamsTwo<Text, double> OnAngleChange, OnAngleChangeStart;
+		private static event Events.ParamsTwo<Text, Size> OnScaleChange, OnScaleChangeStart;
+		private static event Events.ParamsTwo<Text, uint> OnCharacterSizeChange;
+		private static event Events.ParamsTwo<Text, Size> OnSpacingChange, OnSpacingChangeStart;
+		private static event Events.ParamsOne<Text> OnVisibilityChange, OnPositionChangeEnd,
 			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd, OnDestroy, OnDisplay;
-		private static event Events.ParamsTwo<ComponentText, ComponentFamily> OnFamilyChange;
-		private static event Events.ParamsTwo<ComponentText, ComponentEffects> OnEffectsChange;
+		private static event Events.ParamsTwo<Text, Family> OnFamilyChange;
+		private static event Events.ParamsTwo<Text, Effects> OnEffectsChange;
 
 		public static class CallWhen
 		{
-			public static void Create(Action<ComponentText, string> method, uint order = uint.MaxValue) =>
+			public static void Create(Action<Text, string> method, uint order = uint.MaxValue) =>
 				OnCreate = Events.Add(OnCreate, method, order);
-			public static void IdentityChange(Action<ComponentText, ComponentIdentity<ComponentText>> method,
+			public static void IdentityChange(Action<Text, Identity<Text>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void BackgroundColorChangeStart(Action<ComponentText, Color> method, uint order = uint.MaxValue) =>
-				OnBackgroundColorChangeStart = Events.Add(OnBackgroundColorChangeStart, method, order);
-			public static void BackgroundColorChange(Action<ComponentText, Color> method, uint order = uint.MaxValue) =>
-				OnBackgroundColorChange = Events.Add(OnBackgroundColorChange, method, order);
-			public static void BackgroundColorChangeEnd(Action<ComponentText> method, uint order = uint.MaxValue) =>
-				OnBackgroundColorChangeEnd = Events.Add(OnBackgroundColorChangeEnd, method, order);
-			public static void PositionChangeStart(Action<ComponentText, Point> method, uint order = uint.MaxValue) =>
+			public static void PositionChangeStart(Action<Text, Point> method, uint order = uint.MaxValue) =>
 				OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
-			public static void PositionChange(Action<ComponentText, Point> method, uint order = uint.MaxValue) =>
+			public static void PositionChange(Action<Text, Point> method, uint order = uint.MaxValue) =>
 				OnPositionChange = Events.Add(OnPositionChange, method, order);
-			public static void PositionChangeEnd(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void PositionChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
 				OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
-			public static void AngleChangeStart(Action<ComponentText, double> method, uint order = uint.MaxValue) =>
+			public static void AngleChangeStart(Action<Text, double> method, uint order = uint.MaxValue) =>
 				OnAngleChangeStart = Events.Add(OnAngleChangeStart, method, order);
-			public static void AngleChange(Action<ComponentText, double> method, uint order = uint.MaxValue) =>
+			public static void AngleChange(Action<Text, double> method, uint order = uint.MaxValue) =>
 				OnAngleChange = Events.Add(OnAngleChange, method, order);
-			public static void AngleChangeEnd(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void AngleChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
 				OnAngleChangeEnd = Events.Add(OnAngleChangeEnd, method, order);
-			public static void ScaleChangeStart(Action<ComponentText, Size> method, uint order = uint.MaxValue) =>
+			public static void ScaleChangeStart(Action<Text, Size> method, uint order = uint.MaxValue) =>
 				OnScaleChangeStart = Events.Add(OnScaleChangeStart, method, order);
-			public static void ScaleChange(Action<ComponentText, Size> method, uint order = uint.MaxValue) =>
+			public static void ScaleChange(Action<Text, Size> method, uint order = uint.MaxValue) =>
 				OnScaleChange = Events.Add(OnScaleChange, method, order);
-			public static void ScaleChangeEnd(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void ScaleChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
 				OnScaleChangeEnd = Events.Add(OnScaleChangeEnd, method, order);
-			public static void OriginPercentChangeStart(Action<ComponentText, Point> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChangeStart(Action<Text, Point> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChangeStart = Events.Add(OnOriginPercentChangeStart, method, order);
-			public static void OriginPercentChange(Action<ComponentText, Point> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChange(Action<Text, Point> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChange = Events.Add(OnOriginPercentChange, method, order);
-			public static void OriginPercentChangeEnd(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChangeEnd = Events.Add(OnOriginPercentChangeEnd, method, order);
-			public static void TextChange(Action<ComponentText, string> method, uint order = uint.MaxValue) =>
+			public static void TextChange(Action<Text, string> method, uint order = uint.MaxValue) =>
 				OnTextChange = Events.Add(OnTextChange, method, order);
-			public static void CharacterSizeChange(Action<ComponentText, uint> method, uint order = uint.MaxValue) =>
+			public static void CharacterSizeChange(Action<Text, uint> method, uint order = uint.MaxValue) =>
 				OnCharacterSizeChange = Events.Add(OnCharacterSizeChange, method, order);
-			public static void SpacingChangeStart(Action<ComponentText, Size> method, uint order = uint.MaxValue) =>
+			public static void SpacingChangeStart(Action<Text, Size> method, uint order = uint.MaxValue) =>
 				OnSpacingChangeStart = Events.Add(OnSpacingChangeStart, method, order);
-			public static void SpacingChange(Action<ComponentText, Size> method, uint order = uint.MaxValue) =>
+			public static void SpacingChange(Action<Text, Size> method, uint order = uint.MaxValue) =>
 				OnSpacingChange = Events.Add(OnSpacingChange, method, order);
-			public static void SpacingChangeEnd(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void SpacingChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
 				OnSpacingChangeEnd = Events.Add(OnSpacingChangeEnd, method, order);
-			public static void VisibilityChange(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void VisibilityChange(Action<Text> method, uint order = uint.MaxValue) =>
 				OnVisibilityChange = Events.Add(OnVisibilityChange, method, order);
-			public static void FamilyChange(Action<ComponentText, ComponentFamily> method, uint order = uint.MaxValue) =>
+			public static void FamilyChange(Action<Text, Family> method, uint order = uint.MaxValue) =>
 				OnFamilyChange = Events.Add(OnFamilyChange, method, order);
-			public static void EffectsChange(Action<ComponentText, ComponentEffects> method, uint order = uint.MaxValue) =>
+			public static void EffectsChange(Action<Text, Effects> method, uint order = uint.MaxValue) =>
 				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
-			public static void Destroy(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void Destroy(Action<Text> method, uint order = uint.MaxValue) =>
 				OnDestroy = Events.Add(OnDestroy, method, order);
-			public static void Display(Action<ComponentText> method, uint order = uint.MaxValue) =>
+			public static void Display(Action<Text> method, uint order = uint.MaxValue) =>
 				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
 
@@ -92,11 +87,11 @@ namespace SMPL
 
 				if (Identity != null)
 				{
-					ComponentIdentity<ComponentText>.uniqueIDs.Remove(Identity.UniqueID);
-					if (ComponentIdentity<ComponentText>.objTags.ContainsKey(this))
+					Identity<Text>.uniqueIDs.Remove(Identity.UniqueID);
+					if (Identity<Text>.objTags.ContainsKey(this))
 					{
 						Identity.RemoveAllTags();
-						ComponentIdentity<ComponentText>.objTags.Remove(this);
+						Identity<Text>.objTags.Remove(this);
 					}
 					Identity.instance = null;
 					Identity = null;
@@ -106,10 +101,10 @@ namespace SMPL
 				if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
 			}
 		}
-		private ComponentIdentity<ComponentText> identity;
-		public ComponentIdentity<ComponentText> Identity
+		private Identity<Text> identity;
+		public Identity<Text> Identity
 		{
-			get { return AllAccess == Access.Removed ? default : identity; }
+			get { return AllAccess == Extent.Removed ? default : identity; }
 			set
 			{
 				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
@@ -119,22 +114,10 @@ namespace SMPL
 			}
 		}
 
-		private Color bgColor, lastFrameBgCol;
-		public Color BackgroundColor
-		{
-			get { return AllAccess == Access.Removed ? new Color(double.NaN, double.NaN, double.NaN, double.NaN) : bgColor; }
-			set
-			{
-				if (bgColor == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = bgColor;
-				bgColor = value;
-				if (Debug.CalledBySMPL == false) OnBackgroundColorChange?.Invoke(this, prev);
-			}
-		}
 		private Point position, lastFramePos;
 		public Point Position
 		{
-			get { return AllAccess == Access.Removed ? new Point(double.NaN, double.NaN) : position; }
+			get { return AllAccess == Extent.Removed ? Point.Invalid : position; }
 			set
 			{
 				if (position == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
@@ -147,7 +130,7 @@ namespace SMPL
 		private double angle, lastFrameAng;
 		public double Angle
 		{
-			get { return AllAccess == Access.Removed ? double.NaN : angle; }
+			get { return AllAccess == Extent.Removed ? double.NaN : angle; }
 			set
 			{
 				if (Angle == value ||
@@ -161,7 +144,7 @@ namespace SMPL
 		private Size scale, lastFrameSc;
 		public Size Scale
 		{
-			get { return AllAccess == Access.Removed ? new Size(double.NaN, double.NaN) : scale; }
+			get { return AllAccess == Extent.Removed ? Size.Invalid : scale; }
 			set
 			{
 				var v = Size.From(value);
@@ -176,7 +159,7 @@ namespace SMPL
 		private Point originPercent, lastFrameOrPer;
 		public Point OriginPercent
 		{
-			get { return AllAccess == Access.Removed ? new Point(double.NaN, double.NaN) : originPercent; }
+			get { return AllAccess == Extent.Removed ? Point.Invalid : originPercent; }
 			set
 			{
 				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
@@ -191,9 +174,9 @@ namespace SMPL
 		}
 
 		public string FontPath { get; private set; }
-		public string Text
+		public string DisplayText
 		{
-			get { return AllAccess == Access.Removed ? default : transform.text.DisplayedString; }
+			get { return AllAccess == Extent.Removed ? default : transform.text.DisplayedString; }
 			set
 			{
 				if (transform.text.DisplayedString == value ||
@@ -206,7 +189,7 @@ namespace SMPL
 		}
 		public uint CharacterSize
 		{
-			get { return AllAccess == Access.Removed ? default : transform.text.CharacterSize; }
+			get { return AllAccess == Extent.Removed ? default : transform.text.CharacterSize; }
 			set
 			{
 				if (transform.text.CharacterSize == value ||
@@ -220,7 +203,7 @@ namespace SMPL
 		private Size spacing, lastFrameSp;
 		public Size Spacing
 		{
-			get { return AllAccess == Access.Removed ? new Size(double.NaN, double.NaN) : spacing; }
+			get { return AllAccess == Extent.Removed ? Size.Invalid : spacing; }
 			set
 			{
 				if (spacing == value ||
@@ -234,13 +217,13 @@ namespace SMPL
 			}
 		}
 
-		public static void Create(string uniqueID, Component2D component2D, string fontPath = "folder/font.ttf")
+		public static void Create(string uniqueID, Area component2D, string fontPath = "folder/font.ttf")
 		{
-			if (ComponentIdentity<ComponentText>.CannotCreate(uniqueID)) return;
-			var instance = new ComponentText(component2D, fontPath);
+			if (Identity<Text>.CannotCreate(uniqueID)) return;
+			var instance = new Text(component2D, fontPath);
 			instance.Identity = new(instance, uniqueID);
 		}
-		private ComponentText(Component2D component2D, string fontPath = "folder/font.ttf") : base(component2D)
+		private Text(Area component2D, string fontPath = "folder/font.ttf") : base(component2D)
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
@@ -260,8 +243,8 @@ namespace SMPL
 			transform.text.CharacterSize = 20;
 			transform.text.LetterSpacing = 1;
 			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
-			transform.text.FillColor = Color.From(Color.White);
-			transform.text.OutlineColor = Color.From(Color.Black);
+			transform.text.FillColor = Data.Color.From(Data.Color.White);
+			transform.text.OutlineColor = Data.Color.From(Data.Color.Black);
 
 			spacing = new Size(4, 4);
 			lastFrameSp = spacing;
@@ -276,14 +259,14 @@ namespace SMPL
       {
 			transform.text.DisplayedString += "\n";
 			var pos = new Point();
-			for (uint i = 0; i < Text.Length; i++)
+			for (uint i = 0; i < DisplayText.Length; i++)
 			{
 				var p = transform.text.FindCharacterPos(i + 1);
 				if (pos.X < p.X) pos.X = p.X;
 				if (pos.Y < p.Y) pos.Y = p.Y;
 			}
 			transform.text.Origin = Point.From(pos * (originPercent / 100));
-			transform.text.DisplayedString = transform.text.DisplayedString.Remove(Text.Length - 1, 1);
+			transform.text.DisplayedString = transform.text.DisplayedString.Remove(DisplayText.Length - 1, 1);
 		}
 		internal void Update()
       {
@@ -312,33 +295,27 @@ namespace SMPL
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-sp-end", lastFrameSp == spacing))
 				if (creationFrame + 1 != Performance.frameCount) OnSpacingChangeEnd?.Invoke(this);
 			//=============================
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-start", lastFrameBgCol != bgColor))
-				OnBackgroundColorChangeStart?.Invoke(this, lastFrameBgCol);
-			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-bgCol-end", lastFrameBgCol == bgColor))
-				if (creationFrame + 1 != Performance.frameCount) OnBackgroundColorChangeEnd?.Invoke(this);
-			//=============================
 			lastFramePos = position;
 			lastFrameAng = Angle;
 			lastFrameSc = Scale;
 			lastFrameOrPer = originPercent;
 			lastFrameSp = spacing;
-			lastFrameBgCol = bgColor;
 		}
-		internal static void TriggerOnVisibilityChange(ComponentText instance) => OnVisibilityChange?.Invoke(instance);
-		internal static void TriggerOnFamilyChange(ComponentText i, ComponentFamily f) => OnFamilyChange?.Invoke(i, f);
-		internal static void TriggerOnEffectsChange(ComponentText i, ComponentEffects e) => OnEffectsChange?.Invoke(i, e);
+		internal static void TriggerOnVisibilityChange(Text instance) => OnVisibilityChange?.Invoke(instance);
+		internal static void TriggerOnFamilyChange(Text i, Family f) => OnFamilyChange?.Invoke(i, f);
+		internal static void TriggerOnEffectsChange(Text i, Effects e) => OnEffectsChange?.Invoke(i, e);
 
-		public void Display(ComponentCamera camera)
+		public void Display(Camera camera)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null ||
 				transform.text == null || transform.text.Font == null) return;
 
 			var rend = new RenderTexture((uint)Number.Sign(transform.Size.W, false), (uint)Number.Sign(transform.Size.H, false));
-			rend.Clear(new SFML.Graphics.Color(Color.From(BackgroundColor)));
+			rend.Clear(new SFML.Graphics.Color(Data.Color.From(Effects.BackgroundColor)));
 			rend.Draw(transform.text);
 			rend.Display();
-			var sprite = new Sprite(rend.Texture);
+			var sprite = new SFML.Graphics.Sprite(rend.Texture);
 			var drawMaskResult = Effects.DrawMasks(sprite);
 			sprite.Texture = drawMaskResult.Texture;
 

@@ -1,9 +1,11 @@
 ﻿using SFML.System;
+using SMPL.Components;
+using SMPL.Data;
 using System;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Time
 	{
@@ -131,18 +133,18 @@ namespace SMPL
 				Performance.frameCount++;
 				Always?.Invoke();
 
-				ComponentAudio.Update();
+				Audio.Update();
 
-				for (int i = 0; i < Component2D.transforms.Count; i++) Component2D.transforms[i].Update();
-				for (int i = 0; i < ComponentHitbox.hitboxes.Count; i++) ComponentHitbox.hitboxes[i].Update();
-				for (int i = 0; i < ComponentSprite.sprites.Count; i++) ComponentSprite.sprites[i].Update();
-				for (int i = 0; i < ComponentText.texts.Count; i++) ComponentText.texts[i].Update();
+				for (int i = 0; i < Area.transforms.Count; i++) Area.transforms[i].Update();
+				for (int i = 0; i < Hitbox.hitboxes.Count; i++) Hitbox.hitboxes[i].Update();
+				for (int i = 0; i < Sprite.sprites.Count; i++) Sprite.sprites[i].Update();
+				for (int i = 0; i < Components.Text.texts.Count; i++) Components.Text.texts[i].Update();
 
 				Keyboard.Update();
 				Mouse.Update();
 
 				Window.Draw();
-				ComponentTimer.Update();
+				SMPL.Components.Timer.Update();
 				Performance.frameDeltaTime.Restart();
 
 				File.UpdateMainThreadAssets();

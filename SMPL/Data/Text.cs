@@ -3,7 +3,7 @@ using System;
 using System.Drawing;
 using System.Text;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public static class Text
 	{

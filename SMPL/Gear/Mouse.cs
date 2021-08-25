@@ -1,9 +1,10 @@
 ﻿using SFML.Window;
+using SMPL.Data;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Mouse
 	{

@@ -1,54 +1,57 @@
 ﻿using SFML.Graphics;
 using System;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public abstract class ComponentVisual : ComponentAccess
+	public abstract class Visual : Access
 	{
 		protected readonly uint creationFrame;
 		protected readonly double rand;
-		internal Component2D transform;
-		internal ComponentVisual masking;
+		internal Area transform;
+		internal Visual masking;
 
-		private ComponentEffects effects;
-		public ComponentEffects Effects
+		private Effects effects;
+		public Effects Effects
 		{
-			get { return AllAccess == Access.Removed ? default : effects; }
+			get { return AllAccess == Extent.Removed ? default : effects; }
 			set
 			{
 				if (effects == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = effects;
 				effects = value;
 				if (Debug.CalledBySMPL) return;
-				if (this is ComponentText) ComponentText.TriggerOnEffectsChange(this as ComponentText, prev);
-				else ComponentSprite.TriggerOnEffectsChange(this as ComponentSprite, prev);
+				if (this is Text) Text.TriggerOnEffectsChange(this as Text, prev);
+				else Sprite.TriggerOnEffectsChange(this as Sprite, prev);
 			}
 		}
-		private ComponentFamily family;
-		public ComponentFamily Family
+		private Family family;
+		public Family Family
 		{
-			get { return AllAccess == Access.Removed ? default : family; }
+			get { return AllAccess == Extent.Removed ? default : family; }
 			set
 			{
 				if (family == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = family;
 				family = value;
+				transform.family = family;
 				if (Debug.CalledBySMPL) return;
-				if (this is ComponentText) ComponentText.TriggerOnFamilyChange(this as ComponentText, prev);
-				else ComponentSprite.TriggerOnFamilyChange(this as ComponentSprite, prev);
+				if (this is Text) Text.TriggerOnFamilyChange(this as Text, prev);
+				else Sprite.TriggerOnFamilyChange(this as Sprite, prev);
 			}
 		}
 
 		private bool isHidden;
 		public bool IsHidden
 		{
-			get { return AllAccess != Access.Removed && isHidden; }
+			get { return AllAccess != Extent.Removed && isHidden; }
 			set
 			{
 				if (isHidden == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				isHidden = value;
-				if (this is ComponentText) ComponentText.TriggerOnVisibilityChange(this as ComponentText);
-				else ComponentSprite.TriggerOnVisibilityChange(this as ComponentSprite);
+				if (this is Text) Text.TriggerOnVisibilityChange(this as Text);
+				else Sprite.TriggerOnVisibilityChange(this as Sprite);
 			}
 		}
 
@@ -67,16 +70,13 @@ namespace SMPL
 				Family.owner = null;
 			}
 			if (masking != null && masking.Effects != null) masking.Effects.masks.Remove(this);
-			AllAccess = Access.Removed;
+			AllAccess = Extent.Removed;
 		}
-		public ComponentVisual(Component2D component2D) : base()
+		public Visual(Area component2D) : base()
 		{
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			transform = component2D;
-			Family = new(this);
-			transform.family = Family;
-			Effects = new(this);
 		}
 		//public abstract void DrawBounds(Camera camera, float thickness, Color color);
 	}

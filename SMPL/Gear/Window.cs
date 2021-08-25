@@ -7,8 +7,10 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using SMPL.Data;
+using SMPL.Components;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Window
 	{
@@ -63,7 +65,7 @@ namespace SMPL
 		private static State currentState;
 		private static Type currentType;
 		private static bool resizable;
-		internal static Sprite world = new();
+		internal static SFML.Graphics.Sprite world = new();
 
 		private static event Events.ParamsZero OnResize, OnClose, OnFocus, OnUnfocus, OnMaximize, OnMinimize;
 
@@ -226,7 +228,7 @@ namespace SMPL
 			window.SetActive(true);
 			window.Clear();
 			isDrawing = true;
-			ComponentCamera.DrawCameras();
+			Camera.DrawCameras();
 			isDrawing = false;
 			window.Display();
 			window.SetActive(false);
@@ -255,9 +257,9 @@ namespace SMPL
 
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
-			ComponentCamera.WorldCamera = new(new Point(0, 0), size / pixelSize);
-			ComponentCamera.WorldCamera.Display2D.Size = size;
-			window.SetView(ComponentCamera.WorldCamera.view);
+			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
+			Camera.WorldCamera.Display2D.Size = size;
+			window.SetView(Camera.WorldCamera.view);
 
 			CurrentType = Type.Normal;
 			IsResizable = true;

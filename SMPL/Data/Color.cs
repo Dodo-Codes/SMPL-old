@@ -1,34 +1,36 @@
 ﻿using System;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public struct Color
 	{
 		public double R, G, B, A;
 
-		public static Color White				{ get { return new Color(255, 255,	255,	255); } }
-		public static Color Black				{ get { return new Color(0,	0,		0,		255); } }
-		public static Color GrayLight			{ get { return new Color(175, 175,	175,	255); } }
-		public static Color Gray				{ get { return new Color(125, 125,	125,	255); } }
-		public static Color GrayDark			{ get { return new Color(75,	75,	75,	255); } }
-		public static Color RedLight			{ get { return new Color(255, 125,	125,	255); } }
-		public static Color Red					{ get { return new Color(255, 0,		0,		255); } }
-		public static Color RedDark			{ get { return new Color(125, 0,		0,		255); } }
-		public static Color GreenLight		{ get { return new Color(125, 255,	125,	255); } }
-		public static Color Green				{ get { return new Color(0,	255,	0,		255); } }
-		public static Color GreenDark			{ get { return new Color(0,	125,	0,		255); } }
-		public static Color BlueLight			{ get { return new Color(125, 125,	255,	255); } }
-		public static Color Blue				{ get { return new Color(0,	0,		255,	255); } }
-		public static Color BlueDark			{ get { return new Color(0,	0,		125,	255); } }
-		public static Color YellowLight		{ get { return new Color(255, 255,	125,	255); } }
-		public static Color Yellow				{ get { return new Color(255, 255,	0,		255); } }
-		public static Color YellowDark		{ get { return new Color(125, 125,	0,		255); } }
-		public static Color MagentaLight		{ get { return new Color(255, 125,	255,	255); } }
-		public static Color Magenta			{ get { return new Color(255, 0,		255,	255); } }
-		public static Color MagentaDark		{ get { return new Color(125, 0,		125,	255); } }
-		public static Color CyanLight			{ get { return new Color(125, 255,	255,	255); } }
-		public static Color Cyan				{ get { return new Color(0,	255,	255,	255); } }
-		public static Color CyanDark			{ get { return new Color(0,	125,	125,	255); } }
+		public static Color Invalid		=> new(double.NaN, double.NaN, double.NaN, double.NaN);
+		public static Color White			=> new(255, 255,	255);
+		public static Color Black			=> new(0,	0,		0);
+		public static Color GrayLight		=> new(175, 175,	175);
+		public static Color Gray			=> new(125, 125,	125);
+		public static Color GrayDark		=> new(75,	75,	75);
+		public static Color RedLight		=> new(255, 125,	125);
+		public static Color Red				=> new(255, 0,		0);
+		public static Color RedDark		=> new(125, 0,		0);
+		public static Color GreenLight	=> new(125, 255,	125);
+		public static Color Green			=> new(0,	255,	0);
+		public static Color GreenDark		=> new(0,	125,	0);
+		public static Color BlueLight		=> new(125, 125,	255);
+		public static Color Blue			=> new(0,	0,		255);
+		public static Color BlueDark		=> new(0,	0,		125);
+		public static Color YellowLight	=> new(255, 255,	125);
+		public static Color Yellow			=> new(255, 255,	0);
+		public static Color YellowDark	=> new(125, 125,	0);
+		public static Color MagentaLight	=> new(255, 125,	255);
+		public static Color Magenta		=> new(255, 0,		255);
+		public static Color MagentaDark	=> new(125, 0,		125);
+		public static Color CyanLight		=> new(125, 255,	255);
+		public static Color Cyan			=> new(0,	255,	255);
+		public static Color CyanDark		=> new(0,	125,	125);
 
 		public Color(double red, double green, double blue, double alpha = 255)
 		{

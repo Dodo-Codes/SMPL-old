@@ -2,38 +2,40 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using SMPL.Data;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Components
 {
-	public class ComponentCamera : ComponentAccess
+	public class Camera : Access
 	{
-		internal static SortedDictionary<double, List<ComponentCamera>> sortedCameras = new();
+		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 		internal View view;
-		internal Sprite sprite = new();
+		internal SFML.Graphics.Sprite sprite = new();
 		internal RenderTexture rendTexture;
 		internal Size startSize;
 
-		private static event Events.ParamsOne<ComponentCamera> OnDisplay;
-		private static event Events.ParamsTwo<ComponentCamera, string> OnSnap;
-		private static event Events.ParamsTwo<ComponentCamera, Component2D> OnDisplay2DChanged;
-		private static event Events.ParamsTwo<ComponentCamera, ComponentIdentity<ComponentCamera>> OnIdentityChange;
+		private static event Events.ParamsOne<Camera> OnDisplay;
+		private static event Events.ParamsTwo<Camera, string> OnSnap;
+		private static event Events.ParamsTwo<Camera, Area> OnDisplay2DChanged;
+		private static event Events.ParamsTwo<Camera, Identity<Camera>> OnIdentityChange;
 
 		public static class CallWhen
 		{
-			public static void Display(Action<ComponentCamera> method, uint order = uint.MaxValue) =>
+			public static void Display(Action<Camera> method, uint order = uint.MaxValue) =>
 			OnDisplay = Events.Add(OnDisplay, method, order);
-			public static void Display2DChanged(Action<ComponentCamera, Component2D> method, uint order = uint.MaxValue) =>
+			public static void Display2DChanged(Action<Camera, Area> method, uint order = uint.MaxValue) =>
 				OnDisplay2DChanged = Events.Add(OnDisplay2DChanged, method, order);
-			public static void Snap(Action<ComponentCamera, string> method, uint order = uint.MaxValue) =>
+			public static void Snap(Action<Camera, string> method, uint order = uint.MaxValue) =>
 				OnSnap = Events.Add(OnSnap, method, order);
-			public static void IdentityChange(Action<ComponentCamera, ComponentIdentity<ComponentCamera>> method,
+			public static void IdentityChange(Action<Camera, Identity<Camera>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
 		}
 
-		public static ComponentCamera WorldCamera { get; internal set; }
+		public static Camera WorldCamera { get; internal set; }
 
-		private Component2D display2D;
-		public Component2D Display2D
+		private Area display2D;
+		public Area Display2D
 		{
 			get { return display2D; }
 			set
@@ -45,8 +47,8 @@ namespace SMPL
 			}
 		}
 
-		private ComponentIdentity<ComponentCamera> identity;
-		public ComponentIdentity<ComponentCamera> Identity
+		private Identity<Camera> identity;
+		public Identity<Camera> Identity
 		{
 			get { return identity; }
 			set
@@ -68,14 +70,14 @@ namespace SMPL
 				var oldDepth = depth;
 				depth = value;
 				sortedCameras[oldDepth].Remove(this);
-				if (sortedCameras.ContainsKey(depth) == false) sortedCameras[depth] = new List<ComponentCamera>();
+				if (sortedCameras.ContainsKey(depth) == false) sortedCameras[depth] = new List<Camera>();
 				sortedCameras[depth].Add(this);
 			}
 		}
 
 		public Point Position
 		{
-			get { return new Point(view.Center.X, view.Center.Y); }
+			get { return new() { X = view.Center.X, Y = view.Center.Y }; }
 			set
 			{
 				if (Position == value || (this != WorldCamera &&
@@ -103,8 +105,8 @@ namespace SMPL
 				view.Size = Size.From(value);
 			}
 		}
-		private Color bgColor;
-		public Color BackgroundColor
+		private Data.Color bgColor;
+		public Data.Color BackgroundColor
 		{
 			get { return bgColor; }
 			set
@@ -115,16 +117,16 @@ namespace SMPL
 			}
 		}
 
-		public ComponentCamera(Point viewPosition, Size viewSize)
+		public Camera(Point viewPosition, Size viewSize)
 		{
-			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<ComponentCamera>();
+			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
 			sortedCameras[0].Add(this);
 
 			var pos = Point.From(viewPosition);
 			Display2D = new();
 			view = new View(pos, Size.From(viewSize));
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
-			BackgroundColor = Color.Black;
+			BackgroundColor = Data.Color.Black;
 			startSize = viewSize;
 			//Zoom = 1;
 		}
@@ -147,7 +149,7 @@ namespace SMPL
 		internal void StartDraw()
 		{
 			rendTexture.SetView(view);
-			rendTexture.Clear(Color.From(BackgroundColor));
+			rendTexture.Clear(Data.Color.From(BackgroundColor));
 		}
 		internal void EndDraw()
 		{

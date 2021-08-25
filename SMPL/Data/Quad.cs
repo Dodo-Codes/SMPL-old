@@ -1,35 +1,30 @@
-﻿using SFML.Graphics;
+﻿using SMPL.Components;
+using SMPL.Gear;
 using System.Collections.Generic;
+using SFML.System;
+using SFML.Graphics;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public struct Quad
 	{
-		public Point PointA { get; set; }
-		public Point PointB { get; set; }
-		public Point PointC { get; set; }
-		public Point PointD { get; set; }
+		public Corner CornerA { get; set; }
+		public Corner CornerB { get; set; }
+		public Corner CornerC { get; set; }
+		public Corner CornerD { get; set; }
 
-		public Quad(Point pointA, Point pointB, Point pointC, Point pointD)
+		public Quad(Corner cornerA, Corner cornerB, Corner cornerC, Corner cornerD)
 		{
-			PointA = pointA;
-			PointB = pointB;
-			PointC = pointC;
-			PointD = pointD;
+			CornerA = cornerA;
+			CornerB = cornerB;
+			CornerC = cornerC;
+			CornerD = cornerD;
 		}
-		public void Display(ComponentCamera camera)
+		public void Display(Camera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
-
-			var points = new List<Point>() { PointA, PointB, PointC, PointD };
-			var vert = new Vertex[points.Count];
-			for (int i = 0; i < points.Count; i++)
-			{
-				var p = points[i];
-				vert[i] = new Vertex(Point.From(p), Color.From(p.Color));
-			}
-
-			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
+			var verts = new Vertex[] { CornerA.Vertex, CornerB.Vertex, CornerC.Vertex, CornerD.Vertex };
+			camera.rendTexture.Draw(verts, PrimitiveType.Quads);
 		}
 	}
 }

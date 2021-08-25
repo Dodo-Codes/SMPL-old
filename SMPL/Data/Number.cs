@@ -1,9 +1,10 @@
 ﻿using SFML.System;
+using SMPL.Gear;
 using System;
 using System.Globalization;
 using System.Linq;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public static class Number
 	{
@@ -253,12 +254,13 @@ namespace SMPL
 			upper = inclusiveUpper ? bounds.Upper >= number : bounds.Upper > number;
 			return lower && upper;
 		}
-		public static double Move(double number, double speed, Time.Unit motion = Time.Unit.Second)
+		public static double Move(double number, double speed, Gear.Time.Unit motion = Gear.Time.Unit.Second)
 		{
-			if (motion == Time.Unit.Second) speed *= Performance.DeltaTime;
+			if (motion == Gear.Time.Unit.Second) speed *= Performance.DeltaTime;
 			return number + speed;
 		}
-		public static double MoveToward(double number, double targetNumber, double speed, Time.Unit motion = Time.Unit.Second)
+		public static double MoveToward(double number, double targetNumber, double speed,
+			Gear.Time.Unit motion = Gear.Time.Unit.Second)
 		{
 			var goingPos = number < targetNumber;
 			var result = Move(number, goingPos ? Sign(speed, false) : Sign(speed, true), motion);
@@ -276,7 +278,8 @@ namespace SMPL
 			var dir = DirectionBetweenPoints(point, targetPoint);
 			return DirectionToAngle(dir);
 		}
-		public static double MoveTowardAngle(double angle, double targetAngle, double speed, Time.Unit timeUnit = Time.Unit.Second)
+		public static double MoveTowardAngle(double angle, double targetAngle, double speed,
+			Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
 		{
 			angle = To360(angle);
 			targetAngle = To360(targetAngle);
@@ -286,7 +289,7 @@ namespace SMPL
 			// stops the rotation with an else when close enough
 			// prevents the rotation from staying behind after the stop
 			var checkedSpeed = speed;
-			if (timeUnit == Time.Unit.Second) checkedSpeed *= Performance.DeltaTime;
+			if (timeUnit == Gear.Time.Unit.Second) checkedSpeed *= Performance.DeltaTime;
 			if (Math.Abs(difference) < checkedSpeed) angle = targetAngle;
 			else if (difference >= 0 && difference < 180) angle = Move(angle, -speed, timeUnit);
 			else if (difference >= -180 && difference < 0) angle = Move(angle, speed, timeUnit);

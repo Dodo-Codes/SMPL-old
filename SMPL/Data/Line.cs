@@ -1,9 +1,13 @@
 ﻿using SFML.Graphics;
+using SMPL.Components;
+using SMPL.Gear;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public struct Line
 	{
+		public static Line Invalid => new(Point.Invalid, Point.Invalid);
+
 		internal Point startPosition;
 		public Point StartPosition
 		{
@@ -44,7 +48,7 @@ namespace SMPL
 			// Find the point of intersection between
 			// the lines p1 --> p2 and p3 --> p4.
 
-			intersection = new Point(double.NaN, double.NaN);
+			intersection = Point.Invalid;
 			// Get the segments' parameters.
 			var dx12 = endA.X - startA.X;
 			var dy12 = endA.Y - startA.Y;
@@ -60,8 +64,8 @@ namespace SMPL
 				// The lines are parallel (or close enough to it).
 				lines_intersect = false;
 				segments_intersect = false;
-				close_p1 = new Point(float.NaN, float.NaN);
-				close_p2 = new Point(float.NaN, float.NaN);
+				close_p1 = Point.Invalid;
+				close_p2 = Point.Invalid;
 				return;
 			}
 			lines_intersect = true;
@@ -95,7 +99,7 @@ namespace SMPL
 
 			GetCrossPointOfTwoLines(startPosition, EndPosition, line.StartPosition, line.EndPosition,
 				out linesCross, out segmentsCross, out intersection, out closestCrossPointToMe, out closestCrossPointToLine);
-			return segmentsCross ? intersection : new Point(double.NaN, double.NaN);
+			return segmentsCross ? intersection : Point.Invalid;
 		}
 		public bool ContainsPoint(Point point)
 		{
@@ -107,7 +111,7 @@ namespace SMPL
 		}
 		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
 
-		public void Display(ComponentCamera camera)
+		public void Display(Camera camera)
 		{
 			if (Window.DrawNotAllowed()) return;
 

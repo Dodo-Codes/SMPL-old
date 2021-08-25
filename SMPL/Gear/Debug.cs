@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Debug
 	{

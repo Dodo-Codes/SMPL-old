@@ -1,8 +1,9 @@
-﻿using System;
+﻿using SMPL.Data;
+using System;
 using System.Management;
 using System.Runtime.InteropServices;
 
-namespace SMPL
+namespace SMPL.Gear
 {
 	public static class Hardware
 	{

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using SMPL.Gear;
+using System.Collections.Generic;
 
-namespace SMPL
+namespace SMPL.Data
 {
 	public struct Storage<UniqueKeyT, ValueT>
 	{
