@@ -7,72 +7,74 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Text : Visual
+	public class TextBox : Visual
 	{
-		internal static List<Text> texts = new();
+		internal static List<TextBox> texts = new();
 
-		private static event Events.ParamsTwo<Text, string> OnCreate, OnTextChange;
-		private static event Events.ParamsTwo<Text, Identity<Text>> OnIdentityChange;
-		private static event Events.ParamsTwo<Text, Point> OnPositionChange, OnOriginPercentChange, OnPositionChangeStart,
+		private static event Events.ParamsTwo<TextBox, string> OnTextChange, OnFontPathChange;
+		private static event Events.ParamsTwo<TextBox, Identity<TextBox>> OnIdentityChange;
+		private static event Events.ParamsTwo<TextBox, Point> OnPositionChange, OnOriginPercentChange, OnPositionChangeStart,
 			OnOriginPercentChangeStart;
-		private static event Events.ParamsTwo<Text, double> OnAngleChange, OnAngleChangeStart;
-		private static event Events.ParamsTwo<Text, Size> OnScaleChange, OnScaleChangeStart;
-		private static event Events.ParamsTwo<Text, uint> OnCharacterSizeChange;
-		private static event Events.ParamsTwo<Text, Size> OnSpacingChange, OnSpacingChangeStart;
-		private static event Events.ParamsOne<Text> OnVisibilityChange, OnPositionChangeEnd,
+		private static event Events.ParamsTwo<TextBox, double> OnAngleChange, OnAngleChangeStart;
+		private static event Events.ParamsTwo<TextBox, Size> OnScaleChange, OnScaleChangeStart;
+		private static event Events.ParamsTwo<TextBox, uint> OnCharacterSizeChange;
+		private static event Events.ParamsTwo<TextBox, Size> OnSpacingChange, OnSpacingChangeStart;
+		private static event Events.ParamsOne<TextBox> OnVisibilityChange, OnPositionChangeEnd, OnCreate,
 			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd, OnDestroy, OnDisplay;
-		private static event Events.ParamsTwo<Text, Family> OnFamilyChange;
-		private static event Events.ParamsTwo<Text, Effects> OnEffectsChange;
+		private static event Events.ParamsTwo<TextBox, Family> OnFamilyChange;
+		private static event Events.ParamsTwo<TextBox, Effects> OnEffectsChange;
 
 		public static class CallWhen
 		{
-			public static void Create(Action<Text, string> method, uint order = uint.MaxValue) =>
+			public static void Create(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnCreate = Events.Add(OnCreate, method, order);
-			public static void IdentityChange(Action<Text, Identity<Text>> method,
+			public static void IdentityChange(Action<TextBox, Identity<TextBox>> method,
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void PositionChangeStart(Action<Text, Point> method, uint order = uint.MaxValue) =>
+			public static void FontPathChange(Action<TextBox, string> method, uint order = uint.MaxValue) =>
+				OnFontPathChange = Events.Add(OnFontPathChange, method, order);
+			public static void PositionChangeStart(Action<TextBox, Point> method, uint order = uint.MaxValue) =>
 				OnPositionChangeStart = Events.Add(OnPositionChangeStart, method, order);
-			public static void PositionChange(Action<Text, Point> method, uint order = uint.MaxValue) =>
+			public static void PositionChange(Action<TextBox, Point> method, uint order = uint.MaxValue) =>
 				OnPositionChange = Events.Add(OnPositionChange, method, order);
-			public static void PositionChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void PositionChangeEnd(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnPositionChangeEnd = Events.Add(OnPositionChangeEnd, method, order);
-			public static void AngleChangeStart(Action<Text, double> method, uint order = uint.MaxValue) =>
+			public static void AngleChangeStart(Action<TextBox, double> method, uint order = uint.MaxValue) =>
 				OnAngleChangeStart = Events.Add(OnAngleChangeStart, method, order);
-			public static void AngleChange(Action<Text, double> method, uint order = uint.MaxValue) =>
+			public static void AngleChange(Action<TextBox, double> method, uint order = uint.MaxValue) =>
 				OnAngleChange = Events.Add(OnAngleChange, method, order);
-			public static void AngleChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void AngleChangeEnd(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnAngleChangeEnd = Events.Add(OnAngleChangeEnd, method, order);
-			public static void ScaleChangeStart(Action<Text, Size> method, uint order = uint.MaxValue) =>
+			public static void ScaleChangeStart(Action<TextBox, Size> method, uint order = uint.MaxValue) =>
 				OnScaleChangeStart = Events.Add(OnScaleChangeStart, method, order);
-			public static void ScaleChange(Action<Text, Size> method, uint order = uint.MaxValue) =>
+			public static void ScaleChange(Action<TextBox, Size> method, uint order = uint.MaxValue) =>
 				OnScaleChange = Events.Add(OnScaleChange, method, order);
-			public static void ScaleChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void ScaleChangeEnd(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnScaleChangeEnd = Events.Add(OnScaleChangeEnd, method, order);
-			public static void OriginPercentChangeStart(Action<Text, Point> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChangeStart(Action<TextBox, Point> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChangeStart = Events.Add(OnOriginPercentChangeStart, method, order);
-			public static void OriginPercentChange(Action<Text, Point> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChange(Action<TextBox, Point> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChange = Events.Add(OnOriginPercentChange, method, order);
-			public static void OriginPercentChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void OriginPercentChangeEnd(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnOriginPercentChangeEnd = Events.Add(OnOriginPercentChangeEnd, method, order);
-			public static void TextChange(Action<Text, string> method, uint order = uint.MaxValue) =>
+			public static void TextChange(Action<TextBox, string> method, uint order = uint.MaxValue) =>
 				OnTextChange = Events.Add(OnTextChange, method, order);
-			public static void CharacterSizeChange(Action<Text, uint> method, uint order = uint.MaxValue) =>
+			public static void CharacterSizeChange(Action<TextBox, uint> method, uint order = uint.MaxValue) =>
 				OnCharacterSizeChange = Events.Add(OnCharacterSizeChange, method, order);
-			public static void SpacingChangeStart(Action<Text, Size> method, uint order = uint.MaxValue) =>
+			public static void SpacingChangeStart(Action<TextBox, Size> method, uint order = uint.MaxValue) =>
 				OnSpacingChangeStart = Events.Add(OnSpacingChangeStart, method, order);
-			public static void SpacingChange(Action<Text, Size> method, uint order = uint.MaxValue) =>
+			public static void SpacingChange(Action<TextBox, Size> method, uint order = uint.MaxValue) =>
 				OnSpacingChange = Events.Add(OnSpacingChange, method, order);
-			public static void SpacingChangeEnd(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void SpacingChangeEnd(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnSpacingChangeEnd = Events.Add(OnSpacingChangeEnd, method, order);
-			public static void VisibilityChange(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void VisibilityChange(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnVisibilityChange = Events.Add(OnVisibilityChange, method, order);
-			public static void FamilyChange(Action<Text, Family> method, uint order = uint.MaxValue) =>
+			public static void FamilyChange(Action<TextBox, Family> method, uint order = uint.MaxValue) =>
 				OnFamilyChange = Events.Add(OnFamilyChange, method, order);
-			public static void EffectsChange(Action<Text, Effects> method, uint order = uint.MaxValue) =>
+			public static void EffectsChange(Action<TextBox, Effects> method, uint order = uint.MaxValue) =>
 				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
-			public static void Destroy(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void Destroy(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnDestroy = Events.Add(OnDestroy, method, order);
-			public static void Display(Action<Text> method, uint order = uint.MaxValue) =>
+			public static void Display(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
 
@@ -87,11 +89,11 @@ namespace SMPL.Components
 
 				if (Identity != null)
 				{
-					Identity<Text>.uniqueIDs.Remove(Identity.UniqueID);
-					if (Identity<Text>.objTags.ContainsKey(this))
+					Identity<TextBox>.uniqueIDs.Remove(Identity.UniqueID);
+					if (Identity<TextBox>.objTags.ContainsKey(this))
 					{
 						Identity.RemoveAllTags();
-						Identity<Text>.objTags.Remove(this);
+						Identity<TextBox>.objTags.Remove(this);
 					}
 					Identity.instance = null;
 					Identity = null;
@@ -101,8 +103,8 @@ namespace SMPL.Components
 				if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
 			}
 		}
-		private Identity<Text> identity;
-		public Identity<Text> Identity
+		private Identity<TextBox> identity;
+		public Identity<TextBox> Identity
 		{
 			get { return AllAccess == Extent.Removed ? default : identity; }
 			set
@@ -173,7 +175,26 @@ namespace SMPL.Components
 			}
 		}
 
-		public string FontPath { get; private set; }
+		private string fontPath;
+		public string FontPath
+		{
+			get { return AllAccess == Extent.Removed ? default : fontPath; }
+			set
+			{
+				if (fontPath == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				if (File.fonts.ContainsKey(value) == false)
+				{
+					Debug.LogError(1, $"The font '{value}' is not loaded.\n" +
+						$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+						$"{nameof(File.Asset.Font)}, \"{value}\")' to load it.");
+					return;
+				}
+				var prev = fontPath;
+				fontPath = value;
+				transform.text.Font = File.fonts[fontPath];
+				if (Debug.CalledBySMPL == false) OnFontPathChange?.Invoke(this, prev);
+			}
+		}
 		public string DisplayText
 		{
 			get { return AllAccess == Extent.Removed ? default : transform.text.DisplayedString; }
@@ -219,25 +240,17 @@ namespace SMPL.Components
 
 		public static void Create(string uniqueID, Area component2D, string fontPath = "folder/font.ttf")
 		{
-			if (Identity<Text>.CannotCreate(uniqueID)) return;
-			var instance = new Text(component2D, fontPath);
+			if (Identity<TextBox>.CannotCreate(uniqueID)) return;
+			var instance = new TextBox(component2D, fontPath);
 			instance.Identity = new(instance, uniqueID);
 		}
-		private Text(Area component2D, string fontPath = "folder/font.ttf") : base(component2D)
+		private TextBox(Area component2D, string fontPath = "folder/font.ttf") : base(component2D)
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
 			// and usually it goes as [2]User -> [1]Component -> [0]Access
 			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
-			if (File.fonts.ContainsKey(fontPath) == false)
-			{
-				Debug.LogError(1, $"The font '{fontPath}' is not loaded.\n" +
-					$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
-					$"{nameof(File.Asset.Font)}, \"{fontPath}\")' to load it.");
-				IsDestroyed = true;
-				return;
-			}
 			texts.Add(this);
 			transform.text.DisplayedString = "Hello World!";
 			transform.text.CharacterSize = 20;
@@ -251,9 +264,8 @@ namespace SMPL.Components
 			lastFrameSc = new Size(1, 1);
 
 			FontPath = fontPath;
-			transform.text.Font = File.fonts[fontPath];
 
-			OnCreate?.Invoke(this, fontPath);
+			OnCreate?.Invoke(this);
 		}
 		private void UpdateOrigin()
       {
@@ -301,9 +313,9 @@ namespace SMPL.Components
 			lastFrameOrPer = originPercent;
 			lastFrameSp = spacing;
 		}
-		internal static void TriggerOnVisibilityChange(Text instance) => OnVisibilityChange?.Invoke(instance);
-		internal static void TriggerOnFamilyChange(Text i, Family f) => OnFamilyChange?.Invoke(i, f);
-		internal static void TriggerOnEffectsChange(Text i, Effects e) => OnEffectsChange?.Invoke(i, e);
+		internal static void TriggerOnVisibilityChange(TextBox instance) => OnVisibilityChange?.Invoke(instance);
+		internal static void TriggerOnFamilyChange(TextBox i, Family f) => OnFamilyChange?.Invoke(i, f);
+		internal static void TriggerOnEffectsChange(TextBox i, Effects e) => OnEffectsChange?.Invoke(i, e);
 
 		public void Display(Camera camera)
 		{
@@ -312,15 +324,15 @@ namespace SMPL.Components
 				transform.text == null || transform.text.Font == null) return;
 
 			var rend = new RenderTexture((uint)Number.Sign(transform.Size.W, false), (uint)Number.Sign(transform.Size.H, false));
-			rend.Clear(new SFML.Graphics.Color(Data.Color.From(Effects.BackgroundColor)));
+			rend.Clear(new SFML.Graphics.Color(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor)));
 			rend.Draw(transform.text);
 			rend.Display();
 			var sprite = new SFML.Graphics.Sprite(rend.Texture);
-			var drawMaskResult = Effects.DrawMasks(sprite);
-			sprite.Texture = drawMaskResult.Texture;
+			//var drawMaskResult = Effects.DrawMasks(sprite);
+			//sprite.Texture = drawMaskResult.Texture;
 
-			Effects.shader.SetUniform("Texture", sprite.Texture);
-			Effects.shader.SetUniform("RawTexture", rend.Texture);
+			if (Effects != null) Effects.shader.SetUniform("Texture", sprite.Texture);
+			if (Effects != null) Effects.shader.SetUniform("RawTexture", rend.Texture);
 
 			transform.sprite.Position = Point.From(transform.LocalPosition);
 			transform.sprite.Rotation = (float)transform.LocalAngle;
@@ -330,11 +342,12 @@ namespace SMPL.Components
 					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
 					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)));
 
-			var sc = Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.transform.sprite.Scale;
+			var sc = Family == null || Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.transform.sprite.Scale;
 			sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
-			camera.rendTexture.Draw(sprite, new RenderStates(Effects.shader));
+			if (Effects == null) camera.rendTexture.Draw(sprite);
+			else camera.rendTexture.Draw(sprite, new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
 
-			drawMaskResult.Dispose();
+			//drawMaskResult.Dispose();
 			rend.Dispose();
 			sprite.Dispose();
 			if (Debug.CalledBySMPL == false) OnDisplay?.Invoke(this);

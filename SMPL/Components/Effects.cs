@@ -171,13 +171,13 @@ namespace SMPL.Components
 		private Color color, lastFrameCol;
 		public Color TintColor
 		{
-			get { return Color.To(owner is Text ?
-				(owner as Text).transform.text.FillColor : (owner as Sprite).transform.sprite.Color); }
+			get { return Color.To(owner is TextBox ?
+				(owner as TextBox).transform.text.FillColor : (owner as Sprite).transform.sprite.Color); }
 			set
 			{
 				if (color == value) return;
-				var delta = Color.To(owner is Text ?
-					(owner as Text).transform.text.FillColor : (owner as Sprite).transform.sprite.Color);
+				var delta = Color.To(owner is TextBox ?
+					(owner as TextBox).transform.text.FillColor : (owner as Sprite).transform.sprite.Color);
 				color = value;
 				var c = Color.From(value);
 				if (owner is Sprite)
@@ -187,7 +187,7 @@ namespace SMPL.Components
 				}
 				else
 				{
-					var textParent = owner as Text;
+					var textParent = owner as TextBox;
 					textParent.transform.text.FillColor = c;
 				}
 			}
@@ -201,9 +201,9 @@ namespace SMPL.Components
 				if (outlineColor == value) return;
 				var delta = outlineColor;
 				outlineColor = value;
-				if (owner is Text)
+				if (owner is TextBox)
 				{
-					var textParent = owner as Text;
+					var textParent = owner as TextBox;
 					textParent.transform.text.OutlineColor = Color.From(value);
 				}
 				else
@@ -245,7 +245,7 @@ namespace SMPL.Components
 				}
 				else
 				{
-					var textParent = owner as Text;
+					var textParent = owner as TextBox;
 					textParent.transform.text.OutlineThickness = (float)value;
 				}
 			}
@@ -530,7 +530,7 @@ namespace SMPL.Components
 
 		internal void Update()
 		{
-			var textParent = owner is Text ? owner as Text : null;
+			var textParent = owner is TextBox ? owner as TextBox : null;
 			var spriteParent = owner is Sprite ? owner as Sprite : null;
 
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-col-start", lastFrameCol != color))
@@ -658,9 +658,9 @@ namespace SMPL.Components
 					return;
 				}
 				list.Remove(component);
-				if (component is Text)
+				if (component is TextBox)
 				{
-					var t = component as Text;
+					var t = component as TextBox;
 					t.transform.text.Position = new Vector2f();
 					t.transform.text.Rotation = 0;
 					t.transform.text.Scale = new Vector2f(1, 1);
@@ -672,7 +672,7 @@ namespace SMPL.Components
 
 		public static void Create(string uniqueID, Visual owner)
 		{
-			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
+			if (Identity<Effects>.CannotCreate(uniqueID)) return;
 			var instance = new Effects(owner);
 			instance.Identity = new(instance, uniqueID);
 		}
@@ -759,9 +759,9 @@ namespace SMPL.Components
 			for (int i = 0; i < masks.Count; i++)
 			{
 				if (masks[i].IsHidden) continue;
-				if (masks[i] is Text)
+				if (masks[i] is TextBox)
 				{
-					var t = masks[i] as Text;
+					var t = masks[i] as TextBox;
 					var dist = Point.Distance(t.transform.LocalPosition, owner.transform.LocalPosition);
 					var atAng = Number.AngleBetweenPoints(owner.transform.LocalPosition, t.transform.LocalPosition);
 					var pos = Point.From(Point.MoveAtAngle(

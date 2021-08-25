@@ -9,6 +9,8 @@ namespace SMPL.Components
 {
 	public class Camera : Access
 	{
+		public static Camera WorldCamera { get; internal set; }
+
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 		internal View view;
 		internal SFML.Graphics.Sprite sprite = new();
@@ -32,10 +34,8 @@ namespace SMPL.Components
 				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
 		}
 
-		public static Camera WorldCamera { get; internal set; }
-
 		private Area display2D;
-		public Area Display2D
+		public Area DisplayArea
 		{
 			get { return display2D; }
 			set
@@ -117,13 +117,21 @@ namespace SMPL.Components
 			}
 		}
 
-		public Camera(Point viewPosition, Size viewSize)
+		public static void Create(string uniqueID, Point displayPosition, Size displaySize)
 		{
+			if (Identity<Camera>.CannotCreate(uniqueID)) return;
+			var instance = new Camera(displayPosition, displaySize);
+			instance.Identity = new(instance, uniqueID);
+		}
+		private Camera(Point viewPosition, Size viewSize)
+		{
+			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+
 			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
 			sortedCameras[0].Add(this);
 
 			var pos = Point.From(viewPosition);
-			Display2D = new();
 			view = new View(pos, Size.From(viewSize));
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
 			BackgroundColor = Data.Color.Black;
@@ -154,18 +162,18 @@ namespace SMPL.Components
 		internal void EndDraw()
 		{
 			rendTexture.Display();
-			var pos = Point.From(Display2D.Position);
+			var pos = Point.From(DisplayArea.Position);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			//var s = new Vector2i((int)view.Size.X, (int)view.Size.Y);
 			var tsz = rendTexture.Size;
 			var sc = new Vector2f(
-				(float)Display2D.Size.W / (float)tsz.X,
-				(float)Display2D.Size.H / (float)tsz.Y);
+				(float)DisplayArea.Size.W / (float)tsz.X,
+				(float)DisplayArea.Size.H / (float)tsz.Y);
 			var or = new Vector2f(rendTexture.Size.X / 2, rendTexture.Size.Y / 2);
 
 			sprite.Origin = or;
 			sprite.Texture = rendTexture.Texture;
-			sprite.Rotation = (float)Display2D.Angle;
+			sprite.Rotation = (float)DisplayArea.Angle;
 			sprite.Position = pos;
 			sprite.TextureRect = new IntRect(new Vector2i(), sz);
 
@@ -192,5 +200,5 @@ namespace SMPL.Components
 			else { Debug.LogError(1, $"Could not save picture '{full}'."); return; }
 			if (Debug.CalledBySMPL == false) OnSnap?.Invoke(this, filePath);
 		}
-   }
+	}
 }

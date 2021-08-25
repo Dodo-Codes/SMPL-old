@@ -211,7 +211,7 @@ namespace SMPL.Components
 				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
 				value.X = Number.Limit(value.X, new Bounds(0, 100));
 				value.Y = Number.Limit(value.Y, new Bounds(0, 100));
-				if (originPercent == value || Camera.WorldCamera.Display2D == this) return;
+				if (originPercent == value || Camera.WorldCamera.DisplayArea == this) return;
 				var prev = originPercent;
 				originPercent = value;
 				UpdateHitboxes();
@@ -273,8 +273,17 @@ namespace SMPL.Components
 			}
 		}
 
-		public Area() : base()
+		public static void Create(string uniqueID)
 		{
+			if (Identity<Area>.CannotCreate(uniqueID)) return;
+			var instance = new Area();
+			instance.Identity = new(instance, uniqueID);
+		}
+		private Area() : base()
+		{
+			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+
 			transforms.Add(this);
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
@@ -387,12 +396,12 @@ namespace SMPL.Components
 		}
 		public Size SizeFromLocal(Size localSize)
 		{
-			return family == null || family.Parent == null || family.owner is Text ? localSize :
+			return family == null || family.Parent == null || family.owner is TextBox ? localSize :
 				localSize + family.Parent.transform.Size;
 		}
 		public Size SizeToLocal(Size size)
 		{
-			return family == null || family.Parent == null || family.owner is Text ? size :
+			return family == null || family.Parent == null || family.owner is TextBox ? size :
 				size - family.Parent.transform.Size;
 		}
 	}

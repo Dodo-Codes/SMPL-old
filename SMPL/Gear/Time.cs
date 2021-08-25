@@ -138,7 +138,7 @@ namespace SMPL.Gear
 				for (int i = 0; i < Area.transforms.Count; i++) Area.transforms[i].Update();
 				for (int i = 0; i < Hitbox.hitboxes.Count; i++) Hitbox.hitboxes[i].Update();
 				for (int i = 0; i < Sprite.sprites.Count; i++) Sprite.sprites[i].Update();
-				for (int i = 0; i < Components.Text.texts.Count; i++) Components.Text.texts[i].Update();
+				for (int i = 0; i < Components.TextBox.texts.Count; i++) Components.TextBox.texts[i].Update();
 
 				Keyboard.Update();
 				Mouse.Update();

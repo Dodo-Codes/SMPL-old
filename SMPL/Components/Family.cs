@@ -132,12 +132,15 @@ namespace SMPL.Components
 
 		public static void Create(string uniqueID, Visual owner)
 		{
-			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
+			if (Identity<Family>.CannotCreate(uniqueID)) return;
 			var instance = new Family(owner);
 			instance.Identity = new(instance, uniqueID);
 		}
 		private Family(Visual owner) : base()
 		{
+			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+
 			this.owner = owner;
 			OnCreate?.Invoke(this);
 		}

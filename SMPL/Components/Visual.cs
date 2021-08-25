@@ -22,7 +22,7 @@ namespace SMPL.Components
 				var prev = effects;
 				effects = value;
 				if (Debug.CalledBySMPL) return;
-				if (this is Text) Text.TriggerOnEffectsChange(this as Text, prev);
+				if (this is TextBox) TextBox.TriggerOnEffectsChange(this as TextBox, prev);
 				else Sprite.TriggerOnEffectsChange(this as Sprite, prev);
 			}
 		}
@@ -37,7 +37,7 @@ namespace SMPL.Components
 				family = value;
 				transform.family = family;
 				if (Debug.CalledBySMPL) return;
-				if (this is Text) Text.TriggerOnFamilyChange(this as Text, prev);
+				if (this is TextBox) TextBox.TriggerOnFamilyChange(this as TextBox, prev);
 				else Sprite.TriggerOnFamilyChange(this as Sprite, prev);
 			}
 		}
@@ -50,7 +50,7 @@ namespace SMPL.Components
 			{
 				if (isHidden == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				isHidden = value;
-				if (this is Text) Text.TriggerOnVisibilityChange(this as Text);
+				if (this is TextBox) TextBox.TriggerOnVisibilityChange(this as TextBox);
 				else Sprite.TriggerOnVisibilityChange(this as Sprite);
 			}
 		}

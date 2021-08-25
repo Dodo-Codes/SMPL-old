@@ -283,7 +283,11 @@ namespace SMPL.Components
       }
       public Type CurrentType { get; private set; }
 
-      public Audio(string audioPath = "folder/audio.extension")
+      public static void Create()
+      {
+
+      }
+      private Audio(string audioPath = "folder/audio.extension")
       {
          if (File.sounds.ContainsKey(audioPath))
          {

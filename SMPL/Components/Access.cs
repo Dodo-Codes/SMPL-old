@@ -1,6 +1,7 @@
 ﻿using SMPL.Gear;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SMPL.Components
 {
@@ -53,7 +54,7 @@ namespace SMPL.Components
 				if (Debug.CalledBySMPL == false && value == Extent.Removed)
 				{
 					if (this is Sprite) (this as Sprite).IsDestroyed = true;
-					else if (this is Text) (this as Text).IsDestroyed = true;
+					else if (this is TextBox) (this as TextBox).IsDestroyed = true;
 					else if (this is Audio)
 					{
 
@@ -79,6 +80,8 @@ namespace SMPL.Components
 				Debug.LogError(1, $"The file '{fullFilePath}' already has access.");
 				return;
 			}
+			if (System.IO.File.Exists($"{Path.GetDirectoryName(fullFilePath)}\\{Debug.engineKey}.txt"))
+				fullFilePath = "SMPL";
 			accessPaths.Add(fullFilePath);
 			if (Debug.CalledBySMPL == false) OnGrantAccess?.Invoke(this, fullFilePath);
 		}
@@ -135,9 +138,9 @@ namespace SMPL.Components
 			};
 		}
 
-		public static void Create(string uniqueID)
+		public static void CreateAccess(string uniqueID)
 		{
-			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
+			if (Identity<Access>.CannotCreate(uniqueID)) return;
 			var instance = new Access();
 			instance.AccessIdentity = new(instance, uniqueID);
 		}
