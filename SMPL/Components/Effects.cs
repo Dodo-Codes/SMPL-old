@@ -778,22 +778,20 @@ namespace SMPL.Components
 					var o = spr.Area.OriginPercent / 100;
 					spr.Area.sprite.Position = Point.From(spr.Area.Position);
 					spr.Area.sprite.Rotation = (float)spr.Area.Angle;
-					spr.Area.sprite.Scale = new Vector2f(
-						(float)spr.Area.Size.W / w,
-						(float)spr.Area.Size.H / h);
+					spr.Area.sprite.Scale = new Vector2f((float)spr.Area.Size.W / w, (float)spr.Area.Size.H / h);
 					spr.Area.sprite.Origin = new Vector2f((float)(w * o.X), (float)(h * o.Y));
 
+					owner.Area.sprite.Position = Point.From(owner.Area.position);
+					owner.Area.sprite.Rotation = (float)owner.Area.Angle;
+					owner.Area.sprite.Scale = new Vector2f(1f, 1f);
+					owner.Area.sprite.Origin = new Vector2f(0, 0);
 					for (int j = 0; j < maskVerts.Length; j++)
 					{
 						var pp = spr.Area.sprite.Transform.TransformPoint(maskVerts[j].Position);
-						var p = Point.To(owner.Area.sprite.InverseTransform.TransformPoint(pp));
-						var dist = Point.Distance(owner.Area.Position, p);
-						var atAng = Number.AngleBetweenPoints(owner.Area.Position, p);
-						var pos = Point.From(Point.MoveAtAngle(
-							owner.Area.Position, atAng - owner.Area.Angle, dist, SMPL.Gear.Time.Unit.Tick));
+						var p = owner.Area.sprite.InverseTransform.TransformPoint(pp);
 						var ownerOrOff = Point.From(new Point(rend.Size.X * o.X, rend.Size.Y * o.Y));
 
-						maskVerts[j].Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y) + ownerOrOff;
+						maskVerts[j].Position = new Vector2f(p.X / sc.X, p.Y / sc.Y) + ownerOrOff;
 					}
 
 					rend.Draw(maskVerts, SFML.Graphics.PrimitiveType.Quads, new SFML.Graphics.RenderStates
