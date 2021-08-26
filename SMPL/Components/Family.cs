@@ -53,31 +53,31 @@ namespace SMPL.Components
 			{
 				if (parent == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 
-				var pos = Point.From(owner.transform.LocalPosition);
-				var angle = owner.transform.LocalAngle;
+				var pos = Point.From(owner.Area.LocalPosition);
+				var angle = owner.Area.LocalAngle;
 				var prevPar = parent;
 
 				parent = value;
 
 				if (value != null) // parent
 				{
-					var parAng = parent.transform.LocalAngle;
-					var newPos = value.transform.sprite.InverseTransform.TransformPoint(pos);
+					var parAng = parent.Area.LocalAngle;
+					var newPos = value.Area.sprite.InverseTransform.TransformPoint(pos);
 
 					value.Family.children.Add(owner);
-					owner.transform.LocalPosition = Point.To(newPos);
-					owner.transform.Size = owner.transform.Size;
-					owner.transform.LocalAngle = -(parAng - angle);
+					owner.Area.LocalPosition = Point.To(newPos);
+					owner.Area.Size = owner.Area.Size;
+					owner.Area.LocalAngle = -(parAng - angle);
 				}
 				else // unparent
 				{
-					var newPos = prevPar == null ? pos : prevPar.transform.sprite.Transform.TransformPoint(pos);
-					var parAng = prevPar.transform.sprite.Rotation;
+					var newPos = prevPar == null ? pos : prevPar.Area.sprite.Transform.TransformPoint(pos);
+					var parAng = prevPar.Area.sprite.Rotation;
 
 					prevPar.Family.children.Remove(owner);
-					owner.transform.LocalPosition = Point.To(newPos);
-					owner.transform.Size = owner.transform.Size;
-					owner.transform.LocalAngle = parAng + angle;
+					owner.Area.LocalPosition = Point.To(newPos);
+					owner.Area.Size = owner.Area.Size;
+					owner.Area.LocalAngle = parAng + angle;
 				}
 				if (Debug.CalledBySMPL == false) OnParentChange?.Invoke(this, prevPar);
 			}

@@ -273,11 +273,14 @@ namespace SMPL.Components
 			}
 		}
 
-		public static void Create(string uniqueID)
+		public static void Create(params string[] uniqueIDs)
 		{
-			if (Identity<Area>.CannotCreate(uniqueID)) return;
-			var instance = new Area();
-			instance.Identity = new(instance, uniqueID);
+			for (int i = 0; i < uniqueIDs.Length; i++)
+			{
+				if (Identity<Area>.CannotCreate(uniqueIDs[i])) continue;
+				var instance = new Area();
+				instance.Identity = new(instance, uniqueIDs[i]);
+			}
 		}
 		private Area() : base()
 		{
@@ -366,12 +369,12 @@ namespace SMPL.Components
 		public Point PositionFromLocal(Point localPosition)
 		{
 			return family == null || family.Parent == null ? localPosition :
-				Point.To(family.Parent.transform.sprite.Transform.TransformPoint(Point.From(localPosition)));
+				Point.To(family.Parent.Area.sprite.Transform.TransformPoint(Point.From(localPosition)));
 		}
 		public Point PositionToLocal(Point position)
 		{
 			return family == null || family.Parent == null ? position :
-				Point.To(family.Parent.transform.sprite.InverseTransform.TransformPoint(Point.From(position)));
+				Point.To(family.Parent.Area.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
 		public static double AngleToParallax(double angle, double parallaxPercent, Camera camera)
 		{
@@ -381,12 +384,12 @@ namespace SMPL.Components
 		public double AngleFromLocal(double localAngle)
 		{
 			return family == null || family.Parent == null ? localAngle :
-				family.Parent.transform.localAngle + localAngle;
+				family.Parent.Area.localAngle + localAngle;
 		}
 		public double AngleToLocal(double angle)
 		{
 			return family == null || family.Parent == null ? angle :
-				-(family.Parent.transform.localAngle - angle);
+				-(family.Parent.Area.localAngle - angle);
 		}
 		public static Size SizeToParallax(Size size, Size parallaxPercent, Camera camera)
 		{
@@ -397,12 +400,12 @@ namespace SMPL.Components
 		public Size SizeFromLocal(Size localSize)
 		{
 			return family == null || family.Parent == null || family.owner is TextBox ? localSize :
-				localSize + family.Parent.transform.Size;
+				localSize + family.Parent.Area.Size;
 		}
 		public Size SizeToLocal(Size size)
 		{
 			return family == null || family.Parent == null || family.owner is TextBox ? size :
-				size - family.Parent.transform.Size;
+				size - family.Parent.Area.Size;
 		}
 	}
 }

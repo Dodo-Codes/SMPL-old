@@ -172,23 +172,23 @@ namespace SMPL.Components
 		public Color TintColor
 		{
 			get { return Color.To(owner is TextBox ?
-				(owner as TextBox).transform.text.FillColor : (owner as Sprite).transform.sprite.Color); }
+				(owner as TextBox).Area.text.FillColor : (owner as Sprite).Area.sprite.Color); }
 			set
 			{
 				if (color == value) return;
 				var delta = Color.To(owner is TextBox ?
-					(owner as TextBox).transform.text.FillColor : (owner as Sprite).transform.sprite.Color);
+					(owner as TextBox).Area.text.FillColor : (owner as Sprite).Area.sprite.Color);
 				color = value;
 				var c = Color.From(value);
 				if (owner is Sprite)
 				{
 					var spriteParent = owner as Sprite;
-					spriteParent.transform.sprite.Color = c;
+					spriteParent.Area.sprite.Color = c;
 				}
 				else
 				{
 					var textParent = owner as TextBox;
-					textParent.transform.text.FillColor = c;
+					textParent.Area.text.FillColor = c;
 				}
 			}
 		}
@@ -204,7 +204,7 @@ namespace SMPL.Components
 				if (owner is TextBox)
 				{
 					var textParent = owner as TextBox;
-					textParent.transform.text.OutlineColor = Color.From(value);
+					textParent.Area.text.OutlineColor = Color.From(value);
 				}
 				else
 				{
@@ -246,7 +246,7 @@ namespace SMPL.Components
 				else
 				{
 					var textParent = owner as TextBox;
-					textParent.transform.text.OutlineThickness = (float)value;
+					textParent.Area.text.OutlineThickness = (float)value;
 				}
 			}
 		}
@@ -629,8 +629,14 @@ namespace SMPL.Components
 			lastFrameBgCol = bgColor;
 		}
 
-		public void AddMask(Visual target) => AddMask(masks, target, owner, true);
-		public void RemoveMask(Visual target) => AddMask(masks, target, owner, false);
+		public void AddMasks(params Visual[] masks)
+		{
+			for (int i = 0; i < masks.Length; i++) AddMask(this.masks, masks[i], owner, true);
+		}
+		public void RemoveMasks(params Visual[] masks)
+		{
+			for (int i = 0; i < masks.Length; i++) AddMask(this.masks, masks[i], owner, false);
+		}
 		public Visual[] Masks => masks.ToArray();
 		public Visual MaskTarget => owner.masking;
 		private static void AddMask(List<Visual> list,
@@ -661,28 +667,30 @@ namespace SMPL.Components
 				if (component is TextBox)
 				{
 					var t = component as TextBox;
-					t.transform.text.Position = new Vector2f();
-					t.transform.text.Rotation = 0;
-					t.transform.text.Scale = new Vector2f(1, 1);
+					t.Area.text.Position = new Vector2f();
+					t.Area.text.Rotation = 0;
+					t.Area.text.Scale = new Vector2f(1, 1);
 				}
 			}
 			component.masking = add ? owner : null;
 			owner.Effects.shader.SetUniform("HasMask", add);
 		}
 
-		public static void Create(string uniqueID, Visual owner)
+		public static void Create(params string[] uniqueIDs)
 		{
-			if (Identity<Effects>.CannotCreate(uniqueID)) return;
-			var instance = new Effects(owner);
-			instance.Identity = new(instance, uniqueID);
+			for (int i = 0; i < uniqueIDs.Length; i++)
+			{
+				if (Identity<Effects>.CannotCreate(uniqueIDs[i])) return;
+				var instance = new Effects();
+				instance.Identity = new(instance, uniqueIDs[i]);
+			}
 		}
-		private Effects(Visual owner)
+		private Effects()
 		{
 			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			this.owner = owner;
 
 			SetDefaults();
 		}
@@ -748,59 +756,67 @@ namespace SMPL.Components
 			shader.SetUniform("WindSpeedY", 1.25f);
 		}
 
-		internal SFML.Graphics.RenderTexture DrawMasks(SFML.Graphics.Sprite spr)
+		internal void DrawMasks(SFML.Graphics.RenderTexture rend)
 		{
-			var rend = new SFML.Graphics.RenderTexture(spr.Texture.Size.X, spr.Texture.Size.Y);
-			var sc = new Vector2f(
-				(float)owner.transform.Size.W / spr.Texture.Size.X,
-				(float)owner.transform.Size.H / spr.Texture.Size.Y);
-
-			rend.Draw(spr);
 			for (int i = 0; i < masks.Count; i++)
 			{
 				if (masks[i].IsHidden) continue;
-				if (masks[i] is TextBox)
+
+				var sc = new Vector2f((float)owner.Area.Size.W / rend.Size.X, (float)owner.Area.Size.H / rend.Size.Y);
+				if (masks[i] is Sprite)
 				{
-					var t = masks[i] as TextBox;
-					var dist = Point.Distance(t.transform.LocalPosition, owner.transform.LocalPosition);
-					var atAng = Number.AngleBetweenPoints(owner.transform.LocalPosition, t.transform.LocalPosition);
-					var pos = Point.From(Point.MoveAtAngle(
-						owner.transform.LocalPosition, atAng - owner.transform.LocalAngle, dist, Gear.Time.Unit.Tick));
+					var spr = (masks[i] as Sprite);
+					var maskQuads = spr.quads;
+					var maskQtv = Sprite.QuadsToVerts(maskQuads);
+					var maskVertArr = maskQtv.Item1;
+					var maskVerts = maskQtv.Item2;
+					var texture = spr.TexturePath == null || File.textures.ContainsKey(spr.TexturePath) == false ?
+						null : File.textures[spr.TexturePath];
 
-					t.transform.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-					t.transform.text.Rotation = (float)(t.transform.LocalAngle - owner.transform.LocalAngle);
-					t.transform.text.Origin = new Vector2f(
-						(float)(t.transform.Size.W * (t.transform.OriginPercent.X / 100)),
-						(float)(t.transform.Size.H * (t.transform.OriginPercent.Y / 100)));
-					t.transform.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
+					var w = maskVertArr.Bounds.Width;
+					var h = maskVertArr.Bounds.Height;
+					var o = spr.Area.OriginPercent / 100;
+					spr.Area.sprite.Position = Point.From(spr.Area.Position);
+					spr.Area.sprite.Rotation = (float)spr.Area.Angle;
+					spr.Area.sprite.Scale = new Vector2f(
+						(float)spr.Area.Size.W / w,
+						(float)spr.Area.Size.H / h);
+					spr.Area.sprite.Origin = new Vector2f((float)(w * o.X), (float)(h * o.Y));
 
-					rend.Draw(t.transform.text);
+					for (int j = 0; j < maskVerts.Length; j++)
+					{
+						var pp = spr.Area.sprite.Transform.TransformPoint(maskVerts[j].Position);
+						var p = Point.To(owner.Area.sprite.InverseTransform.TransformPoint(pp));
+						var dist = Point.Distance(owner.Area.Position, p);
+						var atAng = Number.AngleBetweenPoints(owner.Area.Position, p);
+						var pos = Point.From(Point.MoveAtAngle(
+							owner.Area.Position, atAng - owner.Area.Angle, dist, SMPL.Gear.Time.Unit.Tick));
+						var ownerOrOff = Point.From(new Point(rend.Size.X * o.X, rend.Size.Y * o.Y));
+
+						maskVerts[j].Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y) + ownerOrOff;
+					}
+
+					rend.Draw(maskVerts, SFML.Graphics.PrimitiveType.Quads, new SFML.Graphics.RenderStates
+						(SFML.Graphics.BlendMode.Alpha, SFML.Graphics.Transform.Identity, texture, null));
 				}
 				else
 				{
-					var s = masks[i] as Sprite;
-					var w = spr.TextureRect.Width;
-					var h = spr.TextureRect.Height;
-					var p = s.transform.OriginPercent / 100;
-					//var x = w * (float)p.X * ((float)s.GridSize.W / 2f) + (w * (float)p.X / 2f);
-					//var y = h * (float)p.Y * ((float)s.GridSize.H / 2f) + (h * (float)p.Y / 2f);
-					var dist = Point.Distance(s.transform.Position, owner.transform.Position);
-					var atAng = Number.AngleBetweenPoints(owner.transform.Position, s.transform.Position);
+					var t = masks[i] as TextBox;
+					var dist = Point.Distance(t.Area.LocalPosition, owner.Area.LocalPosition);
+					var atAng = Number.AngleBetweenPoints(owner.Area.LocalPosition, t.Area.LocalPosition);
 					var pos = Point.From(Point.MoveAtAngle(
-						owner.transform.Position, atAng - owner.transform.Angle, dist, Gear.Time.Unit.Tick));
+						owner.Area.LocalPosition, atAng - owner.Area.LocalAngle, dist, Gear.Time.Unit.Tick));
 
-					//s.transform.sprite.Origin = new Vector2f(x, y);
-					s.transform.sprite.Rotation = (float)(s.transform.Angle - owner.transform.Angle);
-					s.transform.sprite.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
-					//s.transform.sprite.Scale = new Vector2f(
-					//	(float)s.transform.Size.W / s.rawTexture.Size.X / sc.X,
-					//	(float)s.transform.Size.H / s.rawTexture.Size.Y / sc.Y);
+					t.Area.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+					t.Area.text.Rotation = (float)(t.Area.LocalAngle - owner.Area.LocalAngle);
+					t.Area.text.Origin = new Vector2f(
+						(float)(t.Area.Size.W * (t.Area.OriginPercent.X / 100)),
+						(float)(t.Area.Size.H * (t.Area.OriginPercent.Y / 100)));
+					t.Area.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
 
-					rend.Draw(s.transform.sprite, new SFML.Graphics.RenderStates(s.Effects.shader));
+					rend.Draw(t.Area.text);
 				}
 			}
-			rend.Display();
-			return rend;
 		}
 	}
 }

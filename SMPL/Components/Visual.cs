@@ -9,9 +9,22 @@ namespace SMPL.Components
 	{
 		protected readonly uint creationFrame;
 		protected readonly double rand;
-		internal Area transform;
 		internal Visual masking;
 
+		private Area area;
+		public Area Area
+		{
+			get { return AllAccess == Extent.Removed ? default : area; }
+			set
+			{
+				if (area == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				var prev = area;
+				area = value;
+				if (Debug.CalledBySMPL) return;
+				if (this is TextBox) TextBox.TriggerOnAreaChange(this as TextBox, prev);
+				else Sprite.TriggerOnAreaChange(this as Sprite, prev);
+			}
+		}
 		private Effects effects;
 		public Effects Effects
 		{
@@ -21,6 +34,7 @@ namespace SMPL.Components
 				if (effects == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = effects;
 				effects = value;
+				effects.owner = this;
 				if (Debug.CalledBySMPL) return;
 				if (this is TextBox) TextBox.TriggerOnEffectsChange(this as TextBox, prev);
 				else Sprite.TriggerOnEffectsChange(this as Sprite, prev);
@@ -35,7 +49,7 @@ namespace SMPL.Components
 				if (family == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = family;
 				family = value;
-				transform.family = family;
+				Area.family = family;
 				if (Debug.CalledBySMPL) return;
 				if (this is TextBox) TextBox.TriggerOnFamilyChange(this as TextBox, prev);
 				else Sprite.TriggerOnFamilyChange(this as Sprite, prev);
@@ -72,11 +86,10 @@ namespace SMPL.Components
 			if (masking != null && masking.Effects != null) masking.Effects.masks.Remove(this);
 			AllAccess = Extent.Removed;
 		}
-		public Visual(Area component2D) : base()
+		public Visual() : base()
 		{
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
-			transform = component2D;
 		}
 		//public abstract void DrawBounds(Camera camera, float thickness, Color color);
 	}

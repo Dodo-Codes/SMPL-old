@@ -23,6 +23,7 @@ namespace SMPL.Components
 			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd, OnDestroy, OnDisplay;
 		private static event Events.ParamsTwo<TextBox, Family> OnFamilyChange;
 		private static event Events.ParamsTwo<TextBox, Effects> OnEffectsChange;
+		private static event Events.ParamsTwo<TextBox, Area> OnAreaChange;
 
 		public static class CallWhen
 		{
@@ -72,6 +73,8 @@ namespace SMPL.Components
 				OnFamilyChange = Events.Add(OnFamilyChange, method, order);
 			public static void EffectsChange(Action<TextBox, Effects> method, uint order = uint.MaxValue) =>
 				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
+			public static void AreaChange(Action<TextBox, Area> method, uint order = uint.MaxValue) =>
+				OnAreaChange = Events.Add(OnAreaChange, method, order);
 			public static void Destroy(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnDestroy = Events.Add(OnDestroy, method, order);
 			public static void Display(Action<TextBox> method, uint order = uint.MaxValue) =>
@@ -125,7 +128,7 @@ namespace SMPL.Components
 				if (position == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = position;
 				position = value;
-				transform.text.Position = Point.From(value);
+				Area.text.Position = Point.From(value);
 				if (Debug.CalledBySMPL == false) OnPositionChange?.Invoke(this, prev);
 			}
 		}
@@ -139,7 +142,7 @@ namespace SMPL.Components
 					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = Angle;
 				angle = value;
-				transform.text.Rotation = (float)value;
+				Area.text.Rotation = (float)value;
 				if (Debug.CalledBySMPL == false) OnAngleChange?.Invoke(this, prev);
 			}
 		}
@@ -150,11 +153,11 @@ namespace SMPL.Components
 			set
 			{
 				var v = Size.From(value);
-				if (transform.text.Scale == v ||
+				if (Area.text.Scale == v ||
 					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var delta = value - Size.To(transform.text.Scale);
+				var delta = value - Size.To(Area.text.Scale);
 				scale = value;
-				transform.text.Scale = v;
+				Area.text.Scale = v;
 				if (Debug.CalledBySMPL == false) OnScaleChange?.Invoke(this, scale);
 			}
 		}
@@ -191,32 +194,32 @@ namespace SMPL.Components
 				}
 				var prev = fontPath;
 				fontPath = value;
-				transform.text.Font = File.fonts[fontPath];
+				Area.text.Font = File.fonts[fontPath];
 				if (Debug.CalledBySMPL == false) OnFontPathChange?.Invoke(this, prev);
 			}
 		}
 		public string DisplayText
 		{
-			get { return AllAccess == Extent.Removed ? default : transform.text.DisplayedString; }
+			get { return AllAccess == Extent.Removed ? default : Area.text.DisplayedString; }
 			set
 			{
-				if (transform.text.DisplayedString == value ||
+				if (Area.text.DisplayedString == value ||
 					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = transform.text.DisplayedString;
-				transform.text.DisplayedString = value;
+				var prev = Area.text.DisplayedString;
+				Area.text.DisplayedString = value;
 				UpdateOrigin();
 				if (Debug.CalledBySMPL == false) OnTextChange?.Invoke(this, prev);
 			}
 		}
 		public uint CharacterSize
 		{
-			get { return AllAccess == Extent.Removed ? default : transform.text.CharacterSize; }
+			get { return AllAccess == Extent.Removed ? default : Area.text.CharacterSize; }
 			set
 			{
-				if (transform.text.CharacterSize == value ||
+				if (Area.text.CharacterSize == value ||
 					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = transform.text.CharacterSize;
-				transform.text.CharacterSize = value;
+				var prev = Area.text.CharacterSize;
+				Area.text.CharacterSize = value;
 				Position = position;
 				if (Debug.CalledBySMPL == false) OnCharacterSizeChange?.Invoke(this, prev);
 			}
@@ -231,8 +234,8 @@ namespace SMPL.Components
 					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = spacing;
 				spacing = value;
-				transform.text.LetterSpacing = (float)value.W / 4;
-				transform.text.LineSpacing = (float)value.H / 16 + (float)CharacterSize / 112;
+				Area.text.LetterSpacing = (float)value.W / 4;
+				Area.text.LineSpacing = (float)value.H / 16 + (float)CharacterSize / 112;
 				if (Debug.CalledBySMPL) return;
 				if (Debug.CalledBySMPL == false) OnSpacingChange?.Invoke(this, prev);
 			}
@@ -244,7 +247,7 @@ namespace SMPL.Components
 			var instance = new TextBox(component2D, fontPath);
 			instance.Identity = new(instance, uniqueID);
 		}
-		private TextBox(Area component2D, string fontPath = "folder/font.ttf") : base(component2D)
+		private TextBox(Area component2D, string fontPath = "folder/font.ttf") : base()
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
@@ -252,12 +255,12 @@ namespace SMPL.Components
 			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
 			texts.Add(this);
-			transform.text.DisplayedString = "Hello World!";
-			transform.text.CharacterSize = 20;
-			transform.text.LetterSpacing = 1;
-			transform.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
-			transform.text.FillColor = Data.Color.From(Data.Color.White);
-			transform.text.OutlineColor = Data.Color.From(Data.Color.Black);
+			Area.text.DisplayedString = "Hello World!";
+			Area.text.CharacterSize = 20;
+			Area.text.LetterSpacing = 1;
+			Area.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
+			Area.text.FillColor = Data.Color.From(Data.Color.White);
+			Area.text.OutlineColor = Data.Color.From(Data.Color.Black);
 
 			spacing = new Size(4, 4);
 			lastFrameSp = spacing;
@@ -269,16 +272,16 @@ namespace SMPL.Components
 		}
 		private void UpdateOrigin()
       {
-			transform.text.DisplayedString += "\n";
+			Area.text.DisplayedString += "\n";
 			var pos = new Point();
 			for (uint i = 0; i < DisplayText.Length; i++)
 			{
-				var p = transform.text.FindCharacterPos(i + 1);
+				var p = Area.text.FindCharacterPos(i + 1);
 				if (pos.X < p.X) pos.X = p.X;
 				if (pos.Y < p.Y) pos.Y = p.Y;
 			}
-			transform.text.Origin = Point.From(pos * (originPercent / 100));
-			transform.text.DisplayedString = transform.text.DisplayedString.Remove(DisplayText.Length - 1, 1);
+			Area.text.Origin = Point.From(pos * (originPercent / 100));
+			Area.text.DisplayedString = Area.text.DisplayedString.Remove(DisplayText.Length - 1, 1);
 		}
 		internal void Update()
       {
@@ -316,16 +319,17 @@ namespace SMPL.Components
 		internal static void TriggerOnVisibilityChange(TextBox instance) => OnVisibilityChange?.Invoke(instance);
 		internal static void TriggerOnFamilyChange(TextBox i, Family f) => OnFamilyChange?.Invoke(i, f);
 		internal static void TriggerOnEffectsChange(TextBox i, Effects e) => OnEffectsChange?.Invoke(i, e);
+		internal static void TriggerOnAreaChange(TextBox i, Area a) => OnAreaChange?.Invoke(i, a);
 
 		public void Display(Camera camera)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null ||
-				transform.text == null || transform.text.Font == null) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden || Area == null ||
+				Area.text == null || Area.text.Font == null) return;
 
-			var rend = new RenderTexture((uint)Number.Sign(transform.Size.W, false), (uint)Number.Sign(transform.Size.H, false));
+			var rend = new RenderTexture((uint)Number.Sign(Area.Size.W, false), (uint)Number.Sign(Area.Size.H, false));
 			rend.Clear(new SFML.Graphics.Color(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor)));
-			rend.Draw(transform.text);
+			rend.Draw(Area.text);
 			rend.Display();
 			var sprite = new SFML.Graphics.Sprite(rend.Texture);
 			//var drawMaskResult = Effects.DrawMasks(sprite);
@@ -334,15 +338,15 @@ namespace SMPL.Components
 			if (Effects != null) Effects.shader.SetUniform("Texture", sprite.Texture);
 			if (Effects != null) Effects.shader.SetUniform("RawTexture", rend.Texture);
 
-			transform.sprite.Position = Point.From(transform.LocalPosition);
-			transform.sprite.Rotation = (float)transform.LocalAngle;
-			sprite.Position = Point.From(transform.Position);
-			sprite.Rotation = (float)transform.Angle;
+			Area.sprite.Position = Point.From(Area.LocalPosition);
+			Area.sprite.Rotation = (float)Area.LocalAngle;
+			sprite.Position = Point.From(Area.Position);
+			sprite.Rotation = (float)Area.Angle;
 			sprite.Origin = new Vector2f(
-					(float)(transform.Size.W * (transform.OriginPercent.X / 100)),
-					(float)(transform.Size.H * (transform.OriginPercent.Y / 100)));
+					(float)(Area.Size.W * (Area.OriginPercent.X / 100)),
+					(float)(Area.Size.H * (Area.OriginPercent.Y / 100)));
 
-			var sc = Family == null || Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.transform.sprite.Scale;
+			var sc = Family == null || Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.Area.sprite.Scale;
 			sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
 			if (Effects == null) camera.rendTexture.Draw(sprite);
 			else camera.rendTexture.Draw(sprite, new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));

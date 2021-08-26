@@ -118,39 +118,43 @@ namespace SMPL.Gear
 			}
 			return full;
 		}
-		public static void CreateFolders(string path = "folder/folder/folder") => Directory.CreateDirectory(path);
-
-		public static void UnloadAsset(Asset asset, string filePath = "folder/file.extension")
+		public static void CreateFolders(params string[] paths)
 		{
-			switch (asset)
-			{
-				case Asset.Texture:
-					{
-						if (NotLoaded(textures, filePath, "Texture")) return;
-						textures[filePath].Dispose();
-						textures.Remove(filePath);
-						break;
-					}
-				case Asset.Font:
-					{
-						if (NotLoaded(fonts, filePath, "Font")) return;
-						fonts.Remove(filePath);
-						break;
-					}
-				case Asset.Sound:
-					{
-						if (NotLoaded(sounds, filePath, "Sound")) return;
-						sounds[filePath].Dispose();
-						sounds.Remove(filePath);
-						break;
-					}
-				case Asset.Music:
-					{
-						if (NotLoaded(sounds, filePath, "Music")) return;
-						music.Remove(filePath);
-						break;
-					}
-			}
+			for (int i = 0; i < paths.Length; i++) Directory.CreateDirectory(paths[i]);
+		}
+
+		public static void UnloadAsset(Asset asset, params string[] filePaths)
+		{
+			for (int i = 0; i < filePaths.Length; i++)
+				switch (asset)
+				{
+					case Asset.Texture:
+						{
+							if (NotLoaded(textures, filePaths[i], "Texture")) return;
+							textures[filePaths[i]].Dispose();
+							textures.Remove(filePaths[i]);
+							break;
+						}
+					case Asset.Font:
+						{
+							if (NotLoaded(fonts, filePaths[i], "Font")) return;
+							fonts.Remove(filePaths[i]);
+							break;
+						}
+					case Asset.Sound:
+						{
+							if (NotLoaded(sounds, filePaths[i], "Sound")) return;
+							sounds[filePaths[i]].Dispose();
+							sounds.Remove(filePaths[i]);
+							break;
+						}
+					case Asset.Music:
+						{
+							if (NotLoaded(sounds, filePaths[i], "Music")) return;
+							music.Remove(filePaths[i]);
+							break;
+						}
+				}
 
 			bool NotLoaded<T>(Dictionary<string, T> dict, string filePath, string name)
 			{
@@ -159,30 +163,37 @@ namespace SMPL.Gear
 				return true;
 			}
 		}
-		public static bool AssetIsLoaded(string filePath = "folder/file.extension")
+		public static bool AssetsAreLoaded(params string[] filePaths)
 		{
-			return textures.ContainsKey(filePath) || fonts.ContainsKey(filePath) ||
-				sounds.ContainsKey(filePath) || music.ContainsKey(filePath);
-		}
-		public static void LoadAsset(Asset asset, string filePath = "folder/file.extension")
-		{
-			switch (asset)
+			for (int i = 0; i < filePaths.Length; i++)
 			{
-				case Asset.Texture: { if (AlreadyLoaded(textures, filePath, "Texture")) return; break; }
-				case Asset.Font: { if (AlreadyLoaded(fonts, filePath, "Font")) return; break; }
-				case Asset.Sound: { if (AlreadyLoaded(sounds, filePath, "Sound")) return; break; }
-				case Asset.Music: { if (AlreadyLoaded(sounds, filePath, "Music")) return; break; }
+				if (textures.ContainsKey(filePaths[i]) == false || fonts.ContainsKey(filePaths[i]) == false ||
+					sounds.ContainsKey(filePaths[i]) == false || music.ContainsKey(filePaths[i]) == false)
+						return false;
 			}
-			queuedAssets.Add(new QueuedAsset()
+			return true;
+		}
+		public static void LoadAsset(Asset asset, params string[] filePaths)
+		{
+			for (int i = 0; i < filePaths.Length; i++)
 			{
-				asset = asset,
-				path = filePath
-			});
-
+				switch (asset)
+				{
+					case Asset.Texture: { if (AlreadyLoaded(textures, filePaths[i], "Texture")) return; break; }
+					case Asset.Font: { if (AlreadyLoaded(fonts, filePaths[i], "Font")) return; break; }
+					case Asset.Sound: { if (AlreadyLoaded(sounds, filePaths[i], "Sound")) return; break; }
+					case Asset.Music: { if (AlreadyLoaded(sounds, filePaths[i], "Music")) return; break; }
+				}
+				queuedAssets.Add(new QueuedAsset()
+				{
+					asset = asset,
+					path = filePaths[i]
+				});
+			}
 			bool AlreadyLoaded<T>(Dictionary<string, T> dict, string path, string name)
 			{
-				if (dict.ContainsKey(filePath) == false) return false;
-				Debug.LogError(2, $"Cannot load {name} asset '{filePath}' since it is already loaded.");
+				if (dict.ContainsKey(path) == false) return false;
+				Debug.LogError(2, $"Cannot load {name} asset '{path}' since it is already loaded.");
 				return true;
 			}
 		}

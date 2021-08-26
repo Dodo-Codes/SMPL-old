@@ -12,11 +12,12 @@ namespace SMPL.Components
 		internal static List<Sprite> sprites = new();
 		internal Dictionary<string, Quad> quads = new();
 
-		private static event Events.ParamsTwo<Sprite, string> OnCreate, OnTexturePathChange;
-		private static event Events.ParamsOne<Sprite> OnVisibilityChange, OnRepeatingChange, OnSmoothnessChange,
+		private static event Events.ParamsTwo<Sprite, string> OnTexturePathChange;
+		private static event Events.ParamsOne<Sprite> OnCreate, OnVisibilityChange, OnRepeatingChange, OnSmoothnessChange,
 			OnOffsetPercentChangeEnd, OnSizePercentChangeEnd, OnDestroy, OnDisplay;
 		private static event Events.ParamsTwo<Sprite, Family> OnFamilyChange;
 		private static event Events.ParamsTwo<Sprite, Effects> OnEffectsChange;
+		private static event Events.ParamsTwo<Sprite, Area> OnAreaChange;
 		private static event Events.ParamsTwo<Sprite, Identity<Sprite>> OnIdentityChange;
 		private static event Events.ParamsTwo<Sprite, Point> OnOffsetPercentChange, OnOffsetPercentChangeStart;
 		private static event Events.ParamsTwo<Sprite, Size> OnSizePercentChange, OnSizePercentChangeStart,
@@ -24,7 +25,7 @@ namespace SMPL.Components
 
 		public static class CallWhen
 		{
-			public static void Create(Action<Sprite, string> method, uint order = uint.MaxValue) =>
+			public static void Create(Action<Sprite> method, uint order = uint.MaxValue) =>
 				OnCreate = Events.Add(OnCreate, method, order);
 			public static void TexturePathChange(Action<Sprite, string> method, uint order = uint.MaxValue) =>
 				OnTexturePathChange = Events.Add(OnTexturePathChange, method, order);
@@ -36,6 +37,8 @@ namespace SMPL.Components
 				OnFamilyChange = Events.Add(OnFamilyChange, method, order);
 			public static void EffectsChange(Action<Sprite, Effects> method, uint order = uint.MaxValue) =>
 				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
+			public static void AreaChange(Action<Sprite, Area> method, uint order = uint.MaxValue) =>
+				OnAreaChange = Events.Add(OnAreaChange, method, order);
 			public static void RepeatingChange(Action<Sprite> method, uint order = uint.MaxValue) =>
 				OnRepeatingChange = Events.Add(OnRepeatingChange, method, order);
 			public static void SmoothnessChange(Action<Sprite> method, uint order = uint.MaxValue) =>
@@ -134,20 +137,37 @@ namespace SMPL.Components
 				}
 				var prev = texturePath;
 				texturePath = value;
+				if (prev == null) SetQuadDefault(Identity.UniqueID);
 				if (Debug.CalledBySMPL == false) OnTexturePathChange?.Invoke(this, prev);
 			}
 		}
 
-		public static void Create(string uniqueID, Area component2D, string texturePath = "folder/texture.png")
+		public static void Create(params string[] uniqueIDs)
 		{
-			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
-			var instance = new Sprite(component2D, texturePath);
-			instance.Identity = new(instance, uniqueID);
-			instance.SetQuadDefault(uniqueID);
+			for (int i = 0; i < uniqueIDs.Length; i++)
+			{
+				if (Identity<Sprite>.CannotCreate(uniqueIDs[i])) return;
+				var instance = new Sprite();
+				instance.Identity = new(instance, uniqueIDs[i]);
+				instance.SetQuadDefault(uniqueIDs[i]);
+			}
+		}
+		private Sprite() : base()
+		{
+			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
+			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
+			// and usually it goes as [2]User -> [1]Component -> [0]Access
+			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+			sprites.Add(this);
+			OnCreate?.Invoke(this);
 		}
 		public void SetQuadDefault(string uniqueID)
 		{
-			var sz = TexturePath == null || File.textures.ContainsKey(TexturePath) == false ? transform.Size :
+			if (QuadError(uniqueID)) return;
+
+			var sz = TexturePath == null || File.textures.ContainsKey(TexturePath) == false ?
+				(Area == null ? new Size(100, 100) : Area.Size) :
 				new Size(File.textures[TexturePath].Size.X, File.textures[TexturePath].Size.Y);
 			var quad = new Quad()
 			{
@@ -157,11 +177,13 @@ namespace SMPL.Components
 				CornerD = new Corner(new Point(0, sz.H), 0, sz.H),
 			};
 
-			SetQuad(uniqueID, quad);
+			quads[uniqueID] = quad;
 		}
 		public void SetQuadGrid(string uniqueID, uint cellCountX, uint cellCountY)
 		{
-			var sz = TexturePath == null || File.textures.ContainsKey(TexturePath) == false ? transform.Size :
+			if (QuadError(uniqueID)) return;
+
+			var sz = TexturePath == null || File.textures.ContainsKey(TexturePath) == false ? Area.Size :
 				new Size(File.textures[TexturePath].Size.X, File.textures[TexturePath].Size.Y);
 			for (int y = 0; y < cellCountY; y++)
 			{
@@ -174,28 +196,21 @@ namespace SMPL.Components
 						CornerC = new Corner(new Point(sz.W * x + sz.W, sz.H * y + sz.H), sz.W, sz.H),
 						CornerD = new Corner(new Point(sz.W * x, sz.H * y + sz.H), 0, sz.H),
 					};
-					SetQuad($"{uniqueID} {x} {y}", quad);
+					quads[$"{uniqueID} {x} {y}"] = quad;
 				}
 			}
 		}
-		private Sprite(Area component2D, string texturePath) : base(component2D)
+		public void SetQuad(string uniqueID, Quad quad)
 		{
-			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
-			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
-			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
-			sprites.Add(this);
-			OnCreate?.Invoke(this, texturePath);
-			if (File.textures.ContainsKey(texturePath) == false)
-			{
-				Debug.LogError(2, $"The texture at '{texturePath}' is not loaded.\n" +
-					$"Use '{nameof(File)}.{nameof(File.LoadAsset)}({nameof(File)}.{nameof(File.Asset)}." +
-					$"{nameof(File.Asset.Texture)}, \"{texturePath}\")' to load it.");
-				return;
-			}
-			TexturePath = texturePath;
+			if (QuadError(uniqueID)) return;
+			quads[uniqueID] = quad;
 		}
+		internal static bool QuadError(string uniqueID)
+		{
+			if (uniqueID == null) { Debug.LogError(2, $"The quad's uniqueID cannot be 'null'."); return true; }
+			return false;
+		}
+
 		internal void Update()
 		{
 
@@ -203,25 +218,73 @@ namespace SMPL.Components
 		internal static void TriggerOnVisibilityChange(Sprite instance) => OnVisibilityChange?.Invoke(instance);
 		internal static void TriggerOnFamilyChange(Sprite i, Family f) => OnFamilyChange?.Invoke(i, f);
 		internal static void TriggerOnEffectsChange(Sprite i, Effects e) => OnEffectsChange?.Invoke(i, e);
+		internal static void TriggerOnAreaChange(Sprite i, Area a) => OnAreaChange?.Invoke(i, a);
 
-		public void SetQuad(string uniqueID, Quad quad)
-		{
-			if (uniqueID == null)
-			{
-				Debug.LogError(1, $"The quad's uniqueID cannot be 'null'.");
-				return;
-			}
-			quads[uniqueID] = quad;
-		}
 		public void Display(Camera camera)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || transform == null ||
-				transform.sprite == null) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden) return;
+			if (Area == null || Area.sprite == null)
+			{
+				Debug.LogError(1, $"Cannot display the sprite instance '{Identity.UniqueID}' because it has no Area.\n" +
+					$"Make sure the sprite instance has an Area before displaying it.");
+				return;
+			}
 
-			var w = transform.sprite.TextureRect.Width;
-			var h = transform.sprite.TextureRect.Height;
-			var p = transform.OriginPercent / 100;
+			var w = Area.sprite.TextureRect.Width;
+			var h = Area.sprite.TextureRect.Height;
+			var p = Area.OriginPercent / 100;
+			var qtv = QuadsToVerts(quads);
+			var vertArr = qtv.Item1;
+			var verts = qtv.Item2;
+
+			var bounds = vertArr.Bounds;
+			var rend = new RenderTexture((uint)bounds.Width, (uint)bounds.Height);
+			var texture = TexturePath == null || File.textures.ContainsKey(TexturePath) == false ?
+				null : File.textures[TexturePath];
+
+			Area.sprite.Position = new Vector2f();
+			Area.sprite.Rotation = 0;
+			Area.sprite.Scale = new Vector2f(1, 1);
+			Area.sprite.Origin = new Vector2f(0, 0);
+
+			rend.Clear(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor));
+			rend.Draw(verts, PrimitiveType.Quads, new RenderStates(BlendMode.Alpha, Transform.Identity, texture, null));
+			//rend.Display();
+			var t = Effects == null ? null : new Texture(rend.Texture);
+
+			if (Effects != null)
+			{
+				Effects.shader.SetUniform("RawTexture", t);
+				Effects.DrawMasks(rend);
+			}
+			
+			rend.Display();
+			rend.Texture.Smooth = IsSmooth;
+			rend.Texture.Repeated = IsRepeated;
+
+			Area.sprite.TextureRect = new IntRect((int)bounds.Left, (int)bounds.Top, (int)bounds.Width, (int)bounds.Height);
+			Area.sprite.Texture = rend.Texture;
+
+			if (Effects != null) Effects.shader.SetUniform("Texture", Area.sprite.Texture);
+
+			Area.sprite.Origin = new Vector2f((float)(w * p.X), (float)(h * p.Y));
+			Area.sprite.Position = Point.From(Area.Position);
+			Area.sprite.Rotation = (float)Area.Angle;
+			Area.sprite.Scale = new Vector2f(
+				(float)Area.Size.W / Area.sprite.TextureRect.Width,
+				(float)Area.Size.H / Area.sprite.TextureRect.Height);
+
+			if (Effects == null) camera.rendTexture.Draw(Area.sprite);
+			else camera.rendTexture.Draw(Area.sprite,
+				new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
+			vertArr.Dispose();
+			rend.Dispose();
+			if (t != null) t.Dispose();
+		}
+		internal static (VertexArray, Vertex[]) QuadsToVerts(Dictionary<string, Quad> quads)
+		{
+			if (quads == null) return (null, null);
 			var vertArr = new VertexArray();
 			var verts = new Vertex[quads.Count * 4];
 			var i = 0;
@@ -237,40 +300,7 @@ namespace SMPL.Components
 				verts[i * 4 + 3] = kvp.Value.CornerD.Vertex;
 				i++;
 			}
-			var bounds = vertArr.Bounds;
-			var rend = new RenderTexture((uint)bounds.Width, (uint)bounds.Height);
-			var texture = TexturePath == null || File.textures.ContainsKey(TexturePath) == false ?
-				null : File.textures[TexturePath];
-
-			transform.sprite.Position = new Vector2f();
-			transform.sprite.Rotation = 0;
-			transform.sprite.Scale = new Vector2f(1, 1);
-			transform.sprite.Origin = new Vector2f(0, 0);
-
-			rend.Clear(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor));
-			rend.Draw(verts, PrimitiveType.Quads, new RenderStates(BlendMode.Alpha, Transform.Identity, texture, null));
-			rend.Display();
-			rend.Texture.Smooth = IsSmooth;
-			rend.Texture.Repeated = IsRepeated;
-
-			transform.sprite.TextureRect = new IntRect((int)bounds.Left, (int)bounds.Top, (int)bounds.Width, (int)bounds.Height);
-			transform.sprite.Texture = rend.Texture;
-
-			if (Effects != null) Effects.shader.SetUniform("Texture", transform.sprite.Texture);
-			//if (Effects != null) Effects.shader.SetUniform("RawTexture", rawTextureShader);
-
-			transform.sprite.Origin = new Vector2f((float)(w * p.X), (float)(h * (float)p.Y));
-			transform.sprite.Position = Point.From(transform.Position);
-			transform.sprite.Rotation = (float)transform.Angle;
-			transform.sprite.Scale = new Vector2f(
-				(float)transform.Size.W / transform.sprite.TextureRect.Width,
-				(float)transform.Size.H / transform.sprite.TextureRect.Height);
-
-			if (Effects == null) camera.rendTexture.Draw(transform.sprite);
-			else camera.rendTexture.Draw(transform.sprite,
-				new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
-			vertArr.Dispose();
-			rend.Dispose();
+			return (vertArr, verts);
 		}
 	}
 }
