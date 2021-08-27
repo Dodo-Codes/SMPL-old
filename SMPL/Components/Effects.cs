@@ -804,14 +804,14 @@ namespace SMPL.Components
 					var atAng = Number.AngleBetweenPoints(owner.Area.LocalPosition, t.Area.LocalPosition);
 					var pos = Point.From(Point.MoveAtAngle(
 						owner.Area.LocalPosition, atAng - owner.Area.LocalAngle, dist, Gear.Time.Unit.Tick));
+					var o = t.Area.OriginPercent / 100;
+					var ownerOrOff = Point.From(new Point(rend.Size.X * o.X, rend.Size.Y * o.Y));
 
-					t.Area.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y);
+					t.UpdateAllData();
+
+					t.Area.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y) + ownerOrOff;
 					t.Area.text.Rotation = (float)(t.Area.LocalAngle - owner.Area.LocalAngle);
-					t.Area.text.Origin = new Vector2f(
-						(float)(t.Area.Size.W * (t.Area.OriginPercent.X / 100)),
-						(float)(t.Area.Size.H * (t.Area.OriginPercent.Y / 100)));
-					t.Area.text.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
-
+					t.Area.text.Scale = new Vector2f(t.Area.text.Scale.X / sc.X, t.Area.text.Scale.Y / sc.Y);
 					rend.Draw(t.Area.text);
 				}
 			}

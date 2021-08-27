@@ -19,8 +19,9 @@ namespace SMPL.Components
 		private static event Events.ParamsTwo<TextBox, Size> OnScaleChange, OnScaleChangeStart;
 		private static event Events.ParamsTwo<TextBox, uint> OnCharacterSizeChange;
 		private static event Events.ParamsTwo<TextBox, Size> OnSpacingChange, OnSpacingChangeStart;
-		private static event Events.ParamsOne<TextBox> OnVisibilityChange, OnPositionChangeEnd, OnCreate,
-			OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd, OnDestroy, OnDisplay;
+		private static event Events.ParamsOne<TextBox> OnVisibilityChange, OnPositionChangeEnd, OnCreate, OnBoldChange,
+			OnItalicChange, OnOriginPercentChangeEnd, OnAngleChangeEnd, OnScaleChangeEnd, OnSpacingChangeEnd, OnDestroy, OnDisplay,
+			OnUnderlineChange, OnStrikeThroughChange;
 		private static event Events.ParamsTwo<TextBox, Family> OnFamilyChange;
 		private static event Events.ParamsTwo<TextBox, Effects> OnEffectsChange;
 		private static event Events.ParamsTwo<TextBox, Area> OnAreaChange;
@@ -75,6 +76,14 @@ namespace SMPL.Components
 				OnEffectsChange = Events.Add(OnEffectsChange, method, order);
 			public static void AreaChange(Action<TextBox, Area> method, uint order = uint.MaxValue) =>
 				OnAreaChange = Events.Add(OnAreaChange, method, order);
+			public static void BoldChange(Action<TextBox> method, uint order = uint.MaxValue) =>
+				OnBoldChange = Events.Add(OnBoldChange, method, order);
+			public static void ItalicChange(Action<TextBox> method, uint order = uint.MaxValue) =>
+				OnItalicChange = Events.Add(OnItalicChange, method, order);
+			public static void UnderlineChange(Action<TextBox> method, uint order = uint.MaxValue) =>
+				OnUnderlineChange = Events.Add(OnUnderlineChange, method, order);
+			public static void StrikeThroughChange(Action<TextBox> method, uint order = uint.MaxValue) =>
+				OnStrikeThroughChange = Events.Add(OnStrikeThroughChange, method, order);
 			public static void Destroy(Action<TextBox> method, uint order = uint.MaxValue) =>
 				OnDestroy = Events.Add(OnDestroy, method, order);
 			public static void Display(Action<TextBox> method, uint order = uint.MaxValue) =>
@@ -128,8 +137,8 @@ namespace SMPL.Components
 				if (position == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = position;
 				position = value;
-				Area.text.Position = Point.From(value);
 				if (Debug.CalledBySMPL == false) OnPositionChange?.Invoke(this, prev);
+				else lastFramePos = position;
 			}
 		}
 		private double angle, lastFrameAng;
@@ -142,8 +151,8 @@ namespace SMPL.Components
 					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = Angle;
 				angle = value;
-				Area.text.Rotation = (float)value;
 				if (Debug.CalledBySMPL == false) OnAngleChange?.Invoke(this, prev);
+				else lastFrameAng = angle;
 			}
 		}
 		private Size scale, lastFrameSc;
@@ -152,13 +161,11 @@ namespace SMPL.Components
 			get { return AllAccess == Extent.Removed ? Size.Invalid : scale; }
 			set
 			{
-				var v = Size.From(value);
-				if (Area.text.Scale == v ||
-					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var delta = value - Size.To(Area.text.Scale);
+				if (scale == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				var prev = scale;
 				scale = value;
-				Area.text.Scale = v;
-				if (Debug.CalledBySMPL == false) OnScaleChange?.Invoke(this, scale);
+				if (Debug.CalledBySMPL == false) OnScaleChange?.Invoke(this, prev);
+				else lastFrameSc = scale;
 			}
 		}
 		private Point originPercent, lastFrameOrPer;
@@ -173,8 +180,8 @@ namespace SMPL.Components
 				if (originPercent == value) return;
 				var prev = originPercent;
 				originPercent = value;
-				UpdateOrigin();
 				if (Debug.CalledBySMPL == false) OnOriginPercentChange?.Invoke(this, prev);
+				else lastFrameOrPer = originPercent;
 			}
 		}
 
@@ -194,33 +201,30 @@ namespace SMPL.Components
 				}
 				var prev = fontPath;
 				fontPath = value;
-				Area.text.Font = File.fonts[fontPath];
 				if (Debug.CalledBySMPL == false) OnFontPathChange?.Invoke(this, prev);
 			}
 		}
-		public string DisplayText
+		private string displayText;
+		public string Text
 		{
-			get { return AllAccess == Extent.Removed ? default : Area.text.DisplayedString; }
+			get { return AllAccess == Extent.Removed ? default : displayText; }
 			set
 			{
-				if (Area.text.DisplayedString == value ||
-					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = Area.text.DisplayedString;
-				Area.text.DisplayedString = value;
-				UpdateOrigin();
+				if (displayText == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				var prev = displayText;
+				displayText = value;
 				if (Debug.CalledBySMPL == false) OnTextChange?.Invoke(this, prev);
 			}
 		}
+		private uint charSize;
 		public uint CharacterSize
 		{
-			get { return AllAccess == Extent.Removed ? default : Area.text.CharacterSize; }
+			get { return AllAccess == Extent.Removed ? default : charSize; }
 			set
 			{
-				if (Area.text.CharacterSize == value ||
-					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = Area.text.CharacterSize;
-				Area.text.CharacterSize = value;
-				Position = position;
+				if (charSize == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				var prev = charSize;
+				charSize = value;
 				if (Debug.CalledBySMPL == false) OnCharacterSizeChange?.Invoke(this, prev);
 			}
 		}
@@ -230,24 +234,65 @@ namespace SMPL.Components
 			get { return AllAccess == Extent.Removed ? Size.Invalid : spacing; }
 			set
 			{
-				if (spacing == value ||
-					(Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				if (spacing == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = spacing;
 				spacing = value;
-				Area.text.LetterSpacing = (float)value.W / 4;
-				Area.text.LineSpacing = (float)value.H / 16 + (float)CharacterSize / 112;
-				if (Debug.CalledBySMPL) return;
 				if (Debug.CalledBySMPL == false) OnSpacingChange?.Invoke(this, prev);
+				else lastFrameSp = spacing;
+			}
+		}
+		private bool isBold, isItalic, isUnderlined, isStrikedThrough;
+		public bool IsBold
+		{
+			get { return AllAccess != Extent.Removed && isBold; }
+			set
+			{
+				if (isBold == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				isBold = value;
+				if (Debug.CalledBySMPL == false) OnBoldChange?.Invoke(this);
+			}
+		}
+		public bool IsItalic
+		{
+			get { return AllAccess != Extent.Removed && isItalic; }
+			set
+			{
+				if (isItalic == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				isItalic = value;
+				if (Debug.CalledBySMPL == false) OnBoldChange?.Invoke(this);
+			}
+		}
+		public bool IsUnderlined
+		{
+			get { return AllAccess != Extent.Removed && isUnderlined; }
+			set
+			{
+				if (isUnderlined == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				isUnderlined = value;
+				if (Debug.CalledBySMPL == false) OnUnderlineChange?.Invoke(this);
+			}
+		}
+		public bool IsStrikedThrough
+		{
+			get { return AllAccess != Extent.Removed && isStrikedThrough; }
+			set
+			{
+				if (isStrikedThrough == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+				isStrikedThrough = value;
+				if (Debug.CalledBySMPL == false) OnStrikeThroughChange?.Invoke(this);
 			}
 		}
 
-		public static void Create(string uniqueID, Area component2D, string fontPath = "folder/font.ttf")
+		public static void Create(params string[] uniqueIDs)
 		{
-			if (Identity<TextBox>.CannotCreate(uniqueID)) return;
-			var instance = new TextBox(component2D, fontPath);
-			instance.Identity = new(instance, uniqueID);
+			for (int i = 0; i < uniqueIDs.Length; i++)
+			{
+				if (Identity<TextBox>.CannotCreate(uniqueIDs[i])) return;
+				var instance = new TextBox();
+				instance.Identity = new(instance, uniqueIDs[i]);
+			}
 		}
-		private TextBox(Area component2D, string fontPath = "folder/font.ttf") : base()
+		private TextBox() : base()
 		{
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
@@ -255,36 +300,18 @@ namespace SMPL.Components
 			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
 			texts.Add(this);
-			Area.text.DisplayedString = "Hello World!";
-			Area.text.CharacterSize = 20;
-			Area.text.LetterSpacing = 1;
-			Area.text.LineSpacing = (float)4 / 16 + (float)CharacterSize / 112;
-			Area.text.FillColor = Data.Color.From(Data.Color.White);
-			Area.text.OutlineColor = Data.Color.From(Data.Color.Black);
 
-			spacing = new Size(4, 4);
-			lastFrameSp = spacing;
-			lastFrameSc = new Size(1, 1);
-
-			FontPath = fontPath;
+			Text = "Hello World!";
+			CharacterSize = 64;
+			Spacing = new Size(4, 4);
+			Scale = new Size(0.3, 0.3);
+			OriginPercent = new Point(50, 50);
+			Position = new Point(50, 50);
 
 			OnCreate?.Invoke(this);
 		}
-		private void UpdateOrigin()
-      {
-			Area.text.DisplayedString += "\n";
-			var pos = new Point();
-			for (uint i = 0; i < DisplayText.Length; i++)
-			{
-				var p = Area.text.FindCharacterPos(i + 1);
-				if (pos.X < p.X) pos.X = p.X;
-				if (pos.Y < p.Y) pos.Y = p.Y;
-			}
-			Area.text.Origin = Point.From(pos * (originPercent / 100));
-			Area.text.DisplayedString = Area.text.DisplayedString.Remove(DisplayText.Length - 1, 1);
-		}
 		internal void Update()
-      {
+		{
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-pos-start", lastFramePos != position))
 				OnPositionChangeStart?.Invoke(this, lastFramePos);
 			if (Gate.EnterOnceWhile($"{creationFrame}-{rand}-text-pos-end", lastFramePos == position))
@@ -320,15 +347,50 @@ namespace SMPL.Components
 		internal static void TriggerOnFamilyChange(TextBox i, Family f) => OnFamilyChange?.Invoke(i, f);
 		internal static void TriggerOnEffectsChange(TextBox i, Effects e) => OnEffectsChange?.Invoke(i, e);
 		internal static void TriggerOnAreaChange(TextBox i, Area a) => OnAreaChange?.Invoke(i, a);
+		internal void UpdateAllData()
+		{
+			Area.text.Font = FontPath == null || File.fonts.ContainsKey(FontPath) == false ? null : File.fonts[FontPath];
+			Area.text.DisplayedString = Text;
+			Area.text.CharacterSize = CharacterSize;
+			Area.text.LetterSpacing = (float)Spacing.W / 4f;
+			Area.text.LineSpacing = (float)Spacing.H / 16 + (float)CharacterSize / 112;
+			Area.text.FillColor = Data.Color.From(Effects == null ? Data.Color.White : Effects.FillColor);
+			Area.text.OutlineColor = Data.Color.From(Effects == null ? Data.Color.Black : Effects.OutlineColor);
+			Area.text.OutlineThickness = Effects == null ? 0 : (float)Effects.OutlineWidth;
+			Area.text.Position = Point.From(Position);
+			Area.text.Rotation = (float)Angle;
+			Area.text.Scale = Size.From(Scale);
+
+			Area.text.Style = (IsBold ? SFML.Graphics.Text.Styles.Bold : SFML.Graphics.Text.Styles.Regular) |
+				(IsItalic ? SFML.Graphics.Text.Styles.Italic : SFML.Graphics.Text.Styles.Regular) |
+				(IsUnderlined ? SFML.Graphics.Text.Styles.Underlined : SFML.Graphics.Text.Styles.Regular) |
+				(IsStrikedThrough ? SFML.Graphics.Text.Styles.StrikeThrough : SFML.Graphics.Text.Styles.Regular);
+
+			if (Text == null) return;
+			var bounds = Area.text.GetLocalBounds();
+			bounds.Height += CharacterSize / 2;
+			var bottomRight = Point.To(new Vector2f(bounds.Left + bounds.Width, bounds.Top + bounds.Height));
+			Area.text.Origin = Point.From(bottomRight * (originPercent / 100));
+		}
 
 		public void Display(Camera camera)
 		{
 			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden || Area == null ||
-				Area.text == null || Area.text.Font == null) return;
+			if (Window.DrawNotAllowed() || masking != null || IsHidden) return;
+			if (Area == null || Area.text == null)
+			{
+				Debug.LogError(1, $"Cannot display the textBox instance '{Identity.UniqueID}' because it has no Area.\n" +
+					$"Make sure the textBox instance has an Area before displaying it.");
+				return;
+			}
+
+			UpdateAllData();
+
+			var bgc = Effects == null ? new Data.Color() : Effects.BackgroundColor;
+			if (Area.text.Font == null) bgc = Data.Color.White;
 
 			var rend = new RenderTexture((uint)Number.Sign(Area.Size.W, false), (uint)Number.Sign(Area.Size.H, false));
-			rend.Clear(new SFML.Graphics.Color(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor)));
+			rend.Clear(Data.Color.From(bgc));
 			rend.Draw(Area.text);
 			rend.Display();
 			var sprite = new SFML.Graphics.Sprite(rend.Texture);

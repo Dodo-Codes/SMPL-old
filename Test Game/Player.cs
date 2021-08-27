@@ -8,51 +8,51 @@ namespace TestGame
 	{
 		public Player()
 		{
-			File.LoadAsset(File.Asset.Texture, "penka.png", "explosive.jpg");
+			File.LoadAsset(File.Asset.Font, "Munro.ttf");
+			File.LoadAsset(File.Asset.Texture, "penka.png");
 			Camera.CallWhen.Display(OnDraw);
 			File.CallWhen.AssetLoadEnd(OnAssetLoadEnd);
+			Keyboard.CallWhen.KeyPress(OnKeyPress);
+			Keyboard.CallWhen.KeyRelease(OnKeyRelease);
+		}
+		void OnKeyPress(Keyboard.Key key)
+		{
+			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var penka = Identity<Sprite>.PickByUniqueID("penka");
+			penka.Effects.AddMasks(mouse);
+		}
+		void OnKeyRelease(Keyboard.Key key)
+		{
+			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var penka = Identity<Sprite>.PickByUniqueID("penka");
 		}
 		void OnAssetLoadEnd()
 		{
-			Area.Create("test-tr", "mouse-tr");
-			Sprite.Create("test");
+			Area.Create("mouse-tr", "penka-tr");
 			TextBox.Create("mouse");
-			Effects.Create("test-eff", "mouse-eff");
-			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
-			var test = Identity<Sprite>.PickByUniqueID("test");
+			Sprite.Create("penka");
+			Effects.Create("penka-eff");
+			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var penka = Identity<Sprite>.PickByUniqueID("penka");
 			mouse.Area = Identity<Area>.PickByUniqueID("mouse-tr");
-			test.Area = Identity<Area>.PickByUniqueID("test-tr");
-			mouse.Effects = Identity<Effects>.PickByUniqueID("mouse-eff");
-			test.Effects = Identity<Effects>.PickByUniqueID("test-eff");
-			mouse.TexturePath = "penka.png";
-			test.TexturePath = "explosive.jpg";
+			mouse.FontPath = "Munro.ttf";
+			penka.Area = Identity<Area>.PickByUniqueID("penka-tr");
+			penka.TexturePath = "penka.png";
+			penka.Effects = Identity<Effects>.PickByUniqueID("penka-eff");
 
-			test.SetQuadGrid("test", 10, 10);
+			penka.Area.Size = new Size(500, 500);
 
-			test.Effects.AddMasks(mouse);
-			test.Effects.MaskColor = Color.Red;
-			test.Effects.MaskType = Effects.Mask.In;
-			test.Effects.MaskColorBounds = 100;
+			penka.Effects.MaskColor = Color.White;
+			penka.Effects.MaskType = Effects.Mask.None;
 		}
 		void OnDraw(Camera camera)
 		{
-			var spr = Identity<Sprite>.PickByUniqueID("test");
-			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
-			if (spr == null) return;
+			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var penka = Identity<Sprite>.PickByUniqueID("penka");
+			if (mouse == null) return;
 			mouse.Area.Position = Mouse.CursorPositionWindow;
-			mouse.Area.Size = new Size(200, 200);
-			spr.Area.Size = new Size(800, 800);
 
-			var quad = new Quad()
-			{
-				CornerA = new Corner(new Point(64, 64), 0, 0),
-				CornerB = new Corner(new Point(128, 64), 32, 0),
-				CornerC = new Corner(new Point(64, 128), 32, 32),
-				CornerD = new Corner(new Point(64, 128), 0, 32),
-			};
-			spr.SetQuad("test 1 1", quad);
-
-			spr.Display(camera);
+			penka.Display(camera);
 			mouse.Display(camera);
 		}
 	}
