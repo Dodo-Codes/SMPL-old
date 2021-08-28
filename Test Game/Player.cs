@@ -19,20 +19,21 @@ namespace TestGame
 		{
 			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
-			mouse.Effects.AddMasks(penka);
+			mouse.Family.Parent = penka;
 		}
 		void OnKeyRelease(Keyboard.Key key)
 		{
 			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
-			mouse.Effects.RemoveMasks(penka);
+			mouse.Family.Parent = null;
 		}
 		void OnAssetLoadEnd()
 		{
 			Area.Create("mouse-tr", "penka-tr");
 			TextBox.Create("mouse");
 			Sprite.Create("penka");
-			Effects.Create("mouse-eff");
+			Effects.Create("mouse-eff", "penka-eff");
+			Family.Create("mouse-fam", "penka-fam");
 			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
 			mouse.Area = Identity<Area>.PickByUniqueID("mouse-tr");
@@ -40,15 +41,18 @@ namespace TestGame
 			penka.Area = Identity<Area>.PickByUniqueID("penka-tr");
 			penka.TexturePath = "penka.png";
 			mouse.Effects = Identity<Effects>.PickByUniqueID("mouse-eff");
+			penka.Effects = Identity<Effects>.PickByUniqueID("penka-eff");
 
 			penka.Area.Size = new Size(500, 500);
-			mouse.Position = new Point(150, 150);
 			mouse.Area.Size = new Size(300, 300);
 			mouse.Scale = new Size(1, 1);
-			
-			mouse.Effects.MaskColor = Color.Red;
-			mouse.Effects.MaskType = Effects.Mask.None;
-			mouse.Effects.MaskColorBounds = 50;
+
+			penka.Family = Identity<Family>.PickByUniqueID("penka-fam");
+			mouse.Family = Identity<Family>.PickByUniqueID("mouse-fam");
+
+			//penka.Effects.MaskColor = Color.Red;
+			//penka.Effects.MaskType = Effects.Mask.None;
+			//penka.Effects.MaskColorBounds = 50;
 		}
 		void OnDraw(Camera camera)
 		{
@@ -57,10 +61,12 @@ namespace TestGame
 			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
 			if (mouse == null) return;
+			mouse.Area.Angle++;
+			penka.Area.Size += new Size(1, 1);
 			penka.Area.Position = Mouse.CursorPositionWindow;
-
-			mouse.Display(camera);
 			penka.Display(camera);
+			mouse.Display(camera);
+			Console.Log(mouse.Area.Size);
 		}
 	}
 }

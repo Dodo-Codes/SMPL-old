@@ -66,7 +66,7 @@ namespace SMPL.Components
 
 					value.Family.children.Add(owner);
 					owner.Area.LocalPosition = Point.To(newPos);
-					owner.Area.Size = owner.Area.Size;
+					owner.Area.LocalSize = owner.Area.Size;
 					owner.Area.LocalAngle = -(parAng - angle);
 				}
 				else // unparent
@@ -76,7 +76,7 @@ namespace SMPL.Components
 
 					prevPar.Family.children.Remove(owner);
 					owner.Area.LocalPosition = Point.To(newPos);
-					owner.Area.Size = owner.Area.Size;
+					owner.Area.LocalSize = owner.Area.Size;
 					owner.Area.LocalAngle = parAng + angle;
 				}
 				if (Debug.CalledBySMPL == false) OnParentChange?.Invoke(this, prevPar);
@@ -92,6 +92,12 @@ namespace SMPL.Components
 			for (int i = 0; i < childrenInstances.Length; i++)
 			{
 				if (children.Contains(childrenInstances[i])) continue;
+				if (childrenInstances[i].Family == null)
+				{
+					Debug.LogError(1, $"Cannot parent this child instance because it has no Family.\n" +
+						$"Both (parent & child) Visual instances need a Family in order to bond.");
+					continue;
+				}
 				childrenInstances[i].Family.Parent = owner;
 				if (Debug.CalledBySMPL == false) OnAddChild?.Invoke(this, childrenInstances[i]);
 			}
@@ -130,18 +136,20 @@ namespace SMPL.Components
 			return true;
 		}
 
-		public static void Create(string uniqueID, Visual owner)
+		public static void Create(params string[] uniqueIDs)
 		{
-			if (Identity<Family>.CannotCreate(uniqueID)) return;
-			var instance = new Family(owner);
-			instance.Identity = new(instance, uniqueID);
+			for (int i = 0; i < uniqueIDs.Length; i++)
+			{
+				if (Identity<Family>.CannotCreate(uniqueIDs[i])) return;
+				var instance = new Family();
+				instance.Identity = new(instance, uniqueIDs[i]);
+			}
 		}
-		private Family(Visual owner) : base()
+		private Family() : base()
 		{
 			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 
-			this.owner = owner;
 			OnCreate?.Invoke(this);
 		}
 	}

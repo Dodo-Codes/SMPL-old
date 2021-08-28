@@ -188,7 +188,7 @@ namespace SMPL.Components
 		internal Size size = new(100, 100), lastFrameSz = new(100, 100);
 		public Size Size
 		{
-			get { return size; }
+			get { return SizeFromLocal(size); }
 			set
 			{
 				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;

@@ -306,7 +306,7 @@ namespace SMPL.Components
 			Spacing = new Size(4, 4);
 			Scale = new Size(0.3, 0.3);
 			OriginPercent = new Point(50, 50);
-			Position = new Point(50, 50);
+			//Position = new Point(50, 50);
 
 			OnCreate?.Invoke(this);
 		}
@@ -349,6 +349,7 @@ namespace SMPL.Components
 		internal static void TriggerOnAreaChange(TextBox i, Area a) => OnAreaChange?.Invoke(i, a);
 		internal void UpdateAllData()
 		{
+			if (Text == null || Text.Trim() == "") return;
 			Area.text.Font = FontPath == null || File.fonts.ContainsKey(FontPath) == false ? null : File.fonts[FontPath];
 			Area.text.DisplayedString = Text;
 			Area.text.CharacterSize = CharacterSize;
@@ -357,20 +358,22 @@ namespace SMPL.Components
 			Area.text.FillColor = Data.Color.From(Effects == null ? Data.Color.White : Effects.FillColor);
 			Area.text.OutlineColor = Data.Color.From(Effects == null ? Data.Color.Black : Effects.OutlineColor);
 			Area.text.OutlineThickness = Effects == null ? 0 : (float)Effects.OutlineWidth;
-			Area.text.Position = Point.From(Position);
-			Area.text.Rotation = (float)Angle;
-			Area.text.Scale = Size.From(Scale);
 
 			Area.text.Style = (IsBold ? SFML.Graphics.Text.Styles.Bold : SFML.Graphics.Text.Styles.Regular) |
 				(IsItalic ? SFML.Graphics.Text.Styles.Italic : SFML.Graphics.Text.Styles.Regular) |
 				(IsUnderlined ? SFML.Graphics.Text.Styles.Underlined : SFML.Graphics.Text.Styles.Regular) |
 				(IsStrikedThrough ? SFML.Graphics.Text.Styles.StrikeThrough : SFML.Graphics.Text.Styles.Regular);
 
-			if (Text == null) return;
 			var bounds = Area.text.GetLocalBounds();
 			bounds.Height += CharacterSize / 2;
 			var bottomRight = Point.To(new Vector2f(bounds.Left + bounds.Width, bounds.Top + bounds.Height));
-			Area.text.Origin = Point.From(bottomRight * (originPercent / 100));
+			Area.text.Origin = Point.From(bottomRight * (OriginPercent / 100));
+
+			var o = OriginPercent / 100;
+			var ownerOrOff = Point.From(new Point(Area.Size.W * o.X, Area.Size.H * o.Y));
+			Area.text.Position = Point.From(Position) + ownerOrOff;
+			Area.text.Rotation = (float)Angle;
+			Area.text.Scale = Size.From(Scale);
 		}
 
 		public void Display(Camera camera)
@@ -389,9 +392,14 @@ namespace SMPL.Components
 			var bgc = Effects == null ? new Data.Color() : Effects.BackgroundColor;
 			if (Area.text.Font == null) bgc = Data.Color.White;
 
-			var rend = new RenderTexture((uint)Number.Sign(Area.Size.W, false), (uint)Number.Sign(Area.Size.H, false));
+			Area.sprite.Position = new Vector2f();
+			Area.sprite.Rotation = 0;
+			Area.sprite.Scale = new Vector2f(1, 1);
+			Area.sprite.Origin = new Vector2f(0, 0);
+
+			var rend = new RenderTexture((uint)Number.Sign(Area.LocalSize.W, false), (uint)Number.Sign(Area.LocalSize.H, false));
 			rend.Clear(Data.Color.From(bgc));
-			rend.Draw(Area.text);
+			rend.Draw(Area.text, new RenderStates(Area.sprite.Transform));
 			var t = Effects == null ? null : new Texture(rend.Texture);
 
 			if (Effects != null)
@@ -399,18 +407,21 @@ namespace SMPL.Components
 				Effects.shader.SetUniform("RawTexture", t);
 				Effects.DrawMasks(rend);
 			}
-
+			
 			rend.Display();
-			Area.sprite.TextureRect = new IntRect((int)Area.Position.X, (int)Area.Position.Y, (int)Area.Size.W, (int)Area.Size.H);
+			//rend.Texture.Smooth = true;
+
+			var o = Area.OriginPercent / 100;
+			var ownerOrOff = Point.From(new Point(Area.LocalSize.W * o.X, Area.LocalSize.H * o.Y));
+			Area.sprite.TextureRect = new IntRect(0, 0, (int)Area.LocalSize.W, (int)Area.LocalSize.H);
 			Area.sprite.Texture = rend.Texture;
 			if (Effects != null) Effects.shader.SetUniform("Texture", Area.sprite.Texture);
 
-			var sc = Family == null || Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.Area.sprite.Scale;
-			Area.sprite.Position = Point.From(Area.LocalPosition);
-			Area.sprite.Rotation = (float)Area.LocalAngle;
+			var sc = Size.From(Family == null || Family.Parent == null ? new Size(1, 1) :
+				Family.Parent.Area.LocalSize / Area.LocalSize);
 			Area.sprite.Position = Point.From(Area.Position);
 			Area.sprite.Rotation = (float)Area.Angle;
-			Area.sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
+			Area.sprite.Scale = new Vector2f(1, 1);
 			Area.sprite.Origin = new Vector2f(
 					(float)(Area.Size.W * (Area.OriginPercent.X / 100)),
 					(float)(Area.Size.H * (Area.OriginPercent.Y / 100)));

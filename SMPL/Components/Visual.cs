@@ -50,6 +50,7 @@ namespace SMPL.Components
 				if (family == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				var prev = family;
 				family = value;
+				family.owner = this;
 				Area.family = family;
 				if (Debug.CalledBySMPL) return;
 				if (this is TextBox) TextBox.TriggerOnFamilyChange(this as TextBox, prev);

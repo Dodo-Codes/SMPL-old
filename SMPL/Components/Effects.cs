@@ -202,6 +202,7 @@ namespace SMPL.Components
 			get { return fillColor; }
 			set
 			{
+				if (owner is Sprite && creationFrame == Performance.frameCount) return;
 				fillColor = value;
 				if (owner is TextBox) return;
 				shader.SetUniform("FillRed", (float)value.R / 255f);
@@ -735,6 +736,8 @@ namespace SMPL.Components
 				if (masks[i].IsHidden) continue;
 
 				var sc = new Vector2f((float)owner.Area.Size.W / rend.Size.X, (float)owner.Area.Size.H / rend.Size.Y);
+				var o = masks[i].Area.OriginPercent / 100;
+
 				if (masks[i] is Sprite)
 				{
 					var spr = (masks[i] as Sprite);
@@ -747,7 +750,6 @@ namespace SMPL.Components
 
 					var w = maskVertArr.Bounds.Width;
 					var h = maskVertArr.Bounds.Height;
-					var o = spr.Area.OriginPercent / 100;
 					spr.Area.sprite.Position = Point.From(spr.Area.Position);
 					spr.Area.sprite.Rotation = (float)spr.Area.Angle;
 					spr.Area.sprite.Scale = new Vector2f((float)spr.Area.Size.W / w, (float)spr.Area.Size.H / h);
@@ -772,17 +774,16 @@ namespace SMPL.Components
 				else
 				{
 					var t = masks[i] as TextBox;
-					var dist = Point.Distance(t.Area.LocalPosition, owner.Area.LocalPosition);
-					var atAng = Number.AngleBetweenPoints(owner.Area.LocalPosition, t.Area.LocalPosition);
+					var dist = Point.Distance(t.Area.Position, owner.Area.Position);
+					var atAng = Number.AngleBetweenPoints(owner.Area.Position, t.Area.Position);
 					var pos = Point.From(Point.MoveAtAngle(
-						owner.Area.LocalPosition, atAng - owner.Area.LocalAngle, dist, Gear.Time.Unit.Tick));
-					var o = t.Area.OriginPercent / 100;
+						owner.Area.Position, atAng - owner.Area.Angle, dist, Gear.Time.Unit.Tick));
 					var ownerOrOff = Point.From(new Point(rend.Size.X * o.X, rend.Size.Y * o.Y));
 
 					t.UpdateAllData();
 
 					t.Area.text.Position = new Vector2f(pos.X / sc.X, pos.Y / sc.Y) + ownerOrOff;
-					t.Area.text.Rotation = (float)(t.Area.LocalAngle - owner.Area.LocalAngle);
+					t.Area.text.Rotation = (float)(t.Area.Angle - owner.Area.Angle);
 					t.Area.text.Scale = new Vector2f(t.Area.text.Scale.X / sc.X, t.Area.text.Scale.Y / sc.Y);
 					rend.Draw(t.Area.text);
 				}
