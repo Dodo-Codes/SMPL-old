@@ -176,20 +176,8 @@ namespace SMPL.Components
 			set
 			{
 				if (color == value) return;
-				var delta = Color.To(owner is TextBox ?
-					(owner as TextBox).Area.text.FillColor : (owner as Sprite).Area.sprite.Color);
+				var prev = color;
 				color = value;
-				var c = Color.From(value);
-				if (owner is Sprite)
-				{
-					var spriteParent = owner as Sprite;
-					spriteParent.Area.sprite.Color = c;
-				}
-				else
-				{
-					var textParent = owner as TextBox;
-					textParent.Area.text.FillColor = c;
-				}
 			}
 		}
 		private Color outlineColor, lastFrameOutCol;
@@ -199,21 +187,13 @@ namespace SMPL.Components
 			set
 			{
 				if (outlineColor == value) return;
-				var delta = outlineColor;
+				var prev = outlineColor;
 				outlineColor = value;
-				if (owner is TextBox)
-				{
-					var textParent = owner as TextBox;
-					textParent.Area.text.OutlineColor = Color.From(value);
-				}
-				else
-				{
-					var spriteParent = owner as Sprite;
-					shader.SetUniform("OutlineRed", (float)value.R / 255f);
-					shader.SetUniform("OutlineGreen", (float)value.G / 255f);
-					shader.SetUniform("OutlineBlue", (float)value.B / 255f);
-					shader.SetUniform("OutlineOpacity", (float)value.A / 255f);
-				}
+				if (owner is TextBox) return;
+				shader.SetUniform("OutlineRed", (float)value.R / 255f);
+				shader.SetUniform("OutlineGreen", (float)value.G / 255f);
+				shader.SetUniform("OutlineBlue", (float)value.B / 255f);
+				shader.SetUniform("OutlineOpacity", (float)value.A / 255f);
 			}
 		}
 		private Color fillColor;
@@ -223,6 +203,7 @@ namespace SMPL.Components
 			set
 			{
 				fillColor = value;
+				if (owner is TextBox) return;
 				shader.SetUniform("FillRed", (float)value.R / 255f);
 				shader.SetUniform("FillGreen", (float)value.G / 255f);
 				shader.SetUniform("FillBlue", (float)value.B / 255f);
@@ -238,16 +219,8 @@ namespace SMPL.Components
 				if (value == outlineWidth) return;
 				var delta = value - outlineWidth;
 				outlineWidth = value;
-				if (owner is Sprite)
-				{
-					var spriteParent = owner as Sprite;
-					shader.SetUniform("OutlineOffset", (float)value / 500f);
-				}
-				else
-				{
-					var textParent = owner as TextBox;
-					textParent.Area.text.OutlineThickness = (float)value;
-				}
+				if (owner is TextBox) return;
+				shader.SetUniform("OutlineOffset", (float)value / 500f);
 			}
 		}
 		private double blinkSpeed;
@@ -673,7 +646,6 @@ namespace SMPL.Components
 				}
 			}
 			component.masking = add ? owner : null;
-			owner.Effects.shader.SetUniform("HasMask", add);
 		}
 
 		public static void Create(params string[] uniqueIDs)
@@ -691,13 +663,13 @@ namespace SMPL.Components
 			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
-
-			SetDefaults();
 		}
-		private void SetDefaults()
+		internal void SetDefaults()
 		{
 			shader = new("shaders.vert", null, "shaders.frag");
 			color = Color.White; lastFrameCol = Color.White;
+
+			FillColor = Color.White;
 
 			outlineColor = Color.Black; lastFrameOutCol = Color.Black;
 			shader.SetUniform("OutlineRed", 0f);

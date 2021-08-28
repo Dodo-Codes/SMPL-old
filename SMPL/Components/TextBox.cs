@@ -392,30 +392,33 @@ namespace SMPL.Components
 			var rend = new RenderTexture((uint)Number.Sign(Area.Size.W, false), (uint)Number.Sign(Area.Size.H, false));
 			rend.Clear(Data.Color.From(bgc));
 			rend.Draw(Area.text);
+			var t = Effects == null ? null : new Texture(rend.Texture);
+
+			if (Effects != null)
+			{
+				Effects.shader.SetUniform("RawTexture", t);
+				Effects.DrawMasks(rend);
+			}
+
 			rend.Display();
-			var sprite = new SFML.Graphics.Sprite(rend.Texture);
-			//var drawMaskResult = Effects.DrawMasks(sprite);
-			//sprite.Texture = drawMaskResult.Texture;
+			Area.sprite.TextureRect = new IntRect((int)Area.Position.X, (int)Area.Position.Y, (int)Area.Size.W, (int)Area.Size.H);
+			Area.sprite.Texture = rend.Texture;
+			if (Effects != null) Effects.shader.SetUniform("Texture", Area.sprite.Texture);
 
-			if (Effects != null) Effects.shader.SetUniform("Texture", sprite.Texture);
-			if (Effects != null) Effects.shader.SetUniform("RawTexture", rend.Texture);
-
+			var sc = Family == null || Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.Area.sprite.Scale;
 			Area.sprite.Position = Point.From(Area.LocalPosition);
 			Area.sprite.Rotation = (float)Area.LocalAngle;
-			sprite.Position = Point.From(Area.Position);
-			sprite.Rotation = (float)Area.Angle;
-			sprite.Origin = new Vector2f(
+			Area.sprite.Position = Point.From(Area.Position);
+			Area.sprite.Rotation = (float)Area.Angle;
+			Area.sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
+			Area.sprite.Origin = new Vector2f(
 					(float)(Area.Size.W * (Area.OriginPercent.X / 100)),
 					(float)(Area.Size.H * (Area.OriginPercent.Y / 100)));
 
-			var sc = Family == null || Family.Parent == null ? new Vector2f(1, 1) : Family.Parent.Area.sprite.Scale;
-			sprite.Scale = new Vector2f(1 / sc.X, 1 / sc.Y);
-			if (Effects == null) camera.rendTexture.Draw(sprite);
-			else camera.rendTexture.Draw(sprite, new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
+			if (Effects == null) camera.rendTexture.Draw(Area.sprite);
+			else camera.rendTexture.Draw(Area.sprite, new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
 
-			//drawMaskResult.Dispose();
 			rend.Dispose();
-			sprite.Dispose();
 			if (Debug.CalledBySMPL == false) OnDisplay?.Invoke(this);
 		}
 	}

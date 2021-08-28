@@ -22,7 +22,7 @@ namespace SMPL.Gear
 		{
 			var info = new StackFrame((int)depth + 1, true);
 			var method = info.GetMethod();
-			var child = method == null ? null : method.ToString().Replace('+', '.');
+			var child = method?.ToString().Replace('+', '.');
 			var firstSpaceIndex = child.IndexOf(' ');
 			var parent = method.DeclaringType.ToString().Replace('+', '.') + ".";
 			var result = child.Insert(firstSpaceIndex + 1, parent);
@@ -34,7 +34,7 @@ namespace SMPL.Gear
 			var pathRaw = CurrentFilePath(depth + 1);
 			if (pathRaw == null) return null;
 			var path = pathRaw.Split('\\');
-			var name = path[path.Length - 1].Split('.');
+			var name = path[^1].Split('.');
 			return name[0];
 		}
 		public static string CurrentFilePath(uint depth = 0)

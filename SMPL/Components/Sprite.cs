@@ -250,7 +250,6 @@ namespace SMPL.Components
 
 			rend.Clear(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor));
 			rend.Draw(verts, PrimitiveType.Quads, new RenderStates(BlendMode.Alpha, Transform.Identity, texture, null));
-			//rend.Display();
 			var t = Effects == null ? null : new Texture(rend.Texture);
 
 			if (Effects != null)

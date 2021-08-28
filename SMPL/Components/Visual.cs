@@ -35,6 +35,7 @@ namespace SMPL.Components
 				var prev = effects;
 				effects = value;
 				effects.owner = this;
+				effects.SetDefaults();
 				if (Debug.CalledBySMPL) return;
 				if (this is TextBox) TextBox.TriggerOnEffectsChange(this as TextBox, prev);
 				else Sprite.TriggerOnEffectsChange(this as Sprite, prev);
