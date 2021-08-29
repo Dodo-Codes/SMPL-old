@@ -8,6 +8,7 @@ namespace SMPL.Data
 		public double R, G, B, A;
 
 		public static Color Invalid		=> new(double.NaN, double.NaN, double.NaN, double.NaN);
+		public static Color Transparent	=> new(0,	0,		0,		0);
 		public static Color White			=> new(255, 255,	255);
 		public static Color Black			=> new(0,	0,		0);
 		public static Color GrayLight		=> new(175, 175,	175);

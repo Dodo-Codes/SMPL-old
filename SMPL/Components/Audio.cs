@@ -20,7 +20,7 @@ namespace SMPL.Components
       private static event Events.ParamsTwo<Audio, Point> OnPositionChange;
       private static event Events.ParamsOne<Point> OnListenerPositionChange;
       private static event Events.ParamsOne<Audio> OnStart, OnPlay, OnPause, OnStop, OnEnd, 
-         OnLoop, OnLoopChange, OnPlayChange, OnPauseChange, OnUpdate;
+         OnLoop, OnLoopChange, OnPlayChange, OnPauseChange, OnUpdate, OnDestroy;
       private static event Events.ParamsTwo<Audio, double> OnVolumeChange, OnProgressChange, OnProgressPercentChange,
          OnFileProgressChange, OnSpeedChange, OnDistanceFadeChange;
 
@@ -28,6 +28,8 @@ namespace SMPL.Components
       {
          public static void Create(Action<Audio, string> method, uint order = uint.MaxValue) =>
             OnCreate = Events.Add(OnCreate, method, order);
+         public static void Destroy(Action<Audio> method, uint order = uint.MaxValue) =>
+            OnDestroy = Events.Add(OnDestroy, method, order);
          public static void IdentityChange(Action<Audio, Identity<Audio>> method,
             uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
          public static void Start(Action<Audio> method, uint order = uint.MaxValue) =>
@@ -93,6 +95,25 @@ namespace SMPL.Components
          }
       }
 
+      private bool isDestroyed;
+      public bool IsDestroyed
+      {
+         get { return isDestroyed; }
+         set
+         {
+            if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
+            isDestroyed = value;
+
+            if (Identity != null) Identity.DisposeOf(this);
+            Identity = null;
+            audios.Remove(this);
+            if (sound != null) sound.Dispose();
+            if (music != null) music.Dispose();
+            CurrentType = Type.NotLoaded;
+            AllAccess = Extent.Removed;
+            if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
+         }
+      }
       private bool rewindIsNotLoop;
       private double lastFrameProg;
       public string FilePath { get; private set; }

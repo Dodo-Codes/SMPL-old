@@ -9,6 +9,8 @@ namespace SMPL.Data
 	public struct Point
 	{
 		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
+		public static Point One => new(1, 1) { Color = Color.White };
+		public static Point Zero => new(0, 0) { Color = Color.White };
 
 		public double X { get; set; }
 		public double Y { get; set; }

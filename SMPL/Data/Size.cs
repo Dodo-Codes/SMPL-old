@@ -5,6 +5,9 @@ namespace SMPL.Data
 	public struct Size
 	{
 		public static Size Invalid => new(double.NaN, double.NaN);
+		public static Size One => new(1, 1);
+		public static Size Zero => new(0, 0);
+
 		public double W { get; set; }
 		public double H { get; set; }
 

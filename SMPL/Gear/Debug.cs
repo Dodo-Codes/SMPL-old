@@ -11,7 +11,7 @@ namespace SMPL.Gear
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>
 		public static bool IsActive { get { return Debugger.IsAttached; } }
-		internal static string debugString = "(This error message is for debugging & will not appear after the game is built)";
+		internal static string debugString = "This error message is for debugging & will not appear after the game is built";
 
 		public static double CurrentLineNumber(uint depth = 0)
 		{
@@ -63,12 +63,12 @@ namespace SMPL.Gear
 			var d = (uint)depth;
 			var debugStr = isDisplayingInRelease ? "" : debugString;
 			var place = depth >= 0 && IsActive ?
-				$"- At file: {CurrentFileName(d + 1)}\n" +
-				$"- At method: {CurrentMethodName(d + 1)}\n" +
-				$"- At line: {CurrentLineNumber(d + 1)} | {CurrentMethodName(d)}\n" : "";
+				$"Location\t[File: {CurrentFileName(d + 1)}.cs | Method:{CurrentMethodName(d + 1)}]\n" +
+				$"Action\t\t[Line: {CurrentLineNumber(d + 1)} | Method: {CurrentMethodName(d)}\n" : "";
 			var result =
-				$"ERROR {debugStr}\n" +
+				$"Error\t\t[{debugStr}]\n" +
 				$"{place}" +
+				$"{Data.Text.Repeat("- ", 10)}\n" +
 				$"{description}\n";
 			Console.Log(result);
 		}

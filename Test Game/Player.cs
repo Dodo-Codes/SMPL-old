@@ -29,7 +29,7 @@ namespace TestGame
 		}
 		void OnAssetLoadEnd()
 		{
-			var mouse = new Sprite("mouse");
+			var mouse = new Sprite(null);
 			var penka = new Sprite("penka");
 			mouse.Area = new Area("mouse-tr");
 			mouse.TexturePath = "explosive.jpg";
@@ -40,7 +40,6 @@ namespace TestGame
 
 			penka.Area.Size = new Size(500, 500);
 			mouse.Area.Size = new Size(300, 300);
-
 			penka.Family = new Family("penka-fam");
 			mouse.Family = new Family("mouse-fam");
 

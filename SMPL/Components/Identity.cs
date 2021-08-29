@@ -30,6 +30,17 @@ namespace SMPL.Components
 		public string UniqueID { get; private set; }
 		public string[] Tags => objTags[instance].ToArray();
 
+		internal void DisposeOf(T instance)
+		{
+			uniqueIDs.Remove(UniqueID);
+			if (objTags.ContainsKey(instance))
+			{
+				RemoveAllTags();
+				objTags.Remove(instance);
+			}
+			this.instance = default;
+		}
+
 		internal static bool CannotCreate(string uniqueID)
 		{
 			if (uniqueID == null)
@@ -49,7 +60,7 @@ namespace SMPL.Components
 		public Identity(T instance, string instanceUniqueID)
 		{
 			this.instance = instance;
-			UniqueID = instanceUniqueID; 
+			UniqueID = instanceUniqueID;
 			uniqueIDs.Add(instanceUniqueID, instance);
 			objTags[instance] = new();
 			OnCreate?.Invoke(this, UniqueID);

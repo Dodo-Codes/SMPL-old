@@ -55,10 +55,7 @@ namespace SMPL.Components
 				{
 					if (this is Sprite) (this as Sprite).IsDestroyed = true;
 					else if (this is TextBox) (this as TextBox).IsDestroyed = true;
-					else if (this is Audio)
-					{
-
-					}
+					else if (this is Audio) (this as Audio).IsDestroyed = true;
 					else if (this is Area)
 					{
 
