@@ -613,8 +613,7 @@ namespace SMPL.Components
 		}
 		public Visual[] Masks => masks.ToArray();
 		public Visual MaskTarget => owner.masking;
-		private static void AddMask(List<Visual> list,
-			Visual component, Visual owner, bool add)
+		private static void AddMask(List<Visual> list, Visual component, Visual owner, bool add)
 		{
 			if (add)
 			{
@@ -649,19 +648,13 @@ namespace SMPL.Components
 			component.masking = add ? owner : null;
 		}
 
-		public static void Create(params string[] uniqueIDs)
+		public Effects(string uniqueID)
 		{
-			for (int i = 0; i < uniqueIDs.Length; i++)
-			{
-				if (Identity<Effects>.CannotCreate(uniqueIDs[i])) return;
-				var instance = new Effects();
-				instance.Identity = new(instance, uniqueIDs[i]);
-			}
-		}
-		private Effects()
-		{
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
+			if (Identity<Effects>.CannotCreate(uniqueID)) return;
+			Identity = new(this, uniqueID);
+
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 		}

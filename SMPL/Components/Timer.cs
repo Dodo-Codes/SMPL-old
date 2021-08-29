@@ -131,7 +131,10 @@ namespace SMPL.Components
 
       public Timer(string uniqueID, double durationInSeconds)
       {
-			if (uniqueID == null)
+         GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+         DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+
+         if (uniqueID == null)
 			{
             Debug.LogError(1, "Timers' uniqueID cannot be 'null'.");
             return;

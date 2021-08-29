@@ -188,7 +188,7 @@ namespace SMPL.Components
 		internal Size size = new(100, 100), lastFrameSz = new(100, 100);
 		public Size Size
 		{
-			get { return SizeFromLocal(size); }
+			get { return SizeFromLocal(LocalSize); }
 			set
 			{
 				if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
@@ -273,18 +273,12 @@ namespace SMPL.Components
 			}
 		}
 
-		public static void Create(params string[] uniqueIDs)
+		public Area(string uniqueID)
 		{
-			for (int i = 0; i < uniqueIDs.Length; i++)
-			{
-				if (Identity<Area>.CannotCreate(uniqueIDs[i])) continue;
-				var instance = new Area();
-				instance.Identity = new(instance, uniqueIDs[i]);
-			}
-		}
-		private Area() : base()
-		{
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			if (Identity<Area>.CannotCreate(uniqueID)) return;
+			Identity = new(this, uniqueID);
+
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 
 			transforms.Add(this);
@@ -358,6 +352,10 @@ namespace SMPL.Components
 				}
 			}
 		}
+		internal void UpdateChildrenSizes()
+		{
+
+		}
 
 		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{
@@ -399,13 +397,11 @@ namespace SMPL.Components
 		}
 		public Size SizeFromLocal(Size localSize)
 		{
-			return family == null || family.Parent == null || family.owner is TextBox ? localSize :
-				localSize + family.Parent.Area.Size;
+			return family == null || family.Parent == null ? localSize : localSize + family.Parent.Area.Size;
 		}
 		public Size SizeToLocal(Size size)
 		{
-			return family == null || family.Parent == null || family.owner is TextBox ? size :
-				size - family.Parent.Area.Size;
+			return family == null || family.Parent == null ? size : size - family.Parent.Area.Size;
 		}
 	}
 }

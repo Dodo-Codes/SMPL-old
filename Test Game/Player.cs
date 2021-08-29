@@ -9,7 +9,7 @@ namespace TestGame
 		public Player()
 		{
 			File.LoadAsset(File.Asset.Font, "Munro.ttf");
-			File.LoadAsset(File.Asset.Texture, "penka.png");
+			File.LoadAsset(File.Asset.Texture, "penka.png", "explosive.jpg");
 			Camera.CallWhen.Display(OnDraw);
 			File.CallWhen.AssetLoadEnd(OnAssetLoadEnd);
 			Keyboard.CallWhen.KeyPress(OnKeyPress);
@@ -17,56 +17,47 @@ namespace TestGame
 		}
 		void OnKeyPress(Keyboard.Key key)
 		{
-			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
 			mouse.Family.Parent = penka;
 		}
 		void OnKeyRelease(Keyboard.Key key)
 		{
-			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
 			mouse.Family.Parent = null;
 		}
 		void OnAssetLoadEnd()
 		{
-			Area.Create("mouse-tr", "penka-tr");
-			TextBox.Create("mouse");
-			Sprite.Create("penka");
-			Effects.Create("mouse-eff", "penka-eff");
-			Family.Create("mouse-fam", "penka-fam");
-			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
-			var penka = Identity<Sprite>.PickByUniqueID("penka");
-			mouse.Area = Identity<Area>.PickByUniqueID("mouse-tr");
-			mouse.FontPath = "Munro.ttf";
-			penka.Area = Identity<Area>.PickByUniqueID("penka-tr");
+			var mouse = new Sprite("mouse");
+			var penka = new Sprite("penka");
+			mouse.Area = new Area("mouse-tr");
+			mouse.TexturePath = "explosive.jpg";
+			penka.Area = new Area("penka-tr");
 			penka.TexturePath = "penka.png";
-			mouse.Effects = Identity<Effects>.PickByUniqueID("mouse-eff");
-			penka.Effects = Identity<Effects>.PickByUniqueID("penka-eff");
+			mouse.Effects = new Effects("mouse-eff");
+			penka.Effects = new Effects("penka-eff");
 
 			penka.Area.Size = new Size(500, 500);
 			mouse.Area.Size = new Size(300, 300);
-			mouse.Scale = new Size(1, 1);
 
-			penka.Family = Identity<Family>.PickByUniqueID("penka-fam");
-			mouse.Family = Identity<Family>.PickByUniqueID("mouse-fam");
+			penka.Family = new Family("penka-fam");
+			mouse.Family = new Family("mouse-fam");
 
-			//penka.Effects.MaskColor = Color.Red;
-			//penka.Effects.MaskType = Effects.Mask.None;
-			//penka.Effects.MaskColorBounds = 50;
 		}
 		void OnDraw(Camera camera)
 		{
 			if (Performance.FrameCount % 20 == 0) Window.Title = $"Test Game ({Performance.FPS:F2} FPS)";
 
-			var mouse = Identity<TextBox>.PickByUniqueID("mouse");
+			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
 			var penka = Identity<Sprite>.PickByUniqueID("penka");
 			if (mouse == null) return;
-			mouse.Area.Angle++;
+			penka.Area.Angle++;
 			penka.Area.Size += new Size(1, 1);
+			mouse.Effects.BackgroundColor = Color.Red;
 			penka.Area.Position = Mouse.CursorPositionWindow;
 			penka.Display(camera);
 			mouse.Display(camera);
-			Console.Log(mouse.Area.Size);
 		}
 	}
 }

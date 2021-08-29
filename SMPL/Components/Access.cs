@@ -138,15 +138,9 @@ namespace SMPL.Components
 			};
 		}
 
-		public static void CreateAccess(string uniqueID)
+		public Access()
 		{
-			if (Identity<Access>.CannotCreate(uniqueID)) return;
-			var instance = new Access();
-			instance.AccessIdentity = new(instance, uniqueID);
-		}
-		internal Access()
-		{
-			accessPaths.Add(Debug.CurrentFilePath(2));
+			accessPaths.Add(Debug.CurrentFilePath(1));
 			OnCreate?.Invoke(this);
 		}
 	}

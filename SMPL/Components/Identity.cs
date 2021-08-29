@@ -46,11 +46,11 @@ namespace SMPL.Components
 			}
 			return false;
 		}
-		public Identity(T instance, string uniqueID) : base()
+		public Identity(T instance, string instanceUniqueID)
 		{
 			this.instance = instance;
-			UniqueID = uniqueID;
-			uniqueIDs.Add(uniqueID, instance);
+			UniqueID = instanceUniqueID; 
+			uniqueIDs.Add(instanceUniqueID, instance);
 			objTags[instance] = new();
 			OnCreate?.Invoke(this, UniqueID);
 		}

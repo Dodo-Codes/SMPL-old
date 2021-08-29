@@ -283,22 +283,16 @@ namespace SMPL.Components
 			}
 		}
 
-		public static void Create(params string[] uniqueIDs)
+		public TextBox(string uniqueID) : base()
 		{
-			for (int i = 0; i < uniqueIDs.Length; i++)
-			{
-				if (Identity<TextBox>.CannotCreate(uniqueIDs[i])) return;
-				var instance = new TextBox();
-				instance.Identity = new(instance, uniqueIDs[i]);
-			}
-		}
-		private TextBox() : base()
-		{
+			if (Identity<TextBox>.CannotCreate(uniqueID)) return;
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
 			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(1)); // abandon ship
+			accessPaths.Clear(); // abandon ship
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+
+			Identity = new(this, uniqueID);
 			texts.Add(this);
 
 			Text = "Hello World!";
@@ -397,7 +391,7 @@ namespace SMPL.Components
 			Area.sprite.Scale = new Vector2f(1, 1);
 			Area.sprite.Origin = new Vector2f(0, 0);
 
-			var rend = new RenderTexture((uint)Number.Sign(Area.LocalSize.W, false), (uint)Number.Sign(Area.LocalSize.H, false));
+			var rend = new RenderTexture((uint)Number.Sign(Area.Size.W, false), (uint)Number.Sign(Area.Size.H, false));
 			rend.Clear(Data.Color.From(bgc));
 			rend.Draw(Area.text, new RenderStates(Area.sprite.Transform));
 			var t = Effects == null ? null : new Texture(rend.Texture);
@@ -412,13 +406,11 @@ namespace SMPL.Components
 			//rend.Texture.Smooth = true;
 
 			var o = Area.OriginPercent / 100;
-			var ownerOrOff = Point.From(new Point(Area.LocalSize.W * o.X, Area.LocalSize.H * o.Y));
-			Area.sprite.TextureRect = new IntRect(0, 0, (int)Area.LocalSize.W, (int)Area.LocalSize.H);
+			var ownerOrOff = Point.From(new Point(Area.Size.W * o.X, Area.Size.H * o.Y));
+			Area.sprite.TextureRect = new IntRect(0, 0, (int)Area.Size.W, (int)Area.Size.H);
 			Area.sprite.Texture = rend.Texture;
 			if (Effects != null) Effects.shader.SetUniform("Texture", Area.sprite.Texture);
 
-			var sc = Size.From(Family == null || Family.Parent == null ? new Size(1, 1) :
-				Family.Parent.Area.LocalSize / Area.LocalSize);
 			Area.sprite.Position = Point.From(Area.Position);
 			Area.sprite.Rotation = (float)Area.Angle;
 			Area.sprite.Scale = new Vector2f(1, 1);

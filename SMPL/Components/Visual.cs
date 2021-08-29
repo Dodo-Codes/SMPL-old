@@ -88,7 +88,7 @@ namespace SMPL.Components
 			if (masking != null && masking.Effects != null) masking.Effects.masks.Remove(this);
 			AllAccess = Extent.Removed;
 		}
-		public Visual() : base()
+		public Visual()
 		{
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);

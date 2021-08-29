@@ -85,8 +85,14 @@ namespace SMPL.Components
 			}
 		}
 
-		public Hitbox() : base()
+		public Hitbox(string uniqueID)
 		{
+			if (Identity<Hitbox>.CannotCreate(uniqueID)) return;
+			Identity = new(this, uniqueID);
+
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			hitboxes.Add(this);

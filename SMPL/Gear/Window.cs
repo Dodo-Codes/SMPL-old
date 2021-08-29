@@ -257,13 +257,10 @@ namespace SMPL.Gear
 
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
-			Camera.Create("smpl-world-camera", new Point(0, 0), size / pixelSize);
-			var cam = Identity<Camera>.PickByUniqueID("smpl-world-camera");
-			Camera.WorldCamera = cam;
-			Area.Create("smpl-world-camera-area");
-			var area = Identity<Area>.PickByUniqueID("smpl-world-camera-area");
-			area.Size = size;
-			Camera.WorldCamera.DisplayArea = area;
+			
+			Camera.WorldCamera = new Camera("smpl-world-camera", new Point(0, 0), size / pixelSize);
+			Camera.WorldCamera.DisplayArea = new("smpl-world-camera-area");
+			Camera.WorldCamera.DisplayArea.Size = size;
 			window.SetView(Camera.WorldCamera.view);
 
 			CurrentType = Type.Normal;

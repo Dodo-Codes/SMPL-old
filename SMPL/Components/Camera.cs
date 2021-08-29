@@ -117,15 +117,12 @@ namespace SMPL.Components
 			}
 		}
 
-		public static void Create(string uniqueID, Point displayPosition, Size displaySize)
+		public Camera(string uniqueID, Point viewPosition, Size viewSize)
 		{
 			if (Identity<Camera>.CannotCreate(uniqueID)) return;
-			var instance = new Camera(displayPosition, displaySize);
-			instance.Identity = new(instance, uniqueID);
-		}
-		private Camera(Point viewPosition, Size viewSize)
-		{
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			Identity = new(this, uniqueID);
+
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 
 			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();

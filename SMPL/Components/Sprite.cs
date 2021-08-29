@@ -142,23 +142,18 @@ namespace SMPL.Components
 			}
 		}
 
-		public static void Create(params string[] uniqueIDs)
+		public Sprite(string uniqueID) : base()
 		{
-			for (int i = 0; i < uniqueIDs.Length; i++)
-			{
-				if (Identity<Sprite>.CannotCreate(uniqueIDs[i])) return;
-				var instance = new Sprite();
-				instance.Identity = new(instance, uniqueIDs[i]);
-				instance.SetQuadDefault(uniqueIDs[i]);
-			}
-		}
-		private Sprite() : base()
-		{
+			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
 			// fixing the access since the ComponentAccess' constructor depth leads to here => user has no access but this file has
 			// in other words - the depth gets 1 deeper with inheritence ([3]User -> [2]Sprite/Text -> [1]Visual -> [0]Access)
 			// and usually it goes as [2]User -> [1]Component -> [0]Access
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+			accessPaths.Clear(); // abandon ship
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+
+			Identity = new(this, uniqueID);
+			SetQuadDefault(uniqueID);
+
 			sprites.Add(this);
 			OnCreate?.Invoke(this);
 		}

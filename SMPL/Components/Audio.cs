@@ -283,12 +283,14 @@ namespace SMPL.Components
       }
       public Type CurrentType { get; private set; }
 
-      public static void Create()
+      public Audio(string uniqueID, string audioPath = "folder/audio.extension")
       {
+         if (Identity<Audio>.CannotCreate(uniqueID)) return;
+         Identity = new(this, uniqueID);
 
-      }
-      private Audio(string audioPath = "folder/audio.extension")
-      {
+         GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
+         DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
+
          if (File.sounds.ContainsKey(audioPath))
          {
             sound = File.sounds[audioPath];

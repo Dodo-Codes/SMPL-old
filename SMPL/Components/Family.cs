@@ -66,7 +66,7 @@ namespace SMPL.Components
 
 					value.Family.children.Add(owner);
 					owner.Area.LocalPosition = Point.To(newPos);
-					owner.Area.LocalSize = owner.Area.Size;
+					owner.Area.LocalSize -= parent.Area.Size;
 					owner.Area.LocalAngle = -(parAng - angle);
 				}
 				else // unparent
@@ -76,7 +76,7 @@ namespace SMPL.Components
 
 					prevPar.Family.children.Remove(owner);
 					owner.Area.LocalPosition = Point.To(newPos);
-					owner.Area.LocalSize = owner.Area.Size;
+					owner.Area.LocalSize += prevPar.Area.Size;
 					owner.Area.LocalAngle = parAng + angle;
 				}
 				if (Debug.CalledBySMPL == false) OnParentChange?.Invoke(this, prevPar);
@@ -136,18 +136,12 @@ namespace SMPL.Components
 			return true;
 		}
 
-		public static void Create(params string[] uniqueIDs)
+		public Family(string uniqueID)
 		{
-			for (int i = 0; i < uniqueIDs.Length; i++)
-			{
-				if (Identity<Family>.CannotCreate(uniqueIDs[i])) return;
-				var instance = new Family();
-				instance.Identity = new(instance, uniqueIDs[i]);
-			}
-		}
-		private Family() : base()
-		{
-			GrantAccessToFile(Debug.CurrentFilePath(2)); // grant the user access
+			if (Identity<Family>.CannotCreate(uniqueID)) return;
+			Identity = new(this, uniqueID);
+
+			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
 			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 
 			OnCreate?.Invoke(this);
