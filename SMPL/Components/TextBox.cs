@@ -195,7 +195,7 @@ namespace SMPL.Components
 				if (File.fonts.ContainsKey(value) == false)
 				{
 					Debug.LogError(1, $"The font '{value}' is not loaded.\n" +
-						$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+						$"Use '{nameof(File)}.{nameof(File.LoadAssets)} ({nameof(File)}.{nameof(File.Asset)}." +
 						$"{nameof(File.Asset.Font)}, \"{value}\")' to load it.");
 					return;
 				}

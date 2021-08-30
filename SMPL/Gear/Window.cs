@@ -163,7 +163,7 @@ namespace SMPL.Gear
 				if (File.textures.ContainsKey(value) == false)
 				{
 					Debug.LogError(1, $"The texture at '{value}' is not loaded.\n" +
-						$"Use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+						$"Use '{nameof(File)}.{nameof(File.LoadAssets)} ({nameof(File)}.{nameof(File.Asset)}." +
 						$"{nameof(File.Asset.Texture)}, \"{value}\")' to load it.");
 					return;
 				}

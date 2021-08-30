@@ -185,7 +185,7 @@ namespace SMPL.Components
 				OnAngleChange?.Invoke(this, prev);
 			}
 		}
-		internal Size size = new(100, 100), lastFrameSz = new(100, 100);
+		internal Size size, lastFrameSz;
 		public Size Size
 		{
 			get { return SizeFromLocal(LocalSize); }
@@ -202,7 +202,7 @@ namespace SMPL.Components
 				OnSizeChange?.Invoke(this, prev);
 			}
 		}
-		internal Point originPercent = new() { X = 50, Y = 50 }, lastFrameOrPer = new() { X = 50, Y = 50 };
+		internal Point originPercent, lastFrameOrPer;
 		public Point OriginPercent
 		{
 			get { return originPercent; }
@@ -284,6 +284,9 @@ namespace SMPL.Components
 			transforms.Add(this);
 			creationFrame = Performance.FrameCount;
 			rand = Number.Random(new Bounds(-9999, 9999), 5);
+
+			Size = new Size(100, 100);
+			OriginPercent = new Point(50, 50);
 
 			UpdateHitboxes();
 

@@ -35,6 +35,7 @@ namespace SMPL.Gear
 			Performance.Initialize();
 			Keyboard.Initialize();
 			Mouse.Initialize();
+			Point.Initialize();
 
 			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
 			resourceLoading.Name = "ResourcesLoading";

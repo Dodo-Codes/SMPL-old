@@ -123,7 +123,7 @@ namespace SMPL.Gear
 			for (int i = 0; i < paths.Length; i++) Directory.CreateDirectory(paths[i]);
 		}
 
-		public static void UnloadAsset(Asset asset, params string[] filePaths)
+		public static void UnloadAssets(Asset asset, params string[] filePaths)
 		{
 			for (int i = 0; i < filePaths.Length; i++)
 				switch (asset)
@@ -173,7 +173,7 @@ namespace SMPL.Gear
 			}
 			return true;
 		}
-		public static void LoadAsset(Asset asset, params string[] filePaths)
+		public static void LoadAssets(Asset asset, params string[] filePaths)
 		{
 			for (int i = 0; i < filePaths.Length; i++)
 			{

@@ -11,10 +11,17 @@ namespace SMPL.Data
 		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
 		public static Point One => new(1, 1) { Color = Color.White };
 		public static Point Zero => new(0, 0) { Color = Color.White };
+		internal static Storage<int, double> randAngleConstrains = new();
 
 		public double X { get; set; }
 		public double Y { get; set; }
 		public Color Color { get; set; }
+
+		internal static void Initialize()
+		{
+			for (int i = 0; i < 200; i++)
+				randAngleConstrains.Expand(i, i, Number.Random(new Bounds(0, 360), 1));
+		}
 
 		public Point(double x, double y)
 		{
@@ -55,6 +62,45 @@ namespace SMPL.Data
 			var x = Number.FromPercent(percent.W, new Bounds(point.X, targetPoint.X));
 			var y = Number.FromPercent(percent.H, new Bounds(point.Y, targetPoint.Y));
 			return new Point(x, y);
+		}
+
+		public static Point[] Constrain(Point originPoint, Point targetPoint, params double[] segmentLengths)
+		{
+			var result = new Point[segmentLengths.Length + 1];
+			result[0] = originPoint;
+
+			for (int i = 1; i < result.Length; i++)
+			{
+				result[i] = new Point(i * segmentLengths[i - 1], 0);
+			}
+			Constrain(result, targetPoint);
+			return result;
+		}
+		public static void Constrain(Point[] points, Point targetPoint)
+		{
+			var originPoint = points[0];
+			var segmentLengths = new double[points.Length - 1];
+			for (int i = 0; i < points.Length - 1; i++)
+				segmentLengths[i] = Magnitude(points[i + 1] - points[i]);
+
+			for (int i = 0; i < 100; i++)
+			{
+				var startingFromTarget = i % 2 == 0;
+				Array.Reverse(points);
+				Array.Reverse(segmentLengths);
+				points[0] = startingFromTarget ? targetPoint : originPoint;
+
+				for (int j = 1; j < points.Length; j++)
+				{
+					var dir = Normalize(points[j] - points[j - 1]);
+					points[j] = points[j - 1] + dir * segmentLengths[j - 1];
+				}
+				var dstToTarget = Magnitude(points[^1] - targetPoint);
+				if (startingFromTarget == false && dstToTarget <= 0.01) return;
+			}
+
+			double Magnitude(Point p) => Number.SquareRoot(p.X * p.X + p.Y * p.Y);
+			Point Normalize(Point p) { var m = Magnitude(p); return new Point(p.X / m, p.Y / m); }
 		}
 
 		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);

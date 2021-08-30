@@ -368,9 +368,9 @@ namespace SMPL.Components
          if (CurrentType != Type.NotLoaded) return false;
 
          Debug.LogError(2, $"This will have no effect due to this {nameof(Audio)}'s file is not loaded.\n" +
-            $"To load it use '{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+            $"To load it use '{nameof(File)}.{nameof(File.LoadAssets)} ({nameof(File)}.{nameof(File.Asset)}." +
             $"{nameof(File.Asset.Sound)}, \"folder/audio.extension\")' or" +
-            $"'{nameof(File)}.{nameof(File.LoadAsset)} ({nameof(File)}.{nameof(File.Asset)}." +
+            $"'{nameof(File)}.{nameof(File.LoadAssets)} ({nameof(File)}.{nameof(File.Asset)}." +
             $"{nameof(File.Asset.Music)}, \"folder/audio.extension\")'\n" +
             $"and recreate the component with it.");
          return true;

@@ -6,57 +6,45 @@ namespace TestGame
 {
 	public class Player
 	{
+		Point[] points;
 		public Player()
 		{
-			File.LoadAsset(File.Asset.Font, "Munro.ttf");
-			File.LoadAsset(File.Asset.Texture, "penka.png", "explosive.jpg");
+			File.LoadAssets(File.Asset.Texture, "penka.png", "explosive.jpg");
 			Camera.CallWhen.Display(OnDraw);
 			File.CallWhen.AssetLoadEnd(OnAssetLoadEnd);
-			Keyboard.CallWhen.KeyPress(OnKeyPress);
-			Keyboard.CallWhen.KeyRelease(OnKeyRelease);
-		}
-		void OnKeyPress(Keyboard.Key key)
-		{
-			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
-			var penka = Identity<Sprite>.PickByUniqueID("penka");
-			mouse.Family.Parent = penka;
-		}
-		void OnKeyRelease(Keyboard.Key key)
-		{
-			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
-			var penka = Identity<Sprite>.PickByUniqueID("penka");
-			mouse.Family.Parent = null;
 		}
 		void OnAssetLoadEnd()
 		{
-			var mouse = new Sprite(null);
+			var mouse = new Sprite("mouse");
 			var penka = new Sprite("penka");
 			mouse.Area = new Area("mouse-tr");
-			mouse.TexturePath = "explosive.jpg";
 			penka.Area = new Area("penka-tr");
+			mouse.TexturePath = "explosive.jpg";
 			penka.TexturePath = "penka.png";
-			mouse.Effects = new Effects("mouse-eff");
-			penka.Effects = new Effects("penka-eff");
+			penka.Area.Size = new Size(5, 5);
+			mouse.Area.Size = new Size(5, 5);
 
-			penka.Area.Size = new Size(500, 500);
-			mouse.Area.Size = new Size(300, 300);
-			penka.Family = new Family("penka-fam");
-			mouse.Family = new Family("mouse-fam");
-
+			double Random() => Number.Random(new Bounds(-50, 50), 3);
+			Point R() => new(Random(), Random());
+			points = new Point[] { new Point(0, 0), new Point(50, 0), new Point(100, 0) };
 		}
 		void OnDraw(Camera camera)
 		{
 			if (Performance.FrameCount % 20 == 0) Window.Title = $"Test Game ({Performance.FPS:F2} FPS)";
 
 			var mouse = Identity<Sprite>.PickByUniqueID("mouse");
-			var penka = Identity<Sprite>.PickByUniqueID("penka");
+			//var penka = Identity<Sprite>.PickByUniqueID("penka");
 			if (mouse == null) return;
-			penka.Area.Angle++;
-			penka.Area.Size += new Size(1, 1);
-			mouse.Effects.BackgroundColor = Color.Red;
-			penka.Area.Position = Mouse.CursorPositionWindow;
-			penka.Display(camera);
-			mouse.Display(camera);
+
+			Point.Constrain(points, Mouse.CursorPositionWindow);
+			//var points = Point.Constrain(new Point(0, 0), Mouse.CursorPositionWindow, 50, 50);
+			for (int i = 0; i < points.Length - 1; i++)
+			{
+				new Line(points[i], points[i + 1]).Display(camera);
+			}
+
+			//mouse.Display(camera);
+			//penka.Display(camera);
 		}
 	}
 }
