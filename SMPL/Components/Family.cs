@@ -136,6 +136,12 @@ namespace SMPL.Components
 			return true;
 		}
 
+		internal void Dispose()
+		{
+			Parent = null;
+			UnparentAllChildren();
+			owner = null;
+		}
 		public Family(string uniqueID)
 		{
 			if (Identity<Family>.CannotCreate(uniqueID)) return;

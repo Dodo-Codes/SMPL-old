@@ -79,11 +79,10 @@ namespace SMPL.Components
 				Effects.owner = null;
 				Effects = null;
 			}
-			if (Family != null)
+			if (Family != null) Family.Dispose();
+			if (Area != null)
 			{
-				if (Family.Parent != null) Family.Parent.Family.children.Remove(this);
-				Family.UnparentAllChildren();
-				Family.owner = null;
+
 			}
 			if (masking != null && masking.Effects != null) masking.Effects.masks.Remove(this);
 			AllAccess = Extent.Removed;

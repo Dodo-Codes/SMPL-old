@@ -359,6 +359,13 @@ namespace SMPL.Components
 		{
 
 		}
+		internal void Dispose()
+		{
+			transforms.Remove(this);
+			family = null;
+			sprite.Dispose();
+			text.Dispose();
+		}
 
 		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{

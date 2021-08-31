@@ -104,7 +104,7 @@ namespace SMPL.Components
             if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
             isDestroyed = value;
 
-            if (Identity != null) Identity.DisposeOf(this);
+            if (Identity != null) Identity.Dispose();
             Identity = null;
             audios.Remove(this);
             if (sound != null) sound.Dispose();

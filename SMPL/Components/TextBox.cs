@@ -99,17 +99,8 @@ namespace SMPL.Components
 				if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
 				isDestroyed = value;
 
-				if (Identity != null)
-				{
-					Identity<TextBox>.uniqueIDs.Remove(Identity.UniqueID);
-					if (Identity<TextBox>.objTags.ContainsKey(this))
-					{
-						Identity.RemoveAllTags();
-						Identity<TextBox>.objTags.Remove(this);
-					}
-					Identity.instance = null;
-					Identity = null;
-				}
+				if (Identity != null) Identity.Dispose();
+				Identity = null;
 				texts.Remove(this);
 				Dispose();
 				if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
