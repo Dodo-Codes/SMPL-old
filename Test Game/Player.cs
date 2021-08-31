@@ -10,16 +10,14 @@ namespace TestGame
 		public Player()
 		{
 			Camera.CallWhen.Display(OnDraw);
-			var sl = new SegmentedLine("test", 50, 50, 50);
+			var r = new Rope("test");
 		}
 		void OnDraw(Camera camera)
 		{
 			if (Performance.FrameCount % 20 == 0) Window.Title = $"Test Game ({Performance.FPS:F2} FPS)";
 
-			var sl = Identity<SegmentedLine>.PickByUniqueID("test");
-			//sl.OriginPosition = new Point(-100, -100);
-			sl.TargetPosition = Mouse.CursorPositionWindow;
-			sl.Display(camera);
+			var r = Identity<Rope>.PickByUniqueID("test");
+			r.Display(camera);
 		}
 	}
 }

@@ -19,14 +19,7 @@ namespace SMPL.Prefabs
 		public Point OriginPosition
 		{
 			get { return AllAccess == Extent.Removed ? default : originPosition; }
-			set
-			{
-				if (originPosition == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = originPosition;
-				originPosition = value;
-				Update();
-				//if (Debug.CalledBySMPL == false) OnTexturePathChange?.Invoke(this, prev);
-			}
+			private set { originPosition = value; }
 		}
 		private Point targetPosition;
 		public Point TargetPosition
@@ -86,7 +79,7 @@ namespace SMPL.Prefabs
 			}
 		}
 
-		public SegmentedLine(string uniqueID, params double[] segmentLengths)
+		public SegmentedLine(string uniqueID, Point originPosition, params double[] segmentLengths)
 		{
 			if (Identity<Audio>.CannotCreate(uniqueID)) return;
 			Identity = new(this, uniqueID);
@@ -96,7 +89,7 @@ namespace SMPL.Prefabs
 
 			lines.Add(this);
 
-			originPosition = new Point(100, 100);
+			OriginPosition = originPosition;
 
 			points = new Point[segmentLengths.Length + 1];
 			points[0] = originPosition;
@@ -119,7 +112,7 @@ namespace SMPL.Prefabs
 			var originPoint = points[0];
 			var segmentLengths = new double[points.Length - 1];
 			for (int i = 0; i < points.Length - 1; i++)
-				segmentLengths[i] = Magnitude(points[i + 1] - points[i]);
+				segmentLengths[i] = Point.Magnitude(points[i + 1] - points[i]);
 
 			for (int i = 0; i < 100; i++)
 			{
@@ -130,15 +123,12 @@ namespace SMPL.Prefabs
 
 				for (int j = 1; j < points.Length; j++)
 				{
-					var dir = Normalize(points[j] - points[j - 1]);
+					var dir = Point.Normalize(points[j] - points[j - 1]);
 					points[j] = points[j - 1] + dir * segmentLengths[j - 1];
 				}
-				var dstToTarget = Magnitude(points[^1] - targetPoint);
+				var dstToTarget = Point.Magnitude(points[^1] - targetPoint);
 				if (startingFromTarget == false && dstToTarget <= 0.01) return;
 			}
-
-			double Magnitude(Point p) => Number.SquareRoot(p.X * p.X + p.Y * p.Y);
-			Point Normalize(Point p) { var m = Magnitude(p); return new Point(p.X / m, p.Y / m); }
 		}
 	}
 }

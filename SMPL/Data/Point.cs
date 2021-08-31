@@ -64,6 +64,9 @@ namespace SMPL.Data
 			return new Point(x, y);
 		}
 
+		internal static double Magnitude(Point p) => Number.SquareRoot(p.X * p.X + p.Y * p.Y);
+		internal static Point Normalize(Point p) { var m = Magnitude(p); return new Point(p.X / m, p.Y / m); }
+
 		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
 		public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
 		public static Point operator *(Point a, Point b) => new(a.X * b.X, a.Y * b.Y);

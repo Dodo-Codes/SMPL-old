@@ -95,7 +95,7 @@ namespace SMPL.Components
 		}
 		public bool IsCurrentlyAccessible(bool displayError = true)
 		{
-			if (AllAccess == Extent.Allowed) return true;
+			if (Debug.CalledBySMPL || AllAccess == Extent.Allowed) return true;
 			else if (AllAccess == Extent.Denied)
 			{
 				Debug.LogError(2, $"All access to this component is denied.\n" +

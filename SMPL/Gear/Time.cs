@@ -1,6 +1,7 @@
 ﻿using SFML.System;
 using SMPL.Components;
 using SMPL.Data;
+using SMPL.Prefabs;
 using System;
 using System.Threading;
 using System.Windows.Forms;
@@ -139,6 +140,7 @@ namespace SMPL.Gear
 				for (int i = 0; i < Hitbox.hitboxes.Count; i++) Hitbox.hitboxes[i].Update();
 				for (int i = 0; i < Sprite.sprites.Count; i++) Sprite.sprites[i].Update();
 				for (int i = 0; i < Components.TextBox.texts.Count; i++) Components.TextBox.texts[i].Update();
+				for (int i = 0; i < Rope.ropes.Count; i++) Rope.ropes[i].Update();
 
 				Keyboard.Update();
 				Mouse.Update();
