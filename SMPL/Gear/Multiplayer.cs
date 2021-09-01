@@ -12,45 +12,57 @@ namespace SMPL.Gear
 {
 	public static class Multiplayer
 	{
-		private enum MessageType
-		{
-			Connection, ChangeID, ClientConnected, ClientDisconnected, ClientOnline,
-			ClientToAll, ClientToClient, ClientToServer, ServerToAll, ServerToClient,
-			ClientToAllAndServer
-		}
-		public enum Receivers { Server, Client, AllClients, ServerAndAllClients }
 		public struct Message
 		{
+			internal enum Type
+			{
+				None, Connection, ChangeID, ClientConnected, ClientDisconnected, ClientOnline,
+				ClientToAll, ClientToClient, ClientToServer, ServerToAll, ServerToClient,
+				ClientToAllAndServer
+			}
+			public enum Toward { Server, Client, AllClients, ServerAndAllClients }
+			internal const string SEP = "';qi#ou3", COMP_SEP = "a;@lsfi", TEMP_SEP = "a15`g&";
+
 			public string Content { get; set; }
 			public string Tag { get; set; }
-			public string ReceiverClientUniqueID { get; set; }
-			public string SenderClientUniqueID { get; internal set; }
-			public Receivers Receivers { get; set; }
+			public string ReceiverUniqueID { get; set; }
+			public string SenderUniqueID { get; internal set; }
+			public Toward Receivers { get; set; }
+			public bool IsReliable { get; set; }
+			internal Type type;
 
-			public Message(string tag, string content, Receivers receivers,
+			public Message(Toward receivers, string tag, string content, bool isReliable = true,
 				string receiverClientUniqueID = null)
          {
 				Content = content;
 				Tag = tag;
-				ReceiverClientUniqueID = receiverClientUniqueID;
-				SenderClientUniqueID = ClientUniqueID;
+				ReceiverUniqueID = receiverClientUniqueID;
+				SenderUniqueID = ClientUniqueID;
 				Receivers = receivers;
-         }
+				IsReliable = isReliable;
+				type = receivers switch
+				{
+					Toward.Server => ClientIsConnected ? Type.ClientToServer : Type.None,
+					Toward.Client => ClientIsConnected ? Type.ClientToClient : Type.ServerToClient,
+					Toward.AllClients => ClientIsConnected ? Type.ClientToAll : Type.ServerToAll,
+					Toward.ServerAndAllClients => ClientIsConnected ? Type.ClientToAllAndServer : Type.ServerToAll,
+					_ => Type.None,
+				};
+			}
 
          public override string ToString()
          {
-				var send = SenderClientUniqueID == null ? "from the Server" : $"from Client '{SenderClientUniqueID}'";
-				var rec = Receivers == Receivers.Client ?
-					$"to Client '{ReceiverClientUniqueID}'" : $"to {Receivers}";
+				var send = SenderUniqueID == null || SenderUniqueID == "" ? "from the Server" : $"from Client '{SenderUniqueID}'";
+				var rel = IsReliable ? "Reliable" : "Unreliable";
+				var rec = Receivers == Toward.Client ?
+					$"to Client '{ReceiverUniqueID}'" : $"to {Receivers}";
 				return
-					$"Multiplayer Message {send} {rec}\n" +
+					$"{rel} Multiplayer Message {send} {rec}\n" +
 					$"Tag: {Tag}\n" +
 					$"Content: {Content}";
          }
       }
 
-		internal static bool reliable;
-		internal static MulticastServer multicastServer;
 		internal static MulticastClient multicastClient;
 		internal static Server server;
 		internal static Client client;
@@ -78,10 +90,9 @@ namespace SMPL.Gear
 				OnMessageSend = Events.Add(OnMessageSend, method, order);
 		}
 
-		private static Dictionary<string, string> clientRealIDs = new();
+		private static Dictionary<Guid, string> clientRealIDs = new();
 		private static List<string> clientIDs = new();
 		private static readonly int serverPort = 1234;
-		private static readonly string msgSep = "';qi#ou3", msgCompSep = "a;@lsfi";
 
 		public static string SameDeviceIP { get { return "127.0.0.1"; } }
 		public static bool MessagesAreLogged { get; set; } = true;
@@ -89,18 +100,15 @@ namespace SMPL.Gear
 		public static bool ServerIsRunning { get; private set; }
 		public static string ClientUniqueID { get; private set; }
 
-		public static void StartServer(bool reliable = true)
+		public static void StartServer()
 		{
 			try
 			{
 				if (ServerIsRunning) { Debug.LogError(1, "Server is already starting/started.", true); return; }
 				if (ClientIsConnected) { Debug.LogError(1, "Cannot start a Server while a Client.", true); return; }
-				server = reliable ? new Server(IPAddress.Any, serverPort) : null;
-				multicastServer = reliable == false ? new MulticastServer(IPAddress.Any, 3334) : null;
-				if (reliable) server.Start();
-				else multicastServer.Start();
+				server = new Server(IPAddress.Any, serverPort);
+				server.Start();
 				ServerIsRunning = true;
-				Multiplayer.reliable = reliable;
 
 				var hostName = Dns.GetHostName();
 				var hostEntry = Dns.GetHostEntry(hostName);
@@ -108,20 +116,24 @@ namespace SMPL.Gear
 					"Clients can connect through those IPs if they are in the same network\n" +
 					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
 					$"Same device: {SameDeviceIP}";
-				var reliableInfoStr = "Reliable = all messages recieved, slow\n" +
-					"Unreliable = some messages lost, fast";
-				var reliableStr = reliable ? "reliable" : "unreliable";
+				var vpnIP = "";
+				var routerIP = "";
 
 				for (int i = 0; i < hostEntry.AddressList.Length; i++)
 				{
 					if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
 
 					var ipParts = hostEntry.AddressList[i].ToString().Split('.');
-					var ipType = ipParts[0] == "192" && ipParts[1] == "168" ?
-						"Same router: " : "Same VPN: ";
+					var isRouter = ipParts[0] == "192" && ipParts[1] == "168";
+					var ipType = isRouter ? "Same router: " : "Same VPN: ";
 					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
+					if (isRouter) routerIP = hostEntry.AddressList[i].ToString();
+					else vpnIP = hostEntry.AddressList[i].ToString();
 				}
-				Console.Log($"Started a {Window.Title} {reliableStr} LAN Server.\n{reliableInfoStr}\n{connectToServerInfo}\n");
+				if (vpnIP != "") ConnectClient(null, vpnIP);
+				else ConnectClient(null, routerIP);
+
+				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
 				OnServerStart?.Invoke();
 			}
 			catch (Exception ex)
@@ -143,8 +155,7 @@ namespace SMPL.Gear
 				if (ServerIsRunning == false) { Debug.LogError(1, "Server is not running.\n", true); return; }
 				if (ClientIsConnected) { Debug.LogError(1, "Cannot stop a server while a client.\n", true); return; }
 				ServerIsRunning = false;
-				if (reliable) server.Stop();
-				else multicastServer.Stop();
+				server.Stop();
 				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
 				OnServerStop?.Invoke();
 			}
@@ -157,19 +168,24 @@ namespace SMPL.Gear
 			}
 		}
 
-		public static void ConnectClient(string clientUniqueID, string serverIP, bool serverIsReliable = true)
+		public static void ConnectClient(string clientUniqueID, string serverIP)
       {
-			if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
-			if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
-
+			if (Debug.CalledBySMPL == false)
+			{
+				if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
+				if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
+			}
 			try
 			{
-				client = serverIsReliable ? new Client(serverIP, serverPort) : null;
-				multicastClient = serverIsReliable == false ? new MulticastClient(serverIP, serverPort) : null;
-				if (multicastClient != null)
+				client = new Client(serverIP, serverPort);
+				multicastClient = new MulticastClient(serverIP, serverPort);
+				multicastClient.SetupMulticast(true);
+				multicastClient.Multicast = "239.255.0.1";
+				if (Debug.CalledBySMPL)
 				{
-					multicastClient.SetupMulticast(true);
-					multicastClient.Multicast = "239.255.0.1";
+					multicastClient.Connect();
+					multicastClient.Socket.EnableBroadcast = true;
+					return;
 				}
 			}
 			catch (Exception)
@@ -178,15 +194,11 @@ namespace SMPL.Gear
 				return;
 			}
 			ClientUniqueID = clientUniqueID;
-			reliable = serverIsReliable;
 			Console.Log($"Connecting to {Window.Title} Server '{serverIP}:{serverPort}'...\n");
-			if (serverIsReliable) client.ConnectAsync();
-			else
-			{
-				multicastClient.Connect();
-				multicastClient.Socket.EnableBroadcast = true;
-				ClientIsConnected = true;
-			}
+			client.ConnectAsync();
+			multicastClient.Connect();
+			multicastClient.Socket.EnableBroadcast = true;
+			ClientIsConnected = true;
 		}
 		public static void DisconnectClinet()
       {
@@ -195,79 +207,62 @@ namespace SMPL.Gear
 				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
 				return;
 			}
-			if (reliable) client.DisconnectAndStop();
-			else multicastClient.DisconnectAndStop();
+			client.DisconnectAndStop();
+			multicastClient.DisconnectAndStop();
 		}
 
 		public static void SendMessage(Message message)
 		{
 			if (MessageDisconnected()) return;
-			switch (message.Receivers)
+			if (ServerIsRunning && message.Receivers == Message.Toward.Server) return;
+			var msgStr = MessageToString(message);
+			if (ClientIsConnected)
 			{
-				case Receivers.Server:
-					{
-						if (ServerIsRunning || ClientIsConnected == false) break;
-
-						var str = $"{msgSep}{(int)MessageType.ClientToServer}{msgCompSep}" +
-							$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}";
-						client.SendAsync(str);
-						LogMessage(message, true);
-						break;
-					}
-				case Receivers.AllClients:
-					{
-						if (ClientIsConnected)
-						{
-							client.SendAsync($"{msgSep}{(int)MessageType.ClientToAll}{msgCompSep}" +
-								$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
-						}
-						else if (ServerIsRunning)
-						{
-							server.Multicast($"{msgSep}{(int)MessageType.ServerToAll}" +
-								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
-						}
-						LogMessage(message, true);
-						break;
-					}
-				case Receivers.ServerAndAllClients:
-					{
-						if (ClientIsConnected)
-						{
-							var msg = $"{msgSep}{(int)MessageType.ClientToAllAndServer}{msgCompSep}" +
-								$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}";
-							if (client != null) client.SendAsync(msg);
-							if (multicastClient != null) multicastClient.SendAsync(msg);
-						}
-						else if (ServerIsRunning)
-						{
-							var msg = $"{msgSep}{(int)MessageType.ServerToAll}" +
-								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}";
-							if (server != null) server.Multicast(msg);
-							//if (multicastServer != null) multicastServer.Multicast(msg);
-						}
-						LogMessage(message, true);
-						break;
-					}
-				case Receivers.Client:
-               {
-						if (ClientIsConnected)
-						{
-							client.SendAsync($"{msgSep}{(int)MessageType.ClientToClient}{msgCompSep}" +
-								$"{ClientUniqueID}{msgCompSep}{message.ReceiverClientUniqueID}" +
-								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
-						}
-						else if (ServerIsRunning)
-						{
-							server.Multicast($"{msgSep}{(int)MessageType.ServerToClient}{msgCompSep}" +
-								$"{message.Tag}{msgCompSep}{message.Content}");
-						}
-						LogMessage(message, true);
-						break;
-					}
+				if (message.IsReliable) client.SendAsync(msgStr);
+				else multicastClient.SendAsync(msgStr);
 			}
+			else
+			{
+				if (message.IsReliable) server.Multicast(msgStr);
+				else multicastClient.SendAsync(msgStr);
+			}
+			LogMessage(message, true);
 			OnMessageSend?.Invoke(message);
 		}
 
+		private static string MessageToString(Message message)
+		{
+			var rel = message.IsReliable ? "1" : "0";
+			return
+				$"{Message.SEP}" +
+				$"{(int)message.type}{Message.COMP_SEP}" +
+				$"{rel}{Message.COMP_SEP}" +
+				$"{message.SenderUniqueID}{Message.COMP_SEP}" +
+				$"{message.ReceiverUniqueID}{Message.COMP_SEP}" +
+				$"{(int)message.Receivers}{Message.COMP_SEP}" +
+				$"{message.Tag}{Message.COMP_SEP}" +
+				$"{message.Content}";
+		}
+		private static List<Message> StringToMessages(string message)
+		{
+			var result = new List<Message>();
+			var split = message.Split(Message.SEP, StringSplitOptions.RemoveEmptyEntries);
+			for (int i = 0; i < split.Length; i++)
+			{
+				var comps = split[i].Split(Message.COMP_SEP);
+				result.Add(new Message()
+				{
+					type = (Message.Type)int.Parse(comps[0]),
+					IsReliable = comps[1] == "1",
+					SenderUniqueID = comps[2],
+					ReceiverUniqueID = comps[3],
+					Receivers = (Message.Toward)int.Parse(comps[4]),
+					Tag = comps[5],
+					Content = comps[6]
+				});
+			}
+			return result;
+		}
 		private static bool MessageDisconnected()
 		{
 			if (ClientIsConnected == false && ServerIsRunning == false)
@@ -282,10 +277,181 @@ namespace SMPL.Gear
 		{
 			if (MessagesAreLogged == false || Debug.IsActive == false) return;
 			var debugStr = Debug.IsActive ? Debug.debugString : "";
-			Console.Log((send ? "SENT " : "RECEIVED ") + debugStr);
+			Console.Log((send ? "SENT " : "RECEIVED ") + $"({debugStr})");
 			Console.Log($"{msg}\n");
 		}
 		private static string ConnectedClients() => $"Connected clients: {clientIDs.Count}.";
+		private static void DecodeMessages(Guid sessionID, string rawMessages)
+		{
+			var messages = StringToMessages(rawMessages);
+			if (ServerIsRunning)
+			{
+				var messageBack = "";
+				for (int i = 0; i < messages.Count; i++)
+				{
+					var msg = messages[i];
+					switch (msg.type)
+					{
+						case Message.Type.Connection: // A client just connected and sent his ID & unique name
+							{
+								if (clientIDs.Contains(msg.SenderUniqueID)) // Is the unique name free?
+								{
+									msg.SenderUniqueID = ChangeID(msg.SenderUniqueID);
+									// Send a message back with a free one toward the same ID so the client can recognize it's for him
+									var freeUidMsg = new Message(
+										Message.Toward.Client, null, msg.Content, true, msg.SenderUniqueID)
+									{ type = Message.Type.ChangeID };
+									messageBack += MessageToString(freeUidMsg);
+
+									string ChangeID(string ID)
+									{
+										var i = 0;
+										while (true)
+										{
+											i++;
+											if (clientIDs.Contains(ID + i) == false) break;
+										}
+										return $"{ID}{i}";
+									}
+								}
+								clientRealIDs[sessionID] = msg.SenderUniqueID;
+								clientIDs.Add(msg.SenderUniqueID);
+
+								// Sticking another message to update the newcoming client about online clients
+								var onlineMsg = new Message(Message.Toward.Client, null, null, true, msg.SenderUniqueID)
+								{ type = Message.Type.ClientOnline };
+								for (int j = 0; j < clientIDs.Count; j++)
+									onlineMsg.Content += $"{Message.TEMP_SEP}{clientIDs[j]}";
+								messageBack += MessageToString(onlineMsg);
+
+								// Sticking a third message to update online clients about the newcomer.
+								var newComMsg = new Message(Message.Toward.AllClients, null, msg.SenderUniqueID)
+								{ type = Message.Type.ClientConnected };
+								messageBack += MessageToString(newComMsg);
+								Console.Log($"Client '{msg.SenderUniqueID}' connected. {ConnectedClients()}\n");
+								OnClientConnected?.Invoke(msg.SenderUniqueID);
+								break;
+							}
+						case Message.Type.ClientToAll: // A client wants to send a message to everyone
+							{
+								messageBack += MessageToString(msg);
+								break;
+							}
+						case Message.Type.ClientToClient: // A client wants to send a message to another client
+							{
+								messageBack += MessageToString(msg);
+								break;
+							}
+						case Message.Type.ClientToServer: // A client sent me (the server) a message
+							{
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+								break;
+							}
+						case Message.Type.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
+							{
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+
+								messageBack += MessageToString(msg);
+								break;
+							}
+					}
+				}
+				if (messageBack != "") server.Multicast(messageBack);
+			}
+			else
+			{
+				for (int i = 0; i < messages.Count; i++)
+				{
+					var msg = messages[i];
+					switch (msg.type)
+					{
+						case Message.Type.ChangeID: // Server said someone's ID is taken and sent a free one
+							{
+								if (msg.Content == sessionID.ToString()) // Is this for me? (UID is still old so ID check)
+								{
+									var oldID = ClientUniqueID;
+									var newID = msg.ReceiverUniqueID;
+									clientIDs.Remove(oldID);
+									clientIDs.Add(newID);
+									ClientUniqueID = newID;
+
+									Console.Log($"Client Unique ID '{oldID}' is taken. New Client Unique ID is '{newID}'.\n");
+									OnClientTakenUniqueID?.Invoke(oldID);
+								}
+								break;
+							}
+						case Message.Type.ClientConnected: // Server said some client connected
+							{
+								if (msg.Content != ClientUniqueID) // If not me
+								{
+									clientIDs.Add(msg.Content);
+									Console.Log($"Client '{msg.Content}' connected. {ConnectedClients()}\n");
+									OnClientConnected?.Invoke(msg.Content);
+								}
+								// when it's me it's handled in Client.OnConnected overriden method
+								break;
+							}
+						case Message.Type.ClientDisconnected: // Server said some client disconnected
+							{
+								clientIDs.Remove(msg.Content);
+								Console.Log($"Client '{msg.Content}' disconnected. {ConnectedClients()}\n");
+								OnClientDisconnected?.Invoke(msg.Content);
+								break;
+							}
+						case Message.Type.ClientOnline: // Someone just connected and is getting updated on who is already online
+							{
+								if (msg.ReceiverUniqueID != ClientUniqueID) break; // Not for me? Not interested.
+
+								var clientUIDs = msg.Content.Split(Message.TEMP_SEP, StringSplitOptions.RemoveEmptyEntries);
+								for (int j = 0; j < clientUIDs.Length; j++)
+								{
+									if (clientIDs.Contains(clientUIDs[j])) continue;
+									clientIDs.Add(clientUIDs[j]);
+								}
+								Console.Log($"{ConnectedClients()}\n");
+								break;
+							}
+						case Message.Type.ClientToAll: // A client is sending a message to all clients
+							{
+								if (msg.SenderUniqueID == ClientUniqueID) break; // Is this my message coming back to me?
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+								break;
+							}
+						case Message.Type.ClientToAllAndServer: // A client is sending a message to the server and all clients
+							{
+								if (msg.SenderUniqueID == ClientUniqueID) break; // Is this my message coming back to me?
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+								break;
+							}
+						case Message.Type.ClientToClient: // A client is sending a message to another client
+							{
+								if (msg.ReceiverUniqueID != ClientUniqueID) break; // Not for me? Not interested.
+								if (msg.SenderUniqueID == ClientUniqueID) return; // Is this my message coming back to me? (unlikely)
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+								break;
+							}
+						case Message.Type.ServerToAll: // The server sent everyone a message
+							{
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+								break;
+							}
+						case Message.Type.ServerToClient: // The server sent some client a message
+							{
+								if (msg.ReceiverUniqueID != ClientUniqueID) return; // Not for me?
+								LogMessage(msg, false);
+								OnMessageReceived?.Invoke(msg);
+								break;
+							}
+					}
+				}
+			}
+		}
 
 		internal class Session : TcpSession
 		{
@@ -294,9 +460,12 @@ namespace SMPL.Gear
 			protected override void OnConnected() { }
 			protected override void OnDisconnected()
 			{
-				var disconnectedClient = clientRealIDs[Id.ToString()];
+				var disconnectedClient = clientRealIDs[Id];
+				clientRealIDs.Remove(Id);
 				clientIDs.Remove(disconnectedClient);
-				server.Multicast($"{msgSep}{(int)MessageType.ClientDisconnected}{msgCompSep}{disconnectedClient}");
+				var msg = new Message(Message.Toward.AllClients, null, disconnectedClient)
+				{ type = Message.Type.ClientDisconnected };
+				SendMessage(msg);
 
 				Console.Log($"Client '{disconnectedClient}' disconnected. {ConnectedClients()}\n");
 				OnClientDisconnected?.Invoke(disconnectedClient);
@@ -304,89 +473,9 @@ namespace SMPL.Gear
 			protected override void OnReceived(byte[] buffer, long offset, long size)
 			{
 				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-				var messages = rawMessages.Split(msgSep, StringSplitOptions.RemoveEmptyEntries);
-				var messageBack = "";
-				for (int j = 0; j < messages.Length; j++)
-				{
-					var components = messages[j].Split(msgCompSep);
-					var messageType = (MessageType)int.Parse(components[0]);
-					switch (messageType)
-					{
-						case MessageType.Connection: // A client just connected and sent his ID & unique name
-							{
-								var id = components[1];
-								var clientID = components[2];
-								if (clientIDs.Contains(clientID)) // Is the unique name free?
-								{
-									clientID = ChangeID(clientID);
-									// Send a message back with a free one toward the same ID so the client can recognize it's for him
-									messageBack = $"{msgSep}{(int)MessageType.ChangeID}{msgCompSep}" +
-										$"{id}{msgCompSep}{clientID}";
-								}
-								clientRealIDs[Id.ToString()] = clientID;
-								clientIDs.Add(clientID);
-
-								// Sticking another message to update the newcoming client about online clients
-								messageBack = $"{messageBack}{msgSep}{(int)MessageType.ClientOnline}" +
-									$"{msgCompSep}{clientID}";
-								for (int i = 0; i < clientIDs.Count; i++)
-								{
-									messageBack = $"{messageBack}{msgCompSep}{clientIDs[i]}";
-								}
-
-								// Sticking a third message to update online clients about the newcomer.
-								messageBack =
-									$"{messageBack}{msgSep}{(int)MessageType.ClientConnected}{msgCompSep}" +
-									$"{clientID}";
-								Console.Log($"Client '{clientID}' connected. {ConnectedClients()}\n");
-								OnClientConnected?.Invoke(clientID);
-								break;
-							}
-						case MessageType.ClientToAll: // A client wants to send a message to everyone
-							{
-								messageBack = $"{messageBack}{msgSep}{messages[j]}";
-								break;
-							}
-						case MessageType.ClientToClient: // A client wants to send a message to another client
-							{
-								messageBack = $"{messageBack}{msgSep}{messages[j]}";
-								break;
-							}
-						case MessageType.ClientToServer: // A client sent me (the server) a message
-							{
-								var msg = new Message(components[2], components[3], Receivers.Server)
-								{ SenderClientUniqueID = components[1] };
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-								break;
-							}
-						case MessageType.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
-							{
-								var msg = new Message(components[2], components[3], Receivers.Server)
-								{ SenderClientUniqueID = components[1] };
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-
-								messageBack = $"{messageBack}{msgSep}{messages[j]}";
-								break;
-							}
-					}
-				}
-				if (messageBack != "") server.Multicast(messageBack);
+				DecodeMessages(Id, rawMessages);
 			}
 			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}", true);
-			private static string ChangeID(string ID)
-			{
-				var i = 0;
-				while (true)
-				{
-					i++;
-					if (clientIDs.Contains(ID + i) == false) break;
-				}
-				return $"{ID}{i}";
-			}
 		}
 		internal class Server : TcpServer
 		{
@@ -419,7 +508,8 @@ namespace SMPL.Gear
 
 				OnClientConnected?.Invoke(ClientUniqueID);
 
-				client.SendAsync($"{msgSep}{(int)MessageType.Connection}{msgCompSep}{client.Id}{msgCompSep}{ClientUniqueID}");
+				var msg = new Message(Message.Toward.Server, null, Id.ToString()) { type = Message.Type.Connection };
+				client.SendAsync(MessageToString(msg));
 			}
 			protected override void OnDisconnected()
 			{
@@ -442,116 +532,7 @@ namespace SMPL.Gear
 			protected override void OnReceived(byte[] buffer, long offset, long size)
 			{
 				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-				var messages = rawMessages.Split(msgSep, StringSplitOptions.RemoveEmptyEntries);
-				var messageBack = "";
-				for (int j = 0; j < messages.Length; j++)
-				{
-					var components = messages[j].Split(msgCompSep);
-					var messageType = (MessageType)int.Parse(components[0]);
-					switch (messageType)
-					{
-						case MessageType.ChangeID: // Server said someone's ID is taken and sent a free one
-							{
-								if (components[1] == client.Id.ToString()) // Is this for me?
-								{
-									var oldID = ClientUniqueID;
-									var newID = components[2];
-									clientIDs.Remove(oldID);
-									clientIDs.Add(newID);
-
-									Console.Log($"Client Unique ID '{oldID}' is taken. New Client Unique ID is '{newID}'.\n");
-									OnClientTakenUniqueID?.Invoke(oldID);
-								}
-								break;
-							}
-						case MessageType.ClientConnected: // Server said some client connected
-							{
-								var ID = components[1];
-								if (ID != ClientUniqueID) // If not me
-								{
-									clientIDs.Add(ID);
-									Console.Log($"Client '{ID}' connected. {ConnectedClients()}\n");
-									OnClientConnected?.Invoke(ID);
-								}
-								break;
-							}
-						case MessageType.ClientDisconnected: // Server said some client disconnected
-							{
-								var ID = components[1];
-								clientIDs.Remove(ID);
-								Console.Log($"Client '{ID}' disconnected. {ConnectedClients()}\n");
-								OnClientDisconnected?.Invoke(ID);
-								break;
-							}
-						case MessageType.ClientOnline: // Someone just connected and is getting updated on who is already online
-							{
-								var ID = components[1];
-								if (ID == ClientUniqueID) // For me?
-								{
-									for (int i = 2; i < components.Length; i++)
-									{
-										var curClientID = components[i];
-
-										if (clientIDs.Contains(curClientID) == false)
-										{
-											clientIDs.Add(curClientID);
-										}
-									}
-									Console.Log($"{ConnectedClients()}\n");
-								}
-								break;
-							}
-						case MessageType.ClientToAll: // A client is sending a message to all clients
-							{
-								if (components[1] == ClientUniqueID) break; // Is this my message coming back to me?
-								var msg = new Message(components[2], components[3], Receivers.AllClients, ClientUniqueID) { SenderClientUniqueID = components[1] };
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-								break;
-							}
-						case MessageType.ClientToAllAndServer: // A client is sending a message to the server and all clients
-							{
-								if (components[1] == ClientUniqueID) break; // Is this my message coming back to me?
-								var msg = new Message(components[2], components[3], Receivers.ServerAndAllClients, ClientUniqueID)
-								{ SenderClientUniqueID = components[1] };
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-								break;
-							}
-						case MessageType.ClientToClient: // A client is sending a message to another client
-							{
-								if (components[2] != ClientUniqueID) break; // Not for me?
-								if (components[1] == ClientUniqueID) return; // Is this my message coming back to me? (unlikely)
-								var msg = new Message(components[3], components[4], Receivers.Client, ClientUniqueID)
-								{ SenderClientUniqueID = components[1] };
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-								break;
-							}
-						case MessageType.ServerToAll: // The server sent everyone a message
-							{
-								var msg = new Message(components[1], components[2], Receivers.AllClients, ClientUniqueID);
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-								break;
-							}
-						case MessageType.ServerToClient: // The server sent some client a message
-							{
-								if (components[1] != ClientUniqueID) return; // Not for me?
-
-								var msg = new Message(components[1], components[2], Receivers.Client, ClientUniqueID);
-
-								LogMessage(msg, false);
-								OnMessageReceived?.Invoke(msg);
-								break;
-							}
-					}
-				}
-				if (messageBack != "") client.SendAsync(messageBack);
+				DecodeMessages(Id, rawMessages);
 			}
 			protected override void OnError(SocketError error)
 			{
@@ -560,66 +541,41 @@ namespace SMPL.Gear
 			}
 		}
 
-		internal class MulticastServer : UdpServer
-		{
-			public MulticastServer(IPAddress address, int port) : base(address, port) { }
-
-			protected override void OnError(SocketError error)
-			{
-				Console.Log($"Multicast UDP server caught an error with code {error}");
-			}
-		}
 		internal class MulticastClient : UdpClient
 		{
 			public string Multicast;
+			private bool stop;
 
 			public MulticastClient(string address, int port) : base(address, port) { }
 
 			public void DisconnectAndStop()
 			{
-				_stop = true;
+				stop = true;
 				Disconnect();
 				while (IsConnected)
 					Thread.Yield();
 			}
-
 			protected override void OnConnected()
 			{
-				Console.Log($"Multicast UDP client connected a new session with Id {Id}");
-
-				// Join UDP multicast group
-				JoinMulticastGroup(Multicast);
-
-				// Start receive datagrams
-				ReceiveAsync();
+				JoinMulticastGroup(Multicast); // Join UDP multicast group
+				ReceiveAsync(); // Start receive datagrams
 			}
-
 			protected override void OnDisconnected()
 			{
-				Console.Log($"Multicast UDP client disconnected a session with Id {Id}");
-
-				// Wait for a while...
-				Thread.Sleep(1000);
+				Thread.Sleep(1000); // Wait for a while...
 
 				// Try to connect again
-				if (!_stop)
-					Connect();
+				if (stop == false) Connect();
 			}
-
 			protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
 			{
-				Console.Log("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
+				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+				DecodeMessages(Id, rawMessages);
 
 				// Continue receive datagrams
 				ReceiveAsync();
 			}
-
-			protected override void OnError(SocketError error)
-			{
-				Console.Log($"Multicast UDP client caught an error with code {error}");
-			}
-
-			private bool _stop;
+			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}", true);
 		}
 	}
 }
