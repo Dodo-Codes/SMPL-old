@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using TcpClient = NetCoreServer.TcpClient;
+using UdpClient = NetCoreServer.UdpClient;
 
 namespace SMPL.Gear
 {
@@ -48,6 +49,9 @@ namespace SMPL.Gear
          }
       }
 
+		internal static bool reliable;
+		internal static MulticastServer multicastServer;
+		internal static MulticastClient multicastClient;
 		internal static Server server;
 		internal static Client client;
 
@@ -85,23 +89,18 @@ namespace SMPL.Gear
 		public static bool ServerIsRunning { get; private set; }
 		public static string ClientUniqueID { get; private set; }
 
-		public static void StartServer()
+		public static void StartServer(bool reliable = true)
 		{
 			try
 			{
-				if (ServerIsRunning)
-				{
-					Debug.LogError(1, "Server is already starting/started.", true);
-					return;
-				}
-				if (ClientIsConnected)
-				{
-					Debug.LogError(1, "Cannot start a server while a Client.", true);
-					return;
-				}
-				server = new Server(IPAddress.Any, serverPort);
-				server.Start();
+				if (ServerIsRunning) { Debug.LogError(1, "Server is already starting/started.", true); return; }
+				if (ClientIsConnected) { Debug.LogError(1, "Cannot start a Server while a Client.", true); return; }
+				server = reliable ? new Server(IPAddress.Any, serverPort) : null;
+				multicastServer = reliable == false ? new MulticastServer(IPAddress.Any, 3334) : null;
+				if (reliable) server.Start();
+				else multicastServer.Start();
 				ServerIsRunning = true;
+				Multiplayer.reliable = reliable;
 
 				var hostName = Dns.GetHostName();
 				var hostEntry = Dns.GetHostEntry(hostName);
@@ -109,6 +108,10 @@ namespace SMPL.Gear
 					"Clients can connect through those IPs if they are in the same network\n" +
 					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
 					$"Same device: {SameDeviceIP}";
+				var reliableInfoStr = "Reliable = all messages recieved, slow\n" +
+					"Unreliable = some messages lost, fast";
+				var reliableStr = reliable ? "reliable" : "unreliable";
+
 				for (int i = 0; i < hostEntry.AddressList.Length; i++)
 				{
 					if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
@@ -118,7 +121,7 @@ namespace SMPL.Gear
 						"Same router: " : "Same VPN: ";
 					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
 				}
-				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
+				Console.Log($"Started a {Window.Title} {reliableStr} LAN Server.\n{reliableInfoStr}\n{connectToServerInfo}\n");
 				OnServerStart?.Invoke();
 			}
 			catch (Exception ex)
@@ -137,18 +140,11 @@ namespace SMPL.Gear
 		{
 			try
 			{
-				if (ServerIsRunning == false)
-				{
-					Debug.LogError(1, "Server is not running.\n", true);
-					return;
-				}
-				if (ClientIsConnected)
-				{
-					Debug.LogError(1, "Cannot stop a server while a client.\n", true);
-					return;
-				}
+				if (ServerIsRunning == false) { Debug.LogError(1, "Server is not running.\n", true); return; }
+				if (ClientIsConnected) { Debug.LogError(1, "Cannot stop a server while a client.\n", true); return; }
 				ServerIsRunning = false;
-				server.Stop();
+				if (reliable) server.Stop();
+				else multicastServer.Stop();
 				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
 				OnServerStop?.Invoke();
 			}
@@ -161,22 +157,20 @@ namespace SMPL.Gear
 			}
 		}
 
-		public static void ConnectClient(string clientUniqueID, string serverIP)
+		public static void ConnectClient(string clientUniqueID, string serverIP, bool serverIsReliable = true)
       {
-			if (ClientIsConnected)
-			{
-				Debug.LogError(1, "Already connecting/connected.\n", true);
-				return;
-			}
-			if (ServerIsRunning)
-			{
-				Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true);
-				return;
-			}
+			if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
+			if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
 
 			try
 			{
-				client = new Client(serverIP, serverPort);
+				client = serverIsReliable ? new Client(serverIP, serverPort) : null;
+				multicastClient = serverIsReliable == false ? new MulticastClient(serverIP, serverPort) : null;
+				if (multicastClient != null)
+				{
+					multicastClient.SetupMulticast(true);
+					multicastClient.Multicast = "239.255.0.1";
+				}
 			}
 			catch (Exception)
 			{
@@ -184,8 +178,15 @@ namespace SMPL.Gear
 				return;
 			}
 			ClientUniqueID = clientUniqueID;
+			reliable = serverIsReliable;
 			Console.Log($"Connecting to {Window.Title} Server '{serverIP}:{serverPort}'...\n");
-			client.ConnectAsync();
+			if (serverIsReliable) client.ConnectAsync();
+			else
+			{
+				multicastClient.Connect();
+				multicastClient.Socket.EnableBroadcast = true;
+				ClientIsConnected = true;
+			}
 		}
 		public static void DisconnectClinet()
       {
@@ -194,7 +195,8 @@ namespace SMPL.Gear
 				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
 				return;
 			}
-			client.DisconnectAndStop();
+			if (reliable) client.DisconnectAndStop();
+			else multicastClient.DisconnectAndStop();
 		}
 
 		public static void SendMessage(Message message)
@@ -231,13 +233,17 @@ namespace SMPL.Gear
 					{
 						if (ClientIsConnected)
 						{
-							client.SendAsync($"{msgSep}{(int)MessageType.ClientToAllAndServer}{msgCompSep}" +
-								$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
+							var msg = $"{msgSep}{(int)MessageType.ClientToAllAndServer}{msgCompSep}" +
+								$"{ClientUniqueID}{msgCompSep}{message.Tag}{msgCompSep}{message.Content}";
+							if (client != null) client.SendAsync(msg);
+							if (multicastClient != null) multicastClient.SendAsync(msg);
 						}
 						else if (ServerIsRunning)
 						{
-							server.Multicast($"{msgSep}{(int)MessageType.ServerToAll}" +
-								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}");
+							var msg = $"{msgSep}{(int)MessageType.ServerToAll}" +
+								$"{msgCompSep}{message.Tag}{msgCompSep}{message.Content}";
+							if (server != null) server.Multicast(msg);
+							//if (multicastServer != null) multicastServer.Multicast(msg);
 						}
 						LogMessage(message, true);
 						break;
@@ -552,6 +558,68 @@ namespace SMPL.Gear
 				ClientIsConnected = false;
 				Debug.LogError(-1, $"{error}", true);
 			}
+		}
+
+		internal class MulticastServer : UdpServer
+		{
+			public MulticastServer(IPAddress address, int port) : base(address, port) { }
+
+			protected override void OnError(SocketError error)
+			{
+				Console.Log($"Multicast UDP server caught an error with code {error}");
+			}
+		}
+		internal class MulticastClient : UdpClient
+		{
+			public string Multicast;
+
+			public MulticastClient(string address, int port) : base(address, port) { }
+
+			public void DisconnectAndStop()
+			{
+				_stop = true;
+				Disconnect();
+				while (IsConnected)
+					Thread.Yield();
+			}
+
+			protected override void OnConnected()
+			{
+				Console.Log($"Multicast UDP client connected a new session with Id {Id}");
+
+				// Join UDP multicast group
+				JoinMulticastGroup(Multicast);
+
+				// Start receive datagrams
+				ReceiveAsync();
+			}
+
+			protected override void OnDisconnected()
+			{
+				Console.Log($"Multicast UDP client disconnected a session with Id {Id}");
+
+				// Wait for a while...
+				Thread.Sleep(1000);
+
+				// Try to connect again
+				if (!_stop)
+					Connect();
+			}
+
+			protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
+			{
+				Console.Log("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
+
+				// Continue receive datagrams
+				ReceiveAsync();
+			}
+
+			protected override void OnError(SocketError error)
+			{
+				Console.Log($"Multicast UDP client caught an error with code {error}");
+			}
+
+			private bool _stop;
 		}
 	}
 }

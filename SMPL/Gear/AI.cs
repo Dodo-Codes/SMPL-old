@@ -17,15 +17,15 @@ namespace SMPL.Gear
          };
 
          var training = new double[][]
-         {      
-               new double[]{ 1, 0, 1 },
-               new double[]{ 0, 1, 1 },
-               new double[]{ 1, 1, 0 },
-               new double[]{ 0, 0, 0 },
-               new double[]{ 1, 1, 0 },
-               new double[]{ 0, 0, 0 },
-               new double[]{ 1, 0, 1 },
-               new double[]{ 0, 1, 1 },
+         {
+            new double[]{ 1, 0, 0 },
+            new double[]{ 0, 1, 0 },
+            new double[]{ 1, 1, 1 },
+            new double[]{ 0, 0, 0 },
+            new double[]{ 1, 1, 1 },
+            new double[]{ 0, 0, 0 },
+            new double[]{ 1, 0, 0 },
+            new double[]{ 0, 1, 0 },
          };
 
          var input = new double[training.GetLength(0)][];
@@ -41,7 +41,7 @@ namespace SMPL.Gear
             y[i] = training[i][layers[0]];
 
          nn.Train(input, y);
-         var pr = nn.Predict(new[] { 1.0, 0.0 });
+         var pr = nn.Predict(new[] { 1.0, 1.0 });
          Console.Log($"{pr[0]:F3}");
       }
 

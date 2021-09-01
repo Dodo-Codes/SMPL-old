@@ -55,7 +55,7 @@ namespace SMPL.Prefabs
 			sticks.Add(new Stick(points[1], points[2]));
 			sticks.Add(new Stick(points[2], points[3]));
 
-			points.Add(new P() { locked = false, position = new Point(50, -100) });
+			points.Add(new P() { locked = true, position = new Point(50, -100) });
 			points.Add(new P() { locked = false, position = new Point(100, -100) });
 			points.Add(new P() { locked = false, position = new Point(100, -50) });
 			points.Add(new P() { locked = false, position = new Point(50, -50) });
@@ -64,7 +64,7 @@ namespace SMPL.Prefabs
 			sticks.Add(new Stick(points[6], points[7]));
 
 			points.Add(new P() { locked = true, position = new Point(0, -75) });
-			sticks.Add(new Stick(points[3], points[7]));
+			sticks.Add(new Stick(points[0], points[7]));
 		}
 
 		internal void Update()

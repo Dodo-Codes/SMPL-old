@@ -11,7 +11,7 @@ namespace SMPL.Gear
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>
 		public static bool IsActive { get { return Debugger.IsAttached; } }
-		internal static string debugString = "This error message is for debugging & will not appear after the game is built";
+		internal static string debugString = "This is a debug message, it will not appear after the game is built";
 
 		public static double CurrentLineNumber(uint depth = 0)
 		{
