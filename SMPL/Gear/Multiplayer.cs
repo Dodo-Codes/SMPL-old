@@ -95,7 +95,7 @@ namespace SMPL.Gear
 		private static readonly int serverPort = 1234;
 
 		public static string SameDeviceIP { get { return "127.0.0.1"; } }
-		public static bool MessagesAreLogged { get; set; } = true;
+		public static bool MessagesAreLogged { get; set; }
 		public static bool ClientIsConnected { get; private set; }
 		public static bool ServerIsRunning { get; private set; }
 		public static string ClientUniqueID { get; private set; }

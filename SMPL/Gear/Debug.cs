@@ -64,7 +64,7 @@ namespace SMPL.Gear
 			var debugStr = isDisplayingInRelease ? "" : debugString;
 			var place = depth >= 0 && IsActive ?
 				$"Location\t[File: {CurrentFileName(d + 1)}.cs | Method:{CurrentMethodName(d + 1)}]\n" +
-				$"Action\t\t[Line: {CurrentLineNumber(d + 1)} | Method: {CurrentMethodName(d)}\n" : "";
+				$"Action\t\t[Line: {CurrentLineNumber(d + 1)} | Method: {CurrentMethodName(d)}]\n" : "";
 			var result =
 				$"Error\t\t[{debugStr}]\n" +
 				$"{place}" +

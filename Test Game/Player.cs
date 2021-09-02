@@ -9,23 +9,33 @@ namespace TestGame
 	{
 		public Player()
 		{
-			Window.IsHidden = true;
-			Multiplayer.StartServer();
+			//Window.IsHidden = true;
+			////Multiplayer.StartServer();
 			//Multiplayer.ConnectClient("test", Multiplayer.SameDeviceIP);
-			Multiplayer.MessagesAreLogged = true;
-			Multiplayer.CallWhen.MessageReceive(OnMessageReceived);
-
-			Time.CallWhen.Update(Always);
+			//Multiplayer.CallWhen.MessageReceive(OnMessageReceived);
+			//
+			//Time.CallWhen.Update(Always);
 			//Camera.CallWhen.Display(OnDraw);
 			//var r = new SegmentedLine("test", new Point(0, 0), 10, 10, 10, 10, 10, 10, 10, 10, 10);
+			try
+			{
+				Console.Log(Debug.CurrentFileDirectory(2));
+				Always();
+			}
+			catch (System.Exception ex)
+			{
+				Console.Log(ex.Message);
+				throw;
+			}
 		}
 		void Always()
 		{
-			Multiplayer.SendMessage(new Multiplayer.Message(Multiplayer.Message.Toward.ServerAndAllClients, "hi", "hello", false));
+			Console.Log(Debug.CurrentFileDirectory(1));
+			//Multiplayer.SendMessage(new Multiplayer.Message(Multiplayer.Message.Toward.ServerAndAllClients, "hi", "hello", false));
 		}
 		void OnMessageReceived(Multiplayer.Message msg)
 		{
-			Console.Log(msg);
+			//Console.Log(msg);
 		}
 		//void OnDraw(Camera camera)
 		//{
