@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "sCquHqXWEhZAInG4yCMPvS+JZ4fM6B+mFBCr2lWr0IbUDW0mzj2kSUItPMLPh7chx9PUeUIV0foglyBW6rpzAg==",
+  "dgSpecHash": "yr/2yfktd6yYHWZbW/xwa2OKh8ZsWmhv3ML3yjH7kn3k1rMxNNKSvZKNZAqX7JRk4lt9LFH3hCzMcG9vQ9ZY7w==",
   "success": true,
   "projectFilePath": "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj",
   "expectedPackageFiles": [
@@ -24,7 +24,10 @@
     "C:\\Users\\PC PC\\.nuget\\packages\\system.security.cryptography.protecteddata\\5.0.0\\system.security.cryptography.protecteddata.5.0.0.nupkg.sha512",
     "C:\\Users\\PC PC\\.nuget\\packages\\system.security.permissions\\5.0.0\\system.security.permissions.5.0.0.nupkg.sha512",
     "C:\\Users\\PC PC\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
-    "C:\\Users\\PC PC\\.nuget\\packages\\system.windows.extensions\\5.0.0\\system.windows.extensions.5.0.0.nupkg.sha512"
+    "C:\\Users\\PC PC\\.nuget\\packages\\system.windows.extensions\\5.0.0\\system.windows.extensions.5.0.0.nupkg.sha512",
+    "C:\\Users\\PC PC\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\5.0.6\\microsoft.netcore.app.runtime.win-x86.5.0.6.nupkg.sha512",
+    "C:\\Users\\PC PC\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\5.0.6\\microsoft.windowsdesktop.app.runtime.win-x86.5.0.6.nupkg.sha512",
+    "C:\\Users\\PC PC\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\5.0.6\\microsoft.aspnetcore.app.runtime.win-x86.5.0.6.nupkg.sha512"
   ],
   "logs": []
 }

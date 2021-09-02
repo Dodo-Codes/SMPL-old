@@ -5,7 +5,18 @@ namespace TestGame
 {
 	public class TestGame : Game
 	{
-		public static void Main() =>Run(new TestGame(), new Size(3, 3));
+      public static void Main()
+      {
+			try
+			{
+				Run(new TestGame(), new Size(3, 3));
+			}
+			catch (System.Exception ex)
+			{
+				Console.Log(ex.Message);
+				throw;
+			}
+      }
 
       public override void OnGameCreated()
       {

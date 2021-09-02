@@ -9,7 +9,7 @@ namespace TestGame
 	{
 		public Player()
 		{
-			//Window.IsHidden = true;
+			Window.IsHidden = true;
 			////Multiplayer.StartServer();
 			//Multiplayer.ConnectClient("test", Multiplayer.SameDeviceIP);
 			//Multiplayer.CallWhen.MessageReceive(OnMessageReceived);
@@ -17,16 +17,8 @@ namespace TestGame
 			//Time.CallWhen.Update(Always);
 			//Camera.CallWhen.Display(OnDraw);
 			//var r = new SegmentedLine("test", new Point(0, 0), 10, 10, 10, 10, 10, 10, 10, 10, 10);
-			try
-			{
-				Console.Log(Debug.CurrentFileDirectory(2));
-				Always();
-			}
-			catch (System.Exception ex)
-			{
-				Console.Log(ex.Message);
-				throw;
-			}
+			Console.Log(Debug.CurrentFileDirectory(2));
+			Always();
 		}
 		void Always()
 		{
