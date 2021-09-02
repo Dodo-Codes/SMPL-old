@@ -258,7 +258,7 @@ namespace SMPL.Gear
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
 			
-			Camera.WorldCamera = new Camera("smpl-world-camera", new Point(0, 0), size / pixelSize);
+			Camera.WorldCamera = new("smpl-world-camera", new Point(0, 0), size / pixelSize);
 			Camera.WorldCamera.DisplayArea = new("smpl-world-camera-area");
 			Camera.WorldCamera.DisplayArea.Size = size;
 			window.SetView(Camera.WorldCamera.view);

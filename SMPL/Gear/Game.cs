@@ -13,7 +13,6 @@ namespace SMPL.Gear
 		///</summary>
 		private static void SummaryExample() { }
 
-		internal static Thread resourceLoading;
 		internal static Game instance;
 
 		private static event Events.ParamsZero OnStart;
@@ -35,7 +34,6 @@ namespace SMPL.Gear
 			Performance.Initialize();
 			Keyboard.Initialize();
 			Mouse.Initialize();
-			Point.Initialize();
 
 			resourceLoading = new Thread(new ThreadStart(File.LoadQueuedResources));
 			resourceLoading.Name = "ResourcesLoading";

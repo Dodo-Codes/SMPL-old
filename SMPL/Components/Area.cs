@@ -278,8 +278,8 @@ namespace SMPL.Components
 			if (Identity<Area>.CannotCreate(uniqueID)) return;
 			Identity = new(this, uniqueID);
 
+			accessPaths.Clear(); // abandon ship
 			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
 
 			transforms.Add(this);
 			creationFrame = Performance.FrameCount;

@@ -11,17 +11,10 @@ namespace SMPL.Data
 		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
 		public static Point One => new(1, 1) { Color = Color.White };
 		public static Point Zero => new(0, 0) { Color = Color.White };
-		internal static Storage<int, double> randAngleConstrains = new();
 
 		public double X { get; set; }
 		public double Y { get; set; }
 		public Color Color { get; set; }
-
-		internal static void Initialize()
-		{
-			for (int i = 0; i < 200; i++)
-				randAngleConstrains.Expand(i, i, Number.Random(new Bounds(0, 360), 1));
-		}
 
 		public Point(double x, double y)
 		{
