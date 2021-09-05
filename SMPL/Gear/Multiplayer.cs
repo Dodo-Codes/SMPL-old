@@ -487,12 +487,11 @@ namespace SMPL.Gear
 			}
 			catch (Exception ex)
 			{
-				var se = default(SocketException);
+				var se = (SocketException)ex;
 				var msg = ex.Message;
-				Statics.TryCast(ex, out se);
 
 				ServerIsRunning = false;
-				if (se.ErrorCode == 10048) msg = "Another server is already running on that IP/port.";
+				if (se != null && se.ErrorCode == 10048) msg = "Another server is already running on that IP/port.";
 				Debug.LogError(1, msg, true);
 				OnServerStop?.Invoke();
 			}

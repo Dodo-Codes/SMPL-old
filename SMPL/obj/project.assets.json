@@ -303,6 +303,18 @@
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
         }
       },
+      "Newtonsoft.Json.Bson/1.0.2": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/Newtonsoft.Json.Bson.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.Bson.dll": {}
+        }
+      },
       "SFML.Audio/2.5.0": {
         "type": "package",
         "dependencies": {
@@ -736,6 +748,27 @@
         "packageIcon.png"
       ]
     },
+    "Newtonsoft.Json.Bson/1.0.2": {
+      "sha512": "QYFyxhaABwmq3p/21VrZNYvCg3DaEoN/wUuw5nmfAf0X3HLjgupwhkEWdgfb9nvGAUIv3osmZoD3kKl4jxEmYQ==",
+      "type": "package",
+      "path": "newtonsoft.json.bson/1.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "lib/net45/Newtonsoft.Json.Bson.dll",
+        "lib/net45/Newtonsoft.Json.Bson.pdb",
+        "lib/net45/Newtonsoft.Json.Bson.xml",
+        "lib/netstandard1.3/Newtonsoft.Json.Bson.dll",
+        "lib/netstandard1.3/Newtonsoft.Json.Bson.pdb",
+        "lib/netstandard1.3/Newtonsoft.Json.Bson.xml",
+        "lib/netstandard2.0/Newtonsoft.Json.Bson.dll",
+        "lib/netstandard2.0/Newtonsoft.Json.Bson.pdb",
+        "lib/netstandard2.0/Newtonsoft.Json.Bson.xml",
+        "newtonsoft.json.bson.1.0.2.nupkg.sha512",
+        "newtonsoft.json.bson.nuspec"
+      ]
+    },
     "SFML.Audio/2.5.0": {
       "sha512": "M5EIksRefT3nsLT32oEpESStsnlixR+YjKS6fUMl+vDQ3gdMaV4jc84pg3kbfM9w4RYKAyH6OWV4bzDU5FNZyA==",
       "type": "package",
@@ -1159,6 +1192,7 @@
     "net5.0": [
       "NetCoreServer >= 5.1.0",
       "Newtonsoft.Json >= 13.0.1",
+      "Newtonsoft.Json.Bson >= 1.0.2",
       "SFML.Net >= 2.5.0",
       "System.Configuration.ConfigurationManager >= 5.0.0",
       "System.Diagnostics.PerformanceCounter >= 5.0.1",
@@ -1211,6 +1245,10 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[13.0.1, )"
+          },
+          "Newtonsoft.Json.Bson": {
+            "target": "Package",
+            "version": "[1.0.2, )"
           },
           "SFML.Net": {
             "target": "Package",

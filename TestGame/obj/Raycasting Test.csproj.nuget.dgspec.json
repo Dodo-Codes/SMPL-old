@@ -48,6 +48,10 @@
               "target": "Package",
               "version": "[13.0.1, )"
             },
+            "Newtonsoft.Json.Bson": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
             "SFML.Net": {
               "target": "Package",
               "version": "[2.5.0, )"

@@ -6,6 +6,11 @@ using System.Threading;
 using System.IO;
 using System.Linq;
 using SMPL.Data;
+using System.ComponentModel;
+using Newtonsoft.Json.Bson;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SMPL.Gear
 {
@@ -519,6 +524,17 @@ void main()
 		{
 			EditPictures(color, directoryPath, false, false, true);
 		}
-
+		public static void SaveComponents(string filePath = "folder/file.extension", params Components.Component[] components)
+		{
+			var str = JsonConvert.SerializeObject(components);
+			str = Data.Text.Encrypt(str, '\\', true);
+			System.IO.File.WriteAllText(filePath, str);
+		}
+		public static void LoadComponents(string filePath = "folder/file.extension")
+		{
+			var str = System.IO.File.ReadAllText(filePath);
+			str = Data.Text.Decrypt(str, '\\', true);
+			var comps = JsonConvert.DeserializeObject<Components.Sprite[]>(str);
+		}
 	}
 }

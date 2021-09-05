@@ -55,8 +55,9 @@ namespace SMPL.Data
 			return JsonConvert.SerializeObject(data);
 		}
 		/// <summary>
-		/// Encrypts a <paramref name="text"/> with a <paramref name="key"/>. Can be <paramref name="performedTwice"/>.‪‪ 
-		/// The <paramref name="text"/> can be decrypred later with <see cref="Decrypt"/>.
+		/// Encrypts a <paramref name="text"/> with a <paramref name="key"/>. Can be <paramref name="performedTwice"/>.
+		/// The encryption is 33% longer than the <paramref name="text"/>.<br></br> The
+		/// <paramref name="text"/> can be decrypred later with <see cref="Decrypt"/>.
 		/// </summary>
 		public static string Encrypt(string text, char key, bool performedTwice = false)
 		{

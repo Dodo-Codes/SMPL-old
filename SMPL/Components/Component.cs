@@ -1,10 +1,12 @@
-﻿using SMPL.Gear;
+﻿using Newtonsoft.Json;
+using SMPL.Gear;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SMPL.Components
 {
+	[JsonObject(MemberSerialization.OptIn)]
 	public class Component
 	{
 		private string uniqueID;
@@ -56,12 +58,21 @@ namespace SMPL.Components
 
 		// ======
 
+		[JsonProperty]
 		public bool IsDestroyed { get; private set; }
+		[JsonProperty]
 		public string UniqueID
 		{
 			get { return ErrorIfDestroyed() ? default : uniqueID; }
-			private set { uniqueID = value; }
+			set
+			{
+				var old = uniqueID;
+				uniqueID = value;
+				if (old != null) uniqueIDs.Remove(old);
+				uniqueIDs[value] = this;
+			}
 		}
+		[JsonProperty]
 		public string[] Tags => ErrorIfDestroyed() ? Array.Empty<string>() : objTags[this].ToArray();
 
 		public Component(string uniqueID)
@@ -69,8 +80,20 @@ namespace SMPL.Components
 			if (uniqueIDs.ContainsKey(uniqueID)) { cannotCreate = true; return; }
 
 			UniqueID = uniqueID;
-			uniqueIDs[uniqueID] = this;
 			objTags[this] = new();
+		}
+		public Component Clone(string uniqueID)
+		{
+			if (uniqueIDs.ContainsKey(uniqueID))
+			{
+				Debug.LogError(1, $"Cannot clone because a {nameof(Component)} with uniqueID '{uniqueID}' already exists.");
+				return default;
+			}
+
+			var clone = (Component)MemberwiseClone();
+			clone.UniqueID = uniqueID;
+			objTags[clone] = new(objTags[this]);
+			return clone;
 		}
 		public virtual void Destroy()
 		{

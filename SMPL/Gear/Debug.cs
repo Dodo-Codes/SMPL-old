@@ -21,6 +21,7 @@ namespace SMPL.Gear
 			var method = info.GetMethod();
 			var child = method?.ToString().Replace('+', '.');
 			var firstSpaceIndex = child.IndexOf(' ');
+			if (method.DeclaringType == null) return null;
 			var parent = method.DeclaringType.ToString().Replace('+', '.') + ".";
 			var result = child.Insert(firstSpaceIndex + 1, parent);
 

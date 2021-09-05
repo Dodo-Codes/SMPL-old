@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using SMPL.Data;
 using SMPL.Gear;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace SMPL.Components
 {
@@ -22,6 +24,7 @@ namespace SMPL.Components
 		// ===============
 
 		internal static List<Sprite> sprites = new();
+		[JsonProperty]
 		internal Dictionary<string, Quad> quads = new();
 
 		internal static (VertexArray, Vertex[]) QuadsToVerts(Dictionary<string, Quad> quads)
@@ -52,23 +55,25 @@ namespace SMPL.Components
 			public static void Display(Action<Sprite> method, uint order = uint.MaxValue) =>
 				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
-
+		[JsonProperty]
 		public bool IsRepeated
 		{
 			get { return ErrorIfDestroyed() == false && isRepeated; }
 			set { if (ErrorIfDestroyed() == false) isRepeated = value; }
 		}
+		[JsonProperty]
 		public bool IsSmooth
 		{
 			get { return ErrorIfDestroyed() == false && isSmooth; }
 			set { if (ErrorIfDestroyed() == false) isSmooth = value; }
 		}
+		[JsonProperty]
 		public string TexturePath
 		{
 			get { return ErrorIfDestroyed() ? default : texturePath; }
 			set
 			{
-				if (ErrorIfDestroyed()) return;
+				if (ErrorIfDestroyed() || value == null) return;
 				if (Assets.textures.ContainsKey(value) == false)
 				{
 					Assets.NotLoadedError(Assets.Type.Texture, value);
@@ -79,6 +84,7 @@ namespace SMPL.Components
 				if (prev == null) SetQuadDefault(UniqueID);
 			}
 		}
+		public Quad[] Quads => quads.Values.ToArray();
 
 		public Sprite(string uniqueID) : base(uniqueID)
 		{
