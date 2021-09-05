@@ -12,223 +12,12 @@ namespace SMPL.Gear
 {
 	public static class Multiplayer
 	{
-		public struct Message
-		{
-			internal enum Type
-			{
-				None, Connection, ChangeID, ClientConnected, ClientDisconnected, ClientOnline,
-				ClientToAll, ClientToClient, ClientToServer, ServerToAll, ServerToClient,
-				ClientToAllAndServer
-			}
-			public enum Toward { Server, Client, AllClients, ServerAndAllClients }
-			internal const string SEP = "';qi#ou3", COMP_SEP = "a;@lsfi", TEMP_SEP = "a15`g&";
-
-			public string Content { get; set; }
-			public string Tag { get; set; }
-			public string ReceiverUniqueID { get; set; }
-			public string SenderUniqueID { get; internal set; }
-			public Toward Receivers { get; set; }
-			public bool IsReliable { get; set; }
-			internal Type type;
-
-			public Message(Toward receivers, string tag, string content, bool isReliable = true,
-				string receiverClientUniqueID = null)
-         {
-				Content = content;
-				Tag = tag;
-				ReceiverUniqueID = receiverClientUniqueID;
-				SenderUniqueID = ClientUniqueID;
-				Receivers = receivers;
-				IsReliable = isReliable;
-				type = receivers switch
-				{
-					Toward.Server => ClientIsConnected ? Type.ClientToServer : Type.None,
-					Toward.Client => ClientIsConnected ? Type.ClientToClient : Type.ServerToClient,
-					Toward.AllClients => ClientIsConnected ? Type.ClientToAll : Type.ServerToAll,
-					Toward.ServerAndAllClients => ClientIsConnected ? Type.ClientToAllAndServer : Type.ServerToAll,
-					_ => Type.None,
-				};
-			}
-
-         public override string ToString()
-         {
-				var send = SenderUniqueID == null || SenderUniqueID == "" ? "from the Server" : $"from Client '{SenderUniqueID}'";
-				var rel = IsReliable ? "Reliable" : "Unreliable";
-				var rec = Receivers == Toward.Client ?
-					$"to Client '{ReceiverUniqueID}'" : $"to {Receivers}";
-				return
-					$"{rel} Multiplayer Message {send} {rec}\n" +
-					$"Tag: {Tag}\n" +
-					$"Content: {Content}";
-         }
-      }
-
-		internal static MulticastClient multicastClient;
-		internal static Server server;
-		internal static Client client;
-
 		private static event Events.ParamsZero OnServerStart, OnServerStop;
 		private static event Events.ParamsOne<string> OnClientConnected, OnClientDisconnected, OnClientTakenUniqueID;
 		private static event Events.ParamsOne<Message> OnMessageReceived, OnMessageSend;
-
-		public static class CallWhen
-		{
-			public static void ServerStart(Action method, uint order = uint.MaxValue) =>
-			OnServerStart = Events.Add(OnServerStart, method, order);
-			public static void ServerStop(Action method, uint order = uint.MaxValue) =>
-				OnServerStop = Events.Add(OnServerStop, method, order);
-			public static void ClientConnect(Action<string> method, uint order = uint.MaxValue) =>
-				OnClientConnected = Events.Add(OnClientConnected, method, order);
-			public static void ClientDisconnect(Action<string> method, uint order = uint.MaxValue) =>
-				OnClientDisconnected = Events.Add(OnClientDisconnected, method, order);
-			// string = oldID
-			public static void ClientTakenUniqueID(Action<string> method, uint order = uint.MaxValue) =>
-				OnClientTakenUniqueID = Events.Add(OnClientTakenUniqueID, method, order);
-			public static void MessageReceive(Action<Message> method, uint order = uint.MaxValue) =>
-				OnMessageReceived = Events.Add(OnMessageReceived, method, order);
-			public static void MessageSend(Action<Message> method, uint order = uint.MaxValue) =>
-				OnMessageSend = Events.Add(OnMessageSend, method, order);
-		}
-
-		private static Dictionary<Guid, string> clientRealIDs = new();
-		private static List<string> clientIDs = new();
+		private static readonly Dictionary<Guid, string> clientRealIDs = new();
+		private static readonly List<string> clientIDs = new();
 		private static readonly int serverPort = 1234;
-
-		public static string SameDeviceIP { get { return "127.0.0.1"; } }
-		public static bool MessagesAreLogged { get; set; }
-		public static bool ClientIsConnected { get; private set; }
-		public static bool ServerIsRunning { get; private set; }
-		public static string ClientUniqueID { get; private set; }
-
-		public static void StartServer()
-		{
-			try
-			{
-				if (ServerIsRunning) { Debug.LogError(1, "Server is already starting/started.", true); return; }
-				if (ClientIsConnected) { Debug.LogError(1, "Cannot start a Server while a Client.", true); return; }
-				server = new Server(IPAddress.Any, serverPort);
-				server.Start();
-				ServerIsRunning = true;
-
-				var hostName = Dns.GetHostName();
-				var hostEntry = Dns.GetHostEntry(hostName);
-				var connectToServerInfo =
-					"Clients can connect through those IPs if they are in the same network\n" +
-					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
-					$"Same device: {SameDeviceIP}";
-				var vpnIP = "";
-				var routerIP = "";
-
-				for (int i = 0; i < hostEntry.AddressList.Length; i++)
-				{
-					if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
-
-					var ipParts = hostEntry.AddressList[i].ToString().Split('.');
-					var isRouter = ipParts[0] == "192" && ipParts[1] == "168";
-					var ipType = isRouter ? "Same router: " : "Same VPN: ";
-					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
-					if (isRouter) routerIP = hostEntry.AddressList[i].ToString();
-					else vpnIP = hostEntry.AddressList[i].ToString();
-				}
-				if (vpnIP != "") ConnectClient(null, vpnIP);
-				else ConnectClient(null, routerIP);
-
-				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
-				OnServerStart?.Invoke();
-			}
-			catch (Exception ex)
-			{
-				var se = default(SocketException);
-				var msg = ex.Message;
-				Statics.TryCast(ex, out se);
-
-				ServerIsRunning = false;
-				if (se.ErrorCode == 10048) msg = "Another server is already running on that IP/port.";
-				Debug.LogError(1, msg, true);
-				OnServerStop?.Invoke();
-			}
-		}
-		public static void StopServer()
-		{
-			try
-			{
-				if (ServerIsRunning == false) { Debug.LogError(1, "Server is not running.\n", true); return; }
-				if (ClientIsConnected) { Debug.LogError(1, "Cannot stop a server while a client.\n", true); return; }
-				ServerIsRunning = false;
-				server.Stop();
-				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
-				OnServerStop?.Invoke();
-			}
-			catch (Exception ex)
-			{
-				ServerIsRunning = false;
-				Debug.LogError(-1, ex.Message, true);
-				OnServerStop?.Invoke();
-				return;
-			}
-		}
-
-		public static void ConnectClient(string clientUniqueID, string serverIP)
-      {
-			if (Debug.CalledBySMPL == false)
-			{
-				if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
-				if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
-			}
-			try
-			{
-				client = new Client(serverIP, serverPort);
-				multicastClient = new MulticastClient(serverIP, serverPort);
-				multicastClient.SetupMulticast(true);
-				multicastClient.Multicast = "239.255.0.1";
-				if (Debug.CalledBySMPL)
-				{
-					multicastClient.Connect();
-					multicastClient.Socket.EnableBroadcast = true;
-					return;
-				}
-			}
-			catch (Exception)
-			{
-				Debug.LogError(1, $"The IP '{serverIP}' is invalid.\n", true);
-				return;
-			}
-			ClientUniqueID = clientUniqueID;
-			Console.Log($"Connecting to {Window.Title} Server '{serverIP}:{serverPort}'...\n");
-			client.ConnectAsync();
-			multicastClient.Connect();
-			multicastClient.Socket.EnableBroadcast = true;
-			ClientIsConnected = true;
-		}
-		public static void DisconnectClinet()
-      {
-			if (ClientIsConnected == false)
-			{
-				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
-				return;
-			}
-			client.DisconnectAndStop();
-			multicastClient.DisconnectAndStop();
-		}
-
-		public static void SendMessage(Message message)
-		{
-			if (MessageDisconnected()) return;
-			if (ServerIsRunning && message.Receivers == Message.Toward.Server) return;
-			var msgStr = MessageToString(message);
-			if (ClientIsConnected)
-			{
-				if (message.IsReliable) client.SendAsync(msgStr);
-				else multicastClient.SendAsync(msgStr);
-			}
-			else
-			{
-				if (message.IsReliable) server.Multicast(msgStr);
-				else multicastClient.SendAsync(msgStr);
-			}
-			LogMessage(message, true);
-			OnMessageSend?.Invoke(message);
-		}
 
 		private static string MessageToString(Message message)
 		{
@@ -453,6 +242,8 @@ namespace SMPL.Gear
 			}
 		}
 
+		//=================
+
 		internal class Session : TcpSession
 		{
 			public Session(TcpServer server) : base(server) { }
@@ -540,7 +331,6 @@ namespace SMPL.Gear
 				Debug.LogError(-1, $"{error}", true);
 			}
 		}
-
 		internal class MulticastClient : UdpClient
 		{
 			public string Multicast;
@@ -576,6 +366,210 @@ namespace SMPL.Gear
 				ReceiveAsync();
 			}
 			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}", true);
+		}
+
+		internal static MulticastClient multicastClient;
+		internal static Server server;
+		internal static Client client;
+
+		//=================
+
+		public struct Message
+		{
+			internal enum Type
+			{
+				None, Connection, ChangeID, ClientConnected, ClientDisconnected, ClientOnline,
+				ClientToAll, ClientToClient, ClientToServer, ServerToAll, ServerToClient,
+				ClientToAllAndServer
+			}
+			public enum Toward { Server, Client, AllClients, ServerAndAllClients }
+			internal const string SEP = "';qi#ou3", COMP_SEP = "a;@lsfi", TEMP_SEP = "a15`g&";
+
+			public string Content { get; set; }
+			public string Tag { get; set; }
+			public string ReceiverUniqueID { get; set; }
+			public string SenderUniqueID { get; internal set; }
+			public Toward Receivers { get; set; }
+			public bool IsReliable { get; set; }
+			internal Type type;
+
+			public Message(Toward receivers, string tag, string content, bool isReliable = true,
+				string receiverClientUniqueID = null)
+         {
+				Content = content;
+				Tag = tag;
+				ReceiverUniqueID = receiverClientUniqueID;
+				SenderUniqueID = ClientUniqueID;
+				Receivers = receivers;
+				IsReliable = isReliable;
+				type = receivers switch
+				{
+					Toward.Server => ClientIsConnected ? Type.ClientToServer : Type.None,
+					Toward.Client => ClientIsConnected ? Type.ClientToClient : Type.ServerToClient,
+					Toward.AllClients => ClientIsConnected ? Type.ClientToAll : Type.ServerToAll,
+					Toward.ServerAndAllClients => ClientIsConnected ? Type.ClientToAllAndServer : Type.ServerToAll,
+					_ => Type.None,
+				};
+			}
+
+         public override string ToString()
+         {
+				var send = SenderUniqueID == null || SenderUniqueID == "" ? "from the Server" : $"from Client '{SenderUniqueID}'";
+				var rel = IsReliable ? "Reliable" : "Unreliable";
+				var rec = Receivers == Toward.Client ?
+					$"to Client '{ReceiverUniqueID}'" : $"to {Receivers}";
+				return
+					$"{rel} Multiplayer Message {send} {rec}\n" +
+					$"Tag: {Tag}\n" +
+					$"Content: {Content}";
+         }
+      }
+		public static class CallWhen
+		{
+			public static void ServerStart(Action method, uint order = uint.MaxValue) =>
+			OnServerStart = Events.Add(OnServerStart, method, order);
+			public static void ServerStop(Action method, uint order = uint.MaxValue) =>
+				OnServerStop = Events.Add(OnServerStop, method, order);
+			public static void ClientConnect(Action<string> method, uint order = uint.MaxValue) =>
+				OnClientConnected = Events.Add(OnClientConnected, method, order);
+			public static void ClientDisconnect(Action<string> method, uint order = uint.MaxValue) =>
+				OnClientDisconnected = Events.Add(OnClientDisconnected, method, order);
+			// string = oldID
+			public static void ClientTakenUniqueID(Action<string> method, uint order = uint.MaxValue) =>
+				OnClientTakenUniqueID = Events.Add(OnClientTakenUniqueID, method, order);
+			public static void MessageReceive(Action<Message> method, uint order = uint.MaxValue) =>
+				OnMessageReceived = Events.Add(OnMessageReceived, method, order);
+			public static void MessageSend(Action<Message> method, uint order = uint.MaxValue) =>
+				OnMessageSend = Events.Add(OnMessageSend, method, order);
+		}
+
+		public static string SameDeviceIP { get { return "127.0.0.1"; } }
+		public static bool MessagesAreLogged { get; set; }
+		public static bool ClientIsConnected { get; private set; }
+		public static bool ServerIsRunning { get; private set; }
+		public static string ClientUniqueID { get; private set; }
+
+		public static void StartServer()
+		{
+			try
+			{
+				if (ServerIsRunning) { Debug.LogError(1, "Server is already starting/started.", true); return; }
+				if (ClientIsConnected) { Debug.LogError(1, "Cannot start a Server while a Client.", true); return; }
+				server = new Server(IPAddress.Any, serverPort);
+				server.Start();
+				ServerIsRunning = true;
+
+				var hostName = Dns.GetHostName();
+				var hostEntry = Dns.GetHostEntry(hostName);
+				var connectToServerInfo =
+					"Clients can connect through those IPs if they are in the same network\n" +
+					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
+					$"Same device: {SameDeviceIP}";
+				var vpnIP = "";
+				var routerIP = "";
+
+				for (int i = 0; i < hostEntry.AddressList.Length; i++)
+				{
+					if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
+
+					var ipParts = hostEntry.AddressList[i].ToString().Split('.');
+					var isRouter = ipParts[0] == "192" && ipParts[1] == "168";
+					var ipType = isRouter ? "Same router: " : "Same VPN: ";
+					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
+					if (isRouter) routerIP = hostEntry.AddressList[i].ToString();
+					else vpnIP = hostEntry.AddressList[i].ToString();
+				}
+				if (vpnIP != "") ConnectClient(null, vpnIP);
+				else ConnectClient(null, routerIP);
+
+				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
+				OnServerStart?.Invoke();
+			}
+			catch (Exception ex)
+			{
+				var se = default(SocketException);
+				var msg = ex.Message;
+				Statics.TryCast(ex, out se);
+
+				ServerIsRunning = false;
+				if (se.ErrorCode == 10048) msg = "Another server is already running on that IP/port.";
+				Debug.LogError(1, msg, true);
+				OnServerStop?.Invoke();
+			}
+		}
+		public static void StopServer()
+		{
+			try
+			{
+				if (ServerIsRunning == false) { Debug.LogError(1, "Server is not running.\n", true); return; }
+				if (ClientIsConnected) { Debug.LogError(1, "Cannot stop a server while a client.\n", true); return; }
+				ServerIsRunning = false;
+				server.Stop();
+				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
+				OnServerStop?.Invoke();
+			}
+			catch (Exception ex)
+			{
+				ServerIsRunning = false;
+				Debug.LogError(-1, ex.Message, true);
+				OnServerStop?.Invoke();
+				return;
+			}
+		}
+
+		public static void ConnectClient(string clientUniqueID, string serverIP)
+      {
+			if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
+			if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
+			try
+			{
+				client = new Client(serverIP, serverPort);
+				multicastClient = new MulticastClient(serverIP, serverPort);
+			}
+			catch (Exception)
+			{
+				Debug.LogError(1, $"The IP '{serverIP}' is invalid.\n", true);
+				return;
+			}
+			multicastClient.SetupMulticast(true);
+			multicastClient.Multicast = "239.255.0.1";
+			multicastClient.Connect();
+			multicastClient.Socket.EnableBroadcast = true;
+
+			client.ConnectAsync();
+			ClientUniqueID = clientUniqueID;
+			ClientIsConnected = true;
+
+			Console.Log($"Connecting to {Window.Title} Server '{serverIP}:{serverPort}'...\n");
+		}
+		public static void DisconnectClinet()
+      {
+			if (ClientIsConnected == false)
+			{
+				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
+				return;
+			}
+			client.DisconnectAndStop();
+			multicastClient.DisconnectAndStop();
+		}
+
+		public static void SendMessage(Message message)
+		{
+			if (MessageDisconnected()) return;
+			if (ServerIsRunning && message.Receivers == Message.Toward.Server) return;
+			var msgStr = MessageToString(message);
+			if (ClientIsConnected)
+			{
+				if (message.IsReliable) client.SendAsync(msgStr);
+				else multicastClient.SendAsync(msgStr);
+			}
+			else
+			{
+				if (message.IsReliable) server.Multicast(msgStr);
+				else multicastClient.SendAsync(msgStr);
+			}
+			LogMessage(message, true);
+			OnMessageSend?.Invoke(message);
 		}
 	}
 }

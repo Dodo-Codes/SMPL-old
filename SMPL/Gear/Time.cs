@@ -53,12 +53,6 @@ namespace SMPL.Gear
 			Tick, Second
 		}
 
-		private static event Events.ParamsZero Always;
-		public static class CallWhen
-		{
-			public static void Update(Action method, uint order = uint.MaxValue) => Always = Events.Add(Always, method, order);
-		}
-
 		internal static Clock time;
 		public static double GameClock { get { return time.ElapsedTime.AsSeconds(); } }
 		public static double Clock { get { return DateTime.Now.TimeOfDay.TotalSeconds; } }
@@ -122,36 +116,6 @@ namespace SMPL.Gear
 				Convertion.WeeksToDays => number * 7,
 				_ => 0,
 			};
-		}
-		internal static void Run()
-		{
-			while (Window.window.IsOpen)
-			{
-				Thread.Sleep(1);
-				Application.DoEvents();
-				Window.window.DispatchEvents();
-
-				Performance.frameCount++;
-				Always?.Invoke();
-
-				Audio.Update();
-
-				for (int i = 0; i < Area.transforms.Count; i++) Area.transforms[i].Update();
-				for (int i = 0; i < Hitbox.hitboxes.Count; i++) Hitbox.hitboxes[i].Update();
-				for (int i = 0; i < Sprite.sprites.Count; i++) Sprite.sprites[i].Update();
-				for (int i = 0; i < Components.TextBox.texts.Count; i++) Components.TextBox.texts[i].Update();
-				for (int i = 0; i < Rope.ropes.Count; i++) Rope.ropes[i].Update();
-
-				Keyboard.Update();
-				Mouse.Update();
-
-				Window.Draw();
-				SMPL.Components.Timer.Update();
-				Performance.frameDeltaTime.Restart();
-
-				File.UpdateMainThreadAssets();
-				if (Gate.EnterOnceWhile("a'diuq1`45gds-0", (int)time.ElapsedTime.AsSeconds() % 2 == 0)) Performance.UpdateCounters();
-			}
 		}
 
 		internal static void Initialize() => time = new();

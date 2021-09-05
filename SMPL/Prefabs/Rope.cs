@@ -5,47 +5,43 @@ using System.Collections.Generic;
 
 namespace SMPL.Prefabs
 {
-	public class Rope : Access
+	public class Rope : Component
 	{
 		internal static List<Rope> ropes = new();
 		internal List<P> points = new();
 		internal List<Stick> sticks = new();
 
-		private Identity<Rope> identity;
-		public Identity<Rope> Identity
+		internal static void Update()
 		{
-			get { return AllAccess == Extent.Removed ? default : identity; }
-			set
+			for (int r = 0; r < ropes.Count; r++)
 			{
-				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = identity;
-				identity = value;
-				//if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
+				for (int i = 0; i < ropes[r].points.Count; i++)
+				{
+					if (ropes[r].points[i].locked) continue;
+					var positionBeforeUpdate = ropes[r].points[i].position;
+					ropes[r].points[i].position += ropes[r].points[i].position - ropes[r].points[i].prevPosition;
+					ropes[r].points[i].position += new Point(0, 1) + new Point(0, 0.00001) * Performance.DeltaTime * Performance.DeltaTime;
+					ropes[r].points[i].prevPosition = positionBeforeUpdate;
+				}
+
+				for (int i = 0; i < 50; i++)
+					for (int j = 0; j < ropes[r].sticks.Count; j++)
+					{
+						var stickCentre = (ropes[r].sticks[j].pA.position + ropes[r].sticks[j].pB.position) / 2;
+						var stickDir = Point.Normalize(ropes[r].sticks[j].pA.position - ropes[r].sticks[j].pB.position);
+						if (ropes[r].sticks[j].pA.locked == false)
+							ropes[r].sticks[j].pA.position = stickCentre + stickDir * ropes[r].sticks[j].length / 2;
+						if (ropes[r].sticks[j].pB.locked == false)
+							ropes[r].sticks[j].pB.position = stickCentre - stickDir * ropes[r].sticks[j].length / 2;
+					}
 			}
 		}
 
-		private bool isDestroyed;
-		public bool IsDestroyed
-		{
-			get { return isDestroyed; }
-			set
-			{
-				if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				isDestroyed = value;
-				if (Identity != null) Identity.Dispose();
-				Identity = null;
-				ropes.Remove(this);
-				//if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
-			}
-		}
+		//========================
 
-		public Rope(string uniqueID)
+		public Rope(string uniqueID) : base(uniqueID)
 		{
-			if (Identity<Sprite>.CannotCreate(uniqueID)) return;
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-
 			ropes.Add(this);
-			Identity = new(this, uniqueID);
 
 			points.Add(new P() { locked = true, position = new Point(0, -100) });
 			points.Add(new P() { locked = false, position = new Point(50, -100) });
@@ -65,27 +61,16 @@ namespace SMPL.Prefabs
 
 			points.Add(new P() { locked = true, position = new Point(0, -75) });
 			sticks.Add(new Stick(points[0], points[7]));
+
+			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
-
-		internal void Update()
+		public override void Destroy()
 		{
-			for (int i = 0; i < points.Count; i++)
-			{
-				if (points[i].locked) continue;
-				var positionBeforeUpdate = points[i].position;
-				points[i].position += points[i].position - points[i].prevPosition;
-				points[i].position += new Point(0, 1) + new Point(0, 0.00001) * Performance.DeltaTime * Performance.DeltaTime;
-				points[i].prevPosition = positionBeforeUpdate;
-			}
-
-			for (int i = 0; i < 50; i++)
-				for (int j = 0; j < sticks.Count; j++)
-				{
-					var stickCentre = (sticks[j].pA.position + sticks[j].pB.position) / 2;
-					var stickDir = Point.Normalize(sticks[j].pA.position - sticks[j].pB.position);
-					if (sticks[j].pA.locked == false) sticks[j].pA.position = stickCentre + stickDir * sticks[j].length / 2;
-					if (sticks[j].pB.locked == false) sticks[j].pB.position = stickCentre - stickDir * sticks[j].length / 2;
-				}
+			if (ErrorIfDestroyed()) return;
+			ropes.Remove(this);
+			points = null;
+			sticks = null;
+			base.Destroy();
 		}
 
 		public void Display(Camera camera)

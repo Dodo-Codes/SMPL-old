@@ -6,64 +6,58 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Hitbox : Access
+	public class Hitbox : Component
 	{
-		private readonly uint creationFrame;
-		private readonly double rand;
+		private bool Contains_(Hitbox hitboxInstance)
+		{
+			if (hitboxInstance == null || hitboxInstance.lines.Count < 3 || ignores.Contains(hitboxInstance)) return false;
+			var firstLine = new Line();
+			foreach (var kvp in hitboxInstance.lines)
+			{
+				firstLine = kvp.Value;
+				break;
+			}
+			var ray = new Line(firstLine.StartPosition, new Point(9_999, -99_999));
+			var crossSum = 0;
+			foreach (var kvp in lines) crossSum += ray.Crosses(kvp.Value) ? 1 : 0;
+			return crossSum == 1 && Crosses(hitboxInstance) == false;
+		}
+		private bool Crosses_(Hitbox hitboxInstance) => CrossPoints(hitboxInstance).Length > 0;
+
+		//==========
 
 		internal static List<Hitbox> hitboxes = new();
-
 		internal Dictionary<string, Line> localLines = new();
 		internal Dictionary<string, Line> lines = new();
 		internal List<Hitbox> crosses = new();
 		internal List<Hitbox> contains = new();
 		internal List<Hitbox> ignores = new();
 
-		private static event Events.ParamsTwo<Hitbox, Identity<Hitbox>> OnIdentityChange;
-		private static event Events.ParamsOne<Hitbox> OnCreate, OnRemoveAllIgnorance, OnRemoveAllLines;
-		private static event Events.ParamsTwo<Hitbox, Hitbox> OnAddIgnorance, OnRemoveIgnorance;
-		private static event Events.ParamsTwo<Hitbox, string> OnSetLine, OnRemoveLine;
-
-		public static class CallWhen
+		internal static void Update()
 		{
-			public static void IdentityChange(Action<Hitbox, Identity<Hitbox>> method,
-				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void Create(Action<Hitbox> method, uint order = uint.MaxValue) =>
-				OnCreate = Events.Add(OnCreate, method, order);
-			public static void SetLine(Action<Hitbox, string> method, uint order = uint.MaxValue) =>
-				OnSetLine = Events.Add(OnSetLine, method, order);
-			public static void RemoveLine(Action<Hitbox, string> method, uint order = uint.MaxValue) =>
-				OnRemoveLine = Events.Add(OnRemoveLine, method, order);
-			public static void AddIgnorance(Action<Hitbox, Hitbox> method, uint order = uint.MaxValue) =>
-				OnAddIgnorance = Events.Add(OnAddIgnorance, method, order);
-			public static void RemoveIgnorance(Action<Hitbox, Hitbox> method, uint order = uint.MaxValue) =>
-				OnRemoveIgnorance = Events.Add(OnRemoveIgnorance, method, order);
-			public static void RemoveAllIgnorance(Action<Hitbox> method, uint order = uint.MaxValue) =>
-				OnRemoveAllIgnorance = Events.Add(OnRemoveAllIgnorance, method, order);
-			public static void RemoveAllLines(Action<Hitbox> method, uint order = uint.MaxValue) =>
-				OnRemoveAllLines = Events.Add(OnRemoveAllLines, method, order);
-		}
-
-		private Identity<Hitbox> identity;
-		public Identity<Hitbox> Identity
-		{
-			get { return identity; }
-			set
+			for (int i = 0; i < hitboxes.Count; i++)
 			{
-				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = identity;
-				identity = value;
-				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
+				hitboxes[i].crosses.Clear();
+				hitboxes[i].contains.Clear();
+				for (int j = 0; j < hitboxes.Count; j++)
+				{
+					if (hitboxes[i] == hitboxes[j]) continue;
+
+					if (hitboxes[j].Crosses_(hitboxes[i])) hitboxes[j].crosses.Add(hitboxes[i]);
+					if (hitboxes[j].Contains_(hitboxes[i])) hitboxes[j].contains.Add(hitboxes[i]);
+				}
 			}
 		}
 
-		public int LineCount => lines.Count;
-		public Line[] Lines => lines.Values.ToArray();
-		public string[] LineUniqueIDs => lines.Keys.ToArray();
+		//==============
+
+		public Line[] Lines => ErrorIfDestroyed() ? default : lines.Values.ToArray();
+		public string[] LineUniqueIDs => ErrorIfDestroyed() ? default : lines.Keys.ToArray();
 		public Point MiddlePoint
 		{
 			get
 			{
+				if (ErrorIfDestroyed()) return Point.Invalid;
 				var mostLeftPoint = new Point(float.PositiveInfinity, float.PositiveInfinity);
 				var mostRightPoint = new Point(float.NegativeInfinity, float.NegativeInfinity);
 
@@ -85,68 +79,51 @@ namespace SMPL.Components
 			}
 		}
 
-		public Hitbox(string uniqueID)
+		public Hitbox(string uniqueID) : base(uniqueID)
 		{
-			if (Identity<Hitbox>.CannotCreate(uniqueID)) return;
-			Identity = new(this, uniqueID);
-
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
-
-			creationFrame = Performance.FrameCount;
-			rand = Number.Random(new Bounds(-9999, 9999), 5);
 			hitboxes.Add(this);
-			OnCreate?.Invoke(this);
+			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
-		internal void Update()
+		public override void Destroy()
 		{
-			crosses.Clear();
-			contains.Clear();
-			for (int i = 0; i < hitboxes.Count; i++)
-			{
-				if (this == hitboxes[i]) continue;
-
-				if (Crosses_(hitboxes[i])) crosses.Add(hitboxes[i]);
-				if (Contains_(hitboxes[i])) contains.Add(hitboxes[i]);
-			}
+			hitboxes.Remove(this);
+			localLines = null;
+			lines = null;
+			crosses = null;
+			contains = null;
+			ignores = null;
+			base.Destroy();
 		}
+
 		public void Display(Camera camera)
 		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (ErrorIfDestroyed()) return;
 			foreach (var kvp in lines) kvp.Value.Display(camera);
 		}
 
 		public void AddIgnorance(params Hitbox[] hitboxInstances)
 		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (ErrorIfDestroyed()) return;
 			if (hitboxInstances == null) { Debug.LogError(1, "The ignored hitboxes cannot be 'null'."); return; }
 			for (int i = 0; i < hitboxInstances.Length; i++)
-			{
-				if (ignores.Contains(hitboxInstances[i])) continue;
-				ignores.Add(hitboxInstances[i]);
-				if (Debug.CalledBySMPL == false) OnAddIgnorance?.Invoke(this, hitboxInstances[i]);
-			}
+				if (ignores.Contains(hitboxInstances[i]) == false)
+					ignores.Add(hitboxInstances[i]);
 		}
 		public void RemoveIgnorance(params Hitbox[] hitboxInstances)
 		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
+			if (ErrorIfDestroyed()) return;
 			if (hitboxInstances == null) { Debug.LogError(1, "The ignored hitboxes cannot be 'null'."); return; }
 			for (int i = 0; i < hitboxInstances.Length; i++)
-			{
-				if (ignores.Contains(hitboxInstances[i]) == false) continue;
-				ignores.Remove(hitboxInstances[i]);
-				if (Debug.CalledBySMPL == false) OnRemoveIgnorance?.Invoke(this, hitboxInstances[i]);
-			}
+				if (ignores.Contains(hitboxInstances[i]))
+					ignores.Remove(hitboxInstances[i]);
 		}
 		public void RemoveAllIgnorance()
 		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (Debug.CalledBySMPL == false) for (int i = 0; i < ignores.Count; i++) OnRemoveIgnorance?.Invoke(this, ignores[i]);
-			ignores.Clear();
-			if (Debug.CalledBySMPL == false) OnRemoveAllIgnorance?.Invoke(this);
+			if (ErrorIfDestroyed() == false) ignores.Clear();
 		}
 		public bool Ignores(params Hitbox[] hitboxInstances)
 		{
+			if (ErrorIfDestroyed()) return false;
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The ignored hitboxes cannot be 'null'.");
@@ -157,8 +134,54 @@ namespace SMPL.Components
 					return false;
 			return true;
 		}
+
+		public void SetLine(string uniqueID, Line line)
+		{
+			if (ErrorIfDestroyed()) return;
+			if (uniqueID == null)
+			{
+				Debug.LogError(1, $"The unique ID of a line cannot be 'null'.");
+				return;
+			}
+			lines[uniqueID] = line;
+			if (localLines.ContainsKey(uniqueID)) return;
+			localLines[uniqueID] = line;
+		}
+		public void RemoveLines(params string[] uniqueIDs)
+		{
+			if (ErrorIfDestroyed()) return;
+			if (uniqueIDs == null) { Debug.LogError(1, "The uniqueIDs cannot be 'null'."); return; }
+			for (int i = 0; i < uniqueIDs.Length; i++)
+			{
+				if (lines.ContainsKey(uniqueIDs[i]) == false) continue;
+				lines.Remove(uniqueIDs[i]);
+				localLines.Remove(uniqueIDs[i]);
+			}
+		}
+		public void RemoveAllLines()
+		{
+			if (ErrorIfDestroyed()) return;
+			lines.Clear();
+			localLines.Clear();
+		}
+		public bool HasLineUniqueID(string uniqueID)
+		{
+			return ErrorIfDestroyed() == false && lines.ContainsKey(uniqueID);
+		}
+		public Line GetLine(string uniqueID)
+		{
+			if (ErrorIfDestroyed()) return Line.Invalid;
+			if (HasLineUniqueID(uniqueID) == false)
+			{
+				Debug.LogError(1, $"A line with unique ID '{uniqueID}' was not found.");
+				return Line.Invalid;
+			}
+			return lines[uniqueID];
+		}
+
 		public bool Overlaps(params Hitbox[] hitboxInstances)
 		{
+			if (ErrorIfDestroyed()) return false;
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The hitbox instances cannot be 'null'.");
@@ -169,51 +192,9 @@ namespace SMPL.Components
 					return false;
 			return Contains(hitboxInstances) || Crosses(hitboxInstances);
 		}
-		public Line GetLine(string uniqueID)
-		{
-			if (HasUniqueID(uniqueID) == false)
-			{
-				Debug.LogError(1, $"A line with unique ID '{uniqueID}' was not found.");
-				return Line.Invalid;
-			}
-			return lines[uniqueID];
-		}
-
-		public void SetLine(string uniqueID, Line line)
-		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (uniqueID == null)
-			{
-				Debug.LogError(1, $"The unique ID of a line cannot be 'null'.");
-				return;
-			}
-			lines[uniqueID] = line;
-			if (localLines.ContainsKey(uniqueID)) return;
-			localLines[uniqueID] = line;
-			if (Debug.CalledBySMPL == false) OnSetLine?.Invoke(this, uniqueID);
-		}
-		public void RemoveLines(params string[] uniqueIDs)
-		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (uniqueIDs == null) { Debug.LogError(1, "The uniqueIDs cannot be 'null'."); return; }
-			for (int i = 0; i < uniqueIDs.Length; i++)
-			{
-				if (lines.ContainsKey(uniqueIDs[i]) == false) continue;
-				lines.Remove(uniqueIDs[i]);
-				localLines.Remove(uniqueIDs[i]);
-				if (Debug.CalledBySMPL == false) OnRemoveLine?.Invoke(this, uniqueIDs[i]);
-			}
-		}
-		public void RemoveAllLines()
-		{
-			if (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false) return;
-			if (Debug.CalledBySMPL == false) foreach (var kvp in lines) OnRemoveLine?.Invoke(this, kvp.Key);
-			lines.Clear();
-			localLines.Clear();
-			if (Debug.CalledBySMPL == false) OnRemoveAllLines?.Invoke(this);
-		}
 		public bool Contains(params Hitbox[] hitboxInstances)
 		{
+			if (ErrorIfDestroyed()) return false;
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
@@ -226,6 +207,7 @@ namespace SMPL.Components
 		}
 		public bool Crosses(params Hitbox[] hitboxInstances)
 		{
+			if (ErrorIfDestroyed()) return false;
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
@@ -238,6 +220,7 @@ namespace SMPL.Components
 		}
 		public Point[] CrossPoints(params Hitbox[] hitboxInstances)
 		{
+			if (ErrorIfDestroyed()) return Array.Empty<Point>();
 			if (hitboxInstances == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
@@ -259,22 +242,5 @@ namespace SMPL.Components
 			}
 			return result.ToArray();
 		}
-		public bool HasUniqueID(string uniqueID) => lines.ContainsKey(uniqueID);
-
-		private bool Contains_(Hitbox hitboxInstance)
-		{
-			if (hitboxInstance == null || hitboxInstance.lines.Count < 3 || ignores.Contains(hitboxInstance)) return false;
-			var firstLine = new Line();
-			foreach (var kvp in hitboxInstance.lines)
-			{
-				firstLine = kvp.Value;
-				break;
-			}
-			var ray = new Line(firstLine.StartPosition, new Point(9_999, -99_999));
-			var crossSum = 0;
-			foreach (var kvp in lines) crossSum += ray.Crosses(kvp.Value) ? 1 : 0;
-			return crossSum == 1 && Crosses(hitboxInstance) == false;
-		}
-		private bool Crosses_(Hitbox hitboxInstance) => CrossPoints(hitboxInstance).Length > 0;
 	}
 }

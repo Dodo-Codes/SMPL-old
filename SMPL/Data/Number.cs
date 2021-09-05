@@ -8,6 +8,35 @@ namespace SMPL.Data
 {
 	public static class Number
 	{
+		internal static double DirectionToAngle(Vector2f direction)
+		{
+			//Vector2 to Radians: atan2(Vector2.y, Vector2.x)
+			//Radians to Angle: radians * (180 / Math.PI)
+
+			var rad = (double)Math.Atan2(direction.Y, direction.X);
+			return (float)(rad * (180 / Math.PI));
+		}
+		internal static Vector2f AngleToDirection(double angle)
+		{
+			//Angle to Radians : (Math.PI / 180) * angle
+			//Radians to Vector2 : Vector2.x = cos(angle) | Vector2.y = sin(angle)
+
+			var rad = Math.PI / 180 * angle;
+			var dir = new Vector2f((float)Math.Cos(rad), (float)Math.Sin(rad));
+
+			return new Vector2f(dir.X, dir.Y);
+		}
+		internal static Vector2f DirectionBetweenPoints(Point point, Point targetPoint)
+		{
+			return Point.From(targetPoint - point);
+		}
+		internal static double To360(double angle)
+		{
+			return ((angle % 360) + 360) % 360;
+		}
+
+		// =============
+
 		public const double PI = 3.1415926535897931;
 
 		public enum Limitation
@@ -159,13 +188,13 @@ namespace SMPL.Data
 		{
 			precision = (int)Limit(precision, new Bounds(0, 5), Limitation.ClosestBound);
 			var precisionValue = (double)Math.Pow(10, precision);
-			var lowerInt = Convert.ToInt32(bounds.Lower * Math.Pow(10, Precision(bounds.Lower)));
-			var upperInt = Convert.ToInt32(bounds.Upper * Math.Pow(10, Precision(bounds.Upper)));
+			var lowerInt = Convert.ToInt32(bounds.Lower * Math.Pow(10, Precision(bounds.Lower * 500)));
+			var upperInt = Convert.ToInt32(bounds.Upper * Math.Pow(10, Precision(bounds.Upper * 500)));
 			var s = new Random(double.IsNaN(seed) ? Guid.NewGuid().GetHashCode() : (int)Round(seed));
 			var randInt = s.Next((int)(lowerInt * precisionValue), (int)(upperInt * precisionValue) + 1);
 			var result = randInt / precisionValue;
 
-			return result;
+			return result / 500;
 		}
 		public static double Average(params double[] numbers)
 		{
@@ -301,33 +330,6 @@ namespace SMPL.Data
 			if (Math.Abs(difference) > 360 - checkedSpeed) angle = targetAngle;
 
 			return angle;
-		}
-
-		internal static double DirectionToAngle(Vector2f direction)
-		{
-			//Vector2 to Radians: atan2(Vector2.y, Vector2.x)
-			//Radians to Angle: radians * (180 / Math.PI)
-
-			var rad = (double)Math.Atan2(direction.Y, direction.X);
-			return (float)(rad * (180 / Math.PI));
-		}
-		internal static Vector2f AngleToDirection(double angle)
-		{
-			//Angle to Radians : (Math.PI / 180) * angle
-			//Radians to Vector2 : Vector2.x = cos(angle) | Vector2.y = sin(angle)
-
-			var rad = Math.PI / 180 * angle;
-			var dir = new Vector2f((float)Math.Cos(rad), (float)Math.Sin(rad));
-
-			return new Vector2f(dir.X, dir.Y);
-		}
-		internal static Vector2f DirectionBetweenPoints(Point point, Point targetPoint)
-		{
-			return Point.From(targetPoint - point);
-		}
-		internal static double To360(double angle)
-		{
-			return ((angle % 360) + 360) % 360;
 		}
 	}
 }

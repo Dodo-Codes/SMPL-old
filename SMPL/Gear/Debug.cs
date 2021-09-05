@@ -4,9 +4,6 @@ namespace SMPL.Gear
 {
 	public static class Debug
 	{
-		internal readonly static string engineKey = "_tas8lf1d5ku346";
-		public static bool CalledBySMPL => System.IO.File.Exists($"{CurrentFileDirectory(2)}\\{engineKey}.txt");
-
 		/// <summary>
 		/// Wether the game is started from Visual Studio or its '.exe' file.
 		/// </summary>

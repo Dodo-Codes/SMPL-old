@@ -49,13 +49,25 @@ namespace SMPL.Gear
 			_cpuPercent = new PerformanceCounter("Processor", "% Processor Time", "_Total");
 #pragma warning restore CA1416
 		}
-		internal static void UpdateCounters()
+		internal static void EarlyUpdate()
 		{
+			frameCount++;
+		}
+		internal static void Update()
+		{
+			frameDeltaTime.Restart();
+			UpdateCounters();
+		}
+		private static void UpdateCounters()
+		{
+			if (Gate.EnterOnceWhile("a'diuq1`45gds-0", (int)Time.time.ElapsedTime.AsSeconds() % 2 == 0))
+			{
 #pragma warning disable CA1416
-			AvailableRAM = _ramAvailable.NextValue() / 1000;
-			PercentUsedRAM = _ramUsedPercent.NextValue();
-			PercentCPU = _cpuPercent.NextValue();
+				AvailableRAM = _ramAvailable.NextValue() / 1000;
+				PercentUsedRAM = _ramUsedPercent.NextValue();
+				PercentCPU = _cpuPercent.NextValue();
 #pragma warning restore CA1416
+			}
 		}
 	}
 }

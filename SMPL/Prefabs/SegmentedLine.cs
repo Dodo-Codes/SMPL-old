@@ -1,113 +1,16 @@
 ﻿using SMPL.Components;
 using SMPL.Data;
-using SMPL.Gear;
 using System;
 using System.Collections.Generic;
 
 namespace SMPL.Prefabs
 {
-	public class SegmentedLine : Access
+	public class SegmentedLine : Component
 	{
-		internal static List<SegmentedLine> lines = new();
 		private Point[] points;
-		public Point[] Points
-		{
-			get { Update(); return (Point[])points.Clone(); }
-			private set { points = value; Update(); }
-		}
-		private Point originPosition;
-		public Point OriginPosition
-		{
-			get { return AllAccess == Extent.Removed ? default : originPosition; }
-			private set { originPosition = value; }
-		}
-		private Point targetPosition;
-		public Point TargetPosition
-		{
-			get { return AllAccess == Extent.Removed ? default : targetPosition; }
-			set
-			{
-				if (targetPosition == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = targetPosition;
-				targetPosition = value;
-				Update();
-				//if (Debug.CalledBySMPL == false) OnTexturePathChange?.Invoke(this, prev);
-			}
-		}
+		private Point originPosition, targetPosition;
 
-		private static event Events.ParamsTwo<SegmentedLine, Identity<SegmentedLine>> OnIdentityChange;
-      private static event Events.ParamsTwo<SegmentedLine, string> OnCreate;
-      private static event Events.ParamsOne<SegmentedLine> OnDestroy;
-
-		public static class CallWhen
-		{
-			public static void Create(Action<SegmentedLine, string> method, uint order = uint.MaxValue) =>
-				OnCreate = Events.Add(OnCreate, method, order);
-			public static void IdentityChange(Action<SegmentedLine, Identity<SegmentedLine>> method,
-				uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
-			public static void Destroy(Action<SegmentedLine> method, uint order = uint.MaxValue) =>
-				OnDestroy = Events.Add(OnDestroy, method, order);
-		}
-
-      private Identity<SegmentedLine> identity;
-		public Identity<SegmentedLine> Identity
-		{
-			get { return identity; }
-			set
-			{
-				if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				var prev = identity;
-				identity = value;
-				if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
-			}
-		}
-
-		private bool isDestroyed;
-		public bool IsDestroyed
-		{
-			get { return isDestroyed; }
-			set
-			{
-				if (isDestroyed == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-				isDestroyed = value;
-
-				if (Identity != null) Identity.Dispose();
-				lines.Remove(this);
-				Identity = null;
-				AllAccess = Extent.Removed;
-				if (Debug.CalledBySMPL == false) OnDestroy?.Invoke(this);
-			}
-		}
-
-		public SegmentedLine(string uniqueID, Point originPosition, params double[] segmentLengths)
-		{
-			if (Identity<Audio>.CannotCreate(uniqueID)) return;
-			Identity = new(this, uniqueID);
-
-			GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-			DenyAccessToFile(Debug.CurrentFilePath(0)); // abandon ship
-
-			lines.Add(this);
-
-			OriginPosition = originPosition;
-
-			points = new Point[segmentLengths.Length + 1];
-			points[0] = originPosition;
-			for (int i = 1; i < points.Length; i++)
-				points[i] = points[i - 1] + new Point(segmentLengths[i - 1], 0);
-		}
-		public void Display(Camera camera)
-		{
-			for (int i = 0; i < points.Length - 1; i++)
-				new Line(points[i], points[i + 1]).Display(camera);
-		}
-
-		internal void Update()
-		{
-			points[0] = originPosition;
-			Constrain(points, targetPosition);
-		}
-		internal static void Constrain(Point[] points, Point targetPoint)
+		private static void Constrain(Point[] points, Point targetPoint)
 		{
 			var originPoint = points[0];
 			var segmentLengths = new double[points.Length - 1];
@@ -129,6 +32,65 @@ namespace SMPL.Prefabs
 				var dstToTarget = Point.Magnitude(points[^1] - targetPoint);
 				if (startingFromTarget == false && dstToTarget <= 0.01) return;
 			}
+		}
+
+		// ========
+
+		internal static List<SegmentedLine> lines = new();
+
+		internal static void Update()
+		{
+			for (int i = 0; i < lines.Count; i++)
+			{
+				lines[i].points[0] = lines[i].originPosition;
+				Constrain(lines[i].points, lines[i].targetPosition);
+			}
+		}
+
+		// ========
+
+		public Point[] Points
+		{
+			get { return ErrorIfDestroyed() ? Array.Empty<Point>() : (Point[])points.Clone(); }
+			private set { if (ErrorIfDestroyed() == false) points = value; }
+		}
+		public Point OriginPosition
+		{
+			get { return ErrorIfDestroyed() ? Point.Invalid : originPosition; }
+			private set { if (ErrorIfDestroyed() == false) originPosition = value; }
+		}
+		public Point TargetPosition
+		{
+			get { return ErrorIfDestroyed() ? Point.Invalid : targetPosition; }
+			set { if (ErrorIfDestroyed() == false) targetPosition = value; }
+		}
+
+		public SegmentedLine(string uniqueID, Point originPosition, params double[] segmentLengths) : base(uniqueID)
+		{
+			lines.Add(this);
+
+			OriginPosition = originPosition;
+
+			points = new Point[segmentLengths.Length + 1];
+			points[0] = originPosition;
+			for (int i = 1; i < points.Length; i++)
+				points[i] = points[i - 1] + new Point(segmentLengths[i - 1], 0);
+
+			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
+		}
+		public override void Destroy()
+		{
+			if (ErrorIfDestroyed()) return;
+			lines.Remove(this);
+			points = null;
+			base.Destroy();
+		}
+
+		public void Display(Camera camera)
+		{
+			if (ErrorIfDestroyed() == false)
+				for (int i = 0; i < points.Length - 1; i++)
+					new Line(points[i], points[i + 1]).Display(camera);
 		}
 	}
 }

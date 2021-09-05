@@ -9,29 +9,21 @@ namespace TestGame
 	{
 		public Player()
 		{
-			Window.IsHidden = true;
-			////Multiplayer.StartServer();
-			//Multiplayer.ConnectClient("test", Multiplayer.SameDeviceIP);
-			//Multiplayer.CallWhen.MessageReceive(OnMessageReceived);
-			//
-			//Time.CallWhen.Update(Always);
-			//Camera.CallWhen.Display(OnDraw);
-			//var r = new SegmentedLine("test", new Point(0, 0), 10, 10, 10, 10, 10, 10, 10, 10, 10);
-			Console.Log(Debug.CurrentFileDirectory(2));
-			Always();
+			Assets.Load(Assets.Type.Texture, "penka.png");
+			Assets.CallWhen.LoadEnd(OnAssetsLoadEnd);
+			Camera.CallWhen.Display(Display);
 		}
-		void Always()
+		void OnAssetsLoadEnd()
 		{
-			Console.Log(Debug.CurrentFileDirectory(1));
-			//Multiplayer.SendMessage(new Multiplayer.Message(Multiplayer.Message.Toward.ServerAndAllClients, "hi", "hello", false));
+			var spr = new Sprite("test");
+			spr.Area = new Area("test-1");
+			spr.TexturePath = "penka.png";
 		}
-		void OnMessageReceived(Multiplayer.Message msg)
+		void Display(Camera camera)
 		{
-			//Console.Log(msg);
+			var spr = Component.PickByUniqueID("test4") as Sprite;
+			if (spr == null) return;
+			spr.Display(camera);
 		}
-		//void OnDraw(Camera camera)
-		//{
-		//	if (Performance.FrameCount % 20 == 0) Window.Title = $"Test Game ({Performance.FPS:F2} FPS)";
-		//}
 	}
 }

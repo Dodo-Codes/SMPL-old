@@ -6,7 +6,7 @@ using SFML.Graphics;
 
 namespace SMPL.Data
 {
-	public struct Quad
+	public class Quad
 	{
 		public Corner CornerA { get; set; }
 		public Corner CornerB { get; set; }

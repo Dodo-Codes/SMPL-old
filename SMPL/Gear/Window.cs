@@ -160,15 +160,13 @@ namespace SMPL.Gear
 					Debug.LogError(1, $"The icon texture path cannot be 'null'.");
 					return;
 				}
-				if (File.textures.ContainsKey(value) == false)
+				if (Assets.textures.ContainsKey(value) == false)
 				{
-					Debug.LogError(1, $"The texture at '{value}' is not loaded.\n" +
-						$"Use '{nameof(File)}.{nameof(File.LoadAssets)} ({nameof(File)}.{nameof(File.Asset)}." +
-						$"{nameof(File.Asset.Texture)}, \"{value}\")' to load it.");
+					Assets.NotLoadedError(Assets.Type.Texture, value);
 					return;
 				}
 				iconTexPath = value;
-				var t = File.textures[value];
+				var t = Assets.textures[value];
 				window.SetIcon(t.Size.X, t.Size.Y, t.CopyToImage().Pixels);
 			}
 		}
@@ -245,11 +243,7 @@ namespace SMPL.Gear
 		}
 		internal static void Initialize(Size pixelSize)
 		{
-			var w = (int)VideoMode.DesktopMode.Width;
-			var h = (int)VideoMode.DesktopMode.Height;
-			
 			form = new Form();
-			form.SetBounds(w, h, w / 2, h / 2);
 
 			window = new RenderWindow(form.Handle);
 			window.SetVisible(true);
@@ -257,10 +251,11 @@ namespace SMPL.Gear
 
 			var scrSize = Screen.PrimaryScreen.Bounds;
 			var size = new Size(scrSize.Width, scrSize.Height);
+			form.SetBounds(scrSize.Width / 4, scrSize.Height / 4, scrSize.Width / 2, scrSize.Height / 2);
 			
 			Camera.WorldCamera = new("smpl-world-camera", new Point(0, 0), size / pixelSize);
-			Camera.WorldCamera.DisplayArea = new("smpl-world-camera-area");
-			Camera.WorldCamera.DisplayArea.Size = size;
+			Camera.WorldCamera.display2D = new("smpl-world-camera-area");
+			Camera.WorldCamera.display2D.Size = size;
 			window.SetView(Camera.WorldCamera.view);
 
 			CurrentType = Type.Normal;

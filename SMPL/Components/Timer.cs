@@ -1,168 +1,117 @@
 ﻿using System;
+using System.Collections.Generic;
 using SMPL.Data;
 using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Timer : Access
+	public class Timer : Component
    {
+      private static readonly List<Timer> timers = new();
       private static event Events.ParamsOne<Timer> OnEnd, OnPause;
-      private static event Events.ParamsTwo<Timer, int> OnEndCountChange;
-      private static event Events.ParamsTwo<Timer, double> OnCreateAndStart, OnDurationChange, OnCountdownChange,
-         OnProgressChange, OnProgressPercentChange;
+      private static event Events.ParamsTwo<Timer, double> OnCreateAndStart;
       private static event Events.ParamsFour<Timer, double, double, double> OnUpdate;
-      private static event Events.ParamsTwo<Timer, Identity<Timer>> OnIdentityChange;
+
+      private double progress, countdown, endCount, duration;
+      private bool isPaused;
+
+      //=============
+
+		internal static void Update()
+      {
+         for (int i = 0; i < timers.Count; i++)
+         {
+            var dt = Performance.DeltaTime;
+            if (timers[i] == null) continue;
+            if (timers[i].Countdown < 0) timers[i].Countdown = 0;
+            if (timers[i].IsPaused || timers[i].Countdown == 0) continue;
+            var prevCd = timers[i].Countdown;
+            var prevPr = timers[i].Progress;
+            var prevPrPer = timers[i].ProgressPercent;
+            timers[i].Countdown -= dt;
+            OnUpdate?.Invoke(timers[i], prevCd, prevPr, prevPrPer);
+            if (Gate.EnterOnceWhile(timers[i] + "end-as;li3'f2", timers[i].Countdown <= 0) ||
+               dt > timers[i].Duration)
+            {
+               timers[i].EndCount++;
+               timers[i].Countdown = 0;
+               OnEnd?.Invoke(timers[i]);
+            }
+         }
+      }
+
+      //=============
 
       public static class CallWhen
       {
          public static void CreateAndStart(Action<Timer, double> method, uint order = uint.MaxValue) =>
          OnCreateAndStart = Events.Add(OnCreateAndStart, method, order);
-         public static void IdentityChange(Action<Timer, Identity<Timer>> method,
-            uint order = uint.MaxValue) => OnIdentityChange = Events.Add(OnIdentityChange, method, order);
          public static void End(Action<Timer> method, uint order = uint.MaxValue) =>
             OnEnd = Events.Add(OnEnd, method, order);
          public static void Pause(Action<Timer> method, uint order = uint.MaxValue) =>
             OnPause = Events.Add(OnPause, method, order);
-         public static void EndCountChange(Action<Timer, int> method, uint order = uint.MaxValue) =>
-            OnEndCountChange = Events.Add(OnEndCountChange, method, order);
-         public static void DurationChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
-            OnDurationChange = Events.Add(OnDurationChange, method, order);
          public static void Update(Action<Timer, double, double, double> method, uint order = uint.MaxValue) =>
             OnUpdate = Events.Add(OnUpdate, method, order);
-         public static void ProgressChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
-            OnProgressChange = Events.Add(OnProgressChange, method, order);
-         public static void CountdownChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
-            OnCountdownChange = Events.Add(OnCountdownChange, method, order);
-         public static void ProgressPercentChange(Action<Timer, double> method, uint order = uint.MaxValue) =>
-            OnProgressPercentChange = Events.Add(OnProgressPercentChange, method, order);
       }
 
-      private Identity<Timer> identity;
-      public Identity<Timer> Identity
+      public double EndCount
       {
-         get { return identity; }
-         set
-         {
-            if (identity == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-            var prev = identity;
-            identity = value;
-            if (Debug.CalledBySMPL == false) OnIdentityChange?.Invoke(this, prev);
-         }
+         get { return ErrorIfDestroyed() ? double.NaN : endCount; }
+         set { if (ErrorIfDestroyed() == false) endCount = value; }
       }
-
-      private int endCount;
-      public int EndCount
+      public double Duration
       {
-         get { return endCount; }
-         set
-         {
-            if (endCount == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-            var prev = endCount;
-            endCount = value;
-            if (Debug.CalledBySMPL == false) OnEndCountChange?.Invoke(this, prev);
-         }
+         get { return ErrorIfDestroyed() ? double.NaN : duration; }
+         private set { if (ErrorIfDestroyed() == false) duration = value; }
       }
-      public double Duration { get; private set; }
-      private double progress;
       public double Progress
       {
-         get { return progress; }
+         get { return ErrorIfDestroyed() ? double.NaN : progress; }
          set
          {
-            if (progress == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-            var prevCd = Countdown;
-            var prevPr = Progress;
-            var prevPrPer = ProgressPercent;
+            if (ErrorIfDestroyed()) return;
             progress = value;
             countdown = Duration - value;
-            if (Debug.CalledBySMPL) return;
-            OnProgressChange?.Invoke(this, prevPr);
-            OnProgressPercentChange?.Invoke(this, prevPrPer);
-            OnCountdownChange?.Invoke(this, prevCd);
          }
       }
       public double ProgressPercent
       {
-         get { return Number.ToPercent(progress, new Bounds(0, Duration)); ; }
+         get { return ErrorIfDestroyed() ? double.NaN : Number.ToPercent(progress, new Bounds(0, Duration)); }
          set
          {
-            value = Number.Limit(value, new Bounds(0, 100));
-            var prPer = Number.FromPercent(value, new Bounds(0, Duration));
-            if (prPer == progress || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-            var prevCd = Countdown;
-            var prevPr = Progress;
-            var prevPrPer = ProgressPercent;
-            progress = prPer;
-            if (Debug.CalledBySMPL) return;
-            OnProgressChange?.Invoke(this, prevPr);
-            OnProgressPercentChange?.Invoke(this, prevPrPer);
-            OnCountdownChange?.Invoke(this, prevCd);
+            if (ErrorIfDestroyed()) return;
+            progress = Number.FromPercent(Number.Limit(value, new Bounds(0, 100)), new Bounds(0, Duration));
          }
       }
-      private double countdown;
       public double Countdown
       {
-         get { return countdown; }
+         get { return ErrorIfDestroyed() ? double.NaN : countdown; }
          set
          {
-            if (countdown == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-            var prevCd = Countdown;
-            var prevPr = Progress;
-            var prevPrPer = ProgressPercent;
+            if (ErrorIfDestroyed()) return;
             countdown = value;
             progress = Duration - value;
-            if (Debug.CalledBySMPL) return;
-            OnProgressChange?.Invoke(this, prevPr);
-            OnProgressPercentChange?.Invoke(this, prevPrPer);
-            OnCountdownChange?.Invoke(this, prevCd);
          }
       }
-      private bool isPaused;
       public bool IsPaused
       {
-         get { return isPaused; }
-         set
-         {
-            if (isPaused == value || (Debug.CalledBySMPL == false && IsCurrentlyAccessible() == false)) return;
-            isPaused = value;
-            if (Debug.CalledBySMPL == false) OnPause?.Invoke(this);
-         }
+         get { return ErrorIfDestroyed() == false && isPaused; }
+         set { if (ErrorIfDestroyed() == false)  isPaused = value; }
       }
 
-      public Timer(string uniqueID, double durationInSeconds)
+      public Timer(string uniqueID, double durationInSeconds) : base(uniqueID)
       {
-         if (Identity<Sprite>.CannotCreate(uniqueID)) return;
-         accessPaths.Clear(); // abandon ship
-         GrantAccessToFile(Debug.CurrentFilePath(1)); // grant the user access
-
-         Identity = new(this, uniqueID);
+         timers.Add(this);
          Duration = durationInSeconds;
          Countdown = Duration;
          OnCreateAndStart?.Invoke(this, Duration);
+         if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
       }
-
-      internal static void Update()
-      {
-         var timerUIDs = Identity<Timer>.AllUniqueIDs;
-         for (int j = 0; j < timerUIDs.Length; j++)
-         {
-            var dt = Performance.DeltaTime;
-            var timer = Identity<Timer>.PickByUniqueID(timerUIDs[j]);
-            if (timer.Countdown < 0) timer.Countdown = 0;
-            if (timer.IsPaused || timer.Countdown == 0) continue;
-            var prevCd = timer.Countdown;
-            var prevPr = timer.Progress;
-            var prevPrPer = timer.ProgressPercent;
-            timer.Countdown -= dt;
-            OnUpdate?.Invoke(timer, prevCd, prevPr, prevPrPer);
-            if (Gate.EnterOnceWhile(timerUIDs[j] + "end-as;li3'f2", timer.Countdown <= 0) ||
-               dt > timer.Duration)
-            {
-               timer.EndCount++;
-               timer.Countdown = 0;
-               OnEnd?.Invoke(timer);
-            }
-         }
-      }
+		public override void Destroy()
+		{
+         if (ErrorIfDestroyed()) return;
+         timers.Remove(this);
+         base.Destroy();
+		}
    }
 }

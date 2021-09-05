@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace SMPL.Data
 {
-	public struct Corner
+	public class Corner
 	{
 		public Point Position { get; set; }
 		public double TextureX { get; set; }

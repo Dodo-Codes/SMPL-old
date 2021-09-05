@@ -11,390 +11,7 @@ namespace SMPL.Gear
 {
 	public static class File
 	{
-		internal struct QueuedAsset
-		{
-			public string path;
-			public Asset asset;
-
-			public QueuedAsset(string path, Asset asset)
-			{
-				this.path = path;
-				this.asset = asset;
-			}
-		}
-
-		private enum Side { Top, Left, Right, Bottom }
-		public enum Asset { Texture, Font, Sound, Music }
-		public static double PercentLoaded { get; private set; }
-		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
-
-		private static event Events.ParamsZero OnAssetLoadStart, OnAssetLoadUpdate, OnAssetLoadEnd;
-
-		public static class CallWhen
-		{
-			public static void AssetLoadStart(Action method, uint order = uint.MaxValue) =>
-			OnAssetLoadStart = Events.Add(OnAssetLoadStart, method, order);
-			public static void AssetLoadUpdate(Action method, uint order = uint.MaxValue) =>
-				OnAssetLoadUpdate = Events.Add(OnAssetLoadUpdate, method, order);
-			public static void AssetLoadEnd(Action method, uint order = uint.MaxValue) =>
-				OnAssetLoadEnd = Events.Add(OnAssetLoadEnd, method, order);
-		}
-
-		internal static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
-		internal static List<QueuedAsset> queuedAssets = new();
-		internal static Dictionary<string, Texture> textures = new();
-		internal static Dictionary<string, Font> fonts = new();
-		internal static Dictionary<string, Sound> sounds = new();
-		internal static Dictionary<string, Music> music = new();
-
-		internal static void Initialize() => CreateShaderFiles();
-		internal static void UpdateMainThreadAssets()
-		{
-			if (assetLoadBegin) OnAssetLoadStart?.Invoke();
-			if (assetLoadUpdate) OnAssetLoadUpdate?.Invoke();
-			if (assetLoadEnd) OnAssetLoadEnd?.Invoke();
-
-			assetLoadBegin = false;
-			assetLoadUpdate = false;
-			assetLoadEnd = false;
-		}
-
-		// thread for loading resources
-		internal static void LoadQueuedResources()
-		{
-			while (Window.window.IsOpen)
-			{
-				Thread.Sleep(1);
-				PercentLoaded = 100;
-				if (queuedAssets == null || queuedAssets.Count == 0) continue;
-
-				// thread-safe local list in case the main thread queues something while this one foreaches the list
-				var curQueuedAssets = new List<QueuedAsset>(queuedAssets);
-				var loadedCount = 0;
-				assetLoadBegin = true;
-				for (int i = 0; i < curQueuedAssets.Count; i++)
-				{
-					var asset = curQueuedAssets[i].asset;
-					var path = curQueuedAssets[i].path;
-					path = path.Replace('/', '\\');
-					try
-					{
-						switch (asset)
-						{
-							case Asset.Texture: textures[path] = new Texture(path); break;
-							case Asset.Font: fonts[path] = new Font(path); break;
-							case Asset.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
-							case Asset.Music: music[path] = new Music(path); break;
-						}
-					}
-					catch (Exception)
-					{
-						Debug.LogError(-1, $"Failed to load asset {asset} from file '{path}'.");
-						continue;
-					}
-					loadedCount++;
-					var percent = Number.ToPercent(loadedCount, new Bounds(0, queuedAssets.Count));
-					PercentLoaded = percent;
-					assetLoadUpdate = true;
-					Thread.Sleep(1);
-				}
-				queuedAssets.Clear(); // done loading, clear queue
-				assetLoadEnd = true;
-			}
-		}
-
-		internal static string CreateDirectoryForFile(string filePath)
-		{
-			filePath = filePath.Replace('/', '\\');
-			var path = filePath.Split('\\');
-			var full = $"{MainDirectory}{filePath}";
-			var curPath = MainDirectory;
-			for (int i = 0; i < path.Length - 1; i++)
-			{
-				var p = $"{curPath}\\{path[i]}";
-				if (Directory.Exists(p) == false) System.IO.Directory.CreateDirectory(p);
-
-				curPath = p;
-			}
-			return full;
-		}
-		public static void CreateFolders(params string[] paths)
-		{
-			for (int i = 0; i < paths.Length; i++) Directory.CreateDirectory(paths[i]);
-		}
-
-		public static void UnloadAssets(Asset asset, params string[] filePaths)
-		{
-			for (int i = 0; i < filePaths.Length; i++)
-				switch (asset)
-				{
-					case Asset.Texture:
-						{
-							if (NotLoaded(textures, filePaths[i], "Texture")) return;
-							textures[filePaths[i]].Dispose();
-							textures.Remove(filePaths[i]);
-							break;
-						}
-					case Asset.Font:
-						{
-							if (NotLoaded(fonts, filePaths[i], "Font")) return;
-							fonts.Remove(filePaths[i]);
-							break;
-						}
-					case Asset.Sound:
-						{
-							if (NotLoaded(sounds, filePaths[i], "Sound")) return;
-							sounds[filePaths[i]].Dispose();
-							sounds.Remove(filePaths[i]);
-							break;
-						}
-					case Asset.Music:
-						{
-							if (NotLoaded(sounds, filePaths[i], "Music")) return;
-							music.Remove(filePaths[i]);
-							break;
-						}
-				}
-
-			bool NotLoaded<T>(Dictionary<string, T> dict, string filePath, string name)
-			{
-				if (dict.ContainsKey(filePath)) return false;
-				Debug.LogError(2, $"Cannot unload {name} asset '{filePath}' since it is not loaded.");
-				return true;
-			}
-		}
-		public static bool AssetsAreLoaded(params string[] filePaths)
-		{
-			for (int i = 0; i < filePaths.Length; i++)
-			{
-				if (textures.ContainsKey(filePaths[i]) == false || fonts.ContainsKey(filePaths[i]) == false ||
-					sounds.ContainsKey(filePaths[i]) == false || music.ContainsKey(filePaths[i]) == false)
-						return false;
-			}
-			return true;
-		}
-		public static void LoadAssets(Asset asset, params string[] filePaths)
-		{
-			for (int i = 0; i < filePaths.Length; i++)
-			{
-				switch (asset)
-				{
-					case Asset.Texture: { if (AlreadyLoaded(textures, filePaths[i], "Texture")) return; break; }
-					case Asset.Font: { if (AlreadyLoaded(fonts, filePaths[i], "Font")) return; break; }
-					case Asset.Sound: { if (AlreadyLoaded(sounds, filePaths[i], "Sound")) return; break; }
-					case Asset.Music: { if (AlreadyLoaded(sounds, filePaths[i], "Music")) return; break; }
-				}
-				queuedAssets.Add(new QueuedAsset()
-				{
-					asset = asset,
-					path = filePaths[i]
-				});
-			}
-			bool AlreadyLoaded<T>(Dictionary<string, T> dict, string path, string name)
-			{
-				if (dict.ContainsKey(path) == false) return false;
-				Debug.LogError(2, $"Cannot load {name} asset '{path}' since it is already loaded.");
-				return true;
-			}
-		}
-		/// <summary>
-		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="LoadText"/>.<br></br><br></br>
-		/// This is a slow operation - do not call frequently.
-		/// </summary>
-		public static void SaveText(string text, string filePath = "folder/file.extension")
-		{
-			var full = CreateDirectoryForFile(filePath);
-
-			try
-			{
-				System.IO.File.WriteAllText(full, text);
-			}
-			catch (Exception)
-			{
-				Debug.LogError(1, $"Could not save file '{full}'.");
-				return;
-			}
-		}
-		/// <summary>
-		/// Reads all the text from the file at <paramref name="filePath"/> and returns it as a <see cref="string"/> if successful. Returns <paramref name="null"/> otherwise. A text can be saved to a file with <see cref="SaveText"/>.<br></br><br></br>
-		/// This is a slow operation - do not call frequently.
-		/// </summary>
-		public static string LoadText(string filePath = "folder/file.extension")
-		{
-			filePath = filePath.Replace('/', '\\');
-			var full = $"{MainDirectory}\\{filePath}";
-
-			if (Directory.Exists(full) == false)
-			{
-				Console.Log($"Could not load file '{full}'. Directory/file not found.");
-				return default;
-			}
-			try
-			{
-				return System.IO.File.ReadAllText(full);
-			}
-			catch (Exception)
-			{
-				Console.Log($"Could not load file '{full}'.");
-				return default;
-			}
-		}
-		public static void OutlinePictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
-			bool fillDiagonals = false)
-		{
-			EditPictures(color, directoryPath, onlyOutline, fillDiagonals);
-		}
-		public static void FillPictures(Data.Color color, string directoryPath = "folder/pictures")
-		{
-			EditPictures(color, directoryPath, false, false, true);
-		}
-		private static void EditPictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
-			bool fillDiagonals = false, bool fill = false)
-		{
-			if (Directory.Exists(directoryPath) == false)
-			{
-				Debug.LogError(1, $"Directory '{directoryPath}' not found.");
-				return;
-			}
-			var outlineOrFill = fill ? "filled" : "outlined";
-			var outliningOrFilling = fill ? "Filling" : "Outlining";
-			var resultPath = $"{directoryPath}\\____{outlineOrFill} pictures";
-			var col = Data.Color.From(color);
-			var done = 0;
-			var errors = 0;
-
-			Console.Log($"{outliningOrFilling} pictures...");
-			Directory.CreateDirectory(resultPath);
-			var directories = Directory.GetDirectories($"{directoryPath}");
-			for (int i = 0; i < directories.Length; i++)
-			{
-				EditFolder(directories[i]);
-			}
-			EditFolder($"{directoryPath}");
-			Console.Log($"{outliningOrFilling} pictures - done. Result can be found in '{resultPath}'.\n" +
-				$"Total {outlineOrFill}: {done}, Skipped: {errors}");
-
-			void EditFolder(string folder)
-			{
-				if (folder == $"{directoryPath}\\____filled pictures" ||
-					folder == $"{directoryPath}\\____outlined pictures") return;
-
-				//var result = "";
-				//var path = folder.Split('\\');
-				//var adding = false;
-				//for (int i = 0; i < path.Length; i++)
-				//{
-				//	if (adding)
-				//	{
-				//		result = result.Insert(result.Length, path[i]);
-				//		if (i != path.Length - 1)
-				//		{
-				//			result = result.Insert(result.Length, "\\");
-				//		}
-				//	}
-				//	if (path[i] == "Content")
-				//	{
-				//		adding = true;
-				//	}
-				//}
-				var files = Directory.GetFiles(folder);
-				for (int i = 0; i < files.Length; i++)
-				{
-					EditFile($"{files[i]}");
-				}
-				var currentDirectories = Directory.GetDirectories(folder).ToList();
-				while (currentDirectories.Count > 0)
-				{
-					EditFolder(currentDirectories[0]);
-					currentDirectories.RemoveAt(0);
-				}
-			}
-			void EditFile(string path)
-			{
-				try
-				{
-					var img = new Image(path);
-					var transparent = new SFML.Graphics.Color(0, 0, 0, 0);
-					var offset = fill ? 0u : 2u;
-					var resultImg = new Image(img.Size.X + offset, img.Size.Y + offset, transparent);
-					for (uint y = 0; y < img.Size.Y; y++)
-					{
-						for (uint x = 0; x < img.Size.X; x++)
-						{
-							var curCol = img.GetPixel(x, y);
-							if (curCol.A == 0) continue;
-
-							if (fill == false)
-							{
-								var validX = x - 1 != uint.MaxValue && x + 1 != img.Size.X;
-								var validY = y - 1 != uint.MaxValue && y + 1 != img.Size.Y;
-								var valid = validX && validY;
-
-								if (fillDiagonals && valid && img.GetPixel(x - 1, y - 1).A == 0) resultImg.SetPixel(x, y, col);
-								if (fillDiagonals && valid && img.GetPixel(x + 1, y - 1).A == 0) resultImg.SetPixel(x + 2, y, col);
-								if (fillDiagonals && valid && img.GetPixel(x - 1, y + 1).A == 0) resultImg.SetPixel(x, y + 2, col);
-								if (fillDiagonals && valid && img.GetPixel(x + 1, y + 1).A == 0) resultImg.SetPixel(x + 2, y + 2, col);
-
-								if (validX && img.GetPixel(x - 1, y).A == 0) resultImg.SetPixel(x, y + 1, col);
-								if (validX && img.GetPixel(x + 1, y).A == 0) resultImg.SetPixel(x + 2, y + 1, col);
-								if (validY && img.GetPixel(x, y - 1).A == 0) resultImg.SetPixel(x + 1, y, col);
-								if (validY && img.GetPixel(x, y + 1).A == 0) resultImg.SetPixel(x + 1, y + 2, col);
-
-								if (curCol.A != 0)
-								{
-									if (x == 0)
-									{
-										resultImg.SetPixel(x, y + 1, col);
-										if (fillDiagonals) { resultImg.SetPixel(x, y, col); resultImg.SetPixel(x, y + 2, col); }
-									}
-									if (y == 0)
-									{
-										resultImg.SetPixel(x + 1, y, col);
-										if (fillDiagonals) { resultImg.SetPixel(x, y, col); resultImg.SetPixel(x + 2, y, col); }
-									}
-									if (x == img.Size.X - 1)
-									{
-										resultImg.SetPixel(x + 2, y + 1, col);
-										if (fillDiagonals) { resultImg.SetPixel(x + 2, y, col); resultImg.SetPixel(x + 2, y + 2, col); }
-									}
-									if (y == img.Size.Y - 1)
-									{
-										resultImg.SetPixel(x + 1, y + 2, col);
-										if (fillDiagonals) { resultImg.SetPixel(x, y + 2, col); resultImg.SetPixel(x + 2, y + 2, col); }
-									}
-								}
-							}
-							else curCol = col;
-							resultImg.SetPixel(x + offset / 2, y + offset / 2, onlyOutline ? transparent : curCol);
-						}
-					}
-
-					var split = path.Split('\\');
-					var name = split[^1];
-					var newPath = "";
-					if (split.Length > 2)
-					{
-						for (int i = 1; i < split.Length - 1; i++)
-						{
-							newPath += $"{split[i]}\\";
-						}
-					}
-					Directory.CreateDirectory($"{resultPath}\\{newPath}");
-					var result = resultImg.SaveToFile($"{resultPath}\\{newPath}{split[^1]}");
-					img.Dispose();
-					resultImg.Dispose();
-					done++;
-				}
-				catch (Exception) { errors++; }
-			}
-		}
-
-		internal static void CreateShaderFiles()
-		{
-			System.IO.File.WriteAllText("shaders.vert", vert);
-			System.IO.File.WriteAllText("shaders.frag", frag);
-		}
-		internal static readonly string frag =
+		private const string frag =
 @"
 uniform sampler2D Texture;
 uniform sampler2D RawTexture;
@@ -631,7 +248,7 @@ void main(void)
 	// ==================================================================================================================
 	gl_FragColor = vec4(color, alpha);
 }";
-		internal static readonly string vert =
+		private const string vert =
 @"
 uniform float Time;
 
@@ -675,5 +292,233 @@ void main()
 	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 	gl_FrontColor = gl_Color;
 }";
+		private static void EditPictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
+			bool fillDiagonals = false, bool fill = false)
+		{
+			if (Directory.Exists(directoryPath) == false)
+			{
+				Debug.LogError(1, $"Directory '{directoryPath}' not found.");
+				return;
+			}
+			var outlineOrFill = fill ? "filled" : "outlined";
+			var outliningOrFilling = fill ? "Filling" : "Outlining";
+			var resultPath = $"{directoryPath}\\____{outlineOrFill} pictures";
+			var col = Data.Color.From(color);
+			var done = 0;
+			var errors = 0;
+
+			Console.Log($"{outliningOrFilling} pictures...");
+			Directory.CreateDirectory(resultPath);
+			var directories = Directory.GetDirectories($"{directoryPath}");
+			for (int i = 0; i < directories.Length; i++)
+			{
+				EditFolder(directories[i]);
+			}
+			EditFolder($"{directoryPath}");
+			Console.Log($"{outliningOrFilling} pictures - done. Result can be found in '{resultPath}'.\n" +
+				$"Total {outlineOrFill}: {done}, Skipped: {errors}");
+
+			void EditFolder(string folder)
+			{
+				if (folder == $"{directoryPath}\\____filled pictures" ||
+					folder == $"{directoryPath}\\____outlined pictures") return;
+
+				//var result = "";
+				//var path = folder.Split('\\');
+				//var adding = false;
+				//for (int i = 0; i < path.Length; i++)
+				//{
+				//	if (adding)
+				//	{
+				//		result = result.Insert(result.Length, path[i]);
+				//		if (i != path.Length - 1)
+				//		{
+				//			result = result.Insert(result.Length, "\\");
+				//		}
+				//	}
+				//	if (path[i] == "Content")
+				//	{
+				//		adding = true;
+				//	}
+				//}
+				var files = Directory.GetFiles(folder);
+				for (int i = 0; i < files.Length; i++)
+				{
+					EditFile($"{files[i]}");
+				}
+				var currentDirectories = Directory.GetDirectories(folder).ToList();
+				while (currentDirectories.Count > 0)
+				{
+					EditFolder(currentDirectories[0]);
+					currentDirectories.RemoveAt(0);
+				}
+			}
+			void EditFile(string path)
+			{
+				try
+				{
+					var img = new Image(path);
+					var transparent = new SFML.Graphics.Color(0, 0, 0, 0);
+					var offset = fill ? 0u : 2u;
+					var resultImg = new Image(img.Size.X + offset, img.Size.Y + offset, transparent);
+					for (uint y = 0; y < img.Size.Y; y++)
+					{
+						for (uint x = 0; x < img.Size.X; x++)
+						{
+							var curCol = img.GetPixel(x, y);
+							if (curCol.A == 0) continue;
+
+							if (fill == false)
+							{
+								var validX = x - 1 != uint.MaxValue && x + 1 != img.Size.X;
+								var validY = y - 1 != uint.MaxValue && y + 1 != img.Size.Y;
+								var valid = validX && validY;
+
+								if (fillDiagonals && valid && img.GetPixel(x - 1, y - 1).A == 0) resultImg.SetPixel(x, y, col);
+								if (fillDiagonals && valid && img.GetPixel(x + 1, y - 1).A == 0) resultImg.SetPixel(x + 2, y, col);
+								if (fillDiagonals && valid && img.GetPixel(x - 1, y + 1).A == 0) resultImg.SetPixel(x, y + 2, col);
+								if (fillDiagonals && valid && img.GetPixel(x + 1, y + 1).A == 0) resultImg.SetPixel(x + 2, y + 2, col);
+
+								if (validX && img.GetPixel(x - 1, y).A == 0) resultImg.SetPixel(x, y + 1, col);
+								if (validX && img.GetPixel(x + 1, y).A == 0) resultImg.SetPixel(x + 2, y + 1, col);
+								if (validY && img.GetPixel(x, y - 1).A == 0) resultImg.SetPixel(x + 1, y, col);
+								if (validY && img.GetPixel(x, y + 1).A == 0) resultImg.SetPixel(x + 1, y + 2, col);
+
+								if (curCol.A != 0)
+								{
+									if (x == 0)
+									{
+										resultImg.SetPixel(x, y + 1, col);
+										if (fillDiagonals) { resultImg.SetPixel(x, y, col); resultImg.SetPixel(x, y + 2, col); }
+									}
+									if (y == 0)
+									{
+										resultImg.SetPixel(x + 1, y, col);
+										if (fillDiagonals) { resultImg.SetPixel(x, y, col); resultImg.SetPixel(x + 2, y, col); }
+									}
+									if (x == img.Size.X - 1)
+									{
+										resultImg.SetPixel(x + 2, y + 1, col);
+										if (fillDiagonals) { resultImg.SetPixel(x + 2, y, col); resultImg.SetPixel(x + 2, y + 2, col); }
+									}
+									if (y == img.Size.Y - 1)
+									{
+										resultImg.SetPixel(x + 1, y + 2, col);
+										if (fillDiagonals) { resultImg.SetPixel(x, y + 2, col); resultImg.SetPixel(x + 2, y + 2, col); }
+									}
+								}
+							}
+							else curCol = col;
+							resultImg.SetPixel(x + offset / 2, y + offset / 2, onlyOutline ? transparent : curCol);
+						}
+					}
+
+					var split = path.Split('\\');
+					var name = split[^1];
+					var newPath = "";
+					if (split.Length > 2)
+					{
+						for (int i = 1; i < split.Length - 1; i++)
+						{
+							newPath += $"{split[i]}\\";
+						}
+					}
+					Directory.CreateDirectory($"{resultPath}\\{newPath}");
+					var result = resultImg.SaveToFile($"{resultPath}\\{newPath}{split[^1]}");
+					img.Dispose();
+					resultImg.Dispose();
+					done++;
+				}
+				catch (Exception) { errors++; }
+			}
+		}
+		private static void CreateShaderFiles()
+		{
+			System.IO.File.WriteAllText("shaders.vert", vert);
+			System.IO.File.WriteAllText("shaders.frag", frag);
+		}
+
+		// =========
+
+		internal static void Initialize()
+		{
+			CreateShaderFiles();
+		}
+		internal static string CreateDirectoryForFile(string filePath)
+		{
+			filePath = filePath.Replace('/', '\\');
+			var path = filePath.Split('\\');
+			var full = $"{File.MainDirectory}{filePath}";
+			var curPath = File.MainDirectory;
+			for (int i = 0; i < path.Length - 1; i++)
+			{
+				var p = $"{curPath}\\{path[i]}";
+				if (Directory.Exists(p) == false) System.IO.Directory.CreateDirectory(p);
+
+				curPath = p;
+			}
+			return full;
+		}
+
+		// =========
+
+		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
+
+		public static void CreateFolders(params string[] paths)
+		{
+			for (int i = 0; i < paths.Length; i++) Directory.CreateDirectory(paths[i]);
+		}
+		/// <summary>
+		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="LoadText"/>.<br></br><br></br>
+		/// This is a slow operation - do not call frequently.
+		/// </summary>
+		public static void SaveText(string text, string filePath = "folder/file.extension")
+		{
+			var full = CreateDirectoryForFile(filePath);
+
+			try
+			{
+				System.IO.File.WriteAllText(full, text);
+			}
+			catch (Exception)
+			{
+				Debug.LogError(1, $"Could not save file '{full}'.");
+				return;
+			}
+		}
+		/// <summary>
+		/// Reads all the text from the file at <paramref name="filePath"/> and returns it as a <see cref="string"/> if successful. Returns <paramref name="null"/> otherwise. A text can be saved to a file with <see cref="SaveText"/>.<br></br><br></br>
+		/// This is a slow operation - do not call frequently.
+		/// </summary>
+		public static string LoadText(string filePath = "folder/file.extension")
+		{
+			filePath = filePath.Replace('/', '\\');
+			var full = $"{MainDirectory}\\{filePath}";
+
+			if (Directory.Exists(full) == false)
+			{
+				Console.Log($"Could not load file '{full}'. Directory/file not found.");
+				return default;
+			}
+			try
+			{
+				return System.IO.File.ReadAllText(full);
+			}
+			catch (Exception)
+			{
+				Console.Log($"Could not load file '{full}'.");
+				return default;
+			}
+		}
+		public static void OutlinePictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
+			bool fillDiagonals = false)
+		{
+			EditPictures(color, directoryPath, onlyOutline, fillDiagonals);
+		}
+		public static void FillPictures(Data.Color color, string directoryPath = "folder/pictures")
+		{
+			EditPictures(color, directoryPath, false, false, true);
+		}
+
 	}
 }
