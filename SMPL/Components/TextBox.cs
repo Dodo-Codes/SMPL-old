@@ -7,9 +7,9 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class TextBox : Visual
+	public class Textbox : Visual
 	{
-		private static event Events.ParamsOne<TextBox> OnDisplay;
+		private static event Events.ParamsOne<Textbox> OnDisplay;
 
 		private Point position, originPercent;
 		private double angle, charSize;
@@ -19,7 +19,7 @@ namespace SMPL.Components
 
 		// ===============
 
-		internal static List<TextBox> texts = new();
+		internal static List<Textbox> texts = new();
 		internal void UpdateAllData()
 		{
 			if (Text == null || Text.Trim() == "") return;
@@ -55,7 +55,7 @@ namespace SMPL.Components
 
 		public static class CallWhen
 		{
-			public static void Display(Action<TextBox> method, uint order = uint.MaxValue) =>
+			public static void Display(Action<Textbox> method, uint order = uint.MaxValue) =>
 				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
 
@@ -133,7 +133,7 @@ namespace SMPL.Components
 			set { if (ErrorIfDestroyed() == false) isStrikedThrough = value; }
 		}
 
-		public TextBox(string uniqueID) : base(uniqueID)
+		public Textbox(string uniqueID) : base(uniqueID)
 		{
 			texts.Add(this);
 

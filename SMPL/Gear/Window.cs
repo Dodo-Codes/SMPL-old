@@ -265,6 +265,11 @@ namespace SMPL.Gear
 			window.GainedFocus += new EventHandler(OnWindowFocus);
 			window.LostFocus += new EventHandler(OnWindowUnfocus);
 			form.SizeChanged += new EventHandler(OnWindowResize);
+
+
+			Application.DoEvents();
+			window.DispatchEvents();
+			Draw();
 		}
 
 		internal static void OnWindowClose(object sender, EventArgs e) => Close();

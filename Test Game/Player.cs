@@ -9,14 +9,12 @@ namespace TestGame
 	{
 		public Player()
 		{
-			//var spr = new Sprite("test")
-			//{
-			//	AreaUniqueID = "test-2",
-			//	IsRepeated = true
-			//};
-			//File.SaveComponents("test.smpl", spr, spr.Clone("test2"));
+			var slot = new SaveSlot();
+			slot.SetValue("test", new Area("test"));
+			slot.Save("test-slot");
 
-			//File.LoadComponents("test.smpl");
+			SaveSlot.Load("test-slot");
+			var value = SaveSlot.GetValue("test");
 		}
 	}
 }

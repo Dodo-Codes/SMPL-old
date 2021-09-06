@@ -74,13 +74,13 @@ namespace SMPL.Components
 			set
 			{
 				if (ErrorIfDestroyed() || value == null) return;
+				var prev = texturePath;
+				texturePath = value;
 				if (Assets.textures.ContainsKey(value) == false)
 				{
 					Assets.NotLoadedError(Assets.Type.Texture, value);
 					return;
 				}
-				var prev = texturePath;
-				texturePath = value;
 				if (prev == null) SetQuadDefault(UniqueID);
 			}
 		}
@@ -190,7 +190,7 @@ namespace SMPL.Components
 				Effects.shader.SetUniform("RawTexture", t);
 				Effects.DrawMasks(rend);
 			}
-			
+
 			rend.Display();
 			rend.Texture.Smooth = IsSmooth;
 			rend.Texture.Repeated = IsRepeated;

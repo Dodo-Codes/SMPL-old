@@ -18,59 +18,31 @@ namespace SMPL.Gear
 		///</summary>
 		private static void Main() { }
 
-		private static void InitializeStaticClasses(Size pixelSize)
-		{
-			File.Initialize();
-			Time.Initialize();
-			Window.Initialize(pixelSize);
-			Hardware.Initialize();
-			Performance.Initialize();
-			Keyboard.Initialize();
-			Mouse.Initialize();
-			Assets.Initialize();
-		}
-		private static void CallEvents(Game game)
-		{
-			game.OnGameCreated();
-			OnStart?.Invoke();
-		}
 		private static void RunGame()
 		{
 			while (Window.window.IsOpen)
 			{
 				Thread.Sleep(1);
-				EarlyUpdate();
-				DoEvents();
-				Update();
-				Window.Draw();
-				LateUpdate();
-			}
-		}
-		private static void DoEvents()
-		{
-			Application.DoEvents();
-			Window.window.DispatchEvents();
 
-			OnUpdate?.Invoke();
-		}
-		private static void EarlyUpdate()
-		{
-			Performance.EarlyUpdate();
-		}
-		private static void Update()
-		{
-			Audio.Update();
-			Hitbox.Update();
-			Rope.Update();
-			SegmentedLine.Update();
-			Keyboard.Update();
-			Mouse.Update();
-			Assets.Update();
-		}
-		private static void LateUpdate()
-		{
-			Components.Timer.Update();
-			Performance.Update();
+				Performance.EarlyUpdate();
+
+				Application.DoEvents();
+				Window.window.DispatchEvents();
+				OnUpdate?.Invoke();
+
+				Audio.Update();
+				Hitbox.Update();
+				Rope.Update();
+				SegmentedLine.Update();
+				Keyboard.Update();
+				Mouse.Update();
+				Assets.Update();
+
+				Window.Draw();
+
+				Components.Timer.Update();
+				Performance.Update();
+			}
 		}
 
 		// ==================
@@ -85,8 +57,18 @@ namespace SMPL.Gear
 
 		public static void Start(Game game, Size pixelSize)
 		{
-			InitializeStaticClasses(pixelSize);
-			CallEvents(game);
+			File.Initialize();
+			Time.Initialize();
+			Hardware.Initialize();
+			Performance.Initialize();
+			Window.Initialize(pixelSize);
+			Mouse.Initialize();
+			Assets.Initialize();
+			Keyboard.Initialize();
+
+			game.OnGameCreated();
+			OnStart?.Invoke();
+
 			RunGame();
 		}
 		public virtual void OnGameCreated() { }

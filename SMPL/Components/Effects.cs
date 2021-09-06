@@ -33,9 +33,9 @@ namespace SMPL.Components
 					return;
 				}
 				list.Remove(visualComponentUID);
-				if (component is TextBox)
+				if (component is Textbox)
 				{
-					var t = component as TextBox;
+					var t = component as Textbox;
 					var textArea = (Area)PickByUniqueID(t.AreaUniqueID);
 					textArea.text.Position = new Vector2f();
 					textArea.text.Rotation = 0;
@@ -173,7 +173,7 @@ namespace SMPL.Components
 				}
 				else
 				{
-					var t = mask as TextBox;
+					var t = mask as Textbox;
 					var tArea = (Area)PickByUniqueID(t.AreaUniqueID);
 					var dist = Point.Distance(tArea.Position, ownerArea.Position);
 					var atAng = Number.AngleBetweenPoints(ownerArea.Position, tArea.Position);
@@ -340,7 +340,7 @@ namespace SMPL.Components
 				var owner = (Visual)PickByUniqueID(visualOwnerUID);
 				var ownerArea = (Area)PickByUniqueID(owner.AreaUniqueID);
 				return ErrorIfDestroyed() ? Color.Invalid :
-					Color.To(owner is TextBox ? ownerArea.text.FillColor : ownerArea.sprite.Color);
+					Color.To(owner is Textbox ? ownerArea.text.FillColor : ownerArea.sprite.Color);
 			}
 			set { if (ErrorIfDestroyed() == false) color = value; }
 		}
@@ -352,7 +352,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				outlineColor = value;
 				var owner = (Visual)PickByUniqueID(visualOwnerUID);
-				if (owner is TextBox) return;
+				if (owner is Textbox) return;
 				shader.SetUniform("OutlineRed", (float)value.R / 255f);
 				shader.SetUniform("OutlineGreen", (float)value.G / 255f);
 				shader.SetUniform("OutlineBlue", (float)value.B / 255f);
@@ -368,7 +368,7 @@ namespace SMPL.Components
 				var owner = (Visual)PickByUniqueID(visualOwnerUID);
 				if (owner is Sprite && creationFrame == Performance.frameCount) return;
 				fillColor = value;
-				if (owner is TextBox) return;
+				if (owner is Textbox) return;
 				shader.SetUniform("FillRed", (float)value.R / 255f);
 				shader.SetUniform("FillGreen", (float)value.G / 255f);
 				shader.SetUniform("FillBlue", (float)value.B / 255f);
@@ -383,7 +383,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				outlineWidth = value;
 				var owner = (Visual)PickByUniqueID(visualOwnerUID);
-				if (owner is TextBox) return;
+				if (owner is Textbox) return;
 				shader.SetUniform("OutlineOffset", (float)value / 500f);
 			}
 		}
