@@ -53,7 +53,10 @@ namespace SMPL.Components
 					return false;
 			return true;
 		}
-		public static Component PickByUniqueID(string uniqueID) => uniqueIDs.ContainsKey(uniqueID) ? uniqueIDs[uniqueID] : default;
+		public static Component PickByUniqueID(string uniqueID)
+		{
+			return uniqueID != null && uniqueIDs.ContainsKey(uniqueID) ? uniqueIDs[uniqueID] : default;
+		}
 		public static Component[] PickByTag(string tag) => tagObjs.ContainsKey(tag) ? tagObjs[tag].ToArray() : Array.Empty<Component>();
 
 		// ======

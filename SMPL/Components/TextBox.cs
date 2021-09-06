@@ -23,6 +23,8 @@ namespace SMPL.Components
 		internal void UpdateAllData()
 		{
 			if (Text == null || Text.Trim() == "") return;
+			var Area = (Area)PickByUniqueID(AreaUniqueID);
+			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
 			Area.text.Font = FontPath == null || Assets.fonts.ContainsKey(FontPath) == false ? null : Assets.fonts[FontPath];
 			Area.text.DisplayedString = Text;
 			Area.text.CharacterSize = (uint)CharacterSize;
@@ -152,7 +154,8 @@ namespace SMPL.Components
 		public void Display(Camera camera)
 		{
 			if (ErrorIfDestroyed()) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden) return;
+			if (Window.DrawNotAllowed() || visualMaskingUID != null || IsHidden) return;
+			var Area = (Area)PickByUniqueID(AreaUniqueID);
 			if (Area == null || Area.IsDestroyed || Area.text == null)
 			{
 				Debug.LogError(1, $"Cannot display the textBox instance '{UniqueID}' because it has no Area.\n" +
@@ -162,6 +165,7 @@ namespace SMPL.Components
 
 			UpdateAllData();
 
+			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
 			var bgc = Effects == null ? new Data.Color() : Effects.BackgroundColor;
 			if (Area.text.Font == null) bgc = Data.Color.White;
 

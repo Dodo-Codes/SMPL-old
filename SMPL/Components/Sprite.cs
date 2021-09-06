@@ -104,8 +104,9 @@ namespace SMPL.Components
 		{
 			if (QuadError(uniqueID)) return;
 
+			var area = AreaUniqueID == null ? (Area)PickByUniqueID(AreaUniqueID) : null;
 			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
-				(Area == null ? new Size(100, 100) : Area.Size) :
+				(area == null ? new Size(100, 100) : area.Size) :
 				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
 			var quad = new Quad(
 				new Corner(new Point(0, 0), 0, 0),
@@ -119,7 +120,9 @@ namespace SMPL.Components
 		{
 			if (QuadError(uniqueID)) return;
 
-			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ? Area.Size :
+			var area = (Area)PickByUniqueID(AreaUniqueID);
+			var areaSz = area == null ? new Size(100, 100) : area.Size;
+			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ? areaSz :
 				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
 			for (int y = 0; y < cellCountY; y++)
 			{
@@ -152,7 +155,8 @@ namespace SMPL.Components
 		public void Display(Camera camera)
 		{
 			if (ErrorIfDestroyed()) return;
-			if (Window.DrawNotAllowed() || masking != null || IsHidden) return;
+			if (Window.DrawNotAllowed() || visualMaskingUID != null || IsHidden) return;
+			var Area = (Area)PickByUniqueID(AreaUniqueID);
 			if (Area == null || Area.IsDestroyed || Area.sprite == null)
 			{
 				Debug.LogError(1, $"Cannot display the sprite instance '{UniqueID}' because it has no Area.\n" +
@@ -166,7 +170,7 @@ namespace SMPL.Components
 			var qtv = QuadsToVerts(quads);
 			var vertArr = qtv.Item1;
 			var verts = qtv.Item2;
-
+			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
 			var bounds = vertArr.Bounds;
 			var rend = new RenderTexture((uint)bounds.Width, (uint)bounds.Height);
 			var texture = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?

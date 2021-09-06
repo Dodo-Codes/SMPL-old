@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using SMPL.Data;
 using SMPL.Gear;
 
@@ -6,6 +7,7 @@ namespace SMPL.Components
 {
 	public class Area : Component
 	{
+		[JsonProperty]
 		private readonly List<Hitbox> hitboxes = new();
 		private Point localPosition, originPercent;
 		private double localAngle;
@@ -13,10 +15,12 @@ namespace SMPL.Components
 
 		//===============
 
-		internal static List<Area> transforms = new();
+		[JsonProperty]
 		internal SFML.Graphics.Sprite sprite = new();
+		[JsonProperty]
 		internal SFML.Graphics.Text text = new();
-		internal Family family;
+		[JsonProperty]
+		internal string familyUID;
 
 		internal void UpdateHitboxes()
 		{
@@ -37,6 +41,7 @@ namespace SMPL.Components
 
 		//==============
 
+		[JsonProperty]
 		public Point Position
 		{
 			get { return ErrorIfDestroyed() ? Point.Invalid : PositionFromLocal(LocalPosition); }
@@ -47,6 +52,7 @@ namespace SMPL.Components
 				UpdateHitboxes();
 			}
 		}
+		[JsonProperty]
 		public double Angle
 		{
 			get { return ErrorIfDestroyed() ? double.NaN : AngleFromLocal(LocalAngle); }
@@ -57,6 +63,7 @@ namespace SMPL.Components
 				UpdateHitboxes();
 			}
 		}
+		[JsonProperty]
 		public Size Size
 		{
 			get { return ErrorIfDestroyed() ? Size.Invalid : SizeFromLocal(LocalSize); }
@@ -67,6 +74,7 @@ namespace SMPL.Components
 				UpdateHitboxes();
 			}
 		}
+		[JsonProperty]
 		public Point OriginPercent
 		{
 			get { return ErrorIfDestroyed() ? Point.Invalid : originPercent; }
@@ -78,6 +86,7 @@ namespace SMPL.Components
 			}
 		}
 
+		[JsonProperty]
 		public Point LocalPosition
 		{
 			get { return ErrorIfDestroyed() ? Point.Invalid : localPosition; }
@@ -88,6 +97,7 @@ namespace SMPL.Components
 				UpdateHitboxes();
 			}
 		}
+		[JsonProperty]
 		public double LocalAngle
 		{
 			get { return ErrorIfDestroyed() ? double.NaN : localAngle; }
@@ -98,6 +108,7 @@ namespace SMPL.Components
 				UpdateHitboxes();
 			}
 		}
+		[JsonProperty]
 		public Size LocalSize
 		{
 			get { return ErrorIfDestroyed() ? Size.Invalid : localSize; }
@@ -111,8 +122,6 @@ namespace SMPL.Components
 
 		public Area(string uniqueID) : base(uniqueID)
 		{
-			transforms.Add(this);
-
 			Size = new Size(100, 100);
 			OriginPercent = new Point(50, 50);
 
@@ -122,9 +131,8 @@ namespace SMPL.Components
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
-			transforms.Remove(this);
 			hitboxes.Clear();
-			family = null;
+			familyUID = null;
 			sprite.Dispose();
 			text.Dispose();
 			base.Destroy();
@@ -193,39 +201,57 @@ namespace SMPL.Components
 
 		public Point PositionFromLocal(Point localPosition)
 		{
+			var family = (Family)PickByUniqueID(familyUID);
+			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
+			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? Point.Invalid :
-				family == null || family.Parent == null ? localPosition :
-            Point.To(family.Parent.Area.sprite.Transform.TransformPoint(Point.From(localPosition)));
+				family == null || family.VisualParentUniqueID == null ? localPosition :
+            Point.To(parentArea.sprite.Transform.TransformPoint(Point.From(localPosition)));
 		}
 		public Point PositionToLocal(Point position)
 		{
+			var family = (Family)PickByUniqueID(familyUID);
+			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
+			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? Point.Invalid : 
-				family == null || family.Parent == null ? position :
-				Point.To(family.Parent.Area.sprite.InverseTransform.TransformPoint(Point.From(position)));
+				family == null || parent == null ? position :
+				Point.To(parentArea.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
 		public double AngleFromLocal(double localAngle)
 		{
+			var family = (Family)PickByUniqueID(familyUID);
+			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
+			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? double.NaN : 
-				family == null || family.Parent == null ? localAngle :
-				family.Parent.Area.localAngle + localAngle;
+				family == null || parent == null ? localAngle :
+				parentArea.localAngle + localAngle;
 		}
 		public double AngleToLocal(double angle)
 		{
+			var family = (Family)PickByUniqueID(familyUID);
+			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
+			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? double.NaN : 
-				family == null || family.Parent == null ? angle :
-				-(family.Parent.Area.localAngle - angle);
+				family == null || parent == null ? angle :
+				-(parentArea.localAngle - angle);
 		}
 		public Size SizeFromLocal(Size localSize)
 		{
+			var family = (Family)PickByUniqueID(familyUID);
+			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
+			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? Size.Invalid :
-				family == null || family.Parent == null ? localSize :
-				localSize + family.Parent.Area.Size;
+				family == null || parent == null ? localSize :
+				localSize + parentArea.Size;
 		}
 		public Size SizeToLocal(Size size)
 		{
+			var family = (Family)PickByUniqueID(familyUID);
+			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
+			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? Size.Invalid :
-				family == null || family.Parent == null ? size :
-				size - family.Parent.Area.Size;
+				family == null || parent == null ? size :
+				size - parentArea.Size;
 		}
 	}
 }

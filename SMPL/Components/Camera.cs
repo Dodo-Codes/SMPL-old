@@ -20,7 +20,7 @@ namespace SMPL.Components
 		internal SFML.Graphics.Sprite sprite = new();
 		internal RenderTexture rendTexture;
 		internal Size startSize;
-		internal Area display2D;
+		internal string displayUID;
 
 		internal static void DrawCameras()
 		{
@@ -43,6 +43,7 @@ namespace SMPL.Components
 		internal void EndDraw()
 		{
 			rendTexture.Display();
+			var DisplayArea = (Area)PickByUniqueID(displayUID);
 			var pos = Point.From(DisplayArea.Position);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			var tsz = rendTexture.Size;
@@ -79,10 +80,10 @@ namespace SMPL.Components
 		}
 		public static Camera WorldCamera { get; internal set; }
 
-		public Area DisplayArea
+		public string AreaDisplayUniqueID
 		{
-			get { return ErrorIfDestroyed() ? default : display2D; }
-			set { if (ErrorIfDestroyed() == false && this != WorldCamera) display2D = value; }
+			get { return ErrorIfDestroyed() ? default : displayUID; }
+			set { if (ErrorIfDestroyed() == false && this != WorldCamera) displayUID = value; }
 		}
 		public double Depth
 		{
@@ -140,7 +141,7 @@ namespace SMPL.Components
 			sprite = null;
 			rendTexture.Dispose();
 			rendTexture = null;
-			DisplayArea = null;
+			AreaDisplayUniqueID = null;
 			base.Destroy();
 		}
 

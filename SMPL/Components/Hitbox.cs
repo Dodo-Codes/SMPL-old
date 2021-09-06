@@ -8,11 +8,12 @@ namespace SMPL.Components
 {
 	public class Hitbox : Component
 	{
-		private bool Contains_(Hitbox hitboxInstance)
+		private bool Contains_(string hitboxUID)
 		{
-			if (hitboxInstance == null || hitboxInstance.lines.Count < 3 || ignores.Contains(hitboxInstance)) return false;
+			var hitbox = (Hitbox)PickByUniqueID(hitboxUID);
+			if (hitboxUID == null || hitbox.lines.Count < 3 || ignoresUIDs.Contains(hitboxUID)) return false;
 			var firstLine = new Line();
-			foreach (var kvp in hitboxInstance.lines)
+			foreach (var kvp in hitbox.lines)
 			{
 				firstLine = kvp.Value;
 				break;
@@ -20,31 +21,31 @@ namespace SMPL.Components
 			var ray = new Line(firstLine.StartPosition, new Point(9_999, -99_999));
 			var crossSum = 0;
 			foreach (var kvp in lines) crossSum += ray.Crosses(kvp.Value) ? 1 : 0;
-			return crossSum == 1 && Crosses(hitboxInstance) == false;
+			return crossSum == 1 && Crosses(hitboxUID) == false;
 		}
-		private bool Crosses_(Hitbox hitboxInstance) => CrossPoints(hitboxInstance).Length > 0;
+		private bool Crosses_(string hitboxUID) => CrossPoints(hitboxUID).Length > 0;
 
 		//==========
 
 		internal static List<Hitbox> hitboxes = new();
 		internal Dictionary<string, Line> localLines = new();
 		internal Dictionary<string, Line> lines = new();
-		internal List<Hitbox> crosses = new();
-		internal List<Hitbox> contains = new();
-		internal List<Hitbox> ignores = new();
+		internal List<string> crossesUIDs = new();
+		internal List<string> containsUIDs = new();
+		internal List<string> ignoresUIDs = new();
 
 		internal static void Update()
 		{
 			for (int i = 0; i < hitboxes.Count; i++)
 			{
-				hitboxes[i].crosses.Clear();
-				hitboxes[i].contains.Clear();
+				hitboxes[i].crossesUIDs.Clear();
+				hitboxes[i].containsUIDs.Clear();
 				for (int j = 0; j < hitboxes.Count; j++)
 				{
 					if (hitboxes[i] == hitboxes[j]) continue;
 
-					if (hitboxes[j].Crosses_(hitboxes[i])) hitboxes[j].crosses.Add(hitboxes[i]);
-					if (hitboxes[j].Contains_(hitboxes[i])) hitboxes[j].contains.Add(hitboxes[i]);
+					if (hitboxes[j].Crosses_(hitboxes[i].UniqueID)) hitboxes[j].crossesUIDs.Add(hitboxes[i].UniqueID);
+					if (hitboxes[j].Contains_(hitboxes[i].UniqueID)) hitboxes[j].containsUIDs.Add(hitboxes[i].UniqueID);
 				}
 			}
 		}
@@ -89,9 +90,9 @@ namespace SMPL.Components
 			hitboxes.Remove(this);
 			localLines = null;
 			lines = null;
-			crosses = null;
-			contains = null;
-			ignores = null;
+			crossesUIDs = null;
+			containsUIDs = null;
+			ignoresUIDs = null;
 			base.Destroy();
 		}
 
@@ -101,27 +102,27 @@ namespace SMPL.Components
 			foreach (var kvp in lines) kvp.Value.Display(camera);
 		}
 
-		public void AddIgnorance(params Hitbox[] hitboxInstances)
+		public void AddIgnorance(params string[] hitboxInstances)
 		{
 			if (ErrorIfDestroyed()) return;
 			if (hitboxInstances == null) { Debug.LogError(1, "The ignored hitboxes cannot be 'null'."); return; }
 			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (ignores.Contains(hitboxInstances[i]) == false)
-					ignores.Add(hitboxInstances[i]);
+				if (ignoresUIDs.Contains(hitboxInstances[i]) == false)
+					ignoresUIDs.Add(hitboxInstances[i]);
 		}
-		public void RemoveIgnorance(params Hitbox[] hitboxInstances)
+		public void RemoveIgnorance(params string[] hitboxInstances)
 		{
 			if (ErrorIfDestroyed()) return;
 			if (hitboxInstances == null) { Debug.LogError(1, "The ignored hitboxes cannot be 'null'."); return; }
 			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (ignores.Contains(hitboxInstances[i]))
-					ignores.Remove(hitboxInstances[i]);
+				if (ignoresUIDs.Contains(hitboxInstances[i]))
+					ignoresUIDs.Remove(hitboxInstances[i]);
 		}
 		public void RemoveAllIgnorance()
 		{
-			if (ErrorIfDestroyed() == false) ignores.Clear();
+			if (ErrorIfDestroyed() == false) ignoresUIDs.Clear();
 		}
-		public bool Ignores(params Hitbox[] hitboxInstances)
+		public bool Ignores(params string[] hitboxInstances)
 		{
 			if (ErrorIfDestroyed()) return false;
 			if (hitboxInstances == null)
@@ -130,7 +131,7 @@ namespace SMPL.Components
 				return false;
 			}
 			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (ignores.Contains(hitboxInstances[i]) == false)
+				if (ignoresUIDs.Contains(hitboxInstances[i]) == false)
 					return false;
 			return true;
 		}
@@ -179,60 +180,63 @@ namespace SMPL.Components
 			return lines[uniqueID];
 		}
 
-		public bool Overlaps(params Hitbox[] hitboxInstances)
+		public bool Overlaps(params string[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return false;
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The hitbox instances cannot be 'null'.");
 				return false;
 			}
-			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (hitboxInstances[i].Contains(this) == false)
-					return false;
-			return Contains(hitboxInstances) || Crosses(hitboxInstances);
+			for (int i = 0; i < hitboxUniqueIDs.Length; i++)
+			{
+				var hitbox = (Hitbox)PickByUniqueID(hitboxUniqueIDs[i]);
+				if (hitbox.Contains(UniqueID) == false) return false;
+			}
+			return Contains(hitboxUniqueIDs) || Crosses(hitboxUniqueIDs);
 		}
-		public bool Contains(params Hitbox[] hitboxInstances)
+		public bool Contains(params string[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return false;
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
 				return false;
 			}
-			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (contains.Contains(hitboxInstances[i]) == false)
+			for (int i = 0; i < hitboxUniqueIDs.Length; i++)
+				if (containsUIDs.Contains(hitboxUniqueIDs[i]) == false)
 					return false;
 			return true;
 		}
-		public bool Crosses(params Hitbox[] hitboxInstances)
+		public bool Crosses(params string[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return false;
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
 				return false;
 			}
-			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (crosses.Contains(hitboxInstances[i]) == false)
+			for (int i = 0; i < hitboxUniqueIDs.Length; i++)
+				if (crossesUIDs.Contains(hitboxUniqueIDs[i]) == false)
 					return false;
 			return true;
 		}
-		public Point[] CrossPoints(params Hitbox[] hitboxInstances)
+		public Point[] CrossPoints(params string[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return Array.Empty<Point>();
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
 				return System.Array.Empty<Point>();
 			}
-			if (Ignores(hitboxInstances)) return System.Array.Empty<Point>();
+			if (Ignores(hitboxUniqueIDs)) return System.Array.Empty<Point>();
 			var result = new List<Point>();
 			foreach (var kvp in lines)
 			{
-				for (int i = 0; i < hitboxInstances.Length; i++)
+				for (int i = 0; i < hitboxUniqueIDs.Length; i++)
 				{
-					foreach (var kvp2 in hitboxInstances[i].lines)
+					var hitbox = (Hitbox)PickByUniqueID(hitboxUniqueIDs[i]);
+					foreach (var kvp2 in hitbox.lines)
 					{
 						var p = kvp.Value.CrossPoint(kvp2.Value);
 						if (p.IsInvalid || result.Contains(p)) continue;

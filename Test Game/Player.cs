@@ -11,7 +11,7 @@ namespace TestGame
 		{
 			//var spr = new Sprite("test")
 			//{
-			//	Area = new Area("test-2"),
+			//	AreaUniqueID = "test-2",
 			//	IsRepeated = true
 			//};
 			//File.SaveComponents("test.smpl", spr, spr.Clone("test2"));

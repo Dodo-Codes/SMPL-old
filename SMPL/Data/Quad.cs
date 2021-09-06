@@ -7,7 +7,7 @@ using System;
 
 namespace SMPL.Data
 {
-	public class Quad
+	public struct Quad
 	{
 		public Corner CornerA { get; set; }
 		public Corner CornerB { get; set; }
