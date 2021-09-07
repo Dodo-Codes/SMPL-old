@@ -12,6 +12,7 @@ D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\Test Game.pdb
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\Microsoft.Win32.SystemEvents.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\NetCoreServer.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\Newtonsoft.Json.dll
+D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\Newtonsoft.Json.Bson.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\SFML.Audio.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\SFML.Graphics.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\SFML.System.dll

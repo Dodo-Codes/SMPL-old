@@ -59,7 +59,7 @@ namespace SMPL.Gear
 			if (IsActive == false && isDisplayingInRelease == false) return;
 
 			var d = (uint)depth;
-			var debugStr = isDisplayingInRelease ? "" : debugString;
+			var debugStr = isDisplayingInRelease ? "!" : debugString;
 			var place = depth >= 0 && IsActive ?
 				$"Location\t[File: {CurrentFileName(d + 1)}.cs | Method:{CurrentMethodName(d + 1)}]\n" +
 				$"Action\t\t[Line: {CurrentLineNumber(d + 1)} | Method: {CurrentMethodName(d)}]\n" : "";

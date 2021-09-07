@@ -33,7 +33,7 @@ namespace SMPL.Data
 			}
 			Directory.CreateDirectory(DIRECTORY);
 			var str = JsonConvert.SerializeObject(this);
-			str = Text.Encrypt(str, 'J', true);
+			str = Text.Encrypt(str, 'H', true);
 			System.IO.File.WriteAllText($"{DIRECTORY}\\{name}.save", str);
 		}
 		public static void Load(string name)
@@ -45,7 +45,7 @@ namespace SMPL.Data
 				Debug.LogError(1, $"No {nameof(SaveSlot)} with name '{name}' was found.");
 				return;
 			}
-			str = Text.Decrypt(str, 'J', true);
+			str = Text.Decrypt(str, 'H', true);
 			var slot = JsonConvert.DeserializeObject<SaveSlot>(str);
 
 			if (slot.slotValues == null || slot.slotValues.Count == 0) return;

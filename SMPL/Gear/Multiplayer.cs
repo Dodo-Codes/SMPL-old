@@ -1,4 +1,5 @@
 ﻿using NetCoreServer;
+using NetFwTypeLib;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -14,18 +15,16 @@ namespace SMPL.Gear
 	{
 		private static event Events.ParamsZero OnServerStart, OnServerStop;
 		private static event Events.ParamsOne<string> OnClientConnected, OnClientDisconnected, OnClientTakenUniqueID;
-		private static event Events.ParamsOne<Message> OnMessageReceived, OnMessageSend;
+		private static event Events.ParamsOne<Message> OnMessageReceived;
 		private static readonly Dictionary<Guid, string> clientRealIDs = new();
 		private static readonly List<string> clientIDs = new();
 		private static readonly int serverPort = 1234;
 
 		private static string MessageToString(Message message)
 		{
-			var rel = message.IsReliable ? "1" : "0";
 			return
 				$"{Message.SEP}" +
 				$"{(int)message.type}{Message.COMP_SEP}" +
-				$"{rel}{Message.COMP_SEP}" +
 				$"{message.SenderUniqueID}{Message.COMP_SEP}" +
 				$"{message.ReceiverUniqueID}{Message.COMP_SEP}" +
 				$"{(int)message.Receivers}{Message.COMP_SEP}" +
@@ -38,16 +37,16 @@ namespace SMPL.Gear
 			var split = message.Split(Message.SEP, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < split.Length; i++)
 			{
+				if (split[i].Length < 10) continue;
 				var comps = split[i].Split(Message.COMP_SEP);
 				result.Add(new Message()
 				{
 					type = (Message.Type)int.Parse(comps[0]),
-					IsReliable = comps[1] == "1",
-					SenderUniqueID = comps[2],
-					ReceiverUniqueID = comps[3],
-					Receivers = (Message.Toward)int.Parse(comps[4]),
-					Tag = comps[5],
-					Content = comps[6]
+					SenderUniqueID = comps[1],
+					ReceiverUniqueID = comps[2],
+					Receivers = (Message.Toward)int.Parse(comps[3]),
+					Tag = comps[4],
+					Content = comps[5]
 				});
 			}
 			return result;
@@ -56,18 +55,10 @@ namespace SMPL.Gear
 		{
 			if (ClientIsConnected == false && ServerIsRunning == false)
 			{
-				if (MessagesAreLogged == false) return true;
-				Console.Log("Cannot send a message while disconnected.\n");
+				Debug.LogError(2, "Cannot send a message while disconnected.", true);
 				return true;
 			}
 			return false;
-		}
-		private static void LogMessage(Message msg, bool send)
-		{
-			if (MessagesAreLogged == false || Debug.IsActive == false) return;
-			var debugStr = Debug.IsActive ? Debug.debugString : "";
-			Console.Log((send ? "SENT " : "RECEIVED ") + $"({debugStr})");
-			Console.Log($"{msg}\n");
 		}
 		private static string ConnectedClients() => $"Connected clients: {clientIDs.Count}.";
 		private static void DecodeMessages(Guid sessionID, string rawMessages)
@@ -88,7 +79,7 @@ namespace SMPL.Gear
 									msg.SenderUniqueID = ChangeID(msg.SenderUniqueID);
 									// Send a message back with a free one toward the same ID so the client can recognize it's for him
 									var freeUidMsg = new Message(
-										Message.Toward.Client, null, msg.Content, true, msg.SenderUniqueID)
+										Message.Toward.Client, null, msg.Content, msg.SenderUniqueID)
 									{ type = Message.Type.ChangeID };
 									messageBack += MessageToString(freeUidMsg);
 
@@ -107,10 +98,17 @@ namespace SMPL.Gear
 								clientIDs.Add(msg.SenderUniqueID);
 
 								// Sticking another message to update the newcoming client about online clients
-								var onlineMsg = new Message(Message.Toward.Client, null, null, true, msg.SenderUniqueID)
+								var onlineMsg = new Message(Message.Toward.Client, null, null, msg.SenderUniqueID)
 								{ type = Message.Type.ClientOnline };
 								for (int j = 0; j < clientIDs.Count; j++)
+								{
+									if (onlineMsg.Content == null)
+									{
+										onlineMsg.Content = clientIDs[j];
+										continue;
+									}
 									onlineMsg.Content += $"{Message.TEMP_SEP}{clientIDs[j]}";
+								}
 								messageBack += MessageToString(onlineMsg);
 
 								// Sticking a third message to update online clients about the newcomer.
@@ -133,13 +131,11 @@ namespace SMPL.Gear
 							}
 						case Message.Type.ClientToServer: // A client sent me (the server) a message
 							{
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 								break;
 							}
 						case Message.Type.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
 							{
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 
 								messageBack += MessageToString(msg);
@@ -205,14 +201,12 @@ namespace SMPL.Gear
 						case Message.Type.ClientToAll: // A client is sending a message to all clients
 							{
 								if (msg.SenderUniqueID == ClientUniqueID) break; // Is this my message coming back to me?
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 								break;
 							}
 						case Message.Type.ClientToAllAndServer: // A client is sending a message to the server and all clients
 							{
 								if (msg.SenderUniqueID == ClientUniqueID) break; // Is this my message coming back to me?
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 								break;
 							}
@@ -220,26 +214,39 @@ namespace SMPL.Gear
 							{
 								if (msg.ReceiverUniqueID != ClientUniqueID) break; // Not for me? Not interested.
 								if (msg.SenderUniqueID == ClientUniqueID) return; // Is this my message coming back to me? (unlikely)
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 								break;
 							}
 						case Message.Type.ServerToAll: // The server sent everyone a message
 							{
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 								break;
 							}
 						case Message.Type.ServerToClient: // The server sent some client a message
 							{
 								if (msg.ReceiverUniqueID != ClientUniqueID) return; // Not for me?
-								LogMessage(msg, false);
 								OnMessageReceived?.Invoke(msg);
 								break;
 							}
 					}
 				}
 			}
+		}
+		private static void OpenPort()
+		{
+			var tNetFwPolicy2 = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
+			var fwPolicy2 = (INetFwPolicy2)Activator.CreateInstance(tNetFwPolicy2);
+			var currentProfiles = fwPolicy2.CurrentProfileTypes;
+
+			var inboundRule = (INetFwRule2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FWRule"));
+			inboundRule.Enabled = true;
+			inboundRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+			inboundRule.Protocol = 6; // TCP
+			inboundRule.Name = $"SMPL Multiplayer";
+			inboundRule.Profiles = currentProfiles;
+
+			var firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
+			firewallPolicy.Rules.Add(inboundRule);
 		}
 
 		//=================
@@ -295,7 +302,8 @@ namespace SMPL.Gear
 			{
 				ClientIsConnected = true;
 				clientIDs.Add(ClientUniqueID);
-				Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server {client.Socket.RemoteEndPoint}.\n");
+				var ip = client.Socket.RemoteEndPoint.ToString().Split(':')[0];
+				if (ServerIsRunning == false) Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server[{ip}].\n");
 
 				OnClientConnected?.Invoke(ClientUniqueID);
 
@@ -307,7 +315,7 @@ namespace SMPL.Gear
 				if (ClientIsConnected)
 				{
 					ClientIsConnected = false;
-					Console.Log("Disconnected from the Server.\n");
+					Console.Log("Disconnected from the LAN Server.\n");
 					clientIDs.Clear();
 					OnClientDisconnected?.Invoke(ClientUniqueID);
 					if (stop == true) return;
@@ -331,44 +339,7 @@ namespace SMPL.Gear
 				Debug.LogError(-1, $"{error}", true);
 			}
 		}
-		internal class MulticastClient : UdpClient
-		{
-			public string Multicast;
-			private bool stop;
 
-			public MulticastClient(string address, int port) : base(address, port) { }
-
-			public void DisconnectAndStop()
-			{
-				stop = true;
-				Disconnect();
-				while (IsConnected)
-					Thread.Yield();
-			}
-			protected override void OnConnected()
-			{
-				JoinMulticastGroup(Multicast); // Join UDP multicast group
-				ReceiveAsync(); // Start receive datagrams
-			}
-			protected override void OnDisconnected()
-			{
-				Thread.Sleep(1000); // Wait for a while...
-
-				// Try to connect again
-				if (stop == false) Connect();
-			}
-			protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
-			{
-				var rawMessages = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-				DecodeMessages(Id, rawMessages);
-
-				// Continue receive datagrams
-				ReceiveAsync();
-			}
-			protected override void OnError(SocketError error) => Debug.LogError(-1, $"{error}", true);
-		}
-
-		internal static MulticastClient multicastClient;
 		internal static Server server;
 		internal static Client client;
 
@@ -383,25 +354,22 @@ namespace SMPL.Gear
 				ClientToAllAndServer
 			}
 			public enum Toward { Server, Client, AllClients, ServerAndAllClients }
-			internal const string SEP = "';qi#ou3", COMP_SEP = "a;@lsfi", TEMP_SEP = "a15`g&";
+			internal const string SEP = ";$*#", COMP_SEP = "=!@,", TEMP_SEP = ")`.&";
 
 			public string Content { get; set; }
 			public string Tag { get; set; }
 			public string ReceiverUniqueID { get; set; }
 			public string SenderUniqueID { get; internal set; }
 			public Toward Receivers { get; set; }
-			public bool IsReliable { get; set; }
 			internal Type type;
 
-			public Message(Toward receivers, string tag, string content, bool isReliable = true,
-				string receiverClientUniqueID = null)
-         {
+			public Message(Toward receivers, string tag, string content, string receiverClientUniqueID = null)
+			{
 				Content = content;
 				Tag = tag;
 				ReceiverUniqueID = receiverClientUniqueID;
 				SenderUniqueID = ClientUniqueID;
 				Receivers = receivers;
-				IsReliable = isReliable;
 				type = receivers switch
 				{
 					Toward.Server => ClientIsConnected ? Type.ClientToServer : Type.None,
@@ -412,18 +380,17 @@ namespace SMPL.Gear
 				};
 			}
 
-         public override string ToString()
-         {
+			public override string ToString()
+			{
 				var send = SenderUniqueID == null || SenderUniqueID == "" ? "from the Server" : $"from Client '{SenderUniqueID}'";
-				var rel = IsReliable ? "Reliable" : "Unreliable";
 				var rec = Receivers == Toward.Client ?
 					$"to Client '{ReceiverUniqueID}'" : $"to {Receivers}";
 				return
-					$"{rel} Multiplayer Message {send} {rec}\n" +
+					$"Multiplayer Message {send} {rec}\n" +
 					$"Tag: {Tag}\n" +
 					$"Content: {Content}";
-         }
-      }
+			}
+		}
 		public static class CallWhen
 		{
 			public static void ServerStart(Action method, uint order = uint.MaxValue) =>
@@ -439,12 +406,9 @@ namespace SMPL.Gear
 				OnClientTakenUniqueID = Events.Add(OnClientTakenUniqueID, method, order);
 			public static void MessageReceive(Action<Message> method, uint order = uint.MaxValue) =>
 				OnMessageReceived = Events.Add(OnMessageReceived, method, order);
-			public static void MessageSend(Action<Message> method, uint order = uint.MaxValue) =>
-				OnMessageSend = Events.Add(OnMessageSend, method, order);
 		}
 
 		public static string SameDeviceIP { get { return "127.0.0.1"; } }
-		public static bool MessagesAreLogged { get; set; }
 		public static bool ClientIsConnected { get; private set; }
 		public static bool ServerIsRunning { get; private set; }
 		public static string ClientUniqueID { get; private set; }
@@ -455,6 +419,9 @@ namespace SMPL.Gear
 			{
 				if (ServerIsRunning) { Debug.LogError(1, "Server is already starting/started.", true); return; }
 				if (ClientIsConnected) { Debug.LogError(1, "Cannot start a Server while a Client.", true); return; }
+
+				OpenPort();
+
 				server = new Server(IPAddress.Any, serverPort);
 				server.Start();
 				ServerIsRunning = true;
@@ -465,8 +432,6 @@ namespace SMPL.Gear
 					"Clients can connect through those IPs if they are in the same network\n" +
 					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
 					$"Same device: {SameDeviceIP}";
-				var vpnIP = "";
-				var routerIP = "";
 
 				for (int i = 0; i < hostEntry.AddressList.Length; i++)
 				{
@@ -476,23 +441,21 @@ namespace SMPL.Gear
 					var isRouter = ipParts[0] == "192" && ipParts[1] == "168";
 					var ipType = isRouter ? "Same router: " : "Same VPN: ";
 					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
-					if (isRouter) routerIP = hostEntry.AddressList[i].ToString();
-					else vpnIP = hostEntry.AddressList[i].ToString();
 				}
-				if (vpnIP != "") ConnectClient(null, vpnIP);
-				else ConnectClient(null, routerIP);
 
 				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
 				OnServerStart?.Invoke();
 			}
 			catch (Exception ex)
 			{
-				var se = (SocketException)ex;
-				var msg = ex.Message;
-
 				ServerIsRunning = false;
-				if (se != null && se.ErrorCode == 10048) msg = "Another server is already running on that IP/port.";
-				Debug.LogError(1, msg, true);
+				if (ex.Message.Contains("Access is denied"))
+				{
+					Debug.LogError(1, $"In order to start the {Window.Title} Multiplayer Server, run the game as an Administrator.\n" +
+						$"Right click on the game's .exe/shortcut -> Properties -> Compatibility -> Run this program as Administrator.",
+						true);
+				}
+				else Debug.LogError(1, ex.Message, true);
 				OnServerStop?.Invoke();
 			}
 		}
@@ -517,39 +480,31 @@ namespace SMPL.Gear
 		}
 
 		public static void ConnectClient(string clientUniqueID, string serverIP)
-      {
+		{
 			if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
 			if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
 			try
 			{
 				client = new Client(serverIP, serverPort);
-				multicastClient = new MulticastClient(serverIP, serverPort);
 			}
 			catch (Exception)
 			{
 				Debug.LogError(1, $"The IP '{serverIP}' is invalid.\n", true);
 				return;
 			}
-			multicastClient.SetupMulticast(true);
-			multicastClient.Multicast = "239.255.0.1";
-			multicastClient.Connect();
-			multicastClient.Socket.EnableBroadcast = true;
-
 			client.ConnectAsync();
 			ClientUniqueID = clientUniqueID;
 			ClientIsConnected = true;
-
-			Console.Log($"Connecting to {Window.Title} Server '{serverIP}:{serverPort}'...\n");
+			Console.Log($"Connecting to {Window.Title} LAN Server[{serverIP}]...\n");
 		}
 		public static void DisconnectClinet()
-      {
+		{
 			if (ClientIsConnected == false)
 			{
 				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
 				return;
 			}
 			client.DisconnectAndStop();
-			multicastClient.DisconnectAndStop();
 		}
 
 		public static void SendMessage(Message message)
@@ -557,18 +512,8 @@ namespace SMPL.Gear
 			if (MessageDisconnected()) return;
 			if (ServerIsRunning && message.Receivers == Message.Toward.Server) return;
 			var msgStr = MessageToString(message);
-			if (ClientIsConnected)
-			{
-				if (message.IsReliable) client.SendAsync(msgStr);
-				else multicastClient.SendAsync(msgStr);
-			}
-			else
-			{
-				if (message.IsReliable) server.Multicast(msgStr);
-				else multicastClient.SendAsync(msgStr);
-			}
-			LogMessage(message, true);
-			OnMessageSend?.Invoke(message);
+			if (ClientIsConnected) client.SendAsync(msgStr);
+			else server.Multicast(msgStr);
 		}
 	}
 }
