@@ -8,6 +8,7 @@ namespace SMPL.Components
 {
 	public class Area : Component
 	{
+		private static double biggestSize;
 		private static readonly SFML.Graphics.Text coordinatesText = new();
 		private static readonly Dictionary<Point, List<string>> chunks = new();
 		[JsonProperty]
@@ -71,23 +72,9 @@ namespace SMPL.Components
 				return result.ToArray();
 			}
 		}
-		public static double ChunkSize { get; set; } = 100;
-		public static double ChunkSizePrediction
-		{
-			get
-			{
-				var biggestSize = 0.0;
-				foreach (var kvp in chunks)
-					for (int i = 0; i < kvp.Value.Count; i++)
-					{
-						var area = (Area)PickByUniqueID(kvp.Value[i]);
-						var value = area.Size.W > area.Size.H ? area.Size.W : area.Size.H;
-						if (value > biggestSize) biggestSize = value;
-					}
-				return biggestSize * 1.2;
-			}
-		}
+		public static double ChunkSize { get; private set; } = 100;
 		public Point ChunkPosition { get; private set; }
+
 		[JsonProperty]
 		public Point Position
 		{
@@ -120,6 +107,14 @@ namespace SMPL.Components
 			{
 				if (ErrorIfDestroyed()) return;
 				localSize = SizeToLocal(value);
+
+				if (UniqueID != Camera.WorldCameraAreaUID)
+				{
+					if (value.W > biggestSize) biggestSize = value.W;
+					if (value.H > biggestSize) biggestSize = value.H;
+					ChunkSize = biggestSize * 1.2;
+				}
+
 				UpdateHitboxes();
 				UpdateChunkInfo();
 			}

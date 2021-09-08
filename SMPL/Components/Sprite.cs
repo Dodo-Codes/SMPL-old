@@ -100,6 +100,15 @@ namespace SMPL.Components
 			base.Destroy();
 		}
 
+		public void RemoveQuad(string uniqueID)
+		{
+			if (quads.ContainsKey(uniqueID) == false)
+			{
+				Debug.LogError(1, $"No {nameof(Quad)} with uniqueID '{uniqueID}' was found.");
+				return;
+			}
+			quads.Remove(uniqueID);
+		}
 		public void SetQuadDefault(string uniqueID)
 		{
 			if (QuadError(uniqueID)) return;

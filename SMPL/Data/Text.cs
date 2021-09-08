@@ -7,6 +7,10 @@ namespace SMPL.Data
 {
 	public static class Text
 	{
+		public static string Align(string text, int characterSpaces)
+		{
+			return string.Format("{0," + characterSpaces + "}", text);
+		}
 		public static void ClipboardCopy(string text)
 		{
 			System.Windows.Forms.Clipboard.SetText(text);

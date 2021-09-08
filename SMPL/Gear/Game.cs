@@ -32,7 +32,7 @@ namespace SMPL.Gear
 
 				Audio.Update();
 				Hitbox.Update();
-				Rope.Update();
+				Ropes.Update();
 				SegmentedLine.Update();
 				Keyboard.Update();
 				Mouse.Update();
