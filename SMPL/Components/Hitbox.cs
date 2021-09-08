@@ -96,10 +96,10 @@ namespace SMPL.Components
 			base.Destroy();
 		}
 
-		public void Display(Camera camera)
+		public void Display(Camera camera, double width)
 		{
 			if (ErrorIfDestroyed()) return;
-			foreach (var kvp in lines) kvp.Value.Display(camera);
+			foreach (var kvp in lines) kvp.Value.Display(camera, width);
 		}
 
 		public void AddIgnorance(params string[] hitboxInstances)

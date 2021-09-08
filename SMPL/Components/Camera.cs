@@ -15,6 +15,8 @@ namespace SMPL.Components
 
 		// =============
 
+		internal const string WorldCameraUID = "smpl-world-camera";
+		internal const string WorldCameraAreaUID = "smpl-world-camera-area";
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 		internal View view;
 		internal SFML.Graphics.Sprite sprite = new();
@@ -83,7 +85,7 @@ namespace SMPL.Components
 		public string AreaDisplayUniqueID
 		{
 			get { return ErrorIfDestroyed() ? default : displayUID; }
-			set { if (ErrorIfDestroyed() == false && this != WorldCamera) displayUID = value; }
+			set { if (ErrorIfDestroyed() == false) displayUID = value; }
 		}
 		public double Depth
 		{
@@ -101,22 +103,22 @@ namespace SMPL.Components
 		public Point Position
 		{
 			get { return ErrorIfDestroyed() ? Point.Invalid : new() { X = view.Center.X, Y = view.Center.Y }; }
-			set { if (ErrorIfDestroyed() == false && this != WorldCamera) view.Center = Point.From(value); }
+			set { if (ErrorIfDestroyed() == false) view.Center = Point.From(value); }
 		}
 		public double Angle
 		{
 			get { return ErrorIfDestroyed() ? double.NaN : view.Rotation; }
-			set { if (ErrorIfDestroyed() == false && this != WorldCamera) view.Rotation = (float)value; }
+			set { if (ErrorIfDestroyed() == false) view.Rotation = (float)value; }
 		}
 		public Size Size
 		{
 			get { return ErrorIfDestroyed() ? Size.Invalid : new Size(view.Size.X, view.Size.Y); }
-			set { if (ErrorIfDestroyed() == false && this != WorldCamera) view.Size = Size.From(value); }
+			set { if (ErrorIfDestroyed() == false) view.Size = Size.From(value); }
 		}
 		public Data.Color BackgroundColor
 		{
 			get { return ErrorIfDestroyed() ? Data.Color.Invalid : bgColor; }
-			set { if (ErrorIfDestroyed() == false && this != WorldCamera) bgColor = value; }
+			set { if (ErrorIfDestroyed() == false) bgColor = value; }
 		}
 
 		public Camera(string uniqueID, Point viewPosition, Size viewSize) : base(uniqueID)

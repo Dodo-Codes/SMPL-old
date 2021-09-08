@@ -408,7 +408,7 @@ namespace SMPL.Gear
 				OnMessageReceived = Events.Add(OnMessageReceived, method, order);
 		}
 
-		public static string SameDeviceIP { get { return "127.0.0.1"; } }
+		public const string SameDeviceIP = "127.0.0.1";
 		public static bool ClientIsConnected { get; private set; }
 		public static bool ServerIsRunning { get; private set; }
 		public static string ClientUniqueID { get; private set; }

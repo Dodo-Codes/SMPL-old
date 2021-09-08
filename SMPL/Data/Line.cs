@@ -9,37 +9,19 @@ namespace SMPL.Data
 		public static Line Invalid => new(Point.Invalid, Point.Invalid);
 
 		internal Point startPosition;
-		public Point StartPosition
-		{
-			get { return startPosition; }
-			set
-			{
-				startPosition = value;
-				UpdateLength();
-			}
-		}
+		public Point StartPosition { get; set; }
 		internal Point endPosition;
-		public Point EndPosition
-		{
-			get { return endPosition; }
-			set
-			{
-				endPosition = value;
-				UpdateLength();
-			}
-		}
-		public double Length { get; private set; }
+		public Point EndPosition { get; set; }
+		public double Length => Point.Distance(StartPosition, EndPosition);
+		public double Angle => Number.AngleBetweenPoints(StartPosition, EndPosition);
 
 		public Line(Point startPosition, Point endPosition)
 		{
-			Length = 0;
 			this.startPosition = new Point(0, 0);
 			this.endPosition = new Point(0, 0);
 			StartPosition = startPosition;
 			EndPosition = endPosition;
-			UpdateLength();
 		}
-		private void UpdateLength() => Length = Point.Distance(StartPosition, EndPosition);
 		internal static void GetCrossPointOfTwoLines(Point startA, Point endA, Point startB, Point endB,
 			 out bool lines_intersect, out bool segments_intersect,
 			 out Point intersection,
@@ -111,16 +93,24 @@ namespace SMPL.Data
 		}
 		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
 
-		public void Display(Camera camera)
+		public void Display(Camera camera, double width)
 		{
 			if (Window.DrawNotAllowed()) return;
 
+			width /= 2;
+			var startLeft = Point.MoveAtAngle(StartPosition, Angle - 90, width, Time.Unit.Tick);
+			var startRight = Point.MoveAtAngle(StartPosition, Angle + 90, width, Time.Unit.Tick);
+			var endLeft = Point.MoveAtAngle(EndPosition, Angle - 90, width, Time.Unit.Tick);
+			var endRight = Point.MoveAtAngle(EndPosition, Angle + 90, width, Time.Unit.Tick);
+
 			var vert = new Vertex[]
 			{
-				new(Point.From(StartPosition), Color.From(StartPosition.Color)),
-				new(Point.From(EndPosition), Color.From(EndPosition.Color))
+				new(Point.From(startLeft), Color.From(StartPosition.Color)),
+				new(Point.From(startRight), Color.From(StartPosition.Color)),
+				new(Point.From(endRight), Color.From(EndPosition.Color)),
+				new(Point.From(endLeft), Color.From(EndPosition.Color)),
 			};
-			camera.rendTexture.Draw(vert, PrimitiveType.Lines);
+			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 		}
 	}
 }

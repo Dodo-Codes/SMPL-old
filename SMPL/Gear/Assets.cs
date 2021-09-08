@@ -185,8 +185,8 @@ namespace SMPL.Gear
 		{
 			for (int i = 0; i < filePaths.Length; i++)
 			{
-				if (textures.ContainsKey(filePaths[i]) == false || fonts.ContainsKey(filePaths[i]) == false ||
-					sounds.ContainsKey(filePaths[i]) == false || music.ContainsKey(filePaths[i]) == false)
+				if (textures.ContainsKey(filePaths[i]) == false && fonts.ContainsKey(filePaths[i]) == false &&
+					sounds.ContainsKey(filePaths[i]) == false && music.ContainsKey(filePaths[i]) == false)
 					return false;
 			}
 			return true;

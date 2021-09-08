@@ -1,4 +1,5 @@
-﻿using SMPL.Components;
+﻿using Newtonsoft.Json;
+using SMPL.Components;
 using SMPL.Data;
 using System;
 using System.Collections.Generic;
@@ -49,16 +50,19 @@ namespace SMPL.Prefabs
 
 		// ========
 
+		[JsonProperty]
 		public Point[] Points
 		{
 			get { return ErrorIfDestroyed() ? Array.Empty<Point>() : (Point[])points.Clone(); }
 			private set { if (ErrorIfDestroyed() == false) points = value; }
 		}
+		[JsonProperty]
 		public Point OriginPosition
 		{
 			get { return ErrorIfDestroyed() ? Point.Invalid : originPosition; }
 			private set { if (ErrorIfDestroyed() == false) originPosition = value; }
 		}
+		[JsonProperty]
 		public Point TargetPosition
 		{
 			get { return ErrorIfDestroyed() ? Point.Invalid : targetPosition; }
@@ -86,11 +90,11 @@ namespace SMPL.Prefabs
 			base.Destroy();
 		}
 
-		public void Display(Camera camera)
+		public void Display(Camera camera, double width)
 		{
 			if (ErrorIfDestroyed() == false)
 				for (int i = 0; i < points.Length - 1; i++)
-					new Line(points[i], points[i + 1]).Display(camera);
+					new Line(points[i], points[i + 1]).Display(camera, width);
 		}
 	}
 }

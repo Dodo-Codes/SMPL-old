@@ -3,6 +3,7 @@ using SFML.System;
 using System;
 using SMPL.Components;
 using SMPL.Gear;
+using Time = SMPL.Gear.Time;
 
 namespace SMPL.Data
 {
@@ -22,11 +23,24 @@ namespace SMPL.Data
 			X = x;
 			Y = y;
 		}
-		public void Display(Camera camera)
+		public void Display(Camera camera, double width)
 		{
 			if (Window.DrawNotAllowed()) return;
-			var vert = new Vertex[] { new(From(this), Color.From(Color)) };
-			camera.rendTexture.Draw(vert, PrimitiveType.Points);
+
+			width /= 2;
+			var topLeft = MoveAtAngle(this, 225, width, Time.Unit.Tick);
+			var topRight = MoveAtAngle(this, 315, width, Time.Unit.Tick);
+			var botLeft = MoveAtAngle(this, 135, width, Time.Unit.Tick);
+			var botRight = MoveAtAngle(this, 45, width, Time.Unit.Tick);
+
+			var vert = new Vertex[]
+			{
+				new(From(topLeft), Color.From(Color)),
+				new(From(topRight), Color.From(Color)),
+				new(From(botRight), Color.From(Color)),
+				new(From(botLeft), Color.From(Color)),
+			};
+			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 		}
 
 		public bool IsInvalid => double.IsNaN(X) || double.IsNaN(Y);
@@ -72,7 +86,10 @@ namespace SMPL.Data
 		/// <summary>
 		/// This default <see cref="object"/> method is not implemented.
 		/// </summary>
-		public override bool Equals(object obj) => default;
+		public override bool Equals(object obj)
+		{
+			return (Point)obj == this;
+		}
 		/// <summary>
 		/// This default <see cref="object"/> method is not implemented.
 		/// </summary>

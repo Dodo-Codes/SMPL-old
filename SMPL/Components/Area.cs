@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using SFML.Graphics;
 using SMPL.Data;
 using SMPL.Gear;
 
@@ -7,8 +8,10 @@ namespace SMPL.Components
 {
 	public class Area : Component
 	{
+		private static readonly SFML.Graphics.Text coordinatesText = new();
+		private static readonly Dictionary<Point, List<string>> chunks = new();
 		[JsonProperty]
-		private readonly List<Hitbox> hitboxes = new();
+		private readonly List<string> hitboxUIDs = new();
 		private Point localPosition, originPercent;
 		private double localAngle;
 		private Size localSize;
@@ -26,21 +29,65 @@ namespace SMPL.Components
 		{
 			sprite.Position = Point.From(Position);
 			sprite.Rotation = (float)Angle;
-			for (int i = 0; i < hitboxes.Count; i++)
+			for (int i = 0; i < hitboxUIDs.Count; i++)
 			{
-				var lines = hitboxes[i].lines;
+				var hitbox = (Hitbox)PickByUniqueID(hitboxUIDs[i]);
+				var lines = hitbox.lines;
 				foreach (var kvp in lines)
 				{
-					var localLine = hitboxes[i].localLines[kvp.Key];
+					var localLine = hitbox.localLines[kvp.Key];
 					var sp = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.StartPosition)));
 					var ep = Point.To(sprite.Transform.TransformPoint(Point.From(localLine.EndPosition)));
-					hitboxes[i].SetLine(kvp.Key, new Line(sp, ep));
+					hitbox.SetLine(kvp.Key, new Line(sp, ep));
 				}
 			}
+		}
+		internal void UpdateChunkInfo()
+		{
+			sprite.Position = Point.From(Position);
+			sprite.Rotation = (float)Angle;
+
+			var off = ChunkSize / 2;
+			var newChunkPos = new Point((int)((Position.X + off) / ChunkSize), (int)((Position.Y + off) / ChunkSize)) * ChunkSize;
+
+			if (ChunkPosition == newChunkPos) return;
+
+			if (chunks.ContainsKey(ChunkPosition)) chunks[ChunkPosition].Remove(UniqueID);
+			ChunkPosition = newChunkPos;
+			if (chunks.ContainsKey(ChunkPosition) == false || chunks[ChunkPosition] == null) chunks[ChunkPosition] = new();
+			chunks[ChunkPosition].Add(UniqueID);
 		}
 
 		//==============
 
+		public string[] NeighbourAreaUniqueIDs
+		{
+			get
+			{
+				var result = new List<string>();
+				for (int y = -1; y < 2; y++)
+					for (int x = -1; x < 2; x++)
+						result.AddRange(GetAreaUniqueIDsFromChunk(x, y));
+				return result.ToArray();
+			}
+		}
+		public static double ChunkSize { get; set; } = 100;
+		public static double ChunkSizePrediction
+		{
+			get
+			{
+				var biggestSize = 0.0;
+				foreach (var kvp in chunks)
+					for (int i = 0; i < kvp.Value.Count; i++)
+					{
+						var area = (Area)PickByUniqueID(kvp.Value[i]);
+						var value = area.Size.W > area.Size.H ? area.Size.W : area.Size.H;
+						if (value > biggestSize) biggestSize = value;
+					}
+				return biggestSize * 1.2;
+			}
+		}
+		public Point ChunkPosition { get; private set; }
 		[JsonProperty]
 		public Point Position
 		{
@@ -50,6 +97,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localPosition = PositionToLocal(value);
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 		[JsonProperty]
@@ -61,6 +109,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localAngle = AngleToLocal(value);
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 		[JsonProperty]
@@ -72,6 +121,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localSize = SizeToLocal(value);
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 		[JsonProperty]
@@ -83,6 +133,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				originPercent = new Point(Number.Limit(value.X, new Bounds(0, 100)), Number.Limit(value.Y, new Bounds(0, 100)));
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 
@@ -95,6 +146,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localPosition = value;
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 		[JsonProperty]
@@ -106,6 +158,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localAngle = value;
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 		[JsonProperty]
@@ -117,6 +170,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localSize = value;
 				UpdateHitboxes();
+				UpdateChunkInfo();
 			}
 		}
 
@@ -125,19 +179,70 @@ namespace SMPL.Components
 			Size = new Size(100, 100);
 			OriginPercent = new Point(50, 50);
 
+			// trigger the chunk addition
+			if (uniqueID != Camera.WorldCameraAreaUID)
+			{
+				Position = new Point(Area.ChunkSize * 3, 0);
+				Position = new Point(0, 0);
+			}
+
 			UpdateHitboxes();
 			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
-			hitboxes.Clear();
+			hitboxUIDs.Clear();
 			familyUID = null;
 			sprite.Dispose();
 			text.Dispose();
 			base.Destroy();
 		}
 
+		public string[] GetAreaUniqueIDsFromChunk(int relativeX, int relativeY)
+		{
+			var p = ChunkPosition + new Point(relativeX * ChunkSize, relativeY * ChunkSize);
+			return chunks.ContainsKey(p) == false ? System.Array.Empty<string>() : chunks[p].ToArray();
+		}
+		public static void DisplayChunks(Camera camera, double bordersWidth, Data.Color color, string coordinatesFont = null)
+		{
+			var area = (Area)PickByUniqueID(camera.AreaDisplayUniqueID);
+			var cameraSquareSize = camera.Size.W > camera.Size.H ? camera.Size.W : camera.Size.H;
+			var borderAmount = cameraSquareSize / ChunkSize;
+			var topY = area.Position.Y - cameraSquareSize / 2;
+			var botY = area.Position.Y + cameraSquareSize / 2;
+			var leftX = area.Position.X - cameraSquareSize / 2;
+			var rightX = area.Position.X + cameraSquareSize / 2;
+			var borderOffset = (cameraSquareSize % ChunkSize) / 2;
+
+			if ((int)(cameraSquareSize / ChunkSize) % 2 == 0) borderOffset += ChunkSize / 2;
+
+			for (int y = 0; y < borderAmount; y++)
+				for (int x = 0; x < borderAmount; x++)
+				{
+					var curX = (camera.Position.X - borderOffset) - (camera.Position.X % ChunkSize + x * ChunkSize) + cameraSquareSize / 2;
+					var curY = (camera.Position.Y - borderOffset) - (camera.Position.Y % ChunkSize + y * ChunkSize) + cameraSquareSize / 2;
+					var top = new Point(curX, topY + curY) { Color = color };
+					var bot = new Point(curX, botY + curY) { Color = color };
+					var left = new Point(leftX + curX, curY) { Color = color };
+					var right = new Point(rightX + curX, curY) { Color = color };
+					var off = ChunkSize / 2;
+
+					new Line(top, bot).Display(camera, bordersWidth);
+					new Line(left, right).Display(camera, bordersWidth);
+					new Point(curX + off, curY + off) { Color = color }.Display(camera, bordersWidth * 4);
+
+					if (coordinatesFont == null || Assets.fonts.ContainsKey(coordinatesFont) == false) continue;
+					coordinatesText.Font = Assets.fonts[coordinatesFont];
+					coordinatesText.Position = Point.From(new Point(curX, curY));
+					coordinatesText.DisplayedString = $" {(int)(curX + off)}\n\n\n {(int)(curY + off)}";
+					coordinatesText.CharacterSize = 120;
+					coordinatesText.FillColor = Data.Color.From(color);
+					var sc = ChunkSize / 600;
+					coordinatesText.Scale = Size.From(new Size(sc, sc));
+					camera.rendTexture.Draw(coordinatesText);
+				}
+		}
 		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{
 			parallaxPercent += new Size(100, 100);
@@ -157,44 +262,44 @@ namespace SMPL.Components
 			return size * sc;
 		}
 
-		public void AddHitboxes(params Hitbox[] hitboxInstances)
+		public void AddHitboxes(params string[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return;
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
 				return;
 			}
-			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (hitboxes.Contains(hitboxInstances[i]) == false) 
-					hitboxes.Add(hitboxInstances[i]);
+			for (int i = 0; i < hitboxUniqueIDs.Length; i++)
+				if (hitboxUIDs.Contains(hitboxUniqueIDs[i]) == false)
+					hitboxUIDs.Add(hitboxUniqueIDs[i]);
 		}
-		public void RemoveHitboxes(params Hitbox[] hitboxInstances)
+		public void RemoveHitboxes(params string[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return;
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
 				return;
 			}
-			for (int i = 0; i < hitboxInstances.Length; i++)
-				if (hitboxes.Contains(hitboxInstances[i]))
-					hitboxes.Remove(hitboxInstances[i]);
+			for (int i = 0; i < hitboxUniqueIDs.Length; i++)
+				if (hitboxUIDs.Contains(hitboxUniqueIDs[i]))
+					hitboxUIDs.Remove(hitboxUniqueIDs[i]);
 		}
 		public void RemoveAllHitboxes()
 		{
 			if (ErrorIfDestroyed()) return;
-			hitboxes.Clear();
+			hitboxUIDs.Clear();
 		}
-		public bool HasHitboxes(params Hitbox[] hitboxInstances)
+		public bool HasHitboxes(params string[] hitboxUniqueIDs)
 		{
-			if (hitboxInstances == null)
+			if (hitboxUniqueIDs == null)
 			{
 				Debug.LogError(1, "The collection of ComponentHitbox instances cannot be 'null'.");
 				return false;
 			}
-			for (int i = 0; i < hitboxes.Count; i++)
-				if (hitboxes.Contains(hitboxInstances[i]) == false)
+			for (int i = 0; i < hitboxUniqueIDs.Length; i++)
+				if (hitboxUIDs.Contains(hitboxUniqueIDs[i]) == false)
 					return false;
 			return true;
 		}
@@ -206,14 +311,14 @@ namespace SMPL.Components
 			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
 			return ErrorIfDestroyed() ? Point.Invalid :
 				family == null || family.VisualParentUniqueID == null ? localPosition :
-            Point.To(parentArea.sprite.Transform.TransformPoint(Point.From(localPosition)));
+				Point.To(parentArea.sprite.Transform.TransformPoint(Point.From(localPosition)));
 		}
 		public Point PositionToLocal(Point position)
 		{
 			var family = (Family)PickByUniqueID(familyUID);
 			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
 			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
-			return ErrorIfDestroyed() ? Point.Invalid : 
+			return ErrorIfDestroyed() ? Point.Invalid :
 				family == null || parent == null ? position :
 				Point.To(parentArea.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
@@ -222,7 +327,7 @@ namespace SMPL.Components
 			var family = (Family)PickByUniqueID(familyUID);
 			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
 			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
-			return ErrorIfDestroyed() ? double.NaN : 
+			return ErrorIfDestroyed() ? double.NaN :
 				family == null || parent == null ? localAngle :
 				parentArea.localAngle + localAngle;
 		}
@@ -231,7 +336,7 @@ namespace SMPL.Components
 			var family = (Family)PickByUniqueID(familyUID);
 			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
 			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
-			return ErrorIfDestroyed() ? double.NaN : 
+			return ErrorIfDestroyed() ? double.NaN :
 				family == null || parent == null ? angle :
 				-(parentArea.localAngle - angle);
 		}

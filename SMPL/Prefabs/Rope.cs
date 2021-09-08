@@ -1,4 +1,5 @@
-﻿using SMPL.Components;
+﻿using Newtonsoft.Json;
+using SMPL.Components;
 using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
@@ -8,7 +9,9 @@ namespace SMPL.Prefabs
 	public class Rope : Component
 	{
 		internal static List<Rope> ropes = new();
+		[JsonProperty]
 		internal List<P> points = new();
+		[JsonProperty]
 		internal List<Stick> sticks = new();
 
 		internal static void Update()
@@ -73,10 +76,10 @@ namespace SMPL.Prefabs
 			base.Destroy();
 		}
 
-		public void Display(Camera camera)
+		public void Display(Camera camera, double width)
 		{
 			for (int i = 0; i < sticks.Count; i++)
-				new Line(sticks[i].pA.position, sticks[i].pB.position).Display(camera);
+				new Line(sticks[i].pA.position, sticks[i].pB.position).Display(camera, width);
 		}
 	}
 	internal class P

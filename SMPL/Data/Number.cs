@@ -203,7 +203,7 @@ namespace SMPL.Data
 		public static double Precision(double number)
 		{
 			var cultDecPoint = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-			var split = number.ToString(cultDecPoint).Split();
+			var split = number.ToString().Split(cultDecPoint);
 			return split.Length > 1 ? split[1].Length : 0;
 		}
 		public static double Round(double number, double precision = 0,
