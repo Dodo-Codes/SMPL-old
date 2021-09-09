@@ -11,10 +11,11 @@ namespace SMPL.Prefabs
 	public class Cloth : Component
 	{
 		private const int FRAGMENTS = 10;
-		[JsonProperty]
-		public string RopesUniqueID { get; set; }
+		private List<string> removedQuads = new();
 		//=============
 
+		[JsonProperty]
+		public string RopesUniqueID { get; set; }
 		[JsonProperty]
 		public string TexturePath { get; set; }
 
@@ -65,15 +66,40 @@ namespace SMPL.Prefabs
 					var texturePos = new Point(x, y);
 					texturePos = new Point(texturePos.X * scale.W, texturePos.Y * scale.H);
 
+					if (removedQuads.Contains($"{x} {y}")) continue;
+
+					var p1 = r.points[$"{x} {y}"].Position;
+					var p2 = r.points[$"{x + 1} {y}"].Position;
+					var p3 = r.points[$"{x + 1} {y + 1}"].Position;
+					var p4 = r.points[$"{x} {y + 1}"].Position;
+
+					if (Point.Distance(p1, p2) > scale.W * 5 ||
+						Point.Distance(p2, p3) > scale.H * 5 ||
+						Point.Distance(p3, p4) > scale.W * 5 ||
+						Point.Distance(p4, p1) > scale.H * 5) continue;
+
 					var q = new Quad(
-						new Corner(r.points[$"{x} {y}"].Position, texturePos.X, texturePos.Y),
-						new Corner(r.points[$"{x + 1} {y}"].Position, texturePos.X + scale.W, texturePos.Y),
-						new Corner(r.points[$"{x + 1} {y + 1}"].Position, texturePos.X + scale.W, texturePos.Y + scale.H),
-						new Corner(r.points[$"{x} {y + 1}"].Position, texturePos.X, texturePos.Y + scale.H));
+						new Corner(p1, texturePos.X, texturePos.Y),
+						new Corner(p2, texturePos.X + scale.W, texturePos.Y),
+						new Corner(p3, texturePos.X + scale.W, texturePos.Y + scale.H),
+						new Corner(p4, texturePos.X, texturePos.Y + scale.H));
 					quads.Add($"{x} {y}", q);
 				}
 			var qs = Sprite.QuadsToVerts(quads);
 			camera.rendTexture.Draw(qs.Item2, PrimitiveType.Quads, new RenderStates(Assets.textures[TexturePath]));
+		}
+
+		public void Cut(int x, int y)
+		{
+			if (removedQuads.Contains($"{x} {y}")) return;
+			removedQuads.Add($"{x} {y}");
+
+			var rope = (Ropes)PickByUniqueID(RopesUniqueID);
+			if (x != 9) rope.RemovePointConnection($"{x} {y} right");
+			if (y != 9) rope.RemovePointConnection($"{x} {y} down");
+
+			if (x == 9) Cut(8, y);
+			if (y == 9) Cut(x, 8);
 		}
 	}
 }
