@@ -106,3 +106,108 @@ D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\ref\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.pdb
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.genruntimeconfig.cache
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csprojAssemblyReference.cache
+G:\SFML\Test Game\bin\Debug\net5.0\SMPL.exe
+G:\SFML\Test Game\bin\Debug\net5.0\Test Game.exe
+G:\SFML\Test Game\bin\Debug\net5.0\Test Game.deps.json
+G:\SFML\Test Game\bin\Debug\net5.0\Test Game.runtimeconfig.json
+G:\SFML\Test Game\bin\Debug\net5.0\Test Game.runtimeconfig.dev.json
+G:\SFML\Test Game\bin\Debug\net5.0\Test Game.dll
+G:\SFML\Test Game\bin\Debug\net5.0\ref\Test Game.dll
+G:\SFML\Test Game\bin\Debug\net5.0\Test Game.pdb
+G:\SFML\Test Game\bin\Debug\net5.0\Microsoft.Win32.SystemEvents.dll
+G:\SFML\Test Game\bin\Debug\net5.0\NetCoreServer.dll
+G:\SFML\Test Game\bin\Debug\net5.0\Newtonsoft.Json.dll
+G:\SFML\Test Game\bin\Debug\net5.0\Newtonsoft.Json.Bson.dll
+G:\SFML\Test Game\bin\Debug\net5.0\SFML.Audio.dll
+G:\SFML\Test Game\bin\Debug\net5.0\SFML.Graphics.dll
+G:\SFML\Test Game\bin\Debug\net5.0\SFML.System.dll
+G:\SFML\Test Game\bin\Debug\net5.0\SFML.Window.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.CodeDom.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Configuration.ConfigurationManager.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Diagnostics.PerformanceCounter.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Drawing.Common.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Management.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Security.Cryptography.ProtectedData.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Security.Permissions.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Windows.Extensions.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libcsfml-audio.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libcsfml-graphics.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libcsfml-system.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libcsfml-window.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-audio.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-audio.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-audio.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-graphics.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-graphics.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-graphics.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-system.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-system.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-system.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-window.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-window.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\alpine-x64\native\libsfml-window.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libcsfml-audio.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libcsfml-graphics.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libcsfml-system.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libcsfml-window.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-audio.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-audio.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-audio.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-graphics.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-graphics.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-graphics.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-system.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-system.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-system.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-window.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-window.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\debian-x64\native\libsfml-window.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libcsfml-audio.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libcsfml-graphics.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libcsfml-system.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libcsfml-window.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-audio.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-audio.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-audio.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-graphics.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-graphics.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-graphics.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-system.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-system.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-system.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-window.so
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-window.so.2.5
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\fedora-x64\native\libsfml-window.so.2.5.1
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x64\native\csfml-Audio.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x64\native\csfml-Graphics.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x64\native\csfml-System.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x64\native\csfml-Window.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x64\native\openal32.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x86\native\csfml-Audio.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x86\native\csfml-Graphics.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x86\native\csfml-System.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x86\native\csfml-Window.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win-x86\native\openal32.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win\lib\netcoreapp3.0\Microsoft.Win32.SystemEvents.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win\lib\netcoreapp2.0\System.Diagnostics.PerformanceCounter.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\unix\lib\netcoreapp3.0\System.Drawing.Common.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win\lib\netcoreapp2.0\System.Management.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
+G:\SFML\Test Game\bin\Debug\net5.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
+G:\SFML\Test Game\bin\Debug\net5.0\SMPL.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Windows.Forms.dll
+G:\SFML\Test Game\bin\Debug\net5.0\Accessibility.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Deployment.dll
+G:\SFML\Test Game\bin\Debug\net5.0\System.Runtime.Serialization.Formatters.Soap.dll
+G:\SFML\Test Game\bin\Debug\net5.0\SMPL.pdb
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.csprojAssemblyReference.cache
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.GeneratedMSBuildEditorConfig.editorconfig
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.AssemblyInfoInputs.cache
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.AssemblyInfo.cs
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.csproj.CoreCompileInputs.cache
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.csproj.CopyComplete
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.dll
+G:\SFML\Test Game\obj\Debug\net5.0\ref\Test Game.dll
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.pdb
+G:\SFML\Test Game\obj\Debug\net5.0\Test Game.genruntimeconfig.cache

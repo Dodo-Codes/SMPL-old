@@ -181,7 +181,7 @@ namespace SMPL.Components
 
 			if (Effects != null)
 			{
-				Effects.shader.SetUniform("RawTexture", t);
+				Effects.shader?.SetUniform("RawTexture", t);
 				Effects.DrawMasks(rend);
 			}
 			
@@ -192,7 +192,7 @@ namespace SMPL.Components
 			var ownerOrOff = Point.From(new Point(Area.Size.W * o.X, Area.Size.H * o.Y));
 			Area.sprite.TextureRect = new IntRect(0, 0, (int)Area.Size.W, (int)Area.Size.H);
 			Area.sprite.Texture = rend.Texture;
-			if (Effects != null) Effects.shader.SetUniform("Texture", Area.sprite.Texture);
+			if (Effects != null) Effects.shader?.SetUniform("Texture", Area.sprite.Texture);
 
 			Area.sprite.Position = Point.From(Area.Position);
 			Area.sprite.Rotation = (float)Area.Angle;

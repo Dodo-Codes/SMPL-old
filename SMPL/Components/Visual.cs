@@ -43,9 +43,9 @@ namespace SMPL.Components
 				effectsUID = value;
 				if (effectsUID == null) return;
 				var effects = (Effects)PickByUniqueID(effectsUID);
-				if (effects == null) { Debug.LogError(1, $"No {nameof(Effects)} found with uniqueID '{areaUID}'."); return; }
+				if (effects == null) { Debug.LogError(1, $"No {nameof(Effects)} found with uniqueID '{effectsUID}'."); return; }
 				effects.visualOwnerUID = UniqueID;
-				effects.SetDefaults();
+				if (effects.shader == null) effects.SetDefaults();
 			}
 		}
 		[JsonProperty]

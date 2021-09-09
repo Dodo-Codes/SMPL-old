@@ -196,7 +196,7 @@ namespace SMPL.Components
 
 			if (Effects != null)
 			{
-				Effects.shader.SetUniform("RawTexture", t);
+				Effects.shader?.SetUniform("RawTexture", t);
 				Effects.DrawMasks(rend);
 			}
 
@@ -207,7 +207,7 @@ namespace SMPL.Components
 			Area.sprite.TextureRect = new IntRect((int)bounds.Left, (int)bounds.Top, (int)bounds.Width, (int)bounds.Height);
 			Area.sprite.Texture = rend.Texture;
 
-			if (Effects != null) Effects.shader.SetUniform("Texture", Area.sprite.Texture);
+			if (Effects != null) Effects.shader?.SetUniform("Texture", Area.sprite.Texture);
 
 			Area.sprite.Origin = new Vector2f((float)(w * p.X), (float)(h * p.Y));
 			Area.sprite.Position = Point.From(Area.Position);
@@ -215,6 +215,7 @@ namespace SMPL.Components
 			Area.sprite.Scale = new Vector2f(
 				(float)Area.Size.W / Area.sprite.TextureRect.Width,
 				(float)Area.Size.H / Area.sprite.TextureRect.Height);
+			Area.sprite.Color = Data.Color.From(Effects == null ? Data.Color.White : Effects.TintColor);
 
 			if (Effects == null) camera.rendTexture.Draw(Area.sprite);
 			else camera.rendTexture.Draw(Area.sprite,
