@@ -14,8 +14,9 @@ namespace SMPL.Prefabs
 	{
 		public enum Side { Far, Near, Left, Right, Up, Down }
 
-		private Dictionary<Side, Point[]> texCoords = new();
-		private Dictionary<Side, Data.Color> colors = new();
+		private readonly Dictionary<Side, Point[]> texCoords = new();
+		private readonly Dictionary<Side, Data.Color> colors = new();
+		private readonly List<Side> skippedSides = new();
 		private string texturePath;
 		private double lightAngle, lightDepth;
 
@@ -35,11 +36,17 @@ namespace SMPL.Prefabs
 					Assets.NotLoadedError(1, Assets.Type.Texture, value);
 					return;
 				}
-				if (prev == null) SetTextureCoordinatesDefault();
+				if (prev == null) SetSidesTextureCropDefault();
 			}
 		}
 		[JsonProperty]
 		public bool IsPyramid { get; set; }
+		[JsonProperty]
+		public bool IsRepeated { get; set; }
+		[JsonProperty]
+		public bool IsSmooth { get; set; }
+		[JsonProperty]
+		public Size TileSize { get; set; } = new Size(32, 32);
 
 		public ShapePseudo3D(string uniqueID) : base(uniqueID)
 		{
@@ -80,6 +87,9 @@ namespace SMPL.Prefabs
 			var leftSide = Number.IsBetween(angle, new Number.Range(90, 270), true, true);
 
 			colors[Side.Far] = Data.Color.GrayDark;
+			if (skippedSides.Count > 0)
+				colors[Side.Far] = Shade(Number.Map(lightDepth,
+					new Number.Range(0, Depth / skippedSides.Count * 2), new Number.Range(50, 255)));
 			colors[Side.Left] = Shade(Number.Map(angle, new Number.Range(angle > 180 ? 360 : 0, 180), new Number.Range(50, 255)));
 			colors[Side.Right] = Shade(Number.Map(angle, new Number.Range(180, botSide ? 0 : 360), new Number.Range(50, 255)));
 
@@ -114,12 +124,15 @@ namespace SMPL.Prefabs
 			topR.Color = colors[Side.Far];
 			botR.Color = colors[Side.Far];
 			botL.Color = colors[Side.Far];
-			var quads = new Dictionary<string, Quad>()
-			{ { "far", new Quad(
-				new Corner(topL, texCoords[Side.Far][0].X, texCoords[Side.Far][0].Y),
-				new Corner(topR, texCoords[Side.Far][1].X, texCoords[Side.Far][0].Y),
-				new Corner(botR, texCoords[Side.Far][1].X, texCoords[Side.Far][1].Y),
-				new Corner(botL, texCoords[Side.Far][0].X, texCoords[Side.Far][1].Y)) } };
+			var quads = new Dictionary<string, Quad>();
+			if (skippedSides.Contains(Side.Far) == false)
+			{
+				quads.Add("far", new Quad(
+					new Corner(topL, texCoords[Side.Far][0].X, texCoords[Side.Far][0].Y),
+					new Corner(topR, texCoords[Side.Far][1].X, texCoords[Side.Far][0].Y),
+					new Corner(botR, texCoords[Side.Far][1].X, texCoords[Side.Far][1].Y),
+					new Corner(botL, texCoords[Side.Far][0].X, texCoords[Side.Far][1].Y)));
+			}
 
 			var dists = new SortedDictionary<double, Quad>();
 			// left
@@ -127,49 +140,61 @@ namespace SMPL.Prefabs
 			bl.EndPosition = new Point(bl.EndPosition.X, bl.EndPosition.Y) { Color = colors[Side.Left] };
 			bl.StartPosition = new Point(bl.StartPosition.X, bl.StartPosition.Y) { Color = colors[Side.Left] };
 			tl.StartPosition = new Point(tl.StartPosition.X, tl.StartPosition.Y) { Color = colors[Side.Left] };
-			dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(topL, botL, new Size(50, 50))) + 0.02,
+			if (skippedSides.Contains(Side.Left) == false)
+			{
+				dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(topL, botL, new Size(50, 50))) + 0.02,
 				new Quad(
 					new Corner(IsPyramid ? ml : tl.EndPosition, texCoords[Side.Left][0].X, texCoords[Side.Left][0].Y),
 					new Corner(IsPyramid ? ml : bl.EndPosition, texCoords[Side.Left][1].X, texCoords[Side.Left][0].Y),
 					new Corner(bl.StartPosition, texCoords[Side.Left][1].X, texCoords[Side.Left][1].Y),
 					new Corner(tl.StartPosition, texCoords[Side.Left][0].X, texCoords[Side.Left][1].Y)));
+			}
 			// right
 			br.EndPosition = new Point(br.EndPosition.X, br.EndPosition.Y) { Color = colors[Side.Right] };
 			tr.EndPosition = new Point(tr.EndPosition.X, tr.EndPosition.Y) { Color = colors[Side.Right] };
 			tr.StartPosition = new Point(tr.StartPosition.X, tr.StartPosition.Y) { Color = colors[Side.Right] };
 			br.StartPosition = new Point(br.StartPosition.X, br.StartPosition.Y) { Color = colors[Side.Right] };
-			dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(topR, botR, new Size(50, 50))) + 0.06,
+			if (skippedSides.Contains(Side.Right) == false)
+			{
+				dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(topR, botR, new Size(50, 50))) + 0.06,
 					new Quad(
 						new Corner(IsPyramid ? ml : br.EndPosition, texCoords[Side.Right][0].X, texCoords[Side.Right][0].Y),
 						new Corner(IsPyramid ? ml : tr.EndPosition, texCoords[Side.Right][1].X, texCoords[Side.Right][0].Y),
 						new Corner(tr.StartPosition, texCoords[Side.Right][1].X, texCoords[Side.Right][1].Y),
 						new Corner(br.StartPosition, texCoords[Side.Right][0].X, texCoords[Side.Down][1].Y)));
+			}
 			// up
 			tr.EndPosition = new Point(tr.EndPosition.X, tr.EndPosition.Y) { Color = colors[Side.Up] };
 			tl.EndPosition = new Point(tl.EndPosition.X, tl.EndPosition.Y) { Color = colors[Side.Up] };
 			tl.StartPosition = new Point(tl.StartPosition.X, tl.StartPosition.Y) { Color = colors[Side.Up] };
 			tr.StartPosition = new Point(tr.StartPosition.X, tr.StartPosition.Y) { Color = colors[Side.Up] };
-			dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(topR, topL, new Size(50, 50))) + 0.08,
+			if (skippedSides.Contains(Side.Up) == false)
+			{
+				dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(topR, topL, new Size(50, 50))) + 0.08,
 					new Quad(
 						new Corner(IsPyramid ? ml : tr.EndPosition, texCoords[Side.Up][0].X, texCoords[Side.Up][0].Y),
 						new Corner(IsPyramid ? ml : tl.EndPosition, texCoords[Side.Up][1].X, texCoords[Side.Up][0].Y),
 						new Corner(tl.StartPosition, texCoords[Side.Up][1].X, texCoords[Side.Up][1].Y),
 						new Corner(tr.StartPosition, texCoords[Side.Up][0].X, texCoords[Side.Down][1].Y)));
+			}
 			// bot
 			bl.EndPosition = new Point(bl.EndPosition.X, bl.EndPosition.Y) { Color = colors[Side.Down] };
 			br.EndPosition = new Point(br.EndPosition.X, br.EndPosition.Y) { Color = colors[Side.Down] };
 			br.StartPosition = new Point(br.StartPosition.X, br.StartPosition.Y) { Color = colors[Side.Down] };
 			bl.StartPosition = new Point(bl.StartPosition.X, bl.StartPosition.Y) { Color = colors[Side.Down] };
-			dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(botR, botL, new Size(50, 50))) + 0.04,
+			if (skippedSides.Contains(Side.Down) == false)
+			{
+				dists.Add(99_999_999.0 - Point.Distance(camera.Position, Point.PercentTowardTarget(botR, botL, new Size(50, 50))) + 0.04,
 					new Quad(
 						new Corner(IsPyramid ? ml : bl.EndPosition, texCoords[Side.Down][0].X, texCoords[Side.Down][0].Y),
 						new Corner(IsPyramid ? ml : br.EndPosition, texCoords[Side.Down][1].X, texCoords[Side.Down][0].Y),
 						new Corner(br.StartPosition, texCoords[Side.Down][1].X, texCoords[Side.Down][1].Y),
 						new Corner(bl.StartPosition, texCoords[Side.Down][0].X, texCoords[Side.Down][1].Y)));
+			}
 			foreach (var kvp in dists)
 				quads.Add($"{kvp.Key}", kvp.Value);
 
-			if (IsPyramid == false)
+			if (IsPyramid == false && skippedSides.Contains(Side.Far) == false)
 			{
 				tl.EndPosition = new Point(tl.EndPosition.X, tl.EndPosition.Y) { Color = colors[Side.Near] };
 				tr.EndPosition = new Point(tr.EndPosition.X, tr.EndPosition.Y) { Color = colors[Side.Near] };
@@ -183,6 +208,11 @@ namespace SMPL.Prefabs
 			};
 
 			var texture = TexturePath != null && Assets.textures.ContainsKey(TexturePath) ? Assets.textures[TexturePath] : null;
+			if (texture != null)
+			{
+				texture.Repeated = IsRepeated;
+				texture.Smooth = IsSmooth;
+			}
 			camera.rendTexture.Draw(Components.Sprite.QuadsToVerts(quads).Item2, PrimitiveType.Quads, new RenderStates(texture));
 
 			Point P(Vector2f vec) => Point.To(Area.sprite.Transform.TransformPoint(vec));
@@ -195,22 +225,38 @@ namespace SMPL.Prefabs
 			}
 			Data.Color Shade(double s) => new Data.Color(s, s, s);
 		}
-		public void SetSideTextureCoordinates(Side side, Point topLeft, Point downRight)
-		{
-			texCoords[side] = new Point[] { topLeft, downRight };
-		}
-		public void SetTextureCoordinatesDefault()
+
+		public void SetSideTextureCropTile(Side side, Point tileIndexes)
 		{
 			if (ErrorIfNoTexture()) return;
 
-			var area = AreaUniqueID == null ? (Area)PickByUniqueID(AreaUniqueID) : null;
-			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
-				(area == null ? new Size(100, 100) : area.Size) :
-				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
+			texCoords[side] = new Point[]
+			{
+				new Point(TileSize.W, TileSize.H) * tileIndexes,
+				new Point(TileSize.W, TileSize.H) * (tileIndexes + new Point(1, 1))
+			};
+		}
+		public void SetSideTextureCropPercent(Side side, Point topLeft, Point downRight)
+		{
+			topLeft /= 100;
+			downRight /= 100;
+			var sz = TexturePath != null && Assets.textures.ContainsKey(TexturePath) ? Assets.textures[TexturePath].Size :
+				new Vector2u(100, 100);
+			texCoords[side] = new Point[]
+			{
+				new Point(sz.X * topLeft.X, sz.Y * topLeft.Y),
+				new Point(sz.X * downRight.X, sz.Y * downRight.Y)
+			};
+		}
+		public void SetSidesTextureCropDefault()
+		{
+			if (ErrorIfNoTexture()) return;
 
+			var sz = GetTextureSize();
 			for (int i = 0; i < 6; i++)
 				texCoords[(Side)i] = new Point[] { new Point(0, 0), new Point(sz.W, sz.H) };
 		}
+
 		public void SetSideColorTint(Side side, Data.Color color)
 		{
 			colors[side] = color;
@@ -227,6 +273,12 @@ namespace SMPL.Prefabs
 			lightDepth = depth;
 		}
 
+		public void SetSideVisibility(Side side, bool display)
+		{
+			if (display && skippedSides.Contains(side)) skippedSides.Remove(side);
+			else if (display == false && skippedSides.Contains(side) == false) skippedSides.Add(side);
+		}
+
 		private bool ErrorIfNoTexture()
 		{
 			if (TexturePath == null)
@@ -240,6 +292,14 @@ namespace SMPL.Prefabs
 				return true;
 			}
 			return false;
+		}
+		private Size GetTextureSize()
+		{
+			var area = AreaUniqueID == null ? (Area)PickByUniqueID(AreaUniqueID) : null;
+			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
+				(area == null ? new Size(100, 100) : area.Size) :
+				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
+			return sz;
 		}
 	}
 }

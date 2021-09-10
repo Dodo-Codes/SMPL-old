@@ -9,30 +9,35 @@ namespace TestGame
 	{
 		public Player()
 		{
-			Assets.Load(Assets.Type.Texture, "mc.png");
+			Assets.Load(Assets.Type.Texture, "Tileset.png");
 
 			var area = new Area("area");
 			var box = new ShapePseudo3D("box") { AreaUniqueID = "area" };
 			Camera.CallWhen.Display(OnDisplay);
 		}
-
-		double ang = 0;
+		double x = 0;
 		private void OnDisplay(Camera camera)
 		{
 			if (Performance.FrameCount % 20 == 0) Window.Title = $"SMPL Game (FPS: {Performance.FPS:F2})";
 
-			if (Assets.AreLoaded("mc.png") == false) return;
+			if (Assets.AreLoaded("Tileset.png") == false) return;
 			Camera.WorldCamera.Position = Mouse.CursorPositionWindow;
 			var box = (ShapePseudo3D)Thing.PickByUniqueID("box");
 			var area = (Area)Thing.PickByUniqueID("area");
-			box.TexturePath = "mc.png";
-			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Left, new Point(512, 0), new Point(1024, 512));
-			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Right, new Point(512, 0), new Point(1024, 512));
-			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Up, new Point(512, 0), new Point(1024, 512));
-			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Down, new Point(512, 0), new Point(1024, 512));
-			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Near, new Point(0, 0), new Point(512, 512));
-			box.IsPyramid = true;
-			area.Angle++;
+			box.TexturePath = "Tileset.png";
+
+			x += 1;
+			for (int i = 0; i < 6; i++)
+			{
+				box.SetSideTextureCropTile((ShapePseudo3D.Side)i, new Point(4, 1));
+			}
+			box.IsRepeated = true;
+			box.SetColorTintLight(x, 100);
+			box.SetSideVisibility(ShapePseudo3D.Side.Up, false);
+			box.SetSideVisibility(ShapePseudo3D.Side.Near, false);
+			box.SetSideVisibility(ShapePseudo3D.Side.Left, false);
+			box.SetSideVisibility(ShapePseudo3D.Side.Right, false);
+			//area.Angle++;
 			box.Display(camera);
 		}
 	}
