@@ -7,7 +7,7 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Camera : Component
+	public class Camera : Thing
 	{
 		private static event Events.ParamsOne<Camera> OnDisplay;
 		private double depth;

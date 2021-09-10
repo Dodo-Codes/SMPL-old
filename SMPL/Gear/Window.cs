@@ -162,7 +162,7 @@ namespace SMPL.Gear
 				}
 				if (Assets.textures.ContainsKey(value) == false)
 				{
-					Assets.NotLoadedError(Assets.Type.Texture, value);
+					Assets.NotLoadedError(1, Assets.Type.Texture, value);
 					return;
 				}
 				iconTexPath = value;

@@ -5,7 +5,7 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Timer : Component
+	public class Timer : Thing
    {
       private static readonly List<Timer> timers = new();
       private static event Events.ParamsOne<Timer> OnEnd, OnPause;
@@ -76,11 +76,11 @@ namespace SMPL.Components
       }
       public double ProgressPercent
       {
-         get { return ErrorIfDestroyed() ? double.NaN : Number.ToPercent(progress, new Bounds(0, Duration)); }
+         get { return ErrorIfDestroyed() ? double.NaN : Number.ToPercent(progress, new Number.Range(0, Duration)); }
          set
          {
             if (ErrorIfDestroyed()) return;
-            progress = Number.FromPercent(Number.Limit(value, new Bounds(0, 100)), new Bounds(0, Duration));
+            progress = Number.FromPercent(Number.Limit(value, new Number.Range(0, 100)), new Number.Range(0, Duration));
          }
       }
       public double Countdown

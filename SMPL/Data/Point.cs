@@ -66,8 +66,8 @@ namespace SMPL.Data
 		}
 		public static Point PercentTowardTarget(Point point, Point targetPoint, Size percent)
 		{
-			var x = Number.FromPercent(percent.W, new Bounds(point.X, targetPoint.X));
-			var y = Number.FromPercent(percent.H, new Bounds(point.Y, targetPoint.Y));
+			var x = Number.FromPercent(percent.W, new Number.Range(point.X, targetPoint.X));
+			var y = Number.FromPercent(percent.H, new Number.Range(point.Y, targetPoint.Y));
 			return new Point(x, y);
 		}
 
@@ -83,17 +83,8 @@ namespace SMPL.Data
 		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b);
 		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b);
 
-		/// <summary>
-		/// This default <see cref="object"/> method is not implemented.
-		/// </summary>
-		public override bool Equals(object obj)
-		{
-			return (Point)obj == this;
-		}
-		/// <summary>
-		/// This default <see cref="object"/> method is not implemented.
-		/// </summary>
-		public override int GetHashCode() => default;
+		public override bool Equals(object obj) => base.Equals(obj);
+		public override int GetHashCode() => base.GetHashCode();
 
 		public override string ToString() => $"{X} {Y}";
 

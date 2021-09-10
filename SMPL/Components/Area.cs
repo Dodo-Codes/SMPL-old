@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using SFML.Graphics;
+using SFML.System;
 using SMPL.Data;
 using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Area : Component
+	public class Area : Thing
 	{
 		private static double biggestSize;
 		private static readonly SFML.Graphics.Text coordinatesText = new();
@@ -57,6 +58,13 @@ namespace SMPL.Components
 			ChunkPosition = newChunkPos;
 			if (chunks.ContainsKey(ChunkPosition) == false || chunks[ChunkPosition] == null) chunks[ChunkPosition] = new();
 			chunks[ChunkPosition].Add(UniqueID);
+		}
+		internal void DefaultSprite()
+		{
+			sprite.Position = new Vector2f();
+			sprite.Rotation = 0;
+			sprite.Scale = new Vector2f(1, 1);
+			sprite.Origin = new Vector2f(0, 0);
 		}
 
 		//==============
@@ -126,7 +134,9 @@ namespace SMPL.Components
 			set
 			{
 				if (ErrorIfDestroyed()) return;
-				originPercent = new Point(Number.Limit(value.X, new Bounds(0, 100)), Number.Limit(value.Y, new Bounds(0, 100)));
+				originPercent = new Point(
+					Number.Limit(value.X, new Number.Range(0, 100)),
+					Number.Limit(value.Y, new Number.Range(0, 100)));
 				UpdateHitboxes();
 				UpdateChunkInfo();
 			}
@@ -241,8 +251,8 @@ namespace SMPL.Components
 		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)
 		{
 			parallaxPercent += new Size(100, 100);
-			var x = Number.FromPercent(parallaxPercent.W, new Bounds(-camera.Position.X, position.X));
-			var y = Number.FromPercent(parallaxPercent.H, new Bounds(-camera.Position.Y, position.Y));
+			var x = Number.FromPercent(parallaxPercent.W, new Number.Range(-camera.Position.X, position.X));
+			var y = Number.FromPercent(parallaxPercent.H, new Number.Range(-camera.Position.Y, position.Y));
 			return new Point(x, y);
 		}
 		public static double AngleToParallax(double angle, double parallaxPercent, Camera camera)

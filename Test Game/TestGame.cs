@@ -5,7 +5,7 @@ namespace TestGame
 {
    public class TestGame : Game
    {
-      public static void Main() => Start(new TestGame(), new Size(3, 3));
+      public static void Main() => Start(new TestGame(), new Size(2, 2));
 
       public override void OnGameCreated()
       {

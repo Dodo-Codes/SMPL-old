@@ -6,7 +6,7 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Hitbox : Component
+	public class Hitbox : Thing
 	{
 		private bool Contains_(string hitboxUID)
 		{

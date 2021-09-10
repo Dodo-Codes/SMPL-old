@@ -78,7 +78,7 @@ namespace SMPL.Components
 				texturePath = value;
 				if (Assets.textures.ContainsKey(value) == false)
 				{
-					Assets.NotLoadedError(Assets.Type.Texture, value);
+					Assets.NotLoadedError(1, Assets.Type.Texture, value);
 					return;
 				}
 				if (prev == null) SetQuadDefault(UniqueID);
@@ -185,10 +185,7 @@ namespace SMPL.Components
 			var texture = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
 				null : Assets.textures[TexturePath];
 
-			Area.sprite.Position = new Vector2f();
-			Area.sprite.Rotation = 0;
-			Area.sprite.Scale = new Vector2f(1, 1);
-			Area.sprite.Origin = new Vector2f(0, 0);
+			Area.DefaultSprite();
 
 			rend.Clear(Data.Color.From(Effects == null ? new Data.Color() : Effects.BackgroundColor));
 			rend.Draw(verts, PrimitiveType.Quads, new RenderStates(BlendMode.Alpha, Transform.Identity, texture, null));

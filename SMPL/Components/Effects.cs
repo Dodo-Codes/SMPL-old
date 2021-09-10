@@ -6,7 +6,7 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Effects : Component
+	public class Effects : Thing
 	{
 		private static void AddMask(List<string> list, string visualComponentUID, string visualOwnerUID, bool add)
 		{

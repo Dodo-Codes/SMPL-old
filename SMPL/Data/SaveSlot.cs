@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using SMPL.Components;
 using SMPL.Gear;
+using SMPL.Prefabs;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -8,12 +10,12 @@ namespace SMPL.Data
 {
 	public struct SaveSlot
 	{
-		private static Dictionary<string, object> values = new();
-		[JsonProperty]
-		private Dictionary<string, object> slotValues;
+		private const int VALUE_LIMIT = 1000;
+		private static readonly string[] values = new string[VALUE_LIMIT + 1];
 
 		public const string DIRECTORY = "savedata";
 
+		public string[] Values { get; set; }
 		public Area[] Areas { get; set; }
 		public Audio[] Audios { get; set; }
 		public Camera[] Cameras { get; set; }
@@ -23,6 +25,12 @@ namespace SMPL.Data
 		public Sprite[] Sprites { get; set; }
 		public Textbox[] Textboxes { get; set; }
 		public Timer[] Timers { get; set; }
+
+		public Cloth[] Clothes { get; set; }
+		public Ropes[] Ropes { get; set; }
+		public SegmentedLine[] SegmentedLines { get; set; }
+
+		public Probability.Table[] ProbabilityTables { get; set; }
 
 		public void Save(string name)
 		{
@@ -48,31 +56,21 @@ namespace SMPL.Data
 			str = Text.Decrypt(str, 'H', true);
 			var slot = JsonConvert.DeserializeObject<SaveSlot>(str);
 
-			if (slot.slotValues == null || slot.slotValues.Count == 0) return;
-			foreach (var kvp in slot.slotValues)
-				values[kvp.Key] = kvp.Value;
+			if (slot.Values == null || slot.Values.Length == 0) return;
+			for (int i = 0; i < slot.Values.Length; i++)
+				values[i] = slot.Values[i];
 		}
-		public void SetValue(string key, object value)
+		public static string GetValue(int index)
 		{
-			if (value is Component)
+			if (Number.IsBetween(index, new Number.Range(0, VALUE_LIMIT), true, false) == false)
 			{
-				Debug.LogError(1, $"{nameof(SaveSlot)} values should not be {nameof(Component)}s, use the {nameof(SaveSlot)}'s " +
-					$"properties for that.\n" +
-					$"This is because {nameof(Component)}s can be loaded but retrieved later.\n" +
-					$"Also their order of saving/loading matters because of how they reference one another.");
-				return;
-			}
-			if (slotValues == null) slotValues = new();
-			slotValues[key] = value;
-		}
-		public static object GetValue(string key)
-		{
-			if (values.ContainsKey(key) == false)
-			{
-				Debug.LogError(1, $"Could not retrieve value because the key '{key}' was not found.");
+				Debug.LogError(1, $"The index has to be between 0 and {VALUE_LIMIT}. Only those values are loaded.");
 				return default;
 			}
-			return values[key];
+			var result = default(string);
+			if (Statics.TryCast(values[index], out result) == false)
+				Debug.LogError(1, $"Could not retrieve the value from index '{index}'. Perhaps it is the wrong type?");
+			return result;
 		}
 	}
 }

@@ -7,7 +7,7 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-	public class Family : Component
+	public class Family : Thing
 	{
 		private string visualParentUID;
 

@@ -92,7 +92,7 @@ namespace SMPL.Data
 		{
 			for (int i = 0; i < indexes.Count - 1; i++)
 			{
-				var j = (int)Number.Random(new Bounds(i, indexes.Count - 1));
+				var j = (int)Probability.Randomize(new Number.Range(i, indexes.Count - 1));
 				var tempIndex = indexes[i];
 				//var tempKey = keys[tempIndex];
 				var tempValue = values[tempIndex];

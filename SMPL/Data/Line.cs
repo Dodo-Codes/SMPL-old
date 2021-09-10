@@ -89,7 +89,7 @@ namespace SMPL.Data
 			var AP = Point.Distance(StartPosition, point);
 			var PB = Point.Distance(EndPosition, point);
 			var sum = AP + PB;
-			return Number.IsBetween(sum, new Bounds(AB - 0.01, AB + 0.01));
+			return Number.IsBetween(sum, new Number.Range(AB - 0.01, AB + 0.01));
 		}
 		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
 

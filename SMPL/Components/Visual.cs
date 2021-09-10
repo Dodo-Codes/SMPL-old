@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace SMPL.Components
 {
-	public abstract class Visual : Component
+	public abstract class Visual : Thing
 	{
 		private string areaUID;
 		private string effectsUID;

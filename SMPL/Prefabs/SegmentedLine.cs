@@ -3,10 +3,11 @@ using SMPL.Components;
 using SMPL.Data;
 using System;
 using System.Collections.Generic;
+using SMPL.Gear;
 
 namespace SMPL.Prefabs
 {
-	public class SegmentedLine : Component
+	public class SegmentedLine : Thing
 	{
 		private Point[] points;
 		private Point originPosition, targetPosition;

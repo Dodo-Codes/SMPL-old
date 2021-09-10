@@ -125,10 +125,10 @@ namespace SMPL.Data
 
 		internal void To255()
 		{
-			R = Number.Limit(R, new Bounds(0, 255));
-			G = Number.Limit(G, new Bounds(0, 255));
-			B = Number.Limit(B, new Bounds(0, 255));
-			A = Number.Limit(A, new Bounds(0, 255));
+			R = Number.Limit(R, new Number.Range(0, 255));
+			G = Number.Limit(G, new Number.Range(0, 255));
+			B = Number.Limit(B, new Number.Range(0, 255));
+			A = Number.Limit(A, new Number.Range(0, 255));
 		}
 		internal static Color To(SFML.Graphics.Color col) => new Color(col.R, col.G, col.B, col.A);
 		internal static SFML.Graphics.Color From(Color col)
@@ -142,13 +142,7 @@ namespace SMPL.Data
 		public static Color operator +(Color a, Color b) => new Color(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
 
 		public override string ToString() => $"{R} {G} {B} {A}";
-      /// <summary>
-      /// This default <see cref="object"/> method is not implemented.
-      /// </summary>
-      public override bool Equals(object obj) => default;
-		/// <summary>
-		/// This default <see cref="object"/> method is not implemented.
-		/// </summary>
-		public override int GetHashCode() => default;
+		public override bool Equals(object obj) => base.Equals(obj);
+		public override int GetHashCode() => base.GetHashCode();
 	}
 }

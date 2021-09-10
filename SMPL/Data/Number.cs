@@ -37,6 +37,18 @@ namespace SMPL.Data
 
 		// =============
 
+		public struct Range
+		{
+			public double Lower { get; set; }
+			public double Upper { get; set; }
+
+			public Range(double lower, double upper)
+			{
+				Lower = lower;
+				Upper = upper;
+			}
+		}
+
 		public const double PI = 3.1415926535897931;
 
 		public enum Limitation
@@ -148,34 +160,25 @@ namespace SMPL.Data
 			}
 		}
 
-		public static double Limit(double number, Bounds bounds, Limitation limitType = Limitation.ClosestBound)
+		public static double Limit(double number, Range range, Limitation limitType = Limitation.ClosestBound)
 		{
 			if (limitType == Limitation.ClosestBound)
 			{
-				if (number < bounds.Lower)
-				{
-					return bounds.Lower;
-				}
-				else if (number > bounds.Upper)
-				{
-					return bounds.Upper;
-				}
+				if (number < range.Lower) return range.Lower;
+				else if (number > range.Upper) return range.Upper;
 				return number;
 			}
 			else
 			{
-				bounds.Upper += 1;
+				range.Upper += 1;
 				var a = number;
 				a = Map(a);
-				while (a < bounds.Lower)
-				{
-					a = Map(a);
-				}
+				while (a < range.Lower) a = Map(a);
 				return a;
 				double Map(double b)
 				{
-					b = ((b % bounds.Upper) + bounds.Upper) % bounds.Upper;
-					if (b < bounds.Lower) b = bounds.Upper - (bounds.Lower - b);
+					b = ((b % range.Upper) + range.Upper) % range.Upper;
+					if (b < range.Lower) b = range.Upper - (range.Lower - b);
 					return b;
 				}
 			}
@@ -183,18 +186,6 @@ namespace SMPL.Data
 		public static double Sign(double number, bool signed)
 		{
 			return signed ? -Math.Abs(number) : Math.Abs(number);
-		}
-		public static double Random(Bounds bounds, double precision = 0, double seed = double.NaN)
-		{
-			precision = (int)Limit(precision, new Bounds(0, 5), Limitation.ClosestBound);
-			var precisionValue = (double)Math.Pow(10, precision);
-			var lowerInt = Convert.ToInt32(bounds.Lower * Math.Pow(10, Precision(bounds.Lower * 500)));
-			var upperInt = Convert.ToInt32(bounds.Upper * Math.Pow(10, Precision(bounds.Upper * 500)));
-			var s = new Random(double.IsNaN(seed) ? Guid.NewGuid().GetHashCode() : (int)Round(seed));
-			var randInt = s.Next((int)(lowerInt * precisionValue), (int)(upperInt * precisionValue) + 1);
-			var result = randInt / precisionValue;
-
-			return result / 500;
 		}
 		public static double Average(params double[] numbers)
 		{
@@ -211,7 +202,7 @@ namespace SMPL.Data
 			RoundWhen5 priority = RoundWhen5.AwayFromZero)
 		{
 			var midpoint = (MidpointRounding)priority;
-			precision = (int)Limit(precision, new Bounds(0, 5), Limitation.ClosestBound);
+			precision = (int)Limit(precision, new Range(0, 5), Limitation.ClosestBound);
 
 			if (toward == RoundToward.Down || toward == RoundToward.Up)
 			{
@@ -228,13 +219,13 @@ namespace SMPL.Data
 
 			return Math.Round(number, (int)precision, midpoint);
 		}
-		public static double ToPercent(double number, Bounds bounds)
+		public static double ToPercent(double number, Range range)
 		{
-			return (number - bounds.Lower) * 100.0 / (bounds.Upper - bounds.Lower);
+			return (number - range.Lower) * 100.0 / (range.Upper - range.Lower);
 		}
-		public static double FromPercent(double percent, Bounds bounds)
+		public static double FromPercent(double percent, Range range)
 		{
-			return (percent * (bounds.Upper - bounds.Lower) / 100) + bounds.Lower;
+			return (percent * (range.Upper - range.Lower) / 100) + range.Lower;
 		}
 		public static double FromText(string text)
 		{
@@ -269,18 +260,12 @@ namespace SMPL.Data
 				_ => default,
 			};
 		}
-		public static bool HasChance(double percent)
-		{
-			percent = Limit(percent, new Bounds(0, 100), Limitation.ClosestBound);
-			var n = Random(new Bounds(1, 100), 0); // should not roll 0 so it doesn't return true with 0% (outside of roll)
-			return n <= percent;
-		}
-		public static bool IsBetween(double number, Bounds bounds, bool inclusiveLower = false, bool inclusiveUpper = false)
+		public static bool IsBetween(double number, Range range, bool inclusiveLower = false, bool inclusiveUpper = false)
 		{
 			var lower = false;
 			var upper = false;
-			lower = inclusiveLower ? bounds.Lower <= number : bounds.Lower < number;
-			upper = inclusiveUpper ? bounds.Upper >= number : bounds.Upper > number;
+			lower = inclusiveLower ? range.Lower <= number : range.Lower < number;
+			upper = inclusiveUpper ? range.Upper >= number : range.Upper > number;
 			return lower && upper;
 		}
 		public static double Move(double number, double speed, Gear.Time.Unit motion = Gear.Time.Unit.Second)
@@ -298,9 +283,9 @@ namespace SMPL.Data
 			else if (goingPos == false && result < targetNumber) return targetNumber;
 			return result;
 		}
-		public static double Map(double value, Bounds boundsA, Bounds boundsB)
+		public static double Map(double value, Range rangeA, Range rangeB)
 		{
-			return (value - boundsA.Lower) / (boundsA.Upper - boundsA.Lower) * (boundsB.Upper - boundsB.Lower) + boundsB.Lower;
+			return (value - rangeA.Lower) / (rangeA.Upper - rangeA.Lower) * (rangeB.Upper - rangeB.Lower) + rangeB.Lower;
 		}
 		public static double AngleBetweenPoints(Point point, Point targetPoint)
 		{

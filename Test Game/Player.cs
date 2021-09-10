@@ -2,7 +2,6 @@
 using SMPL.Data;
 using SMPL.Gear;
 using SMPL.Prefabs;
-using System;
 
 namespace TestGame
 {
@@ -10,23 +9,31 @@ namespace TestGame
 	{
 		public Player()
 		{
-			var spr = new Sprite("test");
-			new Effects("eff");
-			new Area("arr");
-			spr.EffectsUniqueID = "eff";
-			spr.AreaUniqueID = "arr";
+			Assets.Load(Assets.Type.Texture, "mc.png");
+
+			var area = new Area("area");
+			var box = new ShapePseudo3D("box") { AreaUniqueID = "area" };
 			Camera.CallWhen.Display(OnDisplay);
-			Assets.Load(Assets.Type.Texture, "cape.jpg");
 		}
 
-      private void OnDisplay(Camera camera)
-      {
-			if (Assets.AreLoaded("cape.jpg") == false) return;
-			var spr = (Sprite)Component.PickByUniqueID("test");
-			spr.TexturePath = "cape.jpg";
-			var eff = (Effects)Component.PickByUniqueID("eff");
-			eff.TintColor = Color.Blue;
-			spr.Display(camera);
-      }
-   }
+		double ang = 0;
+		private void OnDisplay(Camera camera)
+		{
+			if (Performance.FrameCount % 20 == 0) Window.Title = $"SMPL Game (FPS: {Performance.FPS:F2})";
+
+			if (Assets.AreLoaded("mc.png") == false) return;
+			Camera.WorldCamera.Position = Mouse.CursorPositionWindow;
+			var box = (ShapePseudo3D)Thing.PickByUniqueID("box");
+			var area = (Area)Thing.PickByUniqueID("area");
+			box.TexturePath = "mc.png";
+			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Left, new Point(512, 0), new Point(1024, 512));
+			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Right, new Point(512, 0), new Point(1024, 512));
+			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Up, new Point(512, 0), new Point(1024, 512));
+			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Down, new Point(512, 0), new Point(1024, 512));
+			box.SetSideTextureCoordinates(ShapePseudo3D.Side.Near, new Point(0, 0), new Point(512, 512));
+			box.IsPyramid = true;
+			area.Angle++;
+			box.Display(camera);
+		}
+	}
 }

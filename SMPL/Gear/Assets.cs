@@ -90,7 +90,7 @@ namespace SMPL.Gear
 						continue;
 					}
 					loadedCount++;
-					var percent = Number.ToPercent(loadedCount, new Bounds(0, queuedAssets.Count));
+					var percent = Number.ToPercent(loadedCount, new Number.Range(0, queuedAssets.Count));
 					PercentLoaded = percent;
 					assetLoadUpdate = true;
 					Thread.Sleep(1);
@@ -116,9 +116,9 @@ namespace SMPL.Gear
 			UpdateMainThreadAboutLoading();
 		}
 
-		internal static void NotLoadedError(Type type, string path)
+		internal static void NotLoadedError(int depth, Type type, string path)
 		{
-			Debug.LogError(2, $"The {type} at '{path}' is not loaded.\n" +
+			Debug.LogError(depth + 1, $"The {type} at '{path}' is not loaded.\n" +
 				$"Use '{nameof(Assets)}.{nameof(Load)}(...)' to load it.");
 		}
 

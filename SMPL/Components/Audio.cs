@@ -7,7 +7,7 @@ using SMPL.Gear;
 
 namespace SMPL.Components
 {
-   public class Audio : Component
+   public class Audio : Thing
    {
       private static event Events.ParamsOne<Audio> OnStart, OnPlay, OnPause, OnStop, OnEnd, OnLoop;
       private readonly static List<Audio> audios = new();
@@ -31,7 +31,7 @@ namespace SMPL.Components
       {
          if (CurrentType != Type.NotLoaded) return false;
 
-         Assets.NotLoadedError(Assets.Type.Audio, FilePath);
+         Assets.NotLoadedError(2, Assets.Type.Audio, FilePath);
          return true;
       }
 
@@ -165,7 +165,7 @@ namespace SMPL.Components
          set
          {
             if (ErrorIfDestroyed()) return;
-            var v = SFML.System.Time.FromSeconds((float)Number.Limit(value, new Bounds(0, FileDuration)));
+            var v = SFML.System.Time.FromSeconds((float)Number.Limit(value, new Number.Range(0, FileDuration)));
             if (CurrentType == Type.Sound) sound.PlayingOffset = v;
             else music.PlayingOffset = v;
             rewindIsNotLoop = true;
@@ -174,8 +174,8 @@ namespace SMPL.Components
       public double ProgressPercent
       {
          get { return IsNotLoaded() ? default : 100 - Number.ToPercent(FileDuration - FileProgress,
-            new Bounds(0, FileDuration)); }
-         set { if (ErrorIfDestroyed() == false)  FileProgress = Number.FromPercent(value, new Bounds(0, FileDuration)); }
+            new Number.Range(0, FileDuration)); }
+         set { if (ErrorIfDestroyed() == false)  FileProgress = Number.FromPercent(value, new Number.Range(0, FileDuration)); }
       }
       public double Speed
       {

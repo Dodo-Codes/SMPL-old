@@ -33,14 +33,8 @@ namespace SMPL.Data
 		}
 
 		public override string ToString() => $"{W} {H}";
-		/// <summary>
-		/// This default <see cref="object"/> method is not implemented.
-		/// </summary>
-		public override bool Equals(object obj) => default;
-		/// <summary>
-		/// This default <see cref="object"/> method is not implemented.
-		/// </summary>
-		public override int GetHashCode() => default;
+		public override bool Equals(object obj) => base.Equals(obj);
+		public override int GetHashCode() => base.GetHashCode();
 
 		public static Size operator +(Size a, Size b) => new(a.W + b.W, a.H + b.H);
 		public static Size operator -(Size a, Size b) => new(a.W - b.W, a.H - b.H);

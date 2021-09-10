@@ -8,21 +8,27 @@ using Sprite = SMPL.Components.Sprite;
 
 namespace SMPL.Prefabs
 {
-	public class Cloth : Component
+	public class Cloth : Thing
 	{
 		private const int FRAGMENTS = 10;
-		private List<string> removedQuads = new();
+		private readonly List<string> removedQuads = new();
+		private Point topLeft, downRight;
+
 		//=============
 
 		[JsonProperty]
 		public string RopesUniqueID { get; set; }
 		[JsonProperty]
 		public string TexturePath { get; set; }
+		[JsonProperty]
+		public Data.Color Color { get; set; }
 
 		public Cloth(string uniqueID, Point position, Size size) : base(uniqueID)
 		{
 			uniqueID = $"{uniqueID}-ropes";
 			RopesUniqueID = uniqueID;
+
+			SetTextureCoordinates(new Point(0, 0), new Point(100, 100));
 
 			var r = new Ropes(RopesUniqueID);
 
@@ -50,13 +56,10 @@ namespace SMPL.Prefabs
 
 		public void Display(Camera camera)
 		{
-			if (TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false)
-			{
-				Assets.NotLoadedError(Assets.Type.Texture, TexturePath);
-				return;
-			}
+			if (ErrorIfNoTexture()) return;
+
 			var r = (Ropes)PickByUniqueID(RopesUniqueID);
-			var textureSize = Assets.textures[TexturePath].Size;
+			var textureSize = downRight;
 			var scale = new Size(textureSize.X, textureSize.Y) / FRAGMENTS;
 			var quads = new Dictionary<string, Quad>();
 
@@ -100,6 +103,36 @@ namespace SMPL.Prefabs
 
 			if (x == 9) Cut(8, y);
 			if (y == 9) Cut(x, 8);
+		}
+		public void SetTextureCoordinatesDefault()
+		{
+			if (ErrorIfNoTexture()) return;
+
+			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ? new Size(100, 100) :
+				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
+
+			topLeft = new Point(0, 0);
+			downRight = new Point(sz.W, sz.H);
+		}
+		public void SetTextureCoordinates(Point topLeft, Point downRight)
+		{
+			this.topLeft = topLeft;
+			this.downRight = downRight;
+		}
+
+		private bool ErrorIfNoTexture()
+		{
+			if (TexturePath == null)
+			{
+				Debug.LogError(2, $"No texture is taken into account. Use the {nameof(TexturePath)} property if texture is needed.");
+				return true;
+			}
+			if (Assets.textures.ContainsKey(TexturePath) == false)
+			{
+				Assets.NotLoadedError(2, Assets.Type.Texture, TexturePath);
+				return true;
+			}
+			return false;
 		}
 	}
 }

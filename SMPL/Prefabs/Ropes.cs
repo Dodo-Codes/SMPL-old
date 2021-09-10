@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SMPL.Prefabs
 {
-	public class Ropes : Component
+	public class Ropes : Thing
 	{
 		internal static List<Ropes> ropes = new();
 		[JsonProperty]

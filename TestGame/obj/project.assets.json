@@ -1218,36 +1218,34 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\GoKsTaR\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\PC PC\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "G:\\SFML\\TestGame\\Raycasting Test.csproj",
+      "projectUniqueName": "D:\\code\\SFML\\SMPL\\TestGame\\Raycasting Test.csproj",
       "projectName": "Raycasting Test",
-      "projectPath": "G:\\SFML\\TestGame\\Raycasting Test.csproj",
-      "packagesPath": "C:\\Users\\GoKsTaR\\.nuget\\packages\\",
-      "outputPath": "G:\\SFML\\TestGame\\obj\\",
+      "projectPath": "D:\\code\\SFML\\SMPL\\TestGame\\Raycasting Test.csproj",
+      "packagesPath": "C:\\Users\\PC PC\\.nuget\\packages\\",
+      "outputPath": "D:\\code\\SFML\\SMPL\\TestGame\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\GoKsTaR\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\PC PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "G:\\SFML\\SMPL\\SMPL.csproj": {
-              "projectPath": "G:\\SFML\\SMPL\\SMPL.csproj"
+            "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj": {
+              "projectPath": "D:\\code\\SFML\\SMPL\\SMPL\\SMPL.csproj"
             }
           }
         }
@@ -1276,7 +1274,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.104\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -20,7 +20,7 @@ namespace SMPL.Gear
 			get { return frameRateLimit; }
 			set
 			{
-				var n = (uint)Number.Limit(value, new Bounds(1, 60));
+				var n = (uint)Number.Limit(value, new Number.Range(1, 60));
 				frameRateLimit = n;
 				Window.window.SetFramerateLimit(n);
 			}

@@ -80,7 +80,9 @@ namespace SMPL.Components
 			set
 			{
 				if (ErrorIfDestroyed()) return;
-				originPercent = new Point(Number.Limit(value.X, new Bounds(0, 100)), Number.Limit(value.Y, new Bounds(0, 100)));
+				originPercent = new Point(
+					Number.Limit(value.X, new Number.Range(0, 100)),
+					Number.Limit(value.Y, new Number.Range(0, 100)));
 			}
 		}
 		public string FontPath
@@ -91,7 +93,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				if (Assets.fonts.ContainsKey(value) == false)
 				{
-					Assets.NotLoadedError(Assets.Type.Font, value);
+					Assets.NotLoadedError(1, Assets.Type.Font, value);
 					return;
 				}
 				fontPath = value;
@@ -169,10 +171,7 @@ namespace SMPL.Components
 			var bgc = Effects == null ? new Data.Color() : Effects.BackgroundColor;
 			if (Area.text.Font == null) bgc = Data.Color.White;
 
-			Area.sprite.Position = new Vector2f();
-			Area.sprite.Rotation = 0;
-			Area.sprite.Scale = new Vector2f(1, 1);
-			Area.sprite.Origin = new Vector2f(0, 0);
+			Area.DefaultSprite();
 
 			var rend = new RenderTexture((uint)Number.Sign(Area.Size.W, false), (uint)Number.Sign(Area.Size.H, false));
 			rend.Clear(Data.Color.From(bgc));
