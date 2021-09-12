@@ -66,6 +66,18 @@ namespace SMPL.Components
 			sprite.Scale = new Vector2f(1, 1);
 			sprite.Origin = new Vector2f(0, 0);
 		}
+		internal void UpdateSprite()
+		{
+			sprite.Position = Point.From(Position);
+			sprite.TextureRect = new IntRect(
+				new Vector2i((int)Position.X, (int)Position.Y),
+				new Vector2i((int)Size.W, (int)Size.H));
+			sprite.Rotation = (float)Angle;
+			sprite.Scale = new Vector2f(1, 1);
+			sprite.Origin = new Vector2f(
+					(float)(Size.W * (OriginPercent.X / 100)),
+					(float)(Size.H * (OriginPercent.Y / 100)));
+		}
 
 		//==============
 
@@ -202,6 +214,26 @@ namespace SMPL.Components
 			sprite.Dispose();
 			text.Dispose();
 			base.Destroy();
+		}
+
+		public void Display(Camera camera, double width, Data.Color color)
+		{
+			if (ErrorIfDestroyed() || Window.DrawNotAllowed()) return;
+			UpdateSprite();
+
+			var tl = Point.To(sprite.Transform.TransformPoint(Point.From(Position)));
+			var tr = Point.To(sprite.Transform.TransformPoint(Point.From(Position + new Point(Size.W, 0))));
+			var br = Point.To(sprite.Transform.TransformPoint(Point.From(Position + new Point(Size.W, Size.H))));
+			var bl = Point.To(sprite.Transform.TransformPoint(Point.From(Position + new Point(0, Size.H))));
+			tl.Color = color;
+			tr.Color = color;
+			br.Color = color;
+			bl.Color = color;
+			new Line(tl, tr).Display(camera, width);
+			new Line(tr, br).Display(camera, width);
+			new Line(br, bl).Display(camera, width);
+			new Line(bl, tl).Display(camera, width);
+			Position.Display(camera, width);
 		}
 
 		public string[] GetAreaUniqueIDsFromChunk(int relativeX, int relativeY)

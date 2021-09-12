@@ -57,7 +57,7 @@ namespace SMPL.Prefabs
 
 		public void Display(Camera camera)
 		{
-			if (ErrorIfNoTexture() || camera.Captures(this) == false) return;
+			if (ErrorIfDestroyed() || Window.DrawNotAllowed() || ErrorIfNoTexture() || camera.Captures(this) == false) return;
 
 			var r = (Ropes)PickByUniqueID(RopesUniqueID);
 			var fragSz = size / (FRAGMENTS - 1);

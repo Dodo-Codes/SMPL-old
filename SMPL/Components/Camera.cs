@@ -161,8 +161,30 @@ namespace SMPL.Components
 		public bool Captures(Thing thing)
 		{
 			UpdateSprite();
-			if (thing.GetType() == typeof(Cloth)) return RopeCheck(((Cloth)thing).RopesUniqueID);
-			else if(thing.GetType() == typeof(Ropes)) return RopeCheck(thing.UniqueID);
+			var type = thing.GetType();
+			if (type == typeof(Cloth)) return RopeCheck(((Cloth)thing).RopesUniqueID);
+			else if (type == typeof(Ropes)) return RopeCheck(thing.UniqueID);
+			else if (type == typeof(SegmentedLine))
+			{
+				var sl = (SegmentedLine)thing;
+				for (int i = 0; i < sl.Points.Length; i++)
+					if (ContainsPoint(sl.Points[i]))
+						return true;
+			}
+			else if (type == typeof(ShapePseudo3D))
+			{
+				var shape = (ShapePseudo3D)thing;
+				shape.UpdateLines(this);
+				for (int i = 0; i < shape.lines.Length; i++)
+					if (ContainsPoint(shape.lines[i].StartPosition) || ContainsPoint(shape.lines[i].EndPosition))
+						return true;
+			}
+			else if (type == typeof(Area)) return AreaCheck(thing.UniqueID);
+			else if (type == typeof(Sprite))
+			{
+				var spr = (Sprite)thing;
+				return AreaCheck(spr.AreaUniqueID);
+			}
 			return false;
 
 			bool RopeCheck(string uniqueID)
@@ -172,6 +194,12 @@ namespace SMPL.Components
 					if (ContainsPoint(kvp.Value.Position))
 						return true;
 				return false;
+			}
+			bool AreaCheck(string uniqueID)
+			{
+				var area = (Area)PickByUniqueID(uniqueID);
+				area.UpdateSprite();
+				return area.sprite.GetGlobalBounds().Intersects(sprite.GetGlobalBounds());
 			}
 		}
 

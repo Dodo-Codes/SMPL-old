@@ -73,7 +73,7 @@ namespace SMPL.Prefabs
 
 		public void Display(Camera camera, double width)
 		{
-			if (camera.Captures(this) == false) return;
+			if (ErrorIfDestroyed() || Window.DrawNotAllowed() || camera.Captures(this) == false) return;
 			foreach (var kvp in sticks)
 				new Line(kvp.Value.pA.Position, kvp.Value.pB.Position).Display(camera, width);
 		}

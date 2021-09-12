@@ -19,6 +19,7 @@ namespace SMPL.Prefabs
 		private readonly List<Side> skippedSides = new();
 		private string texturePath;
 		private double lightAngle, lightDepth;
+		internal Line[] lines = new Line[5];
 
 		[JsonProperty]
 		public double Depth { get; set; } = 100;
@@ -65,8 +66,8 @@ namespace SMPL.Prefabs
 
 		public void Display(Camera camera)
 		{
-			if (ErrorIfDestroyed()) return;
-			if (Window.DrawNotAllowed() || visualMaskingUID != null || IsHidden) return;
+			if (ErrorIfDestroyed() || Window.DrawNotAllowed()) return;
+			if (visualMaskingUID != null || IsHidden) return;
 			var Area = (Area)PickByUniqueID(AreaUniqueID);
 			if (Area == null || Area.IsDestroyed || Area.sprite == null)
 			{
@@ -75,38 +76,22 @@ namespace SMPL.Prefabs
 					$"Make sure the {nameof(ShapePseudo3D)} instance has an {nameof(Components.Area)} before displaying it.");
 				return;
 			}
+			if (camera.Captures(this) == false) return;
 
 			UpdateSprite();
 
-			var topL = P(Area.sprite.Position);
-			var topR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, 0)));
-			var botR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, Area.Size.H)));
-			var botL = P(Area.sprite.Position + Point.From(new Point(0, Area.Size.H)));
-			var mid = P(Area.sprite.Position + Point.From(new Point(Area.Size.W / 2, Area.Size.H / 2)));
-
-			var tl = L(topL);
-			var tr = L(topR);
-			var br = L(botR);
-			var bl = L(botL);
-			var ml = L(mid).EndPosition;
+			// those lines are updated in the camera.Captures test
+			var tl = lines[0];
+			var tr = lines[1];
+			var br = lines[2];
+			var bl = lines[3];
+			var ml = lines[4].EndPosition;
 
 			var quads = new Dictionary<string, Quad>();
 			var dists = new SortedDictionary<double, Quad>();
 
 			AddQuads();
 			Draw();
-
-			Point P(Vector2f vec)
-			{
-				return Point.To(Area.sprite.Transform.TransformPoint(vec));
-			}
-			Line L(Point p)
-			{
-				var ang = Number.AngleBetweenPoints(camera.Position, p);
-				var len = Point.Distance(camera.Position, p);
-				var sz = (camera.Size.W + camera.Size.H) / 1000;
-				return new Line(p, Point.MoveAtAngle(p, ang, len * (Depth / 300) / sz, Gear.Time.Unit.Tick));
-			}
 
 			void UpdateSprite()
 			{
@@ -119,7 +104,7 @@ namespace SMPL.Prefabs
 			}
 			void AddQuads()
 			{
-				AddFaceQuad(Side.Far, topL, topR, botR, botL);
+				AddFaceQuad(Side.Far, tl.StartPosition, tr.StartPosition, br.StartPosition, bl.StartPosition);
 				AddSideQuad(Side.Left, tl, bl, 0.02);
 				AddSideQuad(Side.Right, br, tr, 0.04);
 				AddSideQuad(Side.Up, tr, tl, 0.06);
@@ -278,6 +263,41 @@ namespace SMPL.Prefabs
 				(area == null ? new Size(100, 100) : area.Size) :
 				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
 			return sz;
+		}
+		internal void UpdateLines(Camera camera)
+		{
+			var Area = (Area)PickByUniqueID(AreaUniqueID);
+			if (Area == null) return;
+
+			var topL = P(Area.sprite.Position);
+			var topR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, 0)));
+			var botR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, Area.Size.H)));
+			var botL = P(Area.sprite.Position + Point.From(new Point(0, Area.Size.H)));
+			var mid = P(Area.sprite.Position + Point.From(new Point(Area.Size.W / 2, Area.Size.H / 2)));
+
+			var tl = L(topL);
+			var tr = L(topR);
+			var br = L(botR);
+			var bl = L(botL);
+			var ml = L(mid).EndPosition;
+
+			lines[0] = tl;
+			lines[1] = tr;
+			lines[2] = br;
+			lines[3] = bl;
+			lines[4] = L(mid);
+
+			Point P(Vector2f vec)
+			{
+				return Point.To(Area.sprite.Transform.TransformPoint(vec));
+			}
+			Line L(Point p)
+			{
+				var ang = Number.AngleBetweenPoints(camera.Position, p);
+				var len = Point.Distance(camera.Position, p);
+				var sz = (camera.Size.W + camera.Size.H) / 1000;
+				return new Line(p, Point.MoveAtAngle(p, ang, len * (Depth / 300) / sz, Gear.Time.Unit.Tick));
+			}
 		}
 	}
 }
