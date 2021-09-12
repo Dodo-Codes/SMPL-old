@@ -18,25 +18,35 @@ namespace SMPL.Prefabs
 		{
 			for (int r = 0; r < ropes.Count; r++)
 			{
+				var isOnCamera = false;
+				foreach (var kvp in Camera.sortedCameras)
+					for (int i = 0; i < kvp.Value.Count; i++)
+					{
+						if (kvp.Value[i].Captures(ropes[r]))
+						{
+							isOnCamera = true;
+							break;
+						}
+					}
+				if (isOnCamera == false) continue;
+
 				foreach (var kvp in ropes[r].points)
 				{
 					if (kvp.Value.IsLocked) continue;
-					var positionBeforeUpdate = kvp.Value.Position;
+					var prev = kvp.Value.Position;
 					var force = new Point(ropes[r].Force.W, ropes[r].Force.H);
 					kvp.Value.Position += kvp.Value.Position - kvp.Value.prevPosition;
-					kvp.Value.Position += force + force * Performance.DeltaTime * Performance.DeltaTime;
-					kvp.Value.prevPosition = positionBeforeUpdate;
+					kvp.Value.Position += force;
+					kvp.Value.prevPosition = prev;
 				}
 
-				for (int i = 0; i < 50; i++)
+				for (int i = 0; i < 5; i++)
 					foreach (var kvp2 in ropes[r].sticks)
 					{
 						var stickCentre = (kvp2.Value.pA.Position + kvp2.Value.pB.Position) / 2;
 						var stickDir = Point.Normalize(kvp2.Value.pA.Position - kvp2.Value.pB.Position);
-						if (kvp2.Value.pA.IsLocked == false)
-							kvp2.Value.pA.Position = stickCentre + stickDir * kvp2.Value.length / 2;
-						if (kvp2.Value.pB.IsLocked == false)
-							kvp2.Value.pB.Position = stickCentre - stickDir * kvp2.Value.length / 2;
+						if (kvp2.Value.pA.IsLocked == false) kvp2.Value.pA.Position = stickCentre + stickDir * kvp2.Value.length / 2;
+						if (kvp2.Value.pB.IsLocked == false) kvp2.Value.pB.Position = stickCentre - stickDir * kvp2.Value.length / 2;
 					}
 			}
 		}
@@ -63,6 +73,7 @@ namespace SMPL.Prefabs
 
 		public void Display(Camera camera, double width)
 		{
+			if (camera.Captures(this) == false) return;
 			foreach (var kvp in sticks)
 				new Line(kvp.Value.pA.Position, kvp.Value.pB.Position).Display(camera, width);
 		}

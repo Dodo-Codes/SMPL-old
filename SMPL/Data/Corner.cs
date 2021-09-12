@@ -6,16 +6,14 @@ namespace SMPL.Data
 	public struct Corner
 	{
 		public Point Position { get; set; }
-		public double TextureX { get; set; }
-		public double TextureY { get; set; }
+		public Point TextureCoordinate { get; set; }
 		internal Vertex Vertex =>
-			new(Point.From(Position), Color.From(Position.Color), new Vector2f((float)TextureX, (float)TextureY));
+			new(Point.From(Position), Color.From(Position.Color), Point.From(TextureCoordinate));
 
-		public Corner(Point position, double textureX = 0, double textureY = 0)
+		public Corner(Point position, Point textureCoordinate = default)
 		{
 			Position = position;
-			TextureX = textureX;
-			TextureY = textureY;
+			TextureCoordinate = textureCoordinate;
 		}
 	}
 }

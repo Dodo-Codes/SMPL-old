@@ -33,6 +33,16 @@ namespace SMPL.Data
 		public static Color Cyan			=> new(0,	255,	255);
 		public static Color CyanDark		=> new(0,	125,	125);
 
+		public static Color PinkLight		=> new(255, 225,	225);
+		public static Color Pink			=> new(255, 175,	175);
+		public static Color PinkDark		=> new(255, 125,	125);
+		public static Color OrangeLight	=> new(255, 175,	125);
+		public static Color Orange			=> new(255, 125,	75);
+		public static Color OrangeDark	=> new(255, 75,	25);
+		public static Color BrownLight	=> new(175, 125,	75);
+		public static Color Brown			=> new(125, 75,	25);
+		public static Color BrownDark		=> new(50,	37,	25);
+
 		public Color(double red, double green, double blue, double alpha = 255)
 		{
 			R = red;

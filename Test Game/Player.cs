@@ -12,33 +12,25 @@ namespace TestGame
 			Assets.Load(Assets.Type.Texture, "Tileset.png");
 
 			var area = new Area("area");
-			var box = new ShapePseudo3D("box") { AreaUniqueID = "area" };
+			var cloth = new Cloth("test", new Point(-50, -50), new Size(100, 100));
 			Camera.CallWhen.Display(OnDisplay);
 		}
-		double x = 0;
 		private void OnDisplay(Camera camera)
 		{
-			if (Performance.FrameCount % 20 == 0) Window.Title = $"SMPL Game (FPS: {Performance.FPS:F2})";
+			if (Performance.FrameCount % 10 == 0) Window.Title = $"SMPL Game (FPS: {Performance.FPS:F2})";
 
 			if (Assets.AreLoaded("Tileset.png") == false) return;
-			Camera.WorldCamera.Position = Mouse.CursorPositionWindow;
-			var box = (ShapePseudo3D)Thing.PickByUniqueID("box");
-			var area = (Area)Thing.PickByUniqueID("area");
-			box.TexturePath = "Tileset.png";
 
-			x += 1;
-			for (int i = 0; i < 6; i++)
-			{
-				box.SetSideTextureCropTile((ShapePseudo3D.Side)i, new Point(4, 1));
-			}
-			box.IsRepeated = true;
-			box.SetColorTintLight(x, 100);
-			box.SetSideVisibility(ShapePseudo3D.Side.Up, false);
-			box.SetSideVisibility(ShapePseudo3D.Side.Near, false);
-			box.SetSideVisibility(ShapePseudo3D.Side.Left, false);
-			box.SetSideVisibility(ShapePseudo3D.Side.Right, false);
-			//area.Angle++;
-			box.Display(camera);
+			var cloth = (Cloth)Thing.PickByUniqueID("test");
+			cloth.TexturePath = "Tileset.png";
+			//cloth.SetTextureCropDefault();
+			var rope = (Ropes)Thing.PickByUniqueID(cloth.RopesUniqueID);
+			var p = Mouse.CursorPositionWindow;
+			rope.Force = Mouse.ButtonIsPressed(Mouse.Button.Left) ? new Size(p.X, p.Y) / 500 : new Size(0, 1);
+			cloth.SetTextureCropCoordinates(new Point(320 - 32, 64), new Size(32, 32));
+			cloth.Display(camera);
+			Console.Log(camera.Captures(rope));
+			Camera.WorldCamera.Position = p;
 		}
 	}
 }

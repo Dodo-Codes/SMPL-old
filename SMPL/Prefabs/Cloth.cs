@@ -10,9 +10,10 @@ namespace SMPL.Prefabs
 {
 	public class Cloth : Thing
 	{
-		private const int FRAGMENTS = 10;
+		private const int FRAGMENTS = 6;
 		private readonly List<string> removedQuads = new();
-		private Point topLeft, downRight;
+		private Point position;
+		private Size size;
 
 		//=============
 
@@ -28,7 +29,7 @@ namespace SMPL.Prefabs
 			uniqueID = $"{uniqueID}-ropes";
 			RopesUniqueID = uniqueID;
 
-			SetTextureCoordinates(new Point(0, 0), new Point(100, 100));
+			SetTextureCropCoordinates(new Point(0, 0), new Size(100, 100));
 
 			var r = new Ropes(RopesUniqueID);
 
@@ -56,18 +57,17 @@ namespace SMPL.Prefabs
 
 		public void Display(Camera camera)
 		{
-			if (ErrorIfNoTexture()) return;
+			if (ErrorIfNoTexture() || camera.Captures(this) == false) return;
 
 			var r = (Ropes)PickByUniqueID(RopesUniqueID);
-			var textureSize = downRight;
-			var scale = new Size(textureSize.X, textureSize.Y) / FRAGMENTS;
+			var fragSz = size / (FRAGMENTS - 1);
 			var quads = new Dictionary<string, Quad>();
+			var sz = GetSize();
 
 			for (int y = 0; y < FRAGMENTS - 1; y++)
 				for (int x = 0; x < FRAGMENTS - 1; x++)
 				{
-					var texturePos = new Point(x, y);
-					texturePos = new Point(texturePos.X * scale.W, texturePos.Y * scale.H);
+					var curPos = new Point(x * fragSz.W, y * fragSz.H);
 
 					if (removedQuads.Contains($"{x} {y}")) continue;
 
@@ -76,16 +76,16 @@ namespace SMPL.Prefabs
 					var p3 = r.points[$"{x + 1} {y + 1}"].Position;
 					var p4 = r.points[$"{x} {y + 1}"].Position;
 
-					if (Point.Distance(p1, p2) > scale.W * 5 ||
-						Point.Distance(p2, p3) > scale.H * 5 ||
-						Point.Distance(p3, p4) > scale.W * 5 ||
-						Point.Distance(p4, p1) > scale.H * 5) continue;
+					if (Point.Distance(p1, p2) > sz.W ||
+						Point.Distance(p2, p3) > sz.H ||
+						Point.Distance(p3, p4) > sz.W ||
+						Point.Distance(p4, p1) > sz.H) continue;
 
 					var q = new Quad(
-						new Corner(p1, texturePos.X, texturePos.Y),
-						new Corner(p2, texturePos.X + scale.W, texturePos.Y),
-						new Corner(p3, texturePos.X + scale.W, texturePos.Y + scale.H),
-						new Corner(p4, texturePos.X, texturePos.Y + scale.H));
+						new Corner(p1, position + curPos),
+						new Corner(p2, position + curPos + new Point(fragSz.W, 0)),
+						new Corner(p3, position + curPos + new Point(fragSz.W, fragSz.H)),
+						new Corner(p4, position + curPos + new Point(0, fragSz.H)));
 					quads.Add($"{x} {y}", q);
 				}
 			var qs = Sprite.QuadsToVerts(quads);
@@ -104,20 +104,17 @@ namespace SMPL.Prefabs
 			if (x == 9) Cut(8, y);
 			if (y == 9) Cut(x, 8);
 		}
-		public void SetTextureCoordinatesDefault()
+		public void SetTextureCropDefault()
 		{
 			if (ErrorIfNoTexture()) return;
-
-			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ? new Size(100, 100) :
-				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
-
-			topLeft = new Point(0, 0);
-			downRight = new Point(sz.W, sz.H);
+			var sz = GetSize();
+			position = new Point(0, 0);
+			size = sz;
 		}
-		public void SetTextureCoordinates(Point topLeft, Point downRight)
+		public void SetTextureCropCoordinates(Point position, Size size)
 		{
-			this.topLeft = topLeft;
-			this.downRight = downRight;
+			this.position = position;
+			this.size = size;
 		}
 
 		private bool ErrorIfNoTexture()
@@ -133,6 +130,12 @@ namespace SMPL.Prefabs
 				return true;
 			}
 			return false;
+		}
+		private Size GetSize()
+		{
+			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ? new Size(100, 100) :
+				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
+			return sz;
 		}
 	}
 }

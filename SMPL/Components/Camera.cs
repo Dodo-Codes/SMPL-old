@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using SMPL.Data;
 using SMPL.Gear;
+using SMPL.Prefabs;
 
 namespace SMPL.Components
 {
@@ -102,18 +103,18 @@ namespace SMPL.Components
 		}
 		public Point Position
 		{
-			get { return ErrorIfDestroyed() ? Point.Invalid : new() { X = view.Center.X, Y = view.Center.Y }; }
-			set { if (ErrorIfDestroyed() == false) view.Center = Point.From(value); }
+			get { return ErrorIfDestroyed() ? Point.Invalid : Point.To(view.Center); }
+			set { if (ErrorIfDestroyed() == false) view.Center = Point.From(value); UpdateSprite(); }
 		}
 		public double Angle
 		{
 			get { return ErrorIfDestroyed() ? double.NaN : view.Rotation; }
-			set { if (ErrorIfDestroyed() == false) view.Rotation = (float)value; }
+			set { if (ErrorIfDestroyed() == false) view.Rotation = (float)value; UpdateSprite(); }
 		}
 		public Size Size
 		{
 			get { return ErrorIfDestroyed() ? Size.Invalid : new Size(view.Size.X, view.Size.Y); }
-			set { if (ErrorIfDestroyed() == false) view.Size = Size.From(value); }
+			set { if (ErrorIfDestroyed() == false) view.Size = Size.From(value); UpdateSprite(); }
 		}
 		public Data.Color BackgroundColor
 		{
@@ -131,6 +132,7 @@ namespace SMPL.Components
 			rendTexture = new RenderTexture((uint)viewSize.W, (uint)viewSize.H);
 			BackgroundColor = Data.Color.Black;
 			startSize = viewSize;
+			UpdateSprite();
 			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
@@ -155,6 +157,33 @@ namespace SMPL.Components
 
 			if (img.SaveToFile(filePath)) img.Dispose();
 			else { Debug.LogError(1, $"Could not save picture '{full}'."); return; }
+		}
+		public bool Captures(Thing thing)
+		{
+			UpdateSprite();
+			if (thing.GetType() == typeof(Cloth)) return RopeCheck(((Cloth)thing).RopesUniqueID);
+			else if(thing.GetType() == typeof(Ropes)) return RopeCheck(thing.UniqueID);
+			return false;
+
+			bool RopeCheck(string uniqueID)
+			{
+				var rope = (Ropes)PickByUniqueID(uniqueID);
+				foreach (var kvp in rope.points)
+					if (ContainsPoint(kvp.Value.Position))
+						return true;
+				return false;
+			}
+		}
+
+		private void UpdateSprite()
+		{
+			sprite.Position = view.Center;
+			sprite.Rotation = view.Rotation;
+			sprite.Origin = view.Size / 2;
+		}
+		private bool ContainsPoint(Point point)
+		{
+			return sprite.GetGlobalBounds().Contains((float)point.X, (float)point.Y);
 		}
 	}
 }
