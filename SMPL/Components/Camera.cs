@@ -198,6 +198,7 @@ namespace SMPL.Components
 			bool AreaCheck(string uniqueID)
 			{
 				var area = (Area)PickByUniqueID(uniqueID);
+				if (area == null) return false;
 				area.UpdateSprite();
 				return area.sprite.GetGlobalBounds().Intersects(sprite.GetGlobalBounds());
 			}

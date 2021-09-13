@@ -128,7 +128,12 @@ namespace SMPL.Gear
 		public static Point Position
 		{
 			get { return new Point(window.Position.X, window.Position.Y); }
-			set { window.Position = new SFML.System.Vector2i((int)value.X, (int)value.Y); }
+			set { window.Position = new Vector2i((int)value.X, (int)value.Y); }
+		}
+		public static Size Size
+		{
+			get { return new Size(window.Size.X, window.Size.Y); }
+			set { window.Size = new Vector2u((uint)value.W, (uint)value.H); }
 		}
 
 		private static bool preventsSleep;

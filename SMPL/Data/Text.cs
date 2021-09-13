@@ -1,4 +1,7 @@
 ﻿using Newtonsoft.Json;
+using SFML.System;
+using SMPL.Components;
+using SMPL.Gear;
 using System;
 using System.Drawing;
 using System.Text;
@@ -7,6 +10,8 @@ namespace SMPL.Data
 {
 	public static class Text
 	{
+		private static SFML.Graphics.Text text = new();
+
 		public static string Align(string text, int characterSpaces)
 		{
 			return string.Format("{0," + characterSpaces + "}", text);
@@ -105,6 +110,21 @@ namespace SMPL.Data
 				data[i] = (byte)(data[i] ^ amplifier);
 			}
 			return Encoding.UTF8.GetString(data);
+		}
+
+		public static void Display(Camera camera, string text, string fontPath)
+		{
+			if (Window.DrawNotAllowed()) return;
+			if (fontPath == null || Assets.fonts.ContainsKey(fontPath) == false)
+			{
+				Assets.NotLoadedError(1, Assets.Type.Font, fontPath);
+				return;
+			}
+
+			Text.text.Font = Assets.fonts[fontPath];
+			Text.text.DisplayedString = text;
+			Text.text.Position = Point.From(camera.Position);
+			camera.rendTexture.Draw(Text.text);
 		}
 	}
 }

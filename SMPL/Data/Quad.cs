@@ -14,10 +14,12 @@ namespace SMPL.Data
 		public Corner CornerC { get; set; }
 		public Corner CornerD { get; set; }
 		public Size TileSize { get; set; }
+		public Size TileGridWidth { get; set; }
 
 		public Quad(Corner cornerA, Corner cornerB, Corner cornerC, Corner cornerD)
 		{
 			TileSize = new Size(32, 32);
+			TileGridWidth = new Size(0, 0);
 			CornerA = cornerA;
 			CornerB = cornerB;
 			CornerC = cornerC;
@@ -39,10 +41,11 @@ namespace SMPL.Data
 		}
 		public void SetTextureCropTile(Point tileIndexes)
 		{
-			CornerA = new(CornerA.Position, new Point(TileSize.W, TileSize.H) * (tileIndexes + new Point(0, 0)));
-			CornerB = new(CornerB.Position, new Point(TileSize.W, TileSize.H) * (tileIndexes + new Point(1, 0)));
-			CornerC = new(CornerC.Position, new Point(TileSize.W, TileSize.H) * (tileIndexes + new Point(1, 1)));
-			CornerD = new(CornerD.Position, new Point(TileSize.W, TileSize.H) * (tileIndexes + new Point(0, 1)));
+			var tileSizePoint = new Point(TileSize.W + TileGridWidth.W, TileSize.H + TileGridWidth.H);
+			CornerA = new(CornerA.Position, tileSizePoint * (tileIndexes + new Point(0, 0)));
+			CornerB = new(CornerB.Position, tileSizePoint * (tileIndexes + new Point(1, 0)));
+			CornerC = new(CornerC.Position, tileSizePoint * (tileIndexes + new Point(1, 1)));
+			CornerD = new(CornerD.Position, tileSizePoint * (tileIndexes + new Point(0, 1)));
 		}
 	}
 }

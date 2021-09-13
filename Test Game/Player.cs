@@ -9,20 +9,16 @@ namespace TestGame
 	{
 		public Player()
 		{
-			Assets.Load(Assets.Type.Texture, "Tileset.png");
-
-			var area = new Area("area");
+			Assets.Load(Assets.Type.Font, "Munro.ttf");
 			Camera.CallWhen.Display(OnDisplay);
 		}
 		private void OnDisplay(Camera camera)
 		{
 			if (Performance.FrameCount % 10 == 0) Window.Title = $"SMPL Game (FPS: {Performance.FPS:F2})";
+			if (Assets.AreLoaded("Munro.ttf") == false) return;
 
-			if (Assets.AreLoaded("Tileset.png") == false) return;
-
-			var test = (Area)Thing.PickByUniqueID("area");
-			test.Position = new Point(test.Position.X, test.Position.Y) { Color = Color.Green };
-			test.Display(camera, 10, Color.Red);
+			Camera.WorldCamera.Position = Mouse.CursorPositionWindow;
+			Text.Display(camera, "Hello World!", "Munro.ttf");
 		}
 	}
 }

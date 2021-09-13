@@ -1,7 +1,3 @@
-D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\SMPL.deps.json
-D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\SMPL.runtimeconfig.json
-D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\SMPL.runtimeconfig.dev.json
-D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\SMPL.exe
 D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\Test Game.exe
 D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\Test Game.deps.json
 D:\code\SFML\SMPL\Test Game\bin\Debug\net5.0\Test Game.runtimeconfig.json

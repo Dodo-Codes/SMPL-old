@@ -26,6 +26,9 @@ namespace SMPL.Gear
 
 				Performance.EarlyUpdate();
 
+				Keyboard.Update();
+				Mouse.Update();
+
 				Application.DoEvents();
 				Window.window.DispatchEvents();
 				OnUpdate?.Invoke();
@@ -33,8 +36,6 @@ namespace SMPL.Gear
 				Audio.Update();
 				Hitbox.Update();
 				Ropes.Update();
-				Keyboard.Update();
-				Mouse.Update();
 				Assets.Update();
 
 				Window.Draw();

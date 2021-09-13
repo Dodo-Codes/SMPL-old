@@ -97,7 +97,7 @@ namespace SMPL.Components
 
 		public void RemoveQuad(string uniqueID)
 		{
-			if (ErrorIfDestroyed() || QuadError(uniqueID))
+			if (ErrorIfDestroyed() || QuadError(uniqueID)) return;
 			quads.Remove(uniqueID);
 		}
 		public void SetQuadDefault(string uniqueID)
@@ -118,7 +118,7 @@ namespace SMPL.Components
 		}
 		public void SetQuadGrid(string uniqueID, uint cellCountX, uint cellCountY)
 		{
-			if (ErrorIfDestroyed() || QuadError(uniqueID)) return;
+			if (ErrorIfDestroyed()) return;
 
 			var sz = GetSize();
 			for (int y = 0; y < cellCountY; y++)
@@ -136,7 +136,7 @@ namespace SMPL.Components
 		}
 		public void SetQuad(string uniqueID, Quad quad)
 		{
-			if (ErrorIfDestroyed() || QuadError(uniqueID)) return;
+			if (ErrorIfDestroyed()) return;
 			quads[uniqueID] = quad;
 		}
 		public Quad GetQuad(string uniqueID)
