@@ -26,18 +26,17 @@ namespace SMPL.Gear
 
 				Performance.EarlyUpdate();
 
+				Audio.Update();
+				Hitbox.Update();
+				Ropes.Update();
+				Assets.Update();
+
 				Keyboard.Update();
 				Mouse.Update();
 
 				Application.DoEvents();
 				Window.window.DispatchEvents();
 				OnUpdate?.Invoke();
-
-				Audio.Update();
-				Hitbox.Update();
-				Ropes.Update();
-				Assets.Update();
-
 				Window.Draw();
 
 				Components.Timer.Update();

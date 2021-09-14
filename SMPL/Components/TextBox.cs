@@ -199,6 +199,7 @@ namespace SMPL.Components
 			Area.sprite.Origin = new Vector2f(
 					(float)(Area.Size.W * (Area.OriginPercent.X / 100)),
 					(float)(Area.Size.H * (Area.OriginPercent.Y / 100)));
+			Area.sprite.Color = Data.Color.From(Effects == null ? Data.Color.White : Effects.FillColor);
 
 			if (Effects == null) camera.rendTexture.Draw(Area.sprite);
 			else camera.rendTexture.Draw(Area.sprite, new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));

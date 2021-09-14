@@ -10,9 +10,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="graphics.png">
+    <None Update="Assets\font.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\graphics.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Audio\" />
   </ItemGroup>
 
 </Project>

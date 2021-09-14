@@ -42,10 +42,18 @@ namespace SMPL.Data
 		public void SetTextureCropTile(Point tileIndexes)
 		{
 			var tileSizePoint = new Point(TileSize.W + TileGridWidth.W, TileSize.H + TileGridWidth.H);
+			var szPoint = new Point(TileGridWidth.W, TileGridWidth.H);
 			CornerA = new(CornerA.Position, tileSizePoint * (tileIndexes + new Point(0, 0)));
-			CornerB = new(CornerB.Position, tileSizePoint * (tileIndexes + new Point(1, 0)));
-			CornerC = new(CornerC.Position, tileSizePoint * (tileIndexes + new Point(1, 1)));
-			CornerD = new(CornerD.Position, tileSizePoint * (tileIndexes + new Point(0, 1)));
+			CornerB = new(CornerB.Position, tileSizePoint * (tileIndexes + new Point(1, 0)) - new Point(TileGridWidth.W, 0));
+			CornerC = new(CornerC.Position, tileSizePoint * (tileIndexes + new Point(1, 1)) - szPoint);
+			CornerD = new(CornerD.Position, tileSizePoint * (tileIndexes + new Point(0, 1)) - new Point(0, TileGridWidth.H));
+		}
+		public void SetColor(Color colorCornerA, Color colorCornerB, Color colorCornerC, Color colorCornerD)
+		{
+			CornerA = new(new Point(CornerA.Position.X, CornerA.Position.Y) { Color = colorCornerA }, CornerA.TextureCoordinate);
+			CornerB = new(new Point(CornerB.Position.X, CornerB.Position.Y) { Color = colorCornerB }, CornerB.TextureCoordinate);
+			CornerC = new(new Point(CornerC.Position.X, CornerC.Position.Y) { Color = colorCornerC }, CornerC.TextureCoordinate);
+			CornerD = new(new Point(CornerD.Position.X, CornerD.Position.Y) { Color = colorCornerD }, CornerD.TextureCoordinate);
 		}
 	}
 }

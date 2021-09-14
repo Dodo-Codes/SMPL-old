@@ -116,20 +116,21 @@ namespace SMPL.Components
 
 			quads[uniqueID] = quad;
 		}
-		public void SetQuadGrid(string uniqueID, uint cellCountX, uint cellCountY)
+		public void SetQuadGrid(string uniqueID, Point tileCount, Size tileSize)
 		{
 			if (ErrorIfDestroyed()) return;
 
-			var sz = GetSize();
-			for (int y = 0; y < cellCountY; y++)
+			var sz = tileSize;
+			for (int y = 0; y < tileCount.Y; y++)
 			{
-				for (int x = 0; x < cellCountX; x++)
+				for (int x = 0; x < tileCount.X; x++)
 				{
 					var quad = new Quad(
 						new Corner(new Point(sz.W * x, sz.H * y), new Point(0, 0)),
 						new Corner(new Point(sz.W * x + sz.W, sz.H * y), new Point(sz.W, 0)),
 						new Corner(new Point(sz.W * x + sz.W, sz.H * y + sz.H), new Point(sz.W, sz.H)),
 						new Corner(new Point(sz.W * x, sz.H * y + sz.H), new Point(0, sz.H)));
+					quad.TileSize = tileSize;
 					quads[$"{uniqueID} {x} {y}"] = quad;
 				}
 			}
