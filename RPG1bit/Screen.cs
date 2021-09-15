@@ -41,9 +41,13 @@ namespace RPG1bit
 			for (int y = 0; y < 18; y++)
 				for (int x = 18; x < 32; x++)
 					EditCell(new Point(x, y), new Point(4, 22), 0, Color.Brown);
-			for (int y = 1; y < 13; y++)
-				for (int x = 19; x < 31; x++)
+			for (int y = 2; y < 14; y++)
+				for (int x = 19; x < 32; x++)
 					EditCell(new Point(x, y), new Point(0, 23), 0, Color.Brown);
+				for (int x = 19; x < 32; x++)
+					EditCell(new Point(x, 0), new Point(0, 23), 0, Color.Brown);
+
+			EditCell(new Point(28, 0), new Point(33, 15), 0, Color.Gray);
 		}
 		public static void Display()
 		{
@@ -85,8 +89,7 @@ namespace RPG1bit
 			if (Sprite == null || Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 
 			var mousePos = GetCellAtCursorPosition();
-			if (Object.objects.ContainsKey(mousePos) == false &&
-				Gate.EnterOnceWhile($"on-hovered-{mousePos}", mousePos != prevCursorPos))
+			if (mousePos != prevCursorPos)
 			{
 				var quad = Sprite.GetQuad($"cell {mousePos.X} {mousePos.Y} 0");
 				var coord = quad.CornerA.TextureCoordinate;

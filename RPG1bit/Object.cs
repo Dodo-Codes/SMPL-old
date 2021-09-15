@@ -17,13 +17,20 @@ namespace RPG1bit
 		public static readonly Dictionary<Point, List<Object>> objects = new();
 		public static readonly Dictionary<Point, string> descriptions = new()
 		{
-			{ new Point(00, 00), "The void." },
-			{ new Point(04, 22), "The information panel." },
-			{ new Point(00, 23), "The information panel." },
-			{ new Point(03, 22), "Minimize the game." },
-			{ new Point(02, 22), "Exit the game." },
+			{ new Point(33, 15), "Graphics: 1-Bit Pack by kenney.nl\n" +
+				"Font: DPComic by cody@zone38.net\n" +
+				$"Game: {Window.Title} ({Info.GameVersion}) by dodo codes" },
+			{ new Point(00, 00), "Void." },
+			{ new Point(04, 22), "Game navigation panel." },
+			{ new Point(00, 23), "Game navigation panel." },
+			{ new Point(01, 23), "Information box." },
+			{ new Point(37, 20), "Minimize the game." },
+			{ new Point(40, 13), "Exit the game." },
 			{ new Point(38, 16), "Adjust the sound effects volume." },
 			{ new Point(39, 16), "Adjust the music volume." },
+			{ new Point(42, 16), "Save/Load a game session." },
+			{ new Point(43, 16), "Start a singleplayer session." },
+			{ new Point(44, 16), "Start a multiplayer session." },
 		};
 
 		public string Name { get; }
@@ -51,27 +58,45 @@ namespace RPG1bit
 		{
 			new ExitGame(new CreationDetails()
 			{
-				Name = "X",
+				Name = "x",
 				Position = new(31, 0) { Color = Color.RedDark },
-				TileIndexes = new Point[] { new(2, 22) },
+				TileIndexes = new Point[] { new(40, 13) },
 			});
 			new MinimizeGame(new CreationDetails()
 			{
 				Name = "-",
 				Position = new(30, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(3, 22) },
+				TileIndexes = new Point[] { new(37, 20) },
 			});
 			new AdjustSound(new CreationDetails()
 			{
 				Name = "adjust-sound",
-				Position = new(19, 1) { Color = Color.Gray },
+				Position = new(26, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(38, 16) },
 			});
 			new AdjustMusic(new CreationDetails()
 			{
 				Name = "adjust-music",
-				Position = new(20, 1) { Color = Color.Gray },
+				Position = new(27, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(39, 16) },
+			});
+			new ExitGame(new CreationDetails()
+			{
+				Name = "start-singleplayer",
+				Position = new(19, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(43, 16) },
+			});
+			new ExitGame(new CreationDetails()
+			{
+				Name = "start-multiplayer",
+				Position = new(20, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(44, 16) },
+			});
+			new ExitGame(new CreationDetails()
+			{
+				Name = "save-load",
+				Position = new(21, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(42, 16) },
 			});
 		}
 		public Object(CreationDetails creationDetails)
@@ -87,7 +112,7 @@ namespace RPG1bit
 		}
 		public static void ShowClickableIndicator(bool show = true)
 		{
-			Screen.EditCell(new Point(30, 16), show ? new Point(29, 15) : new Point(0, 23), 0, Color.White);
+			Screen.EditCell(new Point(31, 17), show ? new Point(29, 15) : new Point(0, 23), 0, Color.White);
 		}
 
 		private void Always()
