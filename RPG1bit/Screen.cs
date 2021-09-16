@@ -8,10 +8,10 @@ namespace RPG1bit
 	{
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
-		public static Point CameraPosition { get; set; }
+
 		private static Point prevCursorPos;
 
-		public static void Create()
+		private static void CreateAndInitializeScreen()
 		{
 			Camera.CallWhen.Display(OnDisplay);
 			Game.CallWhen.GameIsRunning(Always);
@@ -35,35 +35,27 @@ namespace RPG1bit
 
 					quad.TileGridWidth = new Size(1, 1);
 					quad.SetTextureCropTile(new(0, 0));
+					Sprite.SetQuad($"{quadID} 2", quad);
+					Sprite.SetQuad($"{quadID} 1", quad);
 					Sprite.SetQuad($"{quadID} 0", quad);
 				}
+		}
+		public static void Create()
+		{
+			CreateAndInitializeScreen();
 
-			for (int y = 0; y < 18; y++)
-				for (int x = 18; x < 32; x++)
-					EditCell(new Point(x, y), new Point(4, 22), 0, Color.Brown);
-			for (int y = 2; y < 14; y++)
-				for (int x = 19; x < 32; x++)
-					EditCell(new Point(x, y), new Point(0, 23), 0, Color.Brown);
-				for (int x = 19; x < 32; x++)
-					EditCell(new Point(x, 0), new Point(0, 23), 0, Color.Brown);
-
-			EditCell(new Point(28, 0), new Point(33, 15), 0, Color.Gray);
+			NavigationPanel.CreateButtons();
+			NavigationPanel.Info.Create();
+			Map.CreateUIButtons();
+			Hoverer.Create();
 		}
 		public static void Display()
 		{
-			if (Window.CurrentState == Window.State.Minimized) return;
-			foreach (var kvp in Object.objects)
-				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					var c = kvp.Value[i].Position.Color;
-					var quadID = $"cell {kvp.Value[i].Position.X} {kvp.Value[i].Position.Y} {i}";
-					var quad = Sprite.GetQuad(quadID);
-					quad.TileSize = new(16, 16);
-					quad.TileGridWidth = new Size(1, 1);
-					quad.SetColor(c, c, c, c);
-					quad.SetTextureCropTile(kvp.Value[i].TileIndex);
-					Sprite.SetQuad(quadID, quad);
-				}
+			NavigationPanel.Display();
+			NavigationPanel.Info.Display();
+
+			Map.Display();
+			Object.DisplayAllObjects();
 		}
 
 		public static Point GetCellAtCursorPosition()
@@ -73,11 +65,12 @@ namespace RPG1bit
 			var botRight = Camera.WorldCamera.Position + size / 2;
 			var x = Number.Map(Mouse.Cursor.PositionWindow.X, new(topRight.X, botRight.X), new(0, 32));
 			var y = Number.Map(Mouse.Cursor.PositionWindow.Y, new(topRight.Y, botRight.Y), new(0, 18));
-			return new Point((int)x, (int)y) + CameraPosition;
+			return new Point((int)x, (int)y);
 		}
 		public static void EditCell(Point cellIndexes, Point tileIndexes, int depth, Color color)
 		{
 			var id = $"cell {cellIndexes.X} {cellIndexes.Y} {depth}";
+			if (Sprite.HasQuad(id) == false) return;
 			var q = Sprite.GetQuad(id);
 			q.SetTextureCropTile(tileIndexes);
 			q.SetColor(color, color, color, color);
@@ -86,18 +79,30 @@ namespace RPG1bit
 
 		private static void Always()
 		{
-			if (Sprite == null || Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
+			if (Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 
 			var mousePos = GetCellAtCursorPosition();
 			if (mousePos != prevCursorPos)
 			{
-				var quad = Sprite.GetQuad($"cell {mousePos.X} {mousePos.Y} 0");
-				var coord = quad.CornerA.TextureCoordinate;
-				var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
+				NavigationPanel.Info.Textbox.Text = "";
+				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
+				NavigationPanel.Info.ShowClickableIndicator(false);
 
-				Info.Textbox.Scale = new(0.35, 0.35);
-				Info.Textbox.Text = Object.descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
-				Object.ShowClickableIndicator(false);
+				for (int i = 0; i < 3; i++)
+				{
+					var quadID = $"cell {mousePos.X} {mousePos.Y} {i}";
+					if (Sprite.HasQuad(quadID) == false) continue;
+
+					var quad = Sprite.GetQuad(quadID);
+					var coord = quad.CornerA.TextureCoordinate;
+					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
+					var description = Object.descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
+					var defaultDescr = Object.descriptions[new(0, 0)];
+					var sep = i != 0 ? "\n" : "";
+
+					if (NavigationPanel.Info.Textbox.Text != "" && (description == defaultDescr || description == "")) break;
+					NavigationPanel.Info.Textbox.Text += $"{sep}{description}";
+				}
 			}
 			prevCursorPos = mousePos;
 		}

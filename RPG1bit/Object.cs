@@ -21,8 +21,9 @@ namespace RPG1bit
 				"Font DPComic by cody@zone38.net\n" +
 				"Music by opengameart.org/users/yubatake\n" +
 				"Music by opengameart.org/users/avgvsta\n" +
-				$"Game {Info.GameVersion} & SFX(software: Bfxr) by dodo" },
+				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
 			{ new Point(00, 00), "Void." },
+			{ new Point(01, 22), "" }, // background color
 			{ new Point(04, 22), "Game navigation panel." },
 			{ new Point(00, 23), "Game navigation panel." },
 			{ new Point(01, 23), "Information box." },
@@ -31,8 +32,16 @@ namespace RPG1bit
 			{ new Point(38, 16), "Adjust the sound effects volume." },
 			{ new Point(39, 16), "Adjust the music volume." },
 			{ new Point(42, 16), "Save/Load a game session." },
-			{ new Point(43, 16), "Start a singleplayer session." },
-			{ new Point(44, 16), "Start a multiplayer session." },
+			{ new Point(43, 16), "Start a new singleplayer session." },
+			{ new Point(44, 16), "Start a new multiplayer session." },
+
+			{ new Point(05, 22), "Head." },
+			{ new Point(06, 22), "Torso." },
+			{ new Point(07, 22), "Feet." },
+
+			{ new Point(05, 00), "Grass." },
+			{ new Point(06, 00), "Grass." },
+			{ new Point(07, 00), "Grass." },
 		};
 
 		public string Name { get; }
@@ -56,51 +65,6 @@ namespace RPG1bit
 			}
 		}
 
-		public static void CreateAllObjects()
-		{
-			new ExitGame(new CreationDetails()
-			{
-				Name = "x",
-				Position = new(31, 0) { Color = Color.RedDark },
-				TileIndexes = new Point[] { new(40, 13) },
-			});
-			new MinimizeGame(new CreationDetails()
-			{
-				Name = "-",
-				Position = new(30, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(37, 20) },
-			});
-			new AdjustSound(new CreationDetails()
-			{
-				Name = "adjust-sound",
-				Position = new(26, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(38, 16) },
-			});
-			new AdjustMusic(new CreationDetails()
-			{
-				Name = "adjust-music",
-				Position = new(27, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(39, 16) },
-			});
-			new ExitGame(new CreationDetails()
-			{
-				Name = "start-singleplayer",
-				Position = new(19, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(43, 16) },
-			});
-			new ExitGame(new CreationDetails()
-			{
-				Name = "start-multiplayer",
-				Position = new(20, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(44, 16) },
-			});
-			new ExitGame(new CreationDetails()
-			{
-				Name = "save-load",
-				Position = new(21, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(42, 16) },
-			});
-		}
 		public Object(CreationDetails creationDetails)
 		{
 			Mouse.CallWhen.ButtonPress(OnButtonClicked);
@@ -111,15 +75,34 @@ namespace RPG1bit
 			TileIndex = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
 				creationDetails.TileIndexes[(int)Probability.Randomize(new(0, creationDetails.TileIndexes.Length - 1))];
 			Position = creationDetails.Position;
+
+			Screen.EditCell(Position, TileIndex, 0, Position.Color);
 		}
-		public static void ShowClickableIndicator(bool show = true)
+		public static void DisplayAllObjects()
 		{
-			Screen.EditCell(new Point(31, 17), show ? new Point(29, 15) : new Point(0, 23), 0, Color.White);
+			foreach (var kvp in objects)
+				for (int i = 0; i < kvp.Value.Count; i++)
+				{
+					var c = kvp.Value[i].Position.Color;
+					var pos = kvp.Value[i].Position;
+
+					//if (pos.X < 0 || pos.X > 18) continue;
+					//if (pos.Y < 0 || pos.Y > 18) continue;
+
+					var quadID = $"cell {pos} {i}";
+					if (Screen.Sprite.HasQuad(quadID) == false) continue;
+					var quad = Screen.Sprite.GetQuad(quadID);
+					quad.TileSize = new(16, 16);
+					quad.TileGridWidth = new Size(1, 1);
+					quad.SetColor(c, c, c, c);
+					quad.SetTextureCropTile(kvp.Value[i].TileIndex);
+					Screen.Sprite.SetQuad(quadID, quad);
+				}
 		}
 
 		private void Always()
 		{
-			if (Screen.Sprite == null || Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
+			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			if (Gate.EnterOnceWhile($"on-hover-{Position}", Screen.GetCellAtCursorPosition() == Position))
 			{
 				var mousePos = Screen.GetCellAtCursorPosition();
@@ -127,8 +110,8 @@ namespace RPG1bit
 				var coord = quad.CornerA.TextureCoordinate;
 				var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
 
-				Info.Textbox.Scale = new(0.35, 0.35);
-				Info.Textbox.Text = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
+				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
+				NavigationPanel.Info.Textbox.Text = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
 				OnHovered();
 			}
 		}

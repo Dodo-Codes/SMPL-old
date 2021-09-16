@@ -17,21 +17,16 @@ namespace RPG1bit
 			Mouse.Cursor.IsHidden = true;
 		}
 
+		private static void OnFocus()
+		{
+			Window.CurrentState = Window.State.Fullscreen;
+		}
 		private void OnAssetsLoaded()
 		{
 			if (Assets.AreLoaded("Assets\\graphics.png", "Assets\\font.ttf") == false) return;
 
 			Screen.Create();
-			Object.CreateAllObjects();
-			Info.Create();
-			Hoverer.Create();
-
 			Screen.Display();
-		}
-
-		private static void OnFocus()
-		{
-			Window.CurrentState = Window.State.Fullscreen;
 		}
 	}
 }

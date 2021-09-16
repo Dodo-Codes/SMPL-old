@@ -157,6 +157,10 @@ namespace SMPL.Components
 			quad.CornerD = new Corner(quad.CornerD.Position, new Point(sz.W * topLeftPercent.X, sz.H * downRightPercent.Y));
 			SetQuad(uniqueID, quad);
 		}
+		public bool HasQuad(string uniqueID)
+		{
+			return uniqueID != null && quads.ContainsKey(uniqueID);
+		}
 
 		public void Display(Camera camera)
 		{

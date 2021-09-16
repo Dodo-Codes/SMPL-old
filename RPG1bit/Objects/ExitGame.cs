@@ -6,6 +6,6 @@ namespace RPG1bit.Objects
 	{
 		public ExitGame(CreationDetails creationDetails) : base(creationDetails) { }
 		protected override void OnLeftClicked() => Window.Close();
-		protected override void OnHovered() => ShowClickableIndicator();
+		protected override void OnHovered() => NavigationPanel.Info.ShowClickableIndicator();
 	}
 }
