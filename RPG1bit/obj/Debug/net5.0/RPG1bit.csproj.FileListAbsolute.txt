@@ -104,3 +104,56 @@ D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\runtimes\win\lib\netstandard2.0\Syste
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\font.ttf
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\graphics.png
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_characterRevived.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_discovery.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_gameOver.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_goodMorning.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_goodNight.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_joinParty.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_levelUp.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_winBattle.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_winBattleBig.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_winBattleBoss.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Events\JRPG_winBattleFinal.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\01 - Opening.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\02 - BWV 1007 - Prelude.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\03 - HWV 56 - Why do the nations so furiously rage together.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\04 - Sanctuary.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\05 - Reunion.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\06 - Rebels Be.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\07 - Town.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\08 - Overworld.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\09 - Z 339 - Here the Deities approve.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\10 - The Empire.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\11 - Ostrich!.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\12 - Timeworn Pagoda.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\13 - Danger.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\14 - Barbarian King.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\15 - Dungeon.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\16 - Enter the Emperor.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\17 - Victory.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\18 - Nighttide Waltz.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\19 - Courtesan.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\20 - Game Over.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\21 - Fanfare.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\22 - A New Comrade.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\23 - Inn.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\24 - RV 610 - Fecit potentiam.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\25 - Finale.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_battleBoss_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_battle_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_docks_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_dungeon_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_fields_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_inn_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_labyrinth_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_machineRoom_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_royalCourt_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_shop_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Loop\JRPG_town_loop.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_battleFinal.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_mainTheme.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_mysticIsle.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_princess.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_tavern.ogg
+D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_temple.ogg

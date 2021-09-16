@@ -71,17 +71,8 @@ namespace SMPL.Gear
 						{
 							case Type.Texture: textures[path] = new Texture(path); break;
 							case Type.Font: fonts[path] = new Font(path); break;
-							case Type.Audio:
-								{
-									music[path] = new Music(path);
-									if (music[path].Duration.AsSeconds() < 20)
-									{
-										music[path].Dispose();
-										music.Remove(path);
-										sounds[path] = new Sound(new SoundBuffer(path));
-									}
-									break;
-								}
+							case Type.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
+							case Type.Music: music[path] = new Music(path); break;
 						}
 					}
 					catch (Exception)
@@ -124,7 +115,7 @@ namespace SMPL.Gear
 
 		// =================
 
-		public enum Type { Texture, Font, Audio }
+		public enum Type { Texture, Font, Music, Sound }
 		public static class CallWhen
 		{
 			public static void LoadStart(Action method, uint order = uint.MaxValue) =>
@@ -152,24 +143,22 @@ namespace SMPL.Gear
 					case Type.Font:
 						{
 							if (NotLoaded(fonts, filePaths[i], "Font")) return;
+							fonts[filePaths[i]].Dispose();
 							fonts.Remove(filePaths[i]);
 							break;
 						}
-					case Type.Audio:
+					case Type.Music:
 						{
-							if (sounds.ContainsKey(filePaths[i]) == false && NotLoaded(sounds, filePaths[i], "Audio") ||
-								music.ContainsKey(filePaths[i]) == false && NotLoaded(music, filePaths[i], "Audio"))
-									return;
-							if (sounds.ContainsKey(filePaths[i]))
-							{
-								sounds[filePaths[i]].Dispose();
-								sounds.Remove(filePaths[i]);
-							}
-							else if(music.ContainsKey(filePaths[i]))
-							{
-								music[filePaths[i]].Dispose();
-								music.Remove(filePaths[i]);
-							}
+							if (NotLoaded(music, filePaths[i], "Audio")) return;
+							music[filePaths[i]].Dispose();
+							music.Remove(filePaths[i]);
+							break;
+						}
+					case Type.Sound:
+						{
+							if (NotLoaded(sounds, filePaths[i], "Audio")) return;
+							sounds[filePaths[i]].Dispose();
+							sounds.Remove(filePaths[i]);
 							break;
 						}
 				}
@@ -199,12 +188,8 @@ namespace SMPL.Gear
 				{
 					case Type.Texture: { if (AlreadyLoaded(textures, filePaths[i], "Texture")) return; break; }
 					case Type.Font: { if (AlreadyLoaded(fonts, filePaths[i], "Font")) return; break; }
-					case Type.Audio:
-						{
-							if (AlreadyLoaded(sounds, filePaths[i], "Audio")) return;
-							else if (AlreadyLoaded(music, filePaths[i], "Audio")) return;
-							break;
-						}
+					case Type.Music: { if (AlreadyLoaded(music, filePaths[i], "Music")) return; break; }
+					case Type.Sound: { if (AlreadyLoaded(sounds, filePaths[i], "Sound")) return; break; }
 				}
 				queuedAssets.Add(new QueuedAsset()
 				{

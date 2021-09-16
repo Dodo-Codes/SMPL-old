@@ -17,9 +17,11 @@ namespace RPG1bit
 		public static readonly Dictionary<Point, List<Object>> objects = new();
 		public static readonly Dictionary<Point, string> descriptions = new()
 		{
-			{ new Point(33, 15), "Graphics: 1-Bit Pack by kenney.nl\n" +
-				"Font: DPComic by cody@zone38.net\n" +
-				$"Game: {Window.Title} ({Info.GameVersion}) by dodo codes" },
+			{ new Point(33, 15), "Graphics 1-Bit Pack by kenney.nl\n" +
+				"Font DPComic by cody@zone38.net\n" +
+				"Music by opengameart.org/users/yubatake\n" +
+				"Music by opengameart.org/users/avgvsta\n" +
+				$"Game {Info.GameVersion} & SFX(software: Bfxr) by dodo" },
 			{ new Point(00, 00), "Void." },
 			{ new Point(04, 22), "Game navigation panel." },
 			{ new Point(00, 23), "Game navigation panel." },

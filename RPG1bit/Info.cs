@@ -23,8 +23,8 @@ namespace RPG1bit
 			Area = new("info-area");
 
 			var sz = Camera.WorldCamera.Size / 2;
-			Area.Position = new Point(60 * 25.2, 60 * 16.55) - new Point(sz.W, sz.H);
-			Area.Size = new(60 * 12, 60 * 4);
+			Area.Position = new Point(60 * 25.6, 60 * 16.55) - new Point(sz.W, sz.H);
+			Area.Size = new(60 * 13, 60 * 4);
 
 			Textbox = new("info-textbox");
 			Textbox.AreaUniqueID = "info-area";

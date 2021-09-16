@@ -31,7 +31,7 @@ namespace SMPL.Components
       {
          if (CurrentType != Type.NotLoaded) return false;
 
-         Assets.NotLoadedError(2, Assets.Type.Audio, FilePath);
+         Debug.LogError(2, $"No audio file is taken into account. Use the {nameof(FilePath)} property if needed.");
          return true;
       }
 
