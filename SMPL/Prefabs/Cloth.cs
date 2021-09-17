@@ -61,7 +61,7 @@ namespace SMPL.Prefabs
 
 			var r = (Ropes)PickByUniqueID(RopesUniqueID);
 			var fragSz = size / (FRAGMENTS - 1);
-			var quads = new Dictionary<string, Quad>();
+			var quads = new SortedDictionary<string, Quad>();
 			var sz = GetSize();
 
 			for (int y = 0; y < FRAGMENTS - 1; y++)

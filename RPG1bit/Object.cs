@@ -12,41 +12,50 @@ namespace RPG1bit
 			public string Name { get; set; }
 			public Point[] TileIndexes { get; set; }
 			public Point Position { get; set; }
+			public int Height { get; set; }
 		}
 
 		public static readonly Dictionary<Point, List<Object>> objects = new();
 		public static readonly Dictionary<Point, string> descriptions = new()
 		{
-			{ new Point(33, 15), "Graphics 1-Bit Pack by kenney.nl\n" +
+			{ new(33, 15), "Graphics 1-Bit Pack by kenney.nl\n" +
 				"Font DPComic by cody@zone38.net\n" +
 				"Music by opengameart.org/users/yubatake\n" +
 				"Music by opengameart.org/users/avgvsta\n" +
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
-			{ new Point(00, 00), "Void." },
-			{ new Point(01, 22), "" }, // background color
-			{ new Point(04, 22), "Game navigation panel." },
-			{ new Point(00, 23), "Game navigation panel." },
-			{ new Point(01, 23), "Information box." },
-			{ new Point(37, 20), "Minimize the game." },
-			{ new Point(40, 13), "Exit the game." },
-			{ new Point(38, 16), "Adjust the sound effects volume." },
-			{ new Point(39, 16), "Adjust the music volume." },
-			{ new Point(42, 16), "Save/Load a game session." },
-			{ new Point(43, 16), "Start a new singleplayer session." },
-			{ new Point(44, 16), "Start a new multiplayer session." },
+			{ new(00, 00), "Void." },
+			{ new(01, 22), "" }, // background color
+			{ new(04, 22), "Game navigation panel." },
+			{ new(00, 23), "Game navigation panel." },
+			{ new(01, 23), "Information box." },
+			// those objects' info is handled by their classes
+			{ new(37, 20), "" }, { new(40, 13), "" }, { new(38, 16), "" }, { new(39, 16), "" },
+			// those objects' info is handled by their classes
 
-			{ new Point(05, 22), "Head." },
-			{ new Point(06, 22), "Torso." },
-			{ new Point(07, 22), "Feet." },
+			{ new(42, 16), "Save/Load a game session." },
+			{ new(43, 16), "Start a new singleplayer session." },
+			{ new(44, 16), "Start a new multiplayer session." },
 
-			{ new Point(05, 00), "Grass." },
-			{ new Point(06, 00), "Grass." },
-			{ new Point(07, 00), "Grass." },
+			{ new(05, 22), "On your head:" },
+			{ new(06, 22), "On your body:" },
+			{ new(07, 22), "On your feet:" },
+			{ new(08, 22), "In your left hand:" },
+			{ new(09, 22), "In your right hand:" },
+			{ new(10, 22), "On your back:" },
+			{ new(11, 22), "On your waist:" },
+
+			{ new(05, 00), "Grass." },
+			{ new(06, 00), "Grass." },
+			{ new(07, 00), "Grass." },
+
+			{ new(32, 00), "Helmet." },
 		};
 
 		public string Name { get; }
-		public Point TileIndex { get; }
+		public Point TileIndexes { get; }
+		public int Height { get; }
 
+		private static Point prevCursorPos;
 		private static Point leftClickPos, rightClickPos;
 		private Point position;
 		public Point Position
@@ -65,6 +74,10 @@ namespace RPG1bit
 			}
 		}
 
+		public static void Initialize()
+		{
+			Game.CallWhen.GameIsRunning(StaticAlways, 0);
+		}
 		public Object(CreationDetails creationDetails)
 		{
 			Mouse.CallWhen.ButtonPress(OnButtonClicked);
@@ -72,32 +85,16 @@ namespace RPG1bit
 			Game.CallWhen.GameIsRunning(Always);
 
 			Name = creationDetails.Name;
-			TileIndex = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
+			TileIndexes = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
 				creationDetails.TileIndexes[(int)Probability.Randomize(new(0, creationDetails.TileIndexes.Length - 1))];
 			Position = creationDetails.Position;
-
-			Screen.EditCell(Position, TileIndex, 0, Position.Color);
+			Height = creationDetails.Height;
 		}
 		public static void DisplayAllObjects()
 		{
 			foreach (var kvp in objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					var c = kvp.Value[i].Position.Color;
-					var pos = kvp.Value[i].Position;
-
-					//if (pos.X < 0 || pos.X > 18) continue;
-					//if (pos.Y < 0 || pos.Y > 18) continue;
-
-					var quadID = $"cell {pos} {i}";
-					if (Screen.Sprite.HasQuad(quadID) == false) continue;
-					var quad = Screen.Sprite.GetQuad(quadID);
-					quad.TileSize = new(16, 16);
-					quad.TileGridWidth = new Size(1, 1);
-					quad.SetColor(c, c, c, c);
-					quad.SetTextureCropTile(kvp.Value[i].TileIndex);
-					Screen.Sprite.SetQuad(quadID, quad);
-				}
+					Screen.EditCell(kvp.Value[i].Position, kvp.Value[i].TileIndexes, kvp.Value[i].Height, kvp.Value[i].Position.Color);
 		}
 
 		private void Always()
@@ -106,7 +103,7 @@ namespace RPG1bit
 			if (Gate.EnterOnceWhile($"on-hover-{Position}", Screen.GetCellAtCursorPosition() == Position))
 			{
 				var mousePos = Screen.GetCellAtCursorPosition();
-				var quad = Screen.Sprite.GetQuad($"cell {mousePos.X} {mousePos.Y} 0");
+				var quad = Screen.Sprite.GetQuad($"0 cell {mousePos.X} {mousePos.Y}");
 				var coord = quad.CornerA.TextureCoordinate;
 				var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
 
@@ -114,6 +111,31 @@ namespace RPG1bit
 				NavigationPanel.Info.Textbox.Text = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
 				OnHovered();
 			}
+		}
+		private static void StaticAlways()
+		{
+			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
+			var mousePos = Screen.GetCellAtCursorPosition();
+			if (mousePos != prevCursorPos)
+			{
+				NavigationPanel.Info.Textbox.Text = "";
+				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
+				NavigationPanel.Info.ShowClickableIndicator(false);
+
+				for (int i = 0; i < 3; i++)
+				{
+					var quadID = $"{i} cell {mousePos.X} {mousePos.Y}";
+					var quad = Screen.Sprite.GetQuad(quadID);
+					var coord = quad.CornerA.TextureCoordinate;
+					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
+					var description = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
+					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
+
+					if (NavigationPanel.Info.Textbox.Text != "" && description == descriptions[new(0, 0)]) break;
+					NavigationPanel.Info.Textbox.Text += $"{sep}{description}";
+				}
+			}
+			prevCursorPos = mousePos;
 		}
 
 		private void OnButtonRelease(Mouse.Button button)

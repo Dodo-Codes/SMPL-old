@@ -9,12 +9,9 @@ namespace RPG1bit
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
 
-		private static Point prevCursorPos;
-
 		private static void CreateAndInitializeScreen()
 		{
 			Camera.CallWhen.Display(OnDisplay);
-			Game.CallWhen.GameIsRunning(Always);
 
 			Area = new("map-area");
 			Area.Size = Camera.WorldCamera.Size;
@@ -30,14 +27,16 @@ namespace RPG1bit
 				{
 					var quadID = $"cell {x} {y}";
 					var quad = Sprite.GetQuad(quadID);
+					var c = new Color();
 
 					Sprite.RemoveQuad(quadID);
 
 					quad.TileGridWidth = new Size(1, 1);
 					quad.SetTextureCropTile(new(0, 0));
-					Sprite.SetQuad($"{quadID} 2", quad);
-					Sprite.SetQuad($"{quadID} 1", quad);
-					Sprite.SetQuad($"{quadID} 0", quad);
+					quad.SetColor(c, c, c, c);
+					Sprite.SetQuad($"0 {quadID}", quad);
+					Sprite.SetQuad($"1 {quadID}", quad);
+					Sprite.SetQuad($"2 {quadID}", quad);
 				}
 		}
 		public static void Create()
@@ -47,6 +46,7 @@ namespace RPG1bit
 			NavigationPanel.CreateButtons();
 			NavigationPanel.Info.Create();
 			Map.CreateUIButtons();
+			Object.Initialize();
 			Hoverer.Create();
 		}
 		public static void Display()
@@ -69,43 +69,13 @@ namespace RPG1bit
 		}
 		public static void EditCell(Point cellIndexes, Point tileIndexes, int depth, Color color)
 		{
-			var id = $"cell {cellIndexes.X} {cellIndexes.Y} {depth}";
-			if (Sprite.HasQuad(id) == false) return;
+			var id = $"{depth} cell {cellIndexes.X} {cellIndexes.Y}";
 			var q = Sprite.GetQuad(id);
 			q.SetTextureCropTile(tileIndexes);
 			q.SetColor(color, color, color, color);
 			Sprite.SetQuad(id, q);
 		}
 
-		private static void Always()
-		{
-			if (Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
-
-			var mousePos = GetCellAtCursorPosition();
-			if (mousePos != prevCursorPos)
-			{
-				NavigationPanel.Info.Textbox.Text = "";
-				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
-				NavigationPanel.Info.ShowClickableIndicator(false);
-
-				for (int i = 0; i < 3; i++)
-				{
-					var quadID = $"cell {mousePos.X} {mousePos.Y} {i}";
-					if (Sprite.HasQuad(quadID) == false) continue;
-
-					var quad = Sprite.GetQuad(quadID);
-					var coord = quad.CornerA.TextureCoordinate;
-					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
-					var description = Object.descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
-					var defaultDescr = Object.descriptions[new(0, 0)];
-					var sep = i != 0 ? "\n" : "";
-
-					if (NavigationPanel.Info.Textbox.Text != "" && (description == defaultDescr || description == "")) break;
-					NavigationPanel.Info.Textbox.Text += $"{sep}{description}";
-				}
-			}
-			prevCursorPos = mousePos;
-		}
 		private static void OnDisplay(Camera camera)
 		{
 			if (Sprite == null) return;

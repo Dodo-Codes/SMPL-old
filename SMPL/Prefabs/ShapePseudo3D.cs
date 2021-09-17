@@ -87,7 +87,7 @@ namespace SMPL.Prefabs
 			var bl = lines[3];
 			var ml = lines[4].EndPosition;
 
-			var quads = new Dictionary<string, Quad>();
+			var quads = new SortedDictionary<string, Quad>();
 			var dists = new SortedDictionary<double, Quad>();
 
 			AddQuads();

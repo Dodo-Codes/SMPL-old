@@ -20,9 +20,9 @@ namespace SMPL.Components
 
 		internal static List<Sprite> sprites = new();
 		[JsonProperty]
-		internal Dictionary<string, Quad> quads = new();
+		internal SortedDictionary<string, Quad> quads = new();
 
-		internal static (VertexArray, Vertex[]) QuadsToVerts(Dictionary<string, Quad> quads)
+		internal static (VertexArray, Vertex[]) QuadsToVerts(SortedDictionary<string, Quad> quads)
 		{
 			if (quads == null) return (null, null);
 			var vertArr = new VertexArray();

@@ -17,7 +17,7 @@ namespace TestGame
 			if (Performance.FrameCount % 10 == 0) Window.Title = $"SMPL Game (FPS: {Performance.FPS:F2})";
 			if (Assets.AreLoaded("Munro.ttf") == false) return;
 
-			Camera.WorldCamera.Position = Mouse.CursorPositionWindow;
+			Camera.WorldCamera.Position = Mouse.Cursor.PositionWindow;
 			Text.Display(camera, "Hello World!", "Munro.ttf");
 		}
 	}
