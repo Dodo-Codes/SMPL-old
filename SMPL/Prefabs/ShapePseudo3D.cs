@@ -22,6 +22,10 @@ namespace SMPL.Prefabs
 		internal Line[] lines = new Line[5];
 
 		[JsonProperty]
+		public double PercentZ { get; set; }
+		[JsonProperty]
+		public double PerspectivePercent { get; set; }
+		[JsonProperty]
 		public double Depth { get; set; } = 100;
 		[JsonProperty]
 		public string TexturePath
@@ -40,8 +44,6 @@ namespace SMPL.Prefabs
 				if (prev == null) SetSidesTextureCropDefault();
 			}
 		}
-		[JsonProperty]
-		public bool IsPyramid { get; set; }
 		[JsonProperty]
 		public bool IsRepeated { get; set; }
 		[JsonProperty]
@@ -111,7 +113,7 @@ namespace SMPL.Prefabs
 				AddSideQuad(Side.Down, bl, br, 0.08);
 				foreach (var kvp in dists)
 					quads.Add($"{kvp.Key}", kvp.Value);
-				if (IsPyramid == false) AddFaceQuad(Side.Near, tl.EndPosition, tr.EndPosition, br.EndPosition, bl.EndPosition);
+				AddFaceQuad(Side.Near, tl.EndPosition, tr.EndPosition, br.EndPosition, bl.EndPosition);
 
 				void AddSideQuad(Side side, Line l, Line r, double distOffset)
 				{
@@ -124,8 +126,8 @@ namespace SMPL.Prefabs
 						dists.Add(99_999_999.0 - Point.Distance(camera.Position,
 							Point.PercentTowardTarget(l.StartPosition, r.StartPosition, new Size(50, 50))) + distOffset,
 						new Quad(
-							new Corner(IsPyramid ? ml : l.EndPosition, new Point(texCoords[side][0].X, texCoords[side][0].Y)), // top left
-							new Corner(IsPyramid ? ml : r.EndPosition, new Point(texCoords[side][1].X, texCoords[side][0].Y)), // top right
+							new Corner(l.EndPosition, new Point(texCoords[side][0].X, texCoords[side][0].Y)), // top left
+							new Corner(r.EndPosition, new Point(texCoords[side][1].X, texCoords[side][0].Y)), // top right
 							new Corner(r.StartPosition, new Point(texCoords[side][1].X, texCoords[side][1].Y)), // bottom right
 							new Corner(l.StartPosition, new Point(texCoords[side][0].X, texCoords[side][1].Y)))); // bottom left
 					}
@@ -269,17 +271,21 @@ namespace SMPL.Prefabs
 			var Area = (Area)PickByUniqueID(AreaUniqueID);
 			if (Area == null) return;
 
+			var mid = P(Area.sprite.Position + Point.From(new Point(Area.Size.W / 2, Area.Size.H / 2)));
 			var topL = P(Area.sprite.Position);
 			var topR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, 0)));
 			var botR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, Area.Size.H)));
 			var botL = P(Area.sprite.Position + Point.From(new Point(0, Area.Size.H)));
-			var mid = P(Area.sprite.Position + Point.From(new Point(Area.Size.W / 2, Area.Size.H / 2)));
 
 			var tl = L(topL);
 			var tr = L(topR);
 			var br = L(botR);
 			var bl = L(botL);
-			var ml = L(mid).EndPosition;
+
+			tl.StartPosition = ApplyZ(tl.StartPosition);
+			tr.StartPosition = ApplyZ(tr.StartPosition);
+			br.StartPosition = ApplyZ(br.StartPosition);
+			bl.StartPosition = ApplyZ(bl.StartPosition);
 
 			lines[0] = tl;
 			lines[1] = tr;
@@ -297,6 +303,14 @@ namespace SMPL.Prefabs
 				var len = Point.Distance(camera.Position, p);
 				var sz = (camera.Size.W + camera.Size.H) / 1000;
 				return new Line(p, Point.MoveAtAngle(p, ang, len * (Depth / 300) / sz, Gear.Time.Unit.Tick));
+			}
+			Point ApplyPerspective(Point point)
+			{
+				return Point.PercentTowardTarget(point, mid, new(PerspectivePercent, PerspectivePercent));
+			}
+			Point ApplyZ(Point point)
+			{
+				return Point.PercentTowardTarget(point, camera.Position, new(PercentZ, PercentZ));
 			}
 		}
 	}

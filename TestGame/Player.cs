@@ -1,4 +1,6 @@
 ﻿using SMPL;
+using SMPL.Data;
+using SMPL.Gear;
 
 namespace TestGame
 {
@@ -27,12 +29,13 @@ namespace TestGame
 			for (int i = 0; i < 20; i++)
 			{
 				var c = 3 * camLen;
-				var p = new Point(Number.Random(new Bounds(-c, c)), Number.Random(new Bounds(-c, c)));
-				var p2 = Point.MoveAtAngle(p, Number.Random(new Bounds(0, c)), Number.Random(new Bounds(10, 500)), Time.Unit.Tick);
+				var p = new Point(Probability.Randomize(new Number.Range(-c, c)), Probability.Randomize(new Number.Range(-c, c)));
+				var p2 = Point.MoveAtAngle(p, Probability.Randomize(new Number.Range(0, c)),
+					Probability.Randomize(new Number.Range(10, 500)), Time.Unit.Tick);
 				var col = new Color(
-					Number.Random(new Bounds(0, 255)),
-					Number.Random(new Bounds(0, 255)),
-					Number.Random(new Bounds(0, 255)));
+					Probability.Randomize(new Number.Range(0, 255)),
+					Probability.Randomize(new Number.Range(0, 255)),
+					Probability.Randomize(new Number.Range(0, 255)));
 				p.Color = col;
 				p2.Color = col;
 				Map.SetLine($"wall-{i}", new Line(p, p2));
