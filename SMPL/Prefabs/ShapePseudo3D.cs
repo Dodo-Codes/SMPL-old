@@ -18,15 +18,17 @@ namespace SMPL.Prefabs
 		private readonly Dictionary<Side, Data.Color> colors = new();
 		private readonly List<Side> skippedSides = new();
 		private string texturePath;
-		private double lightAngle, lightDepth;
+		private double lightAngle, lightDepth, percentZ;
 		internal Line[] lines = new Line[5];
 
 		[JsonProperty]
-		public double PercentZ { get; set; }
+		public double PercentZ
+		{
+			get { return percentZ; }
+			set { percentZ = Number.Limit(value, new Number.Range(double.NegativeInfinity, 100)); }
+		}
 		[JsonProperty]
-		public double PerspectivePercent { get; set; }
-		[JsonProperty]
-		public double Depth { get; set; } = 100;
+		public double PercentDepth { get; set; } = 100;
 		[JsonProperty]
 		public string TexturePath
 		{
@@ -78,7 +80,7 @@ namespace SMPL.Prefabs
 					$"Make sure the {nameof(ShapePseudo3D)} instance has an {nameof(Components.Area)} before displaying it.");
 				return;
 			}
-			if (camera.Captures(this) == false) return;
+			if (camera.Captures(this) == false || PercentZ < -10_000) return;
 
 			UpdateSprite();
 
@@ -87,7 +89,6 @@ namespace SMPL.Prefabs
 			var tr = lines[1];
 			var br = lines[2];
 			var bl = lines[3];
-			var ml = lines[4].EndPosition;
 
 			var quads = new SortedDictionary<string, Quad>();
 			var dists = new SortedDictionary<double, Quad>();
@@ -222,7 +223,7 @@ namespace SMPL.Prefabs
 			colors[Side.Far] = Data.Color.GrayDark;
 			if (skippedSides.Count > 0)
 				colors[Side.Far] = Shade(Number.Map(lightDepth,
-					new Number.Range(0, Depth / skippedSides.Count * 2), new Number.Range(50, 255)));
+					new Number.Range(0, PercentDepth / skippedSides.Count * 2), new Number.Range(50, 255)));
 			colors[Side.Left] = Shade(Number.Map(ang, new Number.Range(ang > 180 ? 360 : 0, 180), new Number.Range(50, 255)));
 			colors[Side.Right] = Shade(Number.Map(ang, new Number.Range(180, botSide ? 0 : 360), new Number.Range(50, 255)));
 
@@ -233,7 +234,7 @@ namespace SMPL.Prefabs
 			colors[Side.Up] = leftSide ? Shade(Number.Map(ang, new Number.Range(90, 270), new Number.Range(50, 255)))
 					: botSide == false ? Shade(Number.Map(ang, new Number.Range(360, 270), new Number.Range(150, 255)))
 					: Shade(Number.Map(ang, new Number.Range(90, 0), new Number.Range(50, 150)));
-			colors[Side.Near] = Shade(Number.Map(lightDepth, new Number.Range(0, Depth * 2), new Number.Range(50, 255)));
+			colors[Side.Near] = Shade(Number.Map(lightDepth, new Number.Range(0, PercentDepth * 2), new Number.Range(50, 255)));
 
 			Data.Color Shade(double s) => new(s, s, s);
 		}
@@ -277,40 +278,50 @@ namespace SMPL.Prefabs
 			var botR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, Area.Size.H)));
 			var botL = P(Area.sprite.Position + Point.From(new Point(0, Area.Size.H)));
 
-			var tl = L(topL);
-			var tr = L(topR);
-			var br = L(botR);
-			var bl = L(botL);
+			var tl = new Line(topL, topL);
+			var tr = new Line(topR, topR);
+			var br = new Line(botR, botR);
+			var bl = new Line(botL, botL);
 
 			tl.StartPosition = ApplyZ(tl.StartPosition);
 			tr.StartPosition = ApplyZ(tr.StartPosition);
 			br.StartPosition = ApplyZ(br.StartPosition);
 			bl.StartPosition = ApplyZ(bl.StartPosition);
 
+			tl.EndPosition = ApplyHeight(tl.StartPosition);
+			tr.EndPosition = ApplyHeight(tr.StartPosition);
+			br.EndPosition = ApplyHeight(br.StartPosition);
+			bl.EndPosition = ApplyHeight(bl.StartPosition);
+
+			tl.EndPosition = ApplyHeightCorrection(tl.StartPosition, tl.EndPosition);
+			tr.EndPosition = ApplyHeightCorrection(tr.StartPosition, tr.EndPosition);
+			br.EndPosition = ApplyHeightCorrection(br.StartPosition, br.EndPosition);
+			bl.EndPosition = ApplyHeightCorrection(bl.StartPosition, bl.EndPosition);
+
+
 			lines[0] = tl;
 			lines[1] = tr;
 			lines[2] = br;
 			lines[3] = bl;
-			lines[4] = L(mid);
 
 			Point P(Vector2f vec)
 			{
 				return Point.To(Area.sprite.Transform.TransformPoint(vec));
 			}
-			Line L(Point p)
-			{
-				var ang = Number.AngleBetweenPoints(camera.Position, p);
-				var len = Point.Distance(camera.Position, p);
-				var sz = (camera.Size.W + camera.Size.H) / 1000;
-				return new Line(p, Point.MoveAtAngle(p, ang, len * (Depth / 300) / sz, Gear.Time.Unit.Tick));
-			}
-			Point ApplyPerspective(Point point)
-			{
-				return Point.PercentTowardTarget(point, mid, new(PerspectivePercent, PerspectivePercent));
-			}
 			Point ApplyZ(Point point)
 			{
 				return Point.PercentTowardTarget(point, camera.Position, new(PercentZ, PercentZ));
+			}
+			Point ApplyHeight(Point point)
+			{
+				return Point.PercentTowardTarget(point, camera.Position, new Size(PercentDepth, PercentDepth) / 10);
+			}
+			Point ApplyHeightCorrection(Point pointFar, Point pointNear)
+			{
+				var sz = new Size(PercentZ, PercentZ);
+				sz.W = Number.Limit(sz.W, new Number.Range(-PercentDepth, 100));
+				sz.H = Number.Limit(sz.H, new Number.Range(-PercentDepth, 100));
+				return Point.PercentTowardTarget(pointNear, pointFar, sz);
 			}
 		}
 	}

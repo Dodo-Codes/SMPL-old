@@ -1,4 +1,5 @@
 ﻿using SMPL.Components;
+using SMPL.Data;
 using SMPL.Gear;
 using SMPL.Prefabs;
 
@@ -16,7 +17,7 @@ namespace RacerPseudo3D
 
 		public static void Create()
 		{
-			//Assets.Load(Assets.Type.Texture, "");
+			Assets.Load(Assets.Type.Texture, "road.png");
 			Camera.CallWhen.Display(OnDisplay);
 
 			PavementArea = new Area("pavement-area");
@@ -33,7 +34,12 @@ namespace RacerPseudo3D
 			BorderLeft = new ShapePseudo3D("border-left");
 			BorderRight = new ShapePseudo3D("border-right");
 
-			BorderLeft.PercentZ = 100;
+			Pavement.TexturePath = "road.png";
+			Pavement.SetSidesTextureCropDefault();
+			Pavement.PercentZ = -1000;
+			//Pavement.PercentDepth = 270.17;
+			Pavement.PercentDepth = 200;
+			PavementArea.Size = new(100, 1);
 
 			Pavement.AreaUniqueID = PavementArea.UniqueID;
 			BorderLeft.AreaUniqueID = BorderLeftArea.UniqueID;

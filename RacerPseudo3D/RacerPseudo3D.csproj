@@ -9,4 +9,10 @@
     <ProjectReference Include="..\SMPL\SMPL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="road.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

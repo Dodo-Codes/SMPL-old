@@ -102,3 +102,4 @@ D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.dll
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\ref\RacerPseudo3D.dll
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.pdb
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.genruntimeconfig.cache
+D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\road.png
