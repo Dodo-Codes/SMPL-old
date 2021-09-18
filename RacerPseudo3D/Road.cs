@@ -17,7 +17,7 @@ namespace RacerPseudo3D
 
 		public static void Create()
 		{
-			Assets.Load(Assets.Type.Texture, "road.png");
+			Assets.Load(Assets.Type.Texture, "road.jpg", "border.png");
 			Camera.CallWhen.Display(OnDisplay);
 
 			PavementArea = new Area("pavement-area");
@@ -27,19 +27,27 @@ namespace RacerPseudo3D
 			PavementArea.Position = new(0, 200);
 			PavementArea.Size = new(100, 100);
 			BorderLeftArea.Size = new(100, 100);
-			BorderLeftArea.Position = new(-200, 50);
-			BorderRightArea.Position = new(200, 50);
+			BorderLeftArea.Position = new(-50, 170);
+			BorderRightArea.Position = new(50, 170);
 
 			Pavement = new ShapePseudo3D("pavement");
 			BorderLeft = new ShapePseudo3D("border-left");
 			BorderRight = new ShapePseudo3D("border-right");
 
-			Pavement.TexturePath = "road.png";
-			Pavement.SetSidesTextureCropDefault();
-			Pavement.PercentZ = -1000;
-			//Pavement.PercentDepth = 270.17;
-			Pavement.PercentDepth = 200;
-			PavementArea.Size = new(100, 1);
+			BorderLeft.TexturePath = "border.png";
+			BorderLeft.SetSidesTextureCropDefault();
+			BorderLeft.SetSideTextureCropPercent(ShapePseudo3D.Side.Near, new(100, 100), new(0, 0));
+			BorderRight.TexturePath = "border.png";
+			BorderRight.SetSidesTextureCropDefault();
+
+			Pavement.TexturePath = "road.jpg";
+			Pavement.PercentZ = 95;
+			Pavement.PercentDepth = 500_000;
+			PavementArea.Size = new(200, 10);
+
+			//Pavement.SetSideVisibility(ShapePseudo3D.Side.Far, false);
+			//BorderRight.SetSideVisibility(ShapePseudo3D.Side.Far, false);
+			//BorderLeft.SetSideVisibility(ShapePseudo3D.Side.Far, false);
 
 			Pavement.AreaUniqueID = PavementArea.UniqueID;
 			BorderLeft.AreaUniqueID = BorderLeftArea.UniqueID;

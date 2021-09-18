@@ -141,7 +141,7 @@ namespace SMPL.Prefabs
 						tr = new Point(tr.X, tr.Y) { Color = colors[side] };
 						br = new Point(br.X, br.Y) { Color = colors[side] };
 						bl = new Point(bl.X, bl.Y) { Color = colors[side] };
-						quads.Add($"{side}", new Quad(
+						quads.Add(side == Side.Far ? "_" : "z", new Quad( // "_" & "z" alphabetic quad sort
 							new Corner(tl, new Point(texCoords[side][0].X, texCoords[side][0].Y)),
 							new Corner(tr, new Point(texCoords[side][1].X, texCoords[side][0].Y)),
 							new Corner(br, new Point(texCoords[side][1].X, texCoords[side][1].Y)),
@@ -314,7 +314,7 @@ namespace SMPL.Prefabs
 			}
 			Point ApplyHeight(Point point)
 			{
-				return Point.PercentTowardTarget(point, camera.Position, new Size(PercentDepth, PercentDepth) / 10);
+				return Point.PercentTowardTarget(camera.Position, point, new Size(PercentDepth, PercentDepth) * 1.08);
 			}
 			Point ApplyHeightCorrection(Point pointFar, Point pointNear)
 			{
