@@ -1,6 +1,6 @@
 ﻿using SMPL.Gear;
 
-namespace RPG1bit.Objects
+namespace RPG1bit
 {
 	public class ExitGame : Object
 	{
@@ -8,7 +8,6 @@ namespace RPG1bit.Objects
 		protected override void OnLeftClicked() => Window.Close();
 		protected override void OnHovered()
 		{
-			NavigationPanel.Info.ShowClickableIndicator();
 			NavigationPanel.Info.Textbox.Text = "Exit the game.";
 		}
 	}

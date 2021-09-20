@@ -5,7 +5,10 @@ namespace SMPL.Data
 {
 	public struct Color
 	{
-		public double R, G, B, A;
+		public double R { get; set; }
+		public double G { get; set; }
+		public double B { get; set; }
+		public double A { get; set; }
 
 		public static Color Invalid		=> new(double.NaN, double.NaN, double.NaN, double.NaN);
 		public static Color Transparent	=> new(0,	0,		0,		0);
@@ -148,8 +151,8 @@ namespace SMPL.Data
 
 		public static bool operator ==(Color a, Color b) => a.R == b.R && a.G == b.G && a.B == b.B && a.A == b.A;
 		public static bool operator !=(Color a, Color b) => a.R != b.R || a.G != b.G || a.B != b.B || a.A != b.A;
-		public static Color operator -(Color a, Color b) => new Color(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
-		public static Color operator +(Color a, Color b) => new Color(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
+		public static Color operator -(Color a, Color b) => new(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
+		public static Color operator +(Color a, Color b) => new(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
 
 		public override string ToString() => $"{R} {G} {B} {A}";
 		public override bool Equals(object obj) => base.Equals(obj);

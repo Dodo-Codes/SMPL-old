@@ -8,6 +8,8 @@ namespace RPG1bit
 	{
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
+		public static Point CursorTextureTileIndexes { get; set; } = new(36, 10);
+		public static Color CursorTextureColor { get; set; } = Color.White;
 
 		public static void Create()
 		{
@@ -43,12 +45,14 @@ namespace RPG1bit
 			q.SetTextureCropTile(tileIndex);
 			q.SetColor(c, c, c, c);
 			Sprite.SetQuad("hoverer-sprite", q);
+			Area.OriginPercent = new(0, 0);
 
 			Sprite.Display(camera);
 
 			Area.Position = Mouse.Cursor.PositionWindow;
-			q.SetTextureCropTile(new(36, 10));
-			c = Color.White;
+			q.SetTextureCropTile(CursorTextureTileIndexes);
+			Area.OriginPercent = CursorTextureTileIndexes == new Point(36, 10) ? new(0, 0) : new(50, 50);
+			c = CursorTextureColor;
 			q.SetColor(c, c, c, c);
 			Sprite.SetQuad("hoverer-sprite", q);
 

@@ -1,6 +1,6 @@
 ﻿using SMPL.Data;
 
-namespace RPG1bit.Objects
+namespace RPG1bit
 {
 	public class AdjustMusic : Object
 	{
@@ -9,7 +9,6 @@ namespace RPG1bit.Objects
 		public AdjustMusic(CreationDetails creationDetails) : base(creationDetails) { }
 		protected override void OnHovered()
 		{
-			NavigationPanel.Info.ShowClickableIndicator();
 			NavigationPanel.Info.Textbox.Text = "Adjust the music volume.";
 		}
 		protected override void OnLeftClicked()

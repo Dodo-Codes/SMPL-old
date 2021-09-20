@@ -45,7 +45,6 @@ namespace RPG1bit
 
 			NavigationPanel.CreateButtons();
 			NavigationPanel.Info.Create();
-			Map.CreateUIButtons();
 			Object.Initialize();
 			Hoverer.Create();
 		}
@@ -53,7 +52,6 @@ namespace RPG1bit
 		{
 			NavigationPanel.Display();
 			NavigationPanel.Info.Display();
-
 			Map.Display();
 			Object.DisplayAllObjects();
 		}

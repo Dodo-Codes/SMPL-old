@@ -12,7 +12,7 @@ namespace RPG1bit
 			Assets.Load(Assets.Type.Font, "Assets\\font.ttf");
 			Window.CallWhen.Focus(OnFocus);
 			Assets.CallWhen.LoadEnd(OnAssetsLoaded);
-			Window.Title = "Combathrone";
+			Window.Title = "Violint";
 			Window.CurrentState = Window.State.Fullscreen;
 			Mouse.Cursor.IsHidden = true;
 		}

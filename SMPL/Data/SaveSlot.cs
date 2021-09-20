@@ -2,8 +2,6 @@
 using SMPL.Components;
 using SMPL.Gear;
 using SMPL.Prefabs;
-using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace SMPL.Data

@@ -10,8 +10,7 @@ namespace SMPL.Data
 	public struct Point
 	{
 		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
-		public static Point One => new(1, 1) { Color = Color.White };
-		public static Point Zero => new(0, 0) { Color = Color.White };
+		public static Point One => new(1, 1);
 
 		public double X { get; set; }
 		public double Y { get; set; }
@@ -88,7 +87,7 @@ namespace SMPL.Data
 		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b);
 		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b);
 
-		public override bool Equals(object obj) => base.Equals(obj);
+		public override bool Equals(object obj) => obj.GetType() == typeof(Point) && (Point)obj == this;
 		public override int GetHashCode() => base.GetHashCode();
 
 		public override string ToString() => $"{X} {Y}";
