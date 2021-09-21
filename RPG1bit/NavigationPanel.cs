@@ -80,6 +80,7 @@ namespace RPG1bit
 				Height = 1,
 				IsClickable = true,
 				IsConfirmingClick = true,
+				IsUI = true,
 			});
 			new StartMulti(new CreationDetails()
 			{
@@ -87,13 +88,26 @@ namespace RPG1bit
 				Position = new(20, 0) { Color = Color.GrayDark },
 				TileIndexes = new Point[] { new(44, 16) },
 				Height = 1,
+				IsConfirmingClick = true,
+				IsUI = true,
 			});
 			new SaveLoad(new CreationDetails()
 			{
 				Name = "save-load",
-				Position = new(21, 0) { Color = Color.Gray },
+				Position = new(23, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(42, 16) },
 				Height = 1,
+				IsClickable = true,
+				IsUI = true,
+			});
+			new MapEditor(new CreationDetails()
+			{
+				Name = "map-editor",
+				Position = new(21, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(47, 06) },
+				Height = 1,
+				IsUI = true,
+				IsConfirmingClick = true,
 				IsClickable = true
 			});
 
@@ -103,6 +117,7 @@ namespace RPG1bit
 				Position = new(26, 0) { Color = new Color(175, 175, 175) },
 				TileIndexes = new Point[] { new(38, 16) },
 				Height = 1,
+				IsUI = true,
 				IsClickable = true,
 			});
 			new AdjustMusic(new CreationDetails()
@@ -111,6 +126,7 @@ namespace RPG1bit
 				Position = new(27, 0) { Color = new Color(175, 175, 175) },
 				TileIndexes = new Point[] { new(39, 16) },
 				Height = 1,
+				IsUI = true,
 				IsClickable = true,
 			});
 
@@ -120,6 +136,7 @@ namespace RPG1bit
 				Position = new(30, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(37, 20) },
 				Height = 1,
+				IsUI = true,
 				IsClickable = true,
 			});
 			new ExitGame(new CreationDetails()
@@ -129,6 +146,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(40, 13) },
 				Height = 1,
 				IsClickable = true,
+				IsUI = true,
 				IsConfirmingClick = true,
 			});
 		}
@@ -152,18 +170,8 @@ namespace RPG1bit
 				Screen.EditCell(new Point(x, 0), new Point(1, 22), 0, Color.BrownDark);
 			}
 
-			for (int x = 0; x < 18; x++)
-			{
-				Screen.EditCell(new(x, 0), new(4, 22), 1, Color.Brown);
-				Screen.EditCell(new(x, 0), new(1, 22), 0, Color.BrownDark);
-			}
-			for (int y = 0; y < 18; y++)
-			{
-				Screen.EditCell(new(0, y), new(4, 22), 1, Color.Brown);
-				Screen.EditCell(new(0, y), new(1, 22), 0, Color.BrownDark);
-			}
-
 			Screen.EditCell(new Point(28, 0), new Point(33, 15), 1, Color.Gray);
+			Screen.EditCell(new Point(22, 0), new Point(4, 22), 2, Color.Brown);
 			Screen.EditCell(new Point(29, 0), new Point(4, 22), 2, Color.Brown);
 		}
 	}

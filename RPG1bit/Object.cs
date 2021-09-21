@@ -15,6 +15,7 @@ namespace RPG1bit
 			public bool IsDragable { get; set; }
 			public bool IsClickable { get; set; }
 			public bool IsConfirmingClick { get; set; }
+			public bool IsUI { get; set; }
 		}
 
 		public static readonly Dictionary<Point, List<Object>> objects = new();
@@ -38,7 +39,7 @@ namespace RPG1bit
 			{ new(47, 06), "" },
 			// those objects' info is handled by their classes
 
-			{ new(44, 16), "Start a new multiplayer game session.\n(not available in this version)" },
+			{ new(44, 16), "Start a new multiplayer game session.\n      (not available in this version)" },
 
 			{ new(05, 22), "On your head:" },
 			{ new(06, 22), "On your body:" },
@@ -62,6 +63,7 @@ namespace RPG1bit
 		public bool IsDragable { get; }
 		public bool IsClickable { get; }
 		public bool IsConfirmingClick { get; }
+		public bool IsUI { get; }
 
 		private bool leftClicked;
 		private static Point prevCursorPos = new(-1, 0);
@@ -101,12 +103,26 @@ namespace RPG1bit
 			IsDragable = creationDetails.IsDragable;
 			IsClickable = creationDetails.IsClickable;
 			IsConfirmingClick = creationDetails.IsConfirmingClick;
+			IsUI = creationDetails.IsUI;
+		}
+		public void Destroy()
+		{
+			objects[Position].Remove(this);
 		}
 		public static void DisplayAllObjects()
 		{
 			foreach (var kvp in objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					Screen.EditCell(kvp.Value[i].Position, kvp.Value[i].TileIndexes, kvp.Value[i].Height, kvp.Value[i].Position.Color);
+				{
+					var obj = kvp.Value[i];
+					var cameraPosCenter = Map.CameraPosition + new Point(8, 8);
+					var pos = obj.Position + new Point(1, 1) + cameraPosCenter;
+					Screen.EditCell(obj.IsUI ? obj.Position : pos, obj.TileIndexes, obj.Height, obj.Position.Color);
+				}
+		}
+		public static List<Object> PickByPosition(Point position)
+		{
+			return objects.ContainsKey(position) ? objects[position] : new List<Object>();
 		}
 
 		private void Always()
@@ -141,6 +157,13 @@ namespace RPG1bit
 		{
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
+
+			if (Map.CurrentSession == Map.Session.None && mousePos.X < 18)
+			{
+				NavigationPanel.Info.Textbox.Scale = new(0.6, 0.6);
+				NavigationPanel.Info.Textbox.Text = $"{Window.Title} {NavigationPanel.Info.GameVersion}";
+				return;
+			}
 			if (mousePos != prevCursorPos)
 			{
 				NavigationPanel.Info.Textbox.Text = "";
@@ -172,7 +195,7 @@ namespace RPG1bit
 			{
 				if (IsClickable && Position == mousePos && Position == leftClickPos)
 				{
-					if (IsConfirmingClick && Map.SessionIsOngoing && leftClicked == false)
+					if (IsConfirmingClick && Map.CurrentSession != Map.Session.None && leftClicked == false)
 					{
 						leftClicked = true;
 						NavigationPanel.Info.Textbox.Text = "A session is currently ongoing.\n" +
@@ -182,6 +205,7 @@ namespace RPG1bit
 					else
 					{
 						leftClicked = false;
+						OnHovered();
 						OnLeftClicked();
 					}
 				}

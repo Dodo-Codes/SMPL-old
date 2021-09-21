@@ -48,13 +48,6 @@ namespace RPG1bit
 			Object.Initialize();
 			Hoverer.Create();
 		}
-		public static void Display()
-		{
-			NavigationPanel.Display();
-			NavigationPanel.Info.Display();
-			Map.Display();
-			Object.DisplayAllObjects();
-		}
 
 		public static Point GetCellAtCursorPosition()
 		{
@@ -64,6 +57,13 @@ namespace RPG1bit
 			var x = Number.Map(Mouse.Cursor.PositionWindow.X, new(topRight.X, botRight.X), new(0, 32));
 			var y = Number.Map(Mouse.Cursor.PositionWindow.Y, new(topRight.Y, botRight.Y), new(0, 18));
 			return new Point((int)x, (int)y);
+		}
+		public static Point GetCellIndexesAtCursorPosition(int depth)
+		{
+			var pos = GetCellAtCursorPosition();
+			var id = $"{depth} cell {pos.X} {pos.Y}";
+			var coord = Sprite.GetQuad(id).CornerA.TextureCoordinate;
+			return new(coord.X / 17, coord.Y / 17);
 		}
 		public static void EditCell(Point cellIndexes, Point tileIndexes, int depth, Color color)
 		{

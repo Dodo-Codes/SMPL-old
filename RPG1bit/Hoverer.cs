@@ -26,6 +26,8 @@ namespace RPG1bit
 		{
 			if (Assets.AreLoaded("Assets\\graphics.png") == false) return;
 
+			var onMainMenu = Map.CurrentSession == Map.Session.None && Screen.GetCellAtCursorPosition().X < 18;
+
 			var p = new Point(
 				Number.Round(Mouse.Cursor.PositionWindow.X / 60 - 0.5) * 60,
 				Number.Round(Mouse.Cursor.PositionWindow.Y / 60 - 0.5) * 60) -
@@ -39,7 +41,7 @@ namespace RPG1bit
 			var c = Color.Cyan;
 			q.TileGridWidth = new(1, 1);
 			q.TileSize = new(16, 16);
-			var tileIndex = new Point(37,12);
+			var tileIndex = new Point(37, 12);
 			if (Mouse.ButtonIsPressed(Mouse.Button.Left)) tileIndex = new(28, 14);
 			else if (Mouse.ButtonIsPressed(Mouse.Button.Right)) tileIndex = new(29, 14);
 			q.SetTextureCropTile(tileIndex);
@@ -47,7 +49,7 @@ namespace RPG1bit
 			Sprite.SetQuad("hoverer-sprite", q);
 			Area.OriginPercent = new(0, 0);
 
-			Sprite.Display(camera);
+			if (onMainMenu == false) Sprite.Display(camera);
 
 			Area.Position = Mouse.Cursor.PositionWindow;
 			q.SetTextureCropTile(CursorTextureTileIndexes);
