@@ -36,7 +36,7 @@ namespace RPG1bit
 			{ new(01, 23), "Information box." },
 			// those objects' info is handled by their classes
 			{ new(37, 20), "" }, { new(40, 13), "" }, { new(38, 16), "" }, { new(39, 16), "" }, { new(42, 16), "" }, { new(43, 16), "" },
-			{ new(47, 06), "" },
+			{ new(47, 06), "" }, { new(23, 20), "" }, { new(24, 20), "" }, { new(25, 20), "" }, { new(26, 20), "" }, { new(19, 14), "" },
 			// those objects' info is handled by their classes
 
 			{ new(44, 16), "Start a new multiplayer game session.\n      (not available in this version)" },
@@ -115,8 +115,7 @@ namespace RPG1bit
 				for (int i = 0; i < kvp.Value.Count; i++)
 				{
 					var obj = kvp.Value[i];
-					var cameraPosCenter = Map.CameraPosition + new Point(8, 8);
-					var pos = obj.Position + new Point(1, 1) + cameraPosCenter;
+					var pos = Map.ScreenToMapPosition(obj.Position);
 					Screen.EditCell(obj.IsUI ? obj.Position : pos, obj.TileIndexes, obj.Height, obj.Position.Color);
 				}
 		}

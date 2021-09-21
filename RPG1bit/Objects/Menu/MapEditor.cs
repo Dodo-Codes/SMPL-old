@@ -8,9 +8,12 @@ namespace RPG1bit
 		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
 		protected override void OnLeftClicked()
 		{
-			Map.DestroyAllSessionObjects();
+			if (Map.CurrentSession != Map.Session.MapEdit) Map.DestroyAllSessionObjects();
 			Map.DisplayNavigationPanel();
 			Map.CurrentSession = Map.Session.MapEdit;
+
+			Map.CameraPosition = new(5, 0);
+			Map.Data[0, 0] = new(5, 0);
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map iteself
