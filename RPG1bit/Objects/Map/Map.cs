@@ -17,7 +17,7 @@ namespace RPG1bit
 			{
 				cameraPosition = new Point(
 					Number.Limit(value.X, new Number.Range(8, Data.GetLength(1) - 8)),
-					Number.Limit(value.X, new Number.Range(8, Data.GetLength(0) - 8)));
+					Number.Limit(value.Y, new Number.Range(8, Data.GetLength(0) - 8)));
 			}
 		}
 		public static Session CurrentSession { get; set; }
@@ -28,42 +28,48 @@ namespace RPG1bit
 			{
 				Name = "camera-move-up",
 				Position = new(0, 1) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(23, 20) },
+				TileIndexes = new Point[] { new(19, 20) },
 				Height = 1,
-				IsUI = true
-			});
+				IsUI = true,
+				IsClickable = true,
+			}) { CurrentType = MoveCamera.Type.Up };
 			new MoveCamera(new Object.CreationDetails()
 			{
 				Name = "camera-move-down",
 				Position = new(0, 2) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(25, 20) },
+				TileIndexes = new Point[] { new(21, 20) },
 				Height = 1,
-				IsUI = true
-			});
+				IsUI = true,
+				IsClickable = true,
+			}) { CurrentType = MoveCamera.Type.Down };
 			new MoveCamera(new Object.CreationDetails()
 			{
 				Name = "camera-move-left",
 				Position = new(1, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(26, 20) },
+				TileIndexes = new Point[] { new(22, 20) },
 				Height = 1,
-				IsUI = true
-			});
+				IsUI = true,
+				IsClickable = true,
+			}) { CurrentType = MoveCamera.Type.Left };
 			new MoveCamera(new Object.CreationDetails()
 			{
 				Name = "camera-move-right",
 				Position = new(2, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(24, 20) },
+				TileIndexes = new Point[] { new(20, 20) },
 				Height = 1,
-				IsUI = true
-			});
+				IsUI = true,
+				IsClickable = true,
+			}) { CurrentType = MoveCamera.Type.Right };
 			new MoveCamera(new Object.CreationDetails()
 			{
 				Name = "camera-center",
 				Position = new(0, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(19, 14) },
 				Height = 1,
-				IsUI = true
-			});
+				IsUI = true,
+				IsClickable = true,
+			}) { CurrentType = MoveCamera.Type.Center };
+
 			if (Gate.EnterOnceWhile("game-buttons", CurrentSession == Session.Single || CurrentSession == Session.Multi))
 			{
 				new SlotHead(new Object.CreationDetails()
@@ -127,7 +133,30 @@ namespace RPG1bit
 			}
 			if (Gate.EnterOnceWhile("map-editor-buttons", CurrentSession == Session.MapEdit))
 			{
-
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "color",
+					Position = new(0, 6) { Color = Color.White },
+					TileIndexes = new Point[] { new(1, 22) },
+					Height = 1,
+					IsUI = true,
+				});
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "color-up",
+					Position = new(0, 5) { Color = Color.White },
+					TileIndexes = new Point[] { new(23, 20) },
+					Height = 1,
+					IsUI = true,
+				});
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "color-down",
+					Position = new(0, 7) { Color = Color.White },
+					TileIndexes = new Point[] { new(25, 20) },
+					Height = 1,
+					IsUI = true,
+				});
 			}
 		}
 		public static void DestroyAllSessionObjects()
@@ -152,7 +181,7 @@ namespace RPG1bit
 				for (int x = 0; x < Data.GetLength(1); x++)
 				{
 					var pos = ScreenToMapPosition(new(x, y));
-					if (pos.X > 17 || pos.Y > 17 || pos.X < 0 || pos.Y < 0) continue;
+					if (pos.X > 17 || pos.Y > 17 || pos.X < 1 || pos.Y < 1) continue;
 					Screen.EditCell(pos, Data[x, y], 0, Color.Green);
 				}
 		}

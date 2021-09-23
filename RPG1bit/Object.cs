@@ -37,6 +37,7 @@ namespace RPG1bit
 			// those objects' info is handled by their classes
 			{ new(37, 20), "" }, { new(40, 13), "" }, { new(38, 16), "" }, { new(39, 16), "" }, { new(42, 16), "" }, { new(43, 16), "" },
 			{ new(47, 06), "" }, { new(23, 20), "" }, { new(24, 20), "" }, { new(25, 20), "" }, { new(26, 20), "" }, { new(19, 14), "" },
+			{ new(19, 20), "" }, { new(20, 20), "" }, { new(21, 20), "" }, { new(22, 20), "" },
 			// those objects' info is handled by their classes
 
 			{ new(44, 16), "Start a new multiplayer game session.\n      (not available in this version)" },
