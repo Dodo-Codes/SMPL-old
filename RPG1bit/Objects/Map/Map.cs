@@ -16,8 +16,8 @@ namespace RPG1bit
 			set
 			{
 				cameraPosition = new Point(
-					Number.Limit(value.X, new Number.Range(8, Data.GetLength(1) - 8)),
-					Number.Limit(value.Y, new Number.Range(8, Data.GetLength(0) - 8)));
+					Number.Limit(value.X, new Number.Range(8, Data.GetLength(1) - 9)),
+					Number.Limit(value.Y, new Number.Range(8, Data.GetLength(0) - 9)));
 			}
 		}
 		public static Session CurrentSession { get; set; }
@@ -212,14 +212,12 @@ namespace RPG1bit
 
 		public static void Display()
 		{
-			for (int y = 0; y < Data.GetLength(0); y++)
-				for (int x = 0; x < Data.GetLength(1); x++)
+			for (int y = (int)CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
+				for (int x = (int)CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
 				{
-					var pos = ScreenToMapPosition(new(x, y));
-					if (pos.X < 1 || pos.Y < 1) continue;
-					if (pos.X > 17 || pos.Y > 17) break;
+					var scrPos = MapToScreenPosition(new(x, y));
 					for (int z = 0; z < 3; z++)
-						Screen.EditCell(pos, Data[x, y, z], z, Data[x, y, z].Color);
+						Screen.EditCell(scrPos, Data[x, y, z], z, Data[x, y, z].Color);
 				}
 		}
 		public static void DisplayNavigationPanel()
@@ -236,13 +234,13 @@ namespace RPG1bit
 			}
 		}
 
-		public static Point ScreenToMapPosition(Point screenPos)
-		{
-			return screenPos - CameraPosition + new Point(9, 9);
-		}
 		public static Point MapToScreenPosition(Point mapPos)
 		{
 			return mapPos - CameraPosition + new Point(9, 9);
+		}
+		public static Point ScreenToMapPosition(Point screenPos)
+		{
+			return CameraPosition + (screenPos - new Point(9, 9));
 		}
 	}
 }

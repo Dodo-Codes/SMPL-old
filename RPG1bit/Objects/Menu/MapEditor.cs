@@ -30,8 +30,7 @@ namespace RPG1bit
 			Map.DisplayNavigationPanel();
 			Map.CurrentSession = Map.Session.MapEdit;
 
-			Map.CameraPosition = new(5, 0);
-			Map.Data[0, 0, 0] = new(5, 0);
+			Map.CameraPosition = new(8, 8);
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map iteself
@@ -41,7 +40,8 @@ namespace RPG1bit
 		public static void PlaceCurrentTile()
 		{
 			var mouseCell = Screen.GetCellAtCursorPosition();
-			Map.Data[(int)mouseCell.X - 1, (int)mouseCell.Y - 1, SwitchHeight.BrushHeight] = CurrentTile;
+			var pos = Map.ScreenToMapPosition(mouseCell);
+			Map.Data[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = CurrentTile;
 			Map.Display();
 		}
 	}

@@ -97,10 +97,10 @@ namespace RPG1bit
 		public static void Initialize()
 		{
 			Game.CallWhen.Running(StaticAlways, 0);
+			Mouse.CallWhen.ButtonPress(OnButtonClicked);
 		}
 		public Object(CreationDetails creationDetails)
 		{
-			Mouse.CallWhen.ButtonPress(OnButtonClicked);
 			Mouse.CallWhen.ButtonRelease(OnButtonRelease);
 			Game.CallWhen.Running(Always);
 
@@ -124,8 +124,8 @@ namespace RPG1bit
 				for (int i = 0; i < kvp.Value.Count; i++)
 				{
 					var obj = kvp.Value[i];
-					var pos = Map.ScreenToMapPosition(obj.Position);
-					Screen.EditCell(obj.IsUI ? obj.Position : pos, obj.TileIndexes, obj.Height, obj.Position.Color);
+					var scrPos = Map.MapToScreenPosition(obj.Position);
+					Screen.EditCell(obj.IsUI ? obj.Position : scrPos, obj.TileIndexes, obj.Height, obj.Position.Color);
 				}
 		}
 		public static List<Object> PickByPosition(Point position)
@@ -174,7 +174,7 @@ namespace RPG1bit
 			}
 			if (mousePos != prevCursorPos)
 			{
-				var isOverMap = mousePos.X < 17 && mousePos.Y < 17 && mousePos.X > 0 && mousePos.Y > 0;
+				var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
 				if (Map.CurrentSession == Map.Session.MapEdit && Mouse.ButtonIsPressed(Mouse.Button.Left) && isOverMap)
 					MapEditor.PlaceCurrentTile();
 
@@ -239,7 +239,7 @@ namespace RPG1bit
 			if (button == Mouse.Button.Left) leftClickPos = mousePos;
 			if (button == Mouse.Button.Right) rightClickPos = mousePos;
 
-			var isOverMap = mousePos.X < 17 && mousePos.Y < 17 && mousePos.X > 0 && mousePos.Y > 0;
+			var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
 			if (Map.CurrentSession == Map.Session.MapEdit && button == Mouse.Button.Left && isOverMap) MapEditor.PlaceCurrentTile();
 		}
 
