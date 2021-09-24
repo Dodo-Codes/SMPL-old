@@ -1,4 +1,5 @@
-﻿using SMPL.Data;
+﻿using SMPL.Components;
+using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
 
@@ -50,6 +51,13 @@ namespace RPG1bit
 			{ new(10, 22), "On your back:" },
 			{ new(11, 22), "On your waist:" },
 
+			{ new(37, 18), "Change the brush color." },
+			{ new(41, 19), "Change the brush type." },
+			{ new(42, 18), "Change the brush height." },
+			{ new(36, 17), "Change the brush height." },
+			{ new(37, 17), "Change the brush height." },
+			{ new(38, 17), "Change the brush height." },
+
 			{ new(05, 00), "Grass." },
 			{ new(06, 00), "Grass." },
 			{ new(07, 00), "Grass." },
@@ -88,13 +96,13 @@ namespace RPG1bit
 
 		public static void Initialize()
 		{
-			Game.CallWhen.GameIsRunning(StaticAlways, 0);
+			Game.CallWhen.Running(StaticAlways, 0);
 		}
 		public Object(CreationDetails creationDetails)
 		{
 			Mouse.CallWhen.ButtonPress(OnButtonClicked);
 			Mouse.CallWhen.ButtonRelease(OnButtonRelease);
-			Game.CallWhen.GameIsRunning(Always);
+			Game.CallWhen.Running(Always);
 
 			Name = creationDetails.Name;
 			TileIndexes = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
@@ -166,6 +174,10 @@ namespace RPG1bit
 			}
 			if (mousePos != prevCursorPos)
 			{
+				var isOverMap = mousePos.X < 17 && mousePos.Y < 17 && mousePos.X > 0 && mousePos.Y > 0;
+				if (Map.CurrentSession == Map.Session.MapEdit && Mouse.ButtonIsPressed(Mouse.Button.Left) && isOverMap)
+					MapEditor.PlaceCurrentTile();
+
 				NavigationPanel.Info.Textbox.Text = "";
 				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
 				NavigationPanel.Info.ShowClickableIndicator(false);
@@ -223,8 +235,12 @@ namespace RPG1bit
 		}
 		private static void OnButtonClicked(Mouse.Button button)
 		{
-			if (button == Mouse.Button.Left) leftClickPos = Screen.GetCellAtCursorPosition();
-			if (button == Mouse.Button.Right) rightClickPos = Screen.GetCellAtCursorPosition();
+			var mousePos = Screen.GetCellAtCursorPosition();
+			if (button == Mouse.Button.Left) leftClickPos = mousePos;
+			if (button == Mouse.Button.Right) rightClickPos = mousePos;
+
+			var isOverMap = mousePos.X < 17 && mousePos.Y < 17 && mousePos.X > 0 && mousePos.Y > 0;
+			if (Map.CurrentSession == Map.Session.MapEdit && button == Mouse.Button.Left && isOverMap) MapEditor.PlaceCurrentTile();
 		}
 
 		protected virtual void OnLeftClicked() { }

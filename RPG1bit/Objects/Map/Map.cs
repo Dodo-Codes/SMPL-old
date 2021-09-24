@@ -8,7 +8,7 @@ namespace RPG1bit
 	{
 		public enum Session { None, Single, Multi, MapEdit }
 
-		public static Point[,] Data { get; set; } = new Point[100, 100];
+		public static Point[,,] Data { get; set; } = new Point[100, 100, 3];
 		private static Point cameraPosition;
 		public static Point CameraPosition
 		{
@@ -133,30 +133,65 @@ namespace RPG1bit
 			}
 			if (Gate.EnterOnceWhile("map-editor-buttons", CurrentSession == Session.MapEdit))
 			{
-				new MoveCamera(new Object.CreationDetails()
+				new SwitchType(new Object.CreationDetails()
 				{
-					Name = "color",
-					Position = new(0, 6) { Color = Color.White },
-					TileIndexes = new Point[] { new(1, 22) },
-					Height = 1,
-					IsUI = true,
-				});
-				new MoveCamera(new Object.CreationDetails()
-				{
-					Name = "color-up",
-					Position = new(0, 5) { Color = Color.White },
+					Name = "tile-up",
+					Position = new(0, 6) { Color = Color.Gray },
 					TileIndexes = new Point[] { new(23, 20) },
 					Height = 1,
 					IsUI = true,
+					IsClickable = true,
 				});
-				new MoveCamera(new Object.CreationDetails()
+				new SwitchType(new Object.CreationDetails()
 				{
-					Name = "color-down",
-					Position = new(0, 7) { Color = Color.White },
+					Name = "tile-down",
+					Position = new(0, 8) { Color = Color.Gray },
 					TileIndexes = new Point[] { new(25, 20) },
 					Height = 1,
 					IsUI = true,
+					IsClickable = true,
 				});
+				new SwitchColor(new Object.CreationDetails()
+				{
+					Name = "color-up",
+					Position = new(0, 10) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(23, 20) },
+					Height = 1,
+					IsUI = true,
+					IsClickable = true,
+				});
+				new SwitchColor(new Object.CreationDetails()
+				{
+					Name = "color-down",
+					Position = new(0, 12) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(25, 20) },
+					Height = 1,
+					IsUI = true,
+					IsClickable = true,
+				});
+				new SwitchHeight(new Object.CreationDetails()
+				{
+					Name = "height-up",
+					Position = new(0, 14) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(23, 20) },
+					Height = 1,
+					IsUI = true,
+					IsClickable = true,
+				});
+				new SwitchHeight(new Object.CreationDetails()
+				{
+					Name = "height-down",
+					Position = new(0, 17) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(25, 20) },
+					Height = 1,
+					IsUI = true,
+					IsClickable = true,
+				});
+
+				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
+				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
+				Screen.EditCell(new(0, 11), new(37, 18), 1, Color.Gray);
+				Screen.EditCell(new(0, 15), new(42, 18), 1, Color.Gray);
 			}
 		}
 		public static void DestroyAllSessionObjects()
@@ -181,8 +216,10 @@ namespace RPG1bit
 				for (int x = 0; x < Data.GetLength(1); x++)
 				{
 					var pos = ScreenToMapPosition(new(x, y));
-					if (pos.X > 17 || pos.Y > 17 || pos.X < 1 || pos.Y < 1) continue;
-					Screen.EditCell(pos, Data[x, y], 0, Color.Green);
+					if (pos.X < 1 || pos.Y < 1) continue;
+					if (pos.X > 17 || pos.Y > 17) break;
+					for (int z = 0; z < 3; z++)
+						Screen.EditCell(pos, Data[x, y, z], z, Data[x, y, z].Color);
 				}
 		}
 		public static void DisplayNavigationPanel()

@@ -50,7 +50,7 @@ namespace SMPL.Gear
 		{
 			public static void Start(Action method, uint order = uint.MaxValue) =>
 				OnStart = Events.Add(OnStart, method, order);
-			public static void GameIsRunning(Action method, uint order = uint.MaxValue) =>
+			public static void Running(Action method, uint order = uint.MaxValue) =>
 				OnUpdate = Events.Add(OnUpdate, method, order);
 		}
 
