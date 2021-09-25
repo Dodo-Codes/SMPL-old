@@ -14,7 +14,8 @@ namespace RPG1bit
 			public Point Position { get; set; }
 			public int Height { get; set; }
 			public bool IsDragable { get; set; }
-			public bool IsClickable { get; set; }
+			public bool IsLeftClickable { get; set; }
+			public bool IsRightClickable { get; set; }
 			public bool IsConfirmingClick { get; set; }
 			public bool IsUI { get; set; }
 		}
@@ -29,9 +30,10 @@ namespace RPG1bit
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
 			{ new(01, 22), "" }, // background color
 			{ new(00, 00), "Void." },
-			{ new(04, 22), "Game navigation panel." },
+			{ new(04, 22), "" }, // panel
 			{ new(00, 23), "Game navigation panel." },
 			{ new(29, 15), "Game navigation panel." },
+			{ new(30, 15), "Game navigation panel." },
 			{ new(02, 22), "Game navigation panel." },
 			{ new(03, 22), "Game navigation panel." },
 			{ new(01, 23), "Information box." },
@@ -57,10 +59,13 @@ namespace RPG1bit
 			{ new(36, 17), "Change the brush height." },
 			{ new(37, 17), "Change the brush height." },
 			{ new(38, 17), "Change the brush height." },
+			{ new(41, 13), "[LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
+			{ new(42, 13), "[RMB] Erase a tile.\n[Shift + RMB] Erase a square of tiles." },
+			{ new(43, 13), "[MMB] Pick a brush from the tile\n    at that particular height." },
 
-			{ new(05, 00), "Grass." },
-			{ new(06, 00), "Grass." },
-			{ new(07, 00), "Grass." },
+			{ new(04, 00), "Grass." }, { new(05, 00), "Grass." }, { new(06, 00), "Grass." }, { new(07, 00), "Grass." },
+			{ new(00, 01), "Tree." }, { new(1, 1), "Tree." }, { new(2, 1), "Tree." }, { new(3, 1), "Tree." }, { new(4, 1), "Tree." },
+			{ new(05, 01), "Tree." }, { new(6, 1), "Tree." }, { new(7, 1), "Tree." },
 
 			{ new(32, 00), "Helmet." },
 		};
@@ -70,13 +75,15 @@ namespace RPG1bit
 		public Point TileIndexes { get; }
 		public int Height { get; }
 		public bool IsDragable { get; }
-		public bool IsClickable { get; }
+		public bool IsLeftClickable { get; }
+		public bool IsRightClickable { get; }
 		public bool IsConfirmingClick { get; }
 		public bool IsUI { get; }
 
 		private bool leftClicked;
 		private static Point prevCursorPos = new(-1, 0);
-		private static Point leftClickPos, rightClickPos;
+		public static Point LeftClickPosition { get; private set; }
+		public static Point RightClickPosition { get; private set; }
 		private Point position;
 		public Point Position
 		{
@@ -110,7 +117,7 @@ namespace RPG1bit
 			Position = creationDetails.Position;
 			Height = creationDetails.Height;
 			IsDragable = creationDetails.IsDragable;
-			IsClickable = creationDetails.IsClickable;
+			IsLeftClickable = creationDetails.IsLeftClickable;
 			IsConfirmingClick = creationDetails.IsConfirmingClick;
 			IsUI = creationDetails.IsUI;
 		}
@@ -145,15 +152,15 @@ namespace RPG1bit
 
 				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
 				NavigationPanel.Info.Textbox.Text = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
-				NavigationPanel.Info.ShowClickableIndicator(IsClickable);
+				NavigationPanel.Info.ShowClickableIndicator(IsLeftClickable);
 				NavigationPanel.Info.ShowDragableIndicator(IsDragable);
-				NavigationPanel.Info.ShowLeftClickableIndicator(IsClickable || IsDragable);
+				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable || IsDragable);
 				leftClicked = false;
 				OnHovered();
 			}
 			if (IsDragable &&
 				Gate.EnterOnceWhile($"on-unhover-{Position}", cursorPos != Position &&
-				Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == leftClickPos))
+				Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == LeftClickPosition))
 			{
 				HoldingObject = this;
 				Hoverer.CursorTextureTileIndexes = TileIndexes;
@@ -175,8 +182,9 @@ namespace RPG1bit
 			if (mousePos != prevCursorPos)
 			{
 				var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
-				if (Map.CurrentSession == Map.Session.MapEdit && Mouse.ButtonIsPressed(Mouse.Button.Left) && isOverMap)
-					MapEditor.PlaceCurrentTile();
+				if (Map.CurrentSession == Map.Session.MapEdit && isOverMap &&
+					(Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right)))
+					MapEditor.EditCurrentTile();
 
 				NavigationPanel.Info.Textbox.Text = "";
 				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
@@ -194,7 +202,7 @@ namespace RPG1bit
 					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
 
 					if (NavigationPanel.Info.Textbox.Text != "" && description == descriptions[new(0, 0)]) break;
-					NavigationPanel.Info.Textbox.Text += $"{sep}{description}";
+					NavigationPanel.Info.Textbox.Text = $"{description}{sep}{NavigationPanel.Info.Textbox.Text}";
 				}
 			}
 			prevCursorPos = mousePos;
@@ -205,7 +213,7 @@ namespace RPG1bit
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (button == Mouse.Button.Left)
 			{
-				if (IsClickable && Position == mousePos && Position == leftClickPos)
+				if (IsLeftClickable && Position == mousePos && Position == LeftClickPosition)
 				{
 					if (IsConfirmingClick && Map.CurrentSession != Map.Session.None && leftClicked == false)
 					{
@@ -231,16 +239,22 @@ namespace RPG1bit
 					Hoverer.CursorTextureTileIndexes = new(36, 10);
 				}
 			}
-			if (button == Mouse.Button.Right && Position == mousePos && Position == rightClickPos) OnRightClicked();
+			if (button == Mouse.Button.Right && IsRightClickable && Position == mousePos && Position == RightClickPosition)
+			{
+				OnHovered();
+				OnRightClicked();
+			}
 		}
 		private static void OnButtonClicked(Mouse.Button button)
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
-			if (button == Mouse.Button.Left) leftClickPos = mousePos;
-			if (button == Mouse.Button.Right) rightClickPos = mousePos;
+			if (button == Mouse.Button.Left) LeftClickPosition = mousePos;
+			if (button == Mouse.Button.Right) RightClickPosition = mousePos;
 
 			var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
-			if (Map.CurrentSession == Map.Session.MapEdit && button == Mouse.Button.Left && isOverMap) MapEditor.PlaceCurrentTile();
+			if (Map.CurrentSession != Map.Session.MapEdit || isOverMap == false) return;
+			if (button == Mouse.Button.Left || button == Mouse.Button.Right) MapEditor.EditCurrentTile();
+			if (button == Mouse.Button.Middle) MapEditor.PickCurrentTile();
 		}
 
 		protected virtual void OnLeftClicked() { }

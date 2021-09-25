@@ -6,9 +6,12 @@ namespace RPG1bit
 {
 	public class MapEditor : Object
 	{
-		private static readonly Dictionary<Point, Point[]> randomTiles = new()
+		public static readonly Dictionary<Point, Point[]> randomTiles = new()
 		{
-			{ new(5, 0), new Point[] { new(5, 0), new(6, 0), new(7, 0) } }
+			{ new(1, 22), new Point[] { new(1, 22) } }, // background
+			{ new(5, 0), new Point[] { new(4, 0), new(5, 0), new(6, 0), new(7, 0) } }, // grass
+			{ new(5, 1), new Point[] { new(3, 1), new(4, 1), new(5, 1), new(6, 1), new(7, 1) } }, // oak trees
+			{ new(1, 1), new Point[] { new(0, 1), new(1, 1), new(2, 1) } }, // pine trees
 		};
 		private static Point CurrentTile
 		{
@@ -27,22 +30,41 @@ namespace RPG1bit
 		protected override void OnLeftClicked()
 		{
 			if (Map.CurrentSession != Map.Session.MapEdit) Map.DestroyAllSessionObjects();
-			Map.DisplayNavigationPanel();
 			Map.CurrentSession = Map.Session.MapEdit;
+			Map.DisplayNavigationPanel();
 
-			Map.CameraPosition = new(8, 8);
+			Map.Data = new Point[100, 100, 3];
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map iteself
 			DisplayAllObjects(); // for the ui
 		}
 
-		public static void PlaceCurrentTile()
+		public static void EditCurrentTile()
 		{
+			var LMB = Mouse.ButtonIsPressed(Mouse.Button.Left);
+			var clickPos = Map.ScreenToMapPosition(LMB ? LeftClickPosition : RightClickPosition);
 			var mouseCell = Screen.GetCellAtCursorPosition();
 			var pos = Map.ScreenToMapPosition(mouseCell);
-			Map.Data[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = CurrentTile;
+
+			if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos)
+			{
+				var dirY = pos.Y > clickPos.Y ? 1 : -1;
+				var dirX = pos.X > clickPos.X ? 1 : -1;
+				for (double y = clickPos.Y; y != pos.Y + dirY; y += dirY)
+					for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
+						Map.Data[(int)x, (int)y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
+			}
+
+			Map.Data[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
 			Map.Display();
+		}
+		public static void PickCurrentTile()
+		{
+			SwitchColor.SelectHoveredTileColor();
+			SwitchColor.UpdateIndicator();
+			SwitchType.SelectHoveredTileType();
+			SwitchType.UpdateIndicator();
 		}
 	}
 }

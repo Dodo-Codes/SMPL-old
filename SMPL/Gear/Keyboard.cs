@@ -6,6 +6,14 @@ namespace SMPL.Gear
 {
 	public static class Keyboard
 	{
+		public struct TextInput
+		{
+			public enum Type { Text, Backspace, Enter, Tab }
+
+			public string Value { get; set; }
+			public Type CurrentType { get; set; }
+		}
+
 		public enum Key
 		{
 			/// <summary>
@@ -59,7 +67,7 @@ namespace SMPL.Gear
 		public static bool KeyIsPressed(Key key) => keysHeld.Contains(key);
 
 		private static event Events.ParamsOne<Key> OnKeyPress, OnKeyHold, OnKeyRelease;
-		private static event Events.ParamsFour<string, bool, bool, bool> OnTextInput;
+		private static event Events.ParamsOne<TextInput> OnTextInput;
 		private static event Events.ParamsThree<string, string, string> OnLanguageChange;
 
 		public static class CallWhen
@@ -70,8 +78,7 @@ namespace SMPL.Gear
 				OnKeyHold = Events.Add(OnKeyHold, method, order);
 			public static void KeyRelease(Action<Key> method, uint order = uint.MaxValue) =>
 				OnKeyRelease = Events.Add(OnKeyRelease, method, order);
-			//string textSymbol, bool isBackspace, bool isEnter, bool isTab
-			public static void TextInput(Action<string, bool, bool, bool> method, uint order = uint.MaxValue) =>
+			public static void TextInput(Action<TextInput> method, uint order = uint.MaxValue) =>
 				OnTextInput = Events.Add(OnTextInput, method, order);
 			//string englishName, string nativeName, string languageCode
 			public static void LanguageChange(Action<string, string, string> method, uint order = uint.MaxValue) =>
@@ -119,7 +126,12 @@ namespace SMPL.Gear
 			var isBackSpace = keyStr == "\b";
 			var isEnter = keyStr == Environment.NewLine;
 			var isTab = keyStr == "\t";
-			OnTextInput?.Invoke(keyStr, isBackSpace, isEnter, isTab);
+
+			var textInput = new TextInput() { Value = keyStr };
+			if (isBackSpace) textInput.CurrentType = TextInput.Type.Backspace;
+			else if (isEnter) textInput.CurrentType = TextInput.Type.Enter;
+			else if (isTab) textInput.CurrentType = TextInput.Type.Tab;
+			OnTextInput?.Invoke(textInput);
 		}
 		internal static void OnLanguageChange_(object sender, EventArgs e)
 		{

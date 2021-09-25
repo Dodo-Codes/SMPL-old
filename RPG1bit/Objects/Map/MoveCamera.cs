@@ -1,4 +1,5 @@
-﻿using SMPL.Data;
+﻿using SMPL.Components;
+using SMPL.Data;
 using SMPL.Gear;
 
 namespace RPG1bit
@@ -17,10 +18,10 @@ namespace RPG1bit
 				switch (CurrentType)
 				{
 					case Type.Center: Key = Keyboard.Key.Space; break;
-					case Type.Left: Key = Keyboard.Key.LeftArrow; break;
-					case Type.Right: Key = Keyboard.Key.RightArrow; break;
-					case Type.Up: Key = Keyboard.Key.UpArrow; break;
-					case Type.Down: Key = Keyboard.Key.DownArrow; break;
+					case Type.Left: Key = Keyboard.Key.A; break;
+					case Type.Right: Key = Keyboard.Key.D; break;
+					case Type.Up: Key = Keyboard.Key.W; break;
+					case Type.Down: Key = Keyboard.Key.S; break;
 				}
 			}
 		}
@@ -28,12 +29,12 @@ namespace RPG1bit
 
 		public MoveCamera(CreationDetails creationDetails) : base(creationDetails)
 		{
-			Keyboard.CallWhen.KeyPress(OnKeyPressed);
+			Keyboard.CallWhen.TextInput(OnKeyPressed);
 		}
 
-		private void OnKeyPressed(Keyboard.Key key)
+		private void OnKeyPressed(Keyboard.TextInput textInput)
 		{
-			if (Map.CurrentSession == Map.Session.None || key != Key) return;
+			if (Map.CurrentSession == Map.Session.None || textInput.Value.ToLower() != Key.ToString().ToLower()) return;
 			Execute();
 		}
 

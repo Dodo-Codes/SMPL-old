@@ -61,8 +61,9 @@ namespace RPG1bit
 		public static Point GetCellIndexesAtPosition(Point position, int depth)
 		{
 			var id = $"{depth} cell {position.X} {position.Y}";
-			var coord = Sprite.GetQuad(id).CornerA.TextureCoordinate;
-			return new(coord.X / 17, coord.Y / 17);
+			var quad = Sprite.GetQuad(id);
+			var coord = quad.CornerA.TextureCoordinate;
+			return new(coord.X / 17, coord.Y / 17) { Color = quad.CornerA.Position.Color };
 		}
 		public static void EditCell(Point cellIndexes, Point tileIndexes, int depth, Color color)
 		{

@@ -10,8 +10,8 @@ namespace RPG1bit
 		protected override void OnLeftClicked()
 		{
 			if (Map.CurrentSession != Map.Session.Single) Map.DestroyAllSessionObjects();
-			Map.DisplayNavigationPanel();
 			Map.CurrentSession = Map.Session.Single;
+			Map.DisplayNavigationPanel();
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map itself

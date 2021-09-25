@@ -78,7 +78,7 @@ namespace RPG1bit
 				Position = new(19, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(43, 16) },
 				Height = 1,
-				IsClickable = true,
+				IsLeftClickable = true,
 				IsConfirmingClick = true,
 				IsUI = true,
 			});
@@ -97,7 +97,7 @@ namespace RPG1bit
 				Position = new(23, 0) { Color = Color.Gray },
 				TileIndexes = new Point[] { new(42, 16) },
 				Height = 1,
-				IsClickable = true,
+				IsLeftClickable = true,
 				IsUI = true,
 			});
 			new MapEditor(new CreationDetails()
@@ -108,7 +108,7 @@ namespace RPG1bit
 				Height = 1,
 				IsUI = true,
 				IsConfirmingClick = true,
-				IsClickable = true
+				IsLeftClickable = true
 			});
 
 			new AdjustSound(new CreationDetails()
@@ -118,7 +118,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(38, 16) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			});
 			new AdjustMusic(new CreationDetails()
 			{
@@ -127,7 +127,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(39, 16) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			});
 
 			new MinimizeGame(new CreationDetails()
@@ -137,7 +137,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(37, 20) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			});
 			new ExitGame(new CreationDetails()
 			{
@@ -145,7 +145,7 @@ namespace RPG1bit
 				Position = new(31, 0) { Color = Color.RedDark },
 				TileIndexes = new Point[] { new(40, 13) },
 				Height = 1,
-				IsClickable = true,
+				IsLeftClickable = true,
 				IsUI = true,
 				IsConfirmingClick = true,
 			});

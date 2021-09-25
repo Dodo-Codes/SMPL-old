@@ -9,7 +9,7 @@ namespace RPG1bit
 		public enum Session { None, Single, Multi, MapEdit }
 
 		public static Point[,,] Data { get; set; } = new Point[100, 100, 3];
-		private static Point cameraPosition;
+		private static Point cameraPosition = new(8, 8);
 		public static Point CameraPosition
 		{
 			get { return cameraPosition; }
@@ -31,7 +31,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(19, 20) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Up };
 			new MoveCamera(new Object.CreationDetails()
 			{
@@ -40,7 +40,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(21, 20) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Down };
 			new MoveCamera(new Object.CreationDetails()
 			{
@@ -49,7 +49,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(22, 20) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Left };
 			new MoveCamera(new Object.CreationDetails()
 			{
@@ -58,7 +58,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(20, 20) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Right };
 			new MoveCamera(new Object.CreationDetails()
 			{
@@ -67,7 +67,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(19, 14) },
 				Height = 1,
 				IsUI = true,
-				IsClickable = true,
+				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Center };
 
 			if (Gate.EnterOnceWhile("game-buttons", CurrentSession == Session.Single || CurrentSession == Session.Multi))
@@ -140,7 +140,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(23, 20) },
 					Height = 1,
 					IsUI = true,
-					IsClickable = true,
+					IsLeftClickable = true,
 				});
 				new SwitchType(new Object.CreationDetails()
 				{
@@ -149,7 +149,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(25, 20) },
 					Height = 1,
 					IsUI = true,
-					IsClickable = true,
+					IsLeftClickable = true,
 				});
 				new SwitchColor(new Object.CreationDetails()
 				{
@@ -158,7 +158,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(23, 20) },
 					Height = 1,
 					IsUI = true,
-					IsClickable = true,
+					IsLeftClickable = true,
 				});
 				new SwitchColor(new Object.CreationDetails()
 				{
@@ -167,7 +167,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(25, 20) },
 					Height = 1,
 					IsUI = true,
-					IsClickable = true,
+					IsLeftClickable = true,
 				});
 				new SwitchHeight(new Object.CreationDetails()
 				{
@@ -176,7 +176,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(23, 20) },
 					Height = 1,
 					IsUI = true,
-					IsClickable = true,
+					IsLeftClickable = true,
 				});
 				new SwitchHeight(new Object.CreationDetails()
 				{
@@ -185,13 +185,8 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(25, 20) },
 					Height = 1,
 					IsUI = true,
-					IsClickable = true,
+					IsLeftClickable = true,
 				});
-
-				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
-				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
-				Screen.EditCell(new(0, 11), new(37, 18), 1, Color.Gray);
-				Screen.EditCell(new(0, 15), new(42, 18), 1, Color.Gray);
 			}
 		}
 		public static void DestroyAllSessionObjects()
@@ -231,6 +226,20 @@ namespace RPG1bit
 			{
 				Screen.EditCell(new(0, y), new(4, 22), 1, Color.Brown);
 				Screen.EditCell(new(0, y), new(1, 22), 0, Color.BrownDark);
+			}
+			if (CurrentSession == Session.MapEdit)
+			{
+				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
+				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
+				Screen.EditCell(new(0, 11), new(37, 18), 1, Color.Gray);
+				Screen.EditCell(new(0, 15), new(42, 18), 1, Color.Gray);
+
+				Screen.EditCell(new(9, 0), new(41, 13), 1, Color.Gray);
+				Screen.EditCell(new(10, 0), new(43, 13), 1, Color.Gray);
+				Screen.EditCell(new(11, 0), new(42, 13), 1, Color.Gray);
+
+				Screen.EditCell(new(0, 16), new(36 + SwitchHeight.BrushHeight, 17), 1, Color.Gray);
+				Screen.EditCell(new(0, 4), new(1, 22), 1, Color.White);
 			}
 		}
 
