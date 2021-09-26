@@ -137,6 +137,7 @@ namespace RPG1bit
 					var obj = kvp.Value[i];
 					var scrPos = Map.MapToScreenPosition(obj.Position);
 					Screen.EditCell(obj.IsUI ? obj.Position : scrPos, obj.TileIndexes, obj.Height, obj.Position.Color);
+					obj.OnDisplay();
 				}
 		}
 		public static List<Object> PickByPosition(Point position)
@@ -267,5 +268,6 @@ namespace RPG1bit
 		protected virtual void OnDragStart() { }
 		protected virtual void OnDragEnd() { }
 		protected virtual void OnDroppedUpon() { }
+		protected virtual void OnDisplay() { }
 	}
 }
