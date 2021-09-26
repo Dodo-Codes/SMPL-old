@@ -12,6 +12,10 @@ namespace RPG1bit
 			{ new(5, 0), new Point[] { new(4, 0), new(5, 0), new(6, 0), new(7, 0) } }, // grass
 			{ new(5, 1), new Point[] { new(3, 1), new(4, 1), new(5, 1), new(6, 1), new(7, 1) } }, // oak trees
 			{ new(1, 1), new Point[] { new(0, 1), new(1, 1), new(2, 1) } }, // pine trees
+			{ new(6, 2), new Point[] { new(5, 2), new(6, 2) } }, // cactus
+			{ new(7, 2), new Point[] { new(7, 2) } }, // palm
+			{ new(4, 2), new Point[] { new(4, 2) } }, // rocks
+			{ new(0, 2), new Point[] { new(0, 2), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
 		};
 		private static Point CurrentTile
 		{

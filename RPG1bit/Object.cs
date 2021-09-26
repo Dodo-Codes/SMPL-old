@@ -64,8 +64,12 @@ namespace RPG1bit
 			{ new(43, 13), "[MMB] Pick a brush from the tile\n    at that particular height." },
 
 			{ new(04, 00), "Grass." }, { new(05, 00), "Grass." }, { new(06, 00), "Grass." }, { new(07, 00), "Grass." },
-			{ new(00, 01), "Tree." }, { new(1, 1), "Tree." }, { new(2, 1), "Tree." }, { new(3, 1), "Tree." }, { new(4, 1), "Tree." },
+			{ new(00, 01), "Tree." }, { new(1, 1), "Tree." }, { new(2, 1), "Trees." }, { new(3, 1), "Trees." }, { new(4, 1), "Tree." },
 			{ new(05, 01), "Tree." }, { new(6, 1), "Tree." }, { new(7, 1), "Tree." },
+			{ new(05, 2), "Cactuses." }, { new(6, 2), "Cactus." },
+			{ new(07, 02), "Palm." },
+			{ new(04, 02), "Rocks." },
+			{ new(00, 02), "Bush." }, { new(1, 2), "Bush." }, { new(2, 2), "Bush." }, { new(3, 2), "Dead bush." },
 
 			{ new(32, 00), "Helmet." },
 		};

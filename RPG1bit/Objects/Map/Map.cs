@@ -239,7 +239,7 @@ namespace RPG1bit
 				Screen.EditCell(new(11, 0), new(42, 13), 1, Color.Gray);
 
 				Screen.EditCell(new(0, 16), new(36 + SwitchHeight.BrushHeight, 17), 1, Color.Gray);
-				Screen.EditCell(new(0, 4), new(1, 22), 1, Color.White);
+				Screen.EditCell(new(0, 4), SwitchType.BrushType, 1, SwitchColor.BrushColor);
 			}
 		}
 
