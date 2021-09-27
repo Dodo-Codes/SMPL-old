@@ -91,7 +91,7 @@ namespace SMPL.Data
 			var sum = AP + PB;
 			return Number.IsBetween(sum, new Number.Range(AB - 0.01, AB + 0.01));
 		}
-		public bool Crosses(Line line) => CrossPoint(line).IsInvalid == false;
+		public bool Crosses(Line line) => CrossPoint(line).IsInvalid() == false;
 
 		public void Display(Camera camera, double width)
 		{

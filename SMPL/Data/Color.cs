@@ -135,6 +135,7 @@ namespace SMPL.Data
 			color.To255();
 			return color;
 		}
+		public bool IsInvalid() => double.IsNaN(R) || double.IsNaN(G) || double.IsNaN(B) || double.IsNaN(A);
 
 		internal void To255()
 		{
@@ -143,7 +144,7 @@ namespace SMPL.Data
 			B = Number.Limit(B, new Number.Range(0, 255));
 			A = Number.Limit(A, new Number.Range(0, 255));
 		}
-		internal static Color To(SFML.Graphics.Color col) => new Color(col.R, col.G, col.B, col.A);
+		internal static Color To(SFML.Graphics.Color col) => new(col.R, col.G, col.B, col.A);
 		internal static SFML.Graphics.Color From(Color col)
 		{
 			return new SFML.Graphics.Color((byte)col.R, (byte)col.G, (byte)col.B, (byte)col.A);

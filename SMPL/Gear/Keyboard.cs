@@ -122,10 +122,10 @@ namespace SMPL.Gear
 			var keyArgs = (KeyPressEventArgs)e;
 			var keyStr = keyArgs.KeyChar.ToString();
 			keyStr = keyStr.Replace('\r', '\n');
-			if (keyStr == "\b") keyStr = "";
 			var isBackSpace = keyStr == "\b";
 			var isEnter = keyStr == Environment.NewLine;
 			var isTab = keyStr == "\t";
+			if (keyStr == "\b") keyStr = "";
 
 			var textInput = new TextInput() { Value = keyStr };
 			if (isBackSpace) textInput.CurrentType = TextInput.Type.Backspace;

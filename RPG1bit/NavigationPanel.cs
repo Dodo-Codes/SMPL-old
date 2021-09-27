@@ -7,6 +7,11 @@ namespace RPG1bit
 {
 	public static class NavigationPanel
 	{
+		public static class Tab
+		{
+			public enum Type { None, SaveLoad }
+			public static Type CurrentTabType { get; set; }
+		}
 		public static class Info
 		{
 			public const string GameVersion = "v0.1";

@@ -1,4 +1,5 @@
-﻿using SMPL.Data;
+﻿using Newtonsoft.Json;
+using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
 

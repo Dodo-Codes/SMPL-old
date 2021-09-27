@@ -18,6 +18,8 @@ namespace RPG1bit
 			public bool IsRightClickable { get; set; }
 			public bool IsConfirmingClick { get; set; }
 			public bool IsUI { get; set; }
+			public bool IsInTab { get; set; }
+			public NavigationPanel.Tab.Type AppearOnTab { get; set; }
 		}
 
 		public static readonly Dictionary<Point, List<Object>> objects = new();
@@ -30,18 +32,15 @@ namespace RPG1bit
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
 			{ new(01, 22), "" }, // background color
 			{ new(00, 00), "Void." },
-			{ new(04, 22), "" }, // panel
+			{ new(04, 22), "Game navigation panel." },
 			{ new(00, 23), "Game navigation panel." },
 			{ new(29, 15), "Game navigation panel." },
 			{ new(30, 15), "Game navigation panel." },
 			{ new(02, 22), "Game navigation panel." },
 			{ new(03, 22), "Game navigation panel." },
 			{ new(01, 23), "Information box." },
-			// those objects' info is handled by their classes
-			{ new(37, 20), "" }, { new(40, 13), "" }, { new(38, 16), "" }, { new(39, 16), "" }, { new(42, 16), "" }, { new(43, 16), "" },
-			{ new(47, 06), "" }, { new(23, 20), "" }, { new(24, 20), "" }, { new(25, 20), "" }, { new(26, 20), "" }, { new(19, 14), "" },
-			{ new(19, 20), "" }, { new(20, 20), "" }, { new(21, 20), "" }, { new(22, 20), "" },
-			// those objects' info is handled by their classes
+
+			{ new(13, 22), "Type anything..." },
 
 			{ new(44, 16), "Start a new multiplayer game session.\n      (not available in this version)" },
 
@@ -83,6 +82,8 @@ namespace RPG1bit
 		public bool IsRightClickable { get; }
 		public bool IsConfirmingClick { get; }
 		public bool IsUI { get; }
+		public bool IsInTab { get; }
+		public NavigationPanel.Tab.Type AppearOnTab { get; }
 
 		private bool leftClicked;
 		private static Point prevCursorPos = new(-1, 0);
@@ -124,6 +125,8 @@ namespace RPG1bit
 			IsLeftClickable = creationDetails.IsLeftClickable;
 			IsConfirmingClick = creationDetails.IsConfirmingClick;
 			IsUI = creationDetails.IsUI;
+			AppearOnTab = creationDetails.AppearOnTab;
+			IsInTab = creationDetails.IsInTab;
 		}
 		public void Destroy()
 		{
@@ -136,7 +139,9 @@ namespace RPG1bit
 				{
 					var obj = kvp.Value[i];
 					var scrPos = Map.MapToScreenPosition(obj.Position);
-					Screen.EditCell(obj.IsUI ? obj.Position : scrPos, obj.TileIndexes, obj.Height, obj.Position.Color);
+					var isHiddenUI = obj.IsInTab && obj.AppearOnTab != NavigationPanel.Tab.CurrentTabType;
+					Screen.EditCell(obj.IsUI ? obj.Position : scrPos, obj.TileIndexes, obj.Height,
+						isHiddenUI ? new Color() : obj.Position.Color);
 					obj.OnDisplay();
 				}
 		}
@@ -148,6 +153,8 @@ namespace RPG1bit
 		private void Always()
 		{
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
+			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+
 			var cursorPos = Screen.GetCellAtCursorPosition();
 			if (Gate.EnterOnceWhile($"on-hover-{Position}", cursorPos == Position))
 			{
@@ -156,7 +163,8 @@ namespace RPG1bit
 				var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
 
 				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
-				NavigationPanel.Info.Textbox.Text = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
+				var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
+				NavigationPanel.Info.Textbox.Text = descriptions.ContainsKey(key) ? descriptions[key] : "";
 				NavigationPanel.Info.ShowClickableIndicator(IsLeftClickable);
 				NavigationPanel.Info.ShowDragableIndicator(IsDragable);
 				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable || IsDragable);
@@ -203,7 +211,8 @@ namespace RPG1bit
 					var quad = Screen.Sprite.GetQuad(quadID);
 					var coord = quad.CornerA.TextureCoordinate;
 					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
-					var description = descriptions[tileIndex.IsInvalid ? new(0, 0) : tileIndex];
+					var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
+					var description = descriptions.ContainsKey(key) ? descriptions[key] : "";
 					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
 
 					if (NavigationPanel.Info.Textbox.Text != "" && description == descriptions[new(0, 0)]) break;
@@ -215,6 +224,8 @@ namespace RPG1bit
 
 		private void OnButtonRelease(Mouse.Button button)
 		{
+			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (button == Mouse.Button.Left)
 			{

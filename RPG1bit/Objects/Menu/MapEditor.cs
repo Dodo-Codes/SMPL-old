@@ -37,7 +37,14 @@ namespace RPG1bit
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
-			Map.Data = new Point[100, 100, 3];
+			SaveSlot.Load("test");
+			
+			var cameraPos = Text.FromJSON<Point>(SaveSlot.GetValue(0));
+			var mapData = Text.FromJSON<Point[,,]>(SaveSlot.GetValue(1));
+			Map.Data = mapData;
+			Map.CameraPosition = cameraPos;
+
+			//Map.Data = new Point[100, 100, 3];
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map iteself

@@ -9,10 +9,23 @@ namespace RPG1bit
 		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Save/Load a session.";
 		protected override void OnLeftClicked()
 		{
-			for (int i = 0; i < 10; i++)
+			NavigationPanel.Tab.CurrentTabType = NavigationPanel.Tab.Type.SaveLoad;
+
+			if (Gate.EnterOnceWhile("create-save-load-tab", true))
 			{
-				Screen.EditCell(new Point(19 + i, 2), new Point(13, 22), 1, Color.Gray);
+				new SaveNameInput(new CreationDetails()
+				{
+					Name = "save-session",
+					Position = new(30, 2),
+					TileIndexes = new Point[] { new Point(42, 16) },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+					IsInTab = true,
+					AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+				});
 			}
+			DisplayAllObjects();
 		}
 	}
 }

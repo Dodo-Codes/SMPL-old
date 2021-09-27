@@ -45,18 +45,21 @@ namespace SMPL.Data
 		public static void Load(string name)
 		{
 			var str = "";
-			try { str = System.IO.File.ReadAllText($"{DIRECTORY}\\{name}.save"); }
+			try
+			{
+				str = System.IO.File.ReadAllText($"{DIRECTORY}\\{name}.save");
+				str = Text.Decrypt(str, 'H', true);
+				var slot = JsonConvert.DeserializeObject<SaveSlot>(str);
+
+				if (slot.Values == null || slot.Values.Length == 0) return;
+				for (int i = 0; i < slot.Values.Length; i++)
+					values[i] = slot.Values[i];
+			}
 			catch (System.Exception)
 			{
-				Debug.LogError(1, $"No {nameof(SaveSlot)} with name '{name}' was found.");
+				Debug.LogError(1, $"Error loading {nameof(SaveSlot)} with name '{name}'.");
 				return;
 			}
-			str = Text.Decrypt(str, 'H', true);
-			var slot = JsonConvert.DeserializeObject<SaveSlot>(str);
-
-			if (slot.Values == null || slot.Values.Length == 0) return;
-			for (int i = 0; i < slot.Values.Length; i++)
-				values[i] = slot.Values[i];
 		}
 		public static string GetValue(int index)
 		{

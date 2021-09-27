@@ -239,7 +239,7 @@ namespace SMPL.Components
 					foreach (var kvp2 in hitbox.lines)
 					{
 						var p = kvp.Value.CrossPoint(kvp2.Value);
-						if (p.IsInvalid || result.Contains(p)) continue;
+						if (p.IsInvalid() || result.Contains(p)) continue;
 						result.Add(p);
 					}
 				}

@@ -241,7 +241,7 @@ namespace SMPL.Gear
       {
 			if (isDrawing == false)
 			{
-				Debug.LogError(2, "Drawing is not possible outside of the 'OnDraw' events.");
+				Debug.LogError(2, "Displaying is not possible outside of the 'OnDisplay' events.");
 				return true;
 			}
 			return false;

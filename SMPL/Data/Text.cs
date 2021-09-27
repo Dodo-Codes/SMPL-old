@@ -10,8 +10,21 @@ namespace SMPL.Data
 {
 	public static class Text
 	{
-		private static SFML.Graphics.Text text = new();
+		private static readonly SFML.Graphics.Text text = new();
 
+		public static bool IsNumber(string text)
+		{
+			return double.TryParse(text, out _);
+		}
+		public static bool IsLetters(string text)
+		{
+			for (int i = 0; i < text.Length; i++)
+			{
+				var isLetter = (text[i] >= 'A' && text[i] <= 'Z') || (text[i] >= 'a' && text[i] <= 'z');
+				if (isLetter == false) return false;
+			}
+			return true;
+		}
 		public static string Align(string text, int characterSpaces)
 		{
 			return string.Format("{0," + characterSpaces + "}", text);
@@ -41,11 +54,11 @@ namespace SMPL.Data
 		/// <paramref name="default"/>(<typeparamref name="T"/>).<br></br>
 		/// A <paramref name="JSON"/> <see cref="string"/> can be created with <see cref="ToJSON(object)"/>.
 		/// </summary>
-		public static object FromJSON(string JSON)
+		public static T FromJSON<T>(string JSON)
 		{
 			try
 			{
-				return JsonConvert.DeserializeObject<object>(JSON);
+				return JsonConvert.DeserializeObject<T>(JSON);
 			}
 			catch (Exception)
 			{

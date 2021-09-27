@@ -42,7 +42,7 @@ namespace SMPL.Data
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 		}
 
-		public bool IsInvalid => double.IsNaN(X) || double.IsNaN(Y);
+		public bool IsInvalid() => double.IsNaN(X) || double.IsNaN(Y);
 		public static double Distance(Point pointA, Point pointB)
 		{
 			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
@@ -75,7 +75,7 @@ namespace SMPL.Data
 		{
 			var m = Magnitude(p);
 			var result = new Point(p.X / m, p.Y / m);
-			return result.IsInvalid ? new Point(0, 0) : result;
+			return result.IsInvalid() ? new Point(0, 0) : result;
 		}
 
 		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
