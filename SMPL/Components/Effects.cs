@@ -739,9 +739,9 @@ namespace SMPL.Components
 			if (ErrorIfDestroyed()) return;
 			visualMaskUIDs.Clear();
 			var owner = (Visual)PickByUniqueID(visualOwnerUID);
-			owner.EffectsUniqueID = null;
+			if (owner != null) owner.EffectsUniqueID = null;
 			visualOwnerUID = null;
-			shader.Dispose();
+			if (shader != null) shader.Dispose();
 			shader = null;
 			base.Destroy();
 		}

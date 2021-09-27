@@ -23,13 +23,14 @@ namespace RPG1bit
 		}
 		private void OnAssetsLoaded()
 		{
-			if (Assets.AreLoaded("Assets\\graphics.png", "Assets\\font.ttf") == false) return;
+			if (Gate.EnterOnceWhile("graphics-and-font-loaded", Assets.AreLoaded("Assets\\graphics.png", "Assets\\font.ttf")))
+			{
+				Screen.Create();
 
-			Screen.Create();
-
-			NavigationPanel.Display();
-			NavigationPanel.Info.Display();
-			Object.DisplayAllObjects(); // for the ui
+				NavigationPanel.Display();
+				NavigationPanel.Info.Display();
+				Object.DisplayAllObjects(); // for the ui
+			}
 		}
 	}
 }

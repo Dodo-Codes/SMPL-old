@@ -176,8 +176,8 @@ namespace RPG1bit
 			}
 
 			Screen.EditCell(new Point(28, 0), new Point(33, 15), 1, Color.Gray);
-			Screen.EditCell(new Point(22, 0), new Point(4, 22), 2, Color.Brown);
-			Screen.EditCell(new Point(29, 0), new Point(4, 22), 2, Color.Brown);
+			Screen.EditCell(new Point(22, 0), new Point(4, 22), 1, Color.Brown);
+			Screen.EditCell(new Point(29, 0), new Point(4, 22), 1, Color.Brown);
 		}
 	}
 }

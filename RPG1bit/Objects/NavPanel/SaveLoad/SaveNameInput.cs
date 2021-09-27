@@ -24,8 +24,10 @@ namespace RPG1bit
 				case Map.Session.Multi: break;
 				case Map.Session.MapEdit:
 					{
-						var slot = new SaveSlot() { Values = new string[] { Text.ToJSON(Map.CameraPosition), Text.ToJSON(Map.Data) } };
-						slot.Save(name);
+						var slot = new Assets.DataSlot($"Maps\\{name}.map");
+						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
+						slot.SetValue("map-data", Text.ToJSON(Map.Data));
+						Assets.SaveDataSlots(slot);
 						break;
 					}
 			}

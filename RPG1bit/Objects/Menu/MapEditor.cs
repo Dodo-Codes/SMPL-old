@@ -29,7 +29,22 @@ namespace RPG1bit
 			}
 		}
 
-		public MapEditor(CreationDetails creationDetails) : base(creationDetails) { }
+		public MapEditor(CreationDetails creationDetails) : base(creationDetails) { Assets.CallWhen.LoadEnd(OnLoadEnd); }
+
+		private static void OnLoadEnd()
+		{
+			if (Assets.ValueIsLoaded("camera-position") && Assets.ValueIsLoaded("map-data"))
+			{
+				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
+				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
+				Map.Data = mapData;
+				Map.CameraPosition = cameraPos;
+
+				Map.Display(); // for the map iteself
+				DisplayAllObjects(); // for the ui
+			}
+		}
+
 		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
 		protected override void OnLeftClicked()
 		{
@@ -37,12 +52,7 @@ namespace RPG1bit
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
-			SaveSlot.Load("test");
-			
-			var cameraPos = Text.FromJSON<Point>(SaveSlot.GetValue(0));
-			var mapData = Text.FromJSON<Point[,,]>(SaveSlot.GetValue(1));
-			Map.Data = mapData;
-			Map.CameraPosition = cameraPos;
+			Assets.Load(Assets.Type.DataSlot, "Maps\\test.map");
 
 			//Map.Data = new Point[100, 100, 3];
 
