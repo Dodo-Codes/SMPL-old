@@ -73,6 +73,20 @@ namespace RPG1bit
 			q.SetColor(color, color, color, color);
 			Sprite.SetQuad(id, q);
 		}
+		public static void DisplayText(Point position, int depth, Color color, string text)
+		{
+			for (int i = 0; i < text.Length; i++)
+			{
+				var x = position.X + i;
+				var isNumber = Text.IsNumber(text[i].ToString());
+				var curX = 35 + text[i] - (isNumber ? 48 : 97);
+				var tileIndexes = new Point(curX, isNumber ? 17 : 18);
+
+				if (curX > 47) tileIndexes += new Point(-13, 1);
+				if (tileIndexes.X == -30) tileIndexes = new(0, 0);
+				EditCell(new Point(x, position.Y), tileIndexes, depth, color);
+			}
+		}
 
 		private static void OnDisplay(Camera camera)
 		{

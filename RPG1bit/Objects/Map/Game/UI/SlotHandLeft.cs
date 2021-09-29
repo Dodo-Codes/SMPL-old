@@ -6,7 +6,7 @@ namespace RPG1bit
 	{
 		public SlotHandLeft(CreationDetails creationDetails) : base(creationDetails) { }
 
-		protected override void OnDroppedUpon()
+		public override void OnDroppedUpon()
 		{
 			var asd = HoldingObject;
 		}

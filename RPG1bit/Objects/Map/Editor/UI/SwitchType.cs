@@ -12,8 +12,8 @@ namespace RPG1bit
 		public static Point BrushType => graphicIndexes[index];
 
 		public SwitchType(CreationDetails creationDetails) : base(creationDetails) { }
-		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush type.";
-		protected override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush type.";
+		public override void OnLeftClicked()
 		{
 			index += Name == "tile-up" ? 1 : -1;
 			if (index == graphicIndexes.Length) index = 0;

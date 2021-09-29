@@ -11,8 +11,8 @@ namespace RPG1bit
 		{
 			Screen.EditCell(new(0, 16), new(36, 17), 1, Color.Gray);
 		}
-		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush height.";
-		protected override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush height.";
+		public override void OnLeftClicked()
 		{
 			BrushHeight += Name == "height-up" ? 1 : -1;
 			if (BrushHeight == 3) BrushHeight = 0;

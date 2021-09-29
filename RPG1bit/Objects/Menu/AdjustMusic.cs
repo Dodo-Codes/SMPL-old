@@ -7,8 +7,8 @@ namespace RPG1bit
 		public static int Percent { get; set; } = 50;
 
 		public AdjustMusic(CreationDetails creationDetails) : base(creationDetails) { }
-		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Adjust the music volume.";
-		protected override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Adjust the music volume.";
+		public override void OnLeftClicked()
 		{
 			Percent += 10;
 			if (Percent == 110) Percent = 0;

@@ -153,7 +153,7 @@ namespace SMPL.Components
 		{
 			if (ErrorIfDestroyed()) return;
 			var img = rendTexture.Texture.CopyToImage();
-			var full = File.CreateDirectoryForFile(filePath);
+			var full = FileSystem.CreateDirectoryForFile(filePath);
 
 			if (img.SaveToFile(filePath)) img.Dispose();
 			else { Debug.LogError(1, $"Could not save picture '{full}'."); return; }

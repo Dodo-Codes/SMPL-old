@@ -23,8 +23,8 @@ namespace RPG1bit
 		public static Color BrushColor => colors[colorIndex];
 
 		public SwitchColor(CreationDetails creationDetails) : base(creationDetails) { }
-		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush color.";
-		protected override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush color.";
+		public override void OnLeftClicked()
 		{
 			colorIndex += Name == "color-up" ? 1 : -1;
 			if (colorIndex == colors.Length) colorIndex = 0;

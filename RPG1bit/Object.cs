@@ -40,7 +40,7 @@ namespace RPG1bit
 			{ new(03, 22), "Game navigation panel." },
 			{ new(01, 23), "Information box." },
 
-			{ new(13, 22), "Type anything..." },
+			{ new(13, 22), "Left click and type anything..." },
 
 			{ new(44, 16), "Start a new multiplayer game session.\n      (not available in this version)" },
 
@@ -136,14 +136,7 @@ namespace RPG1bit
 		{
 			foreach (var kvp in objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					var obj = kvp.Value[i];
-					var scrPos = Map.MapToScreenPosition(obj.Position);
-					var isHiddenUI = obj.IsInTab && obj.AppearOnTab != NavigationPanel.Tab.CurrentTabType;
-					Screen.EditCell(obj.IsUI ? obj.Position : scrPos, obj.TileIndexes, obj.Height,
-						isHiddenUI ? new Color() : obj.Position.Color);
-					obj.OnDisplay();
-				}
+					kvp.Value[i].Display();
 		}
 		public static List<Object> PickByPosition(Point position)
 		{
@@ -272,13 +265,21 @@ namespace RPG1bit
 			if (button == Mouse.Button.Left || button == Mouse.Button.Right) MapEditor.EditCurrentTile();
 			if (button == Mouse.Button.Middle) MapEditor.PickCurrentTile();
 		}
+		public void Display()
+		{
+			var scrPos = Map.MapToScreenPosition(Position);
+			var isHiddenUI = IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType;
+			if (Position.X >= 0 && Position.X <= 31 && Position.Y >= 0 && Position.Y <= 18)
+				Screen.EditCell(IsUI ? Position : scrPos, TileIndexes, Height, isHiddenUI ? new Color() : Position.Color);
+			OnDisplay();
+		}
 
-		protected virtual void OnLeftClicked() { }
-		protected virtual void OnRightClicked() { }
-		protected virtual void OnHovered() { }
-		protected virtual void OnDragStart() { }
-		protected virtual void OnDragEnd() { }
-		protected virtual void OnDroppedUpon() { }
-		protected virtual void OnDisplay() { }
+		public virtual void OnLeftClicked() { }
+		public virtual void OnRightClicked() { }
+		public virtual void OnHovered() { }
+		public virtual void OnDragStart() { }
+		public virtual void OnDragEnd() { }
+		public virtual void OnDroppedUpon() { }
+		public virtual void OnDisplay() { }
 	}
 }

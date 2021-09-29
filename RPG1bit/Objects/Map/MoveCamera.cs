@@ -34,15 +34,16 @@ namespace RPG1bit
 
 		private void OnKeyPressed(Keyboard.TextInput textInput)
 		{
-			if (Map.CurrentSession == Map.Session.None || textInput.Value.ToLower() != Key.ToString().ToLower()) return;
+			if (TextInputField.Typing || Map.CurrentSession == Map.Session.None ||
+				textInput.Value.ToLower() != Key.ToString().ToLower()) return;
 			Execute();
 		}
 
-		protected override void OnHovered()
+		public override void OnHovered()
 		{
 			NavigationPanel.Info.Textbox.Text = $" [{Key}] Move the view: {CurrentType}.";
 		}
-		protected override void OnLeftClicked() => Execute();
+		public override void OnLeftClicked() => Execute();
 
 		private void Execute()
 		{

@@ -56,7 +56,7 @@ namespace SMPL.Gear
 
 		public static void Start(Game game, Size pixelSize)
 		{
-			File.Initialize();
+			FileSystem.Initialize();
 			Time.Initialize();
 			Hardware.Initialize();
 			Performance.Initialize();

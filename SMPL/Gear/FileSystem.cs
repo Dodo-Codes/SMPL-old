@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace SMPL.Gear
 {
-	public static class File
+	public static class FileSystem
 	{
 		private const string frag =
 @"
@@ -453,8 +453,8 @@ void main()
 		{
 			filePath = filePath.Replace('/', '\\');
 			var path = filePath.Split('\\');
-			var full = $"{File.MainDirectory}{filePath}";
-			var curPath = File.MainDirectory;
+			var full = $"{MainDirectory}{filePath}";
+			var curPath = MainDirectory;
 			for (int i = 0; i < path.Length - 1; i++)
 			{
 				var p = $"{curPath}\\{path[i]}";
@@ -469,7 +469,50 @@ void main()
 
 		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
-		public static void CreateFolders(params string[] paths)
+		public static bool FilesExist(params string[] paths)
+		{
+			if (paths == null) return false;
+			for (int i = 0; i < paths.Length; i++)
+				if (System.IO.File.Exists(paths[i]))
+					return false;
+			return true;
+		}
+		public static bool DirectoriesExist(params string[] paths)
+		{
+			if (paths == null) return false;
+			for (int i = 0; i < paths.Length; i++)
+				if (Directory.Exists(paths[i]))
+					return false;
+			return true;
+		}
+		public static void DeleteFiles(params string[] paths)
+		{
+			for (int i = 0; i < paths.Length; i++)
+				if (Exists(paths[i])) System.IO.File.Delete(paths[i]);
+
+			bool Exists(string path)
+			{
+				if (System.IO.File.Exists(path) == false)
+				{
+					Debug.LogError(1, $"No file was found on path '{path}'.");
+					return false;
+				}
+				return true;
+			}
+		}
+		public static string[] GetFileNames(bool includeExtensions, params string[] directoriesPaths)
+		{
+			var result = new List<string>();
+			if (directoriesPaths == null) return result.ToArray();
+			for (int i = 0; i < directoriesPaths.Length; i++)
+			{
+				var files = Directory.GetFiles(directoriesPaths[i]);
+				for (int j = 0; j < files.Length; j++)
+					result.Add(includeExtensions ? Path.GetFileName(files[j]) : Path.GetFileNameWithoutExtension(files[j]));
+			}
+			return result.ToArray();
+		}
+		public static void CreateDirectories(params string[] paths)
 		{
 			for (int i = 0; i < paths.Length; i++) Directory.CreateDirectory(paths[i]);
 		}

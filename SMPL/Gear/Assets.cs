@@ -68,7 +68,8 @@ namespace SMPL.Gear
 		}
 		public enum Type { Texture, Font, Music, Sound, DataSlot }
 
-		private static event Events.ParamsZero OnAssetLoadStart, OnAssetLoadUpdate, OnAssetLoadEnd;
+		private static event Events.ParamsZero OnAssetLoadStart, OnAssetLoadUpdate, OnAssetLoadEnd, OnDataSlotSaveStart,
+			OnDataSlotSaveUpdate, OnDataSlotSaveEnd;
 		internal static Dictionary<string, Texture> textures = new();
 		internal static Dictionary<string, Font> fonts = new();
 		internal static Dictionary<string, Sound> sounds = new();
@@ -76,10 +77,10 @@ namespace SMPL.Gear
 		internal static Dictionary<string, string> values = new();
 
 		private static Thread loadingThread;
-		private static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd;
+		private static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd, slotSaveStart, slotSaveUpdate, slotSaveEnd;
 		private static readonly List<QueuedAsset> queuedAssets = new();
 		private static readonly List<DataSlot> queuedSaveSlots = new();
-		public static double PercentLoaded { get; private set; }
+		public static double Percent { get; private set; }
 
 		public static class CallWhen
 		{
@@ -89,6 +90,12 @@ namespace SMPL.Gear
 				OnAssetLoadUpdate = Events.Add(OnAssetLoadUpdate, method, order);
 			public static void LoadEnd(Action method, uint order = uint.MaxValue) =>
 				OnAssetLoadEnd = Events.Add(OnAssetLoadEnd, method, order);
+			public static void DataSlotSaveStart(Action method, uint order = uint.MaxValue) =>
+				OnDataSlotSaveStart = Events.Add(OnDataSlotSaveStart, method, order);
+			public static void DataSlotSaveUpdate(Action method, uint order = uint.MaxValue) =>
+				OnDataSlotSaveUpdate = Events.Add(OnDataSlotSaveUpdate, method, order);
+			public static void DataSlotSaveEnd(Action method, uint order = uint.MaxValue) =>
+				OnDataSlotSaveEnd = Events.Add(OnDataSlotSaveEnd, method, order);
 		}
 
 		public static void Unload(Type asset, params string[] filePaths)
@@ -133,14 +140,17 @@ namespace SMPL.Gear
 				return true;
 			}
 		}
-		public static void UnloadValue(string key)
+		public static void UnloadValues(params string[] keys)
 		{
-			if (values.ContainsKey(key) == false)
+			for (int i = 0; i < keys.Length; i++)
 			{
-				Debug.LogError(1, $"No value was found at key '{key}'.");
-				return;
+				if (values.ContainsKey(keys[i]) == false)
+				{
+					Debug.LogError(1, $"No value was found at key '{keys[i]}'.");
+					return;
+				}
+				values.Remove(keys[i]);
 			}
-			values.Remove(key);
 		}
 		public static bool AreLoaded(params string[] filePaths)
 		{
@@ -182,9 +192,13 @@ namespace SMPL.Gear
 			for (int i = 0; i < dataSlots.Length; i++)
 				queuedSaveSlots.Add(dataSlots[i]);
 		}
-		public static bool ValueIsLoaded(string key)
+		public static bool ValuesAreLoaded(params string[] keys)
 		{
-			return key != null && values.ContainsKey(key);
+			if (keys == null) return false;
+			for (int i = 0; i < keys.Length; i++)
+				if (values.ContainsKey(keys[i]) == false)
+					return false;
+			return true;
 		}
 
 		public static string GetValue(string key)
@@ -202,24 +216,31 @@ namespace SMPL.Gear
 			loadingThread.IsBackground = true;
 			loadingThread.Start();
 		}
-		private static void UpdateMainThreadAboutLoading()
+		private static void UpdateMainThread()
 		{
 			if (assetLoadBegin) OnAssetLoadStart?.Invoke();
 			if (assetLoadUpdate) OnAssetLoadUpdate?.Invoke();
 			if (assetLoadEnd) OnAssetLoadEnd?.Invoke();
+			if (slotSaveStart) OnDataSlotSaveStart?.Invoke();
+			if (slotSaveUpdate) OnDataSlotSaveUpdate?.Invoke();
+			if (slotSaveEnd) OnDataSlotSaveEnd?.Invoke();
 
 			assetLoadBegin = false;
 			assetLoadUpdate = false;
 			assetLoadEnd = false;
+			slotSaveStart = false;
+			slotSaveUpdate = false;
+			slotSaveEnd = false;
 		}
 		private static void LoadQueuedResources()
 		{
 			while (Window.window.IsOpen)
 			{
 				Thread.Sleep(1);
-				PercentLoaded = 100;
+				Percent = 100;
 				var loadedCount = 0;
 				assetLoadBegin = true;
+				slotSaveStart = true;
 
 				if (queuedAssets != null && queuedAssets.Count > 0)
 				{
@@ -293,15 +314,16 @@ namespace SMPL.Gear
 						Thread.Sleep(1);
 					}
 					queuedSaveSlots.Clear(); // done loading, clear queue
-					assetLoadEnd = true;
+					slotSaveEnd = true;
 				}
 
 				void UpdateCounter()
 				{
 					loadedCount++;
 					var percent = Number.ToPercent(loadedCount, new Number.Range(0, queuedAssets.Count + queuedSaveSlots.Count));
-					PercentLoaded = percent;
-					assetLoadUpdate = true;
+					Percent = percent;
+					assetLoadUpdate = queuedAssets.Count > 0;
+					slotSaveUpdate = queuedSaveSlots.Count > 0;
 				}
 			}
 		}
@@ -312,7 +334,7 @@ namespace SMPL.Gear
 		}
 		internal static void Update()
 		{
-			UpdateMainThreadAboutLoading();
+			UpdateMainThread();
 		}
 
 		internal static void NotLoadedError(int depth, Type type, string path)

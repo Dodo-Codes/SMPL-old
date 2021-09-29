@@ -33,7 +33,7 @@ namespace RPG1bit
 
 		private static void OnLoadEnd()
 		{
-			if (Assets.ValueIsLoaded("camera-position") && Assets.ValueIsLoaded("map-data"))
+			if (Assets.ValuesAreLoaded("camera-position", "map-data"))
 			{
 				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
@@ -45,16 +45,14 @@ namespace RPG1bit
 			}
 		}
 
-		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
-		protected override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
+		public override void OnLeftClicked()
 		{
 			if (Map.CurrentSession != Map.Session.MapEdit) Map.DestroyAllSessionObjects();
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
-			Assets.Load(Assets.Type.DataSlot, "Maps\\test.map");
-
-			//Map.Data = new Point[100, 100, 3];
+			Map.Data = new Point[100, 100, 3];
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map iteself
@@ -79,6 +77,7 @@ namespace RPG1bit
 
 			Map.Data[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
 			Map.Display();
+			NavigationPanel.Tab.Close();
 		}
 		public static void PickCurrentTile()
 		{

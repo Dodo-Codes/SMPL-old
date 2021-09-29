@@ -6,16 +6,51 @@ namespace RPG1bit
 {
 	public class TextInputField : Object
 	{
+		public const int MAX_SYMBOLS = 12;
+
+		public static bool Typing { get; private set; }
 		public string Value { get; set; } = "";
+		public bool AcceptingInput { get; set; }
+
+		private Point lastMousePos;
 
 		public TextInputField(CreationDetails creationDetails) : base(creationDetails)
 		{
 			Keyboard.CallWhen.TextInput(OnTextInput);
+			Mouse.CallWhen.ButtonPress(OnButtonPress);
+			Game.CallWhen.Running(Always);
 		}
 
+		private void Always()
+		{
+			var mousePos = Screen.GetCellAtCursorPosition();
+			if (mousePos != lastMousePos && mousePos.X > Position.X - MAX_SYMBOLS - 1 &&
+				mousePos.X < Position.X && mousePos.Y == Position.Y)
+				OnHovered();
+			lastMousePos = mousePos;
+		}
+		private void OnButtonPress(Mouse.Button button)
+		{
+			Typing = false;
+			AcceptingInput = false;
+			OnDisplay();
+			var mousePos = Screen.GetCellAtCursorPosition();
+			if (button != Mouse.Button.Left || mousePos.Y != Position.Y) return;
+			for (int i = 0; i < MAX_SYMBOLS; i++)
+			{
+				var x = Position.X + i - MAX_SYMBOLS;
+				if (x == mousePos.X)
+				{
+					AcceptingInput = true;
+					Typing = true;
+					OnDisplay();
+					return;
+				}
+			}
+		}
 		private void OnTextInput(Keyboard.TextInput textInput)
 		{
-			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+			if (AcceptingInput == false) return;
 			switch (textInput.CurrentType)
 			{
 				case Keyboard.TextInput.Type.Text: break;
@@ -26,28 +61,23 @@ namespace RPG1bit
 			}
 			var isLetter = Text.IsLetters(textInput.Value);
 			var isNumber = Text.IsNumber(textInput.Value);
-			if (Value.Length == 10 || (isLetter == false && isNumber == false && textInput.Value != " ")) return;
+			if (Value.Length == MAX_SYMBOLS || (isLetter == false && isNumber == false && textInput.Value != " ")) return;
 			Value += textInput.Value.ToLower();
 			OnDisplay();
 			OnHovered();
 		}
-		protected override void OnLeftClicked() => OnSubmit();
-		protected override void OnDisplay()
+		public override void OnLeftClicked() => OnSubmit();
+		public override void OnDisplay()
 		{
-			for (int i = 0; i < 10; i++)
+			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+			Screen.EditCell(Position, new(1, 22), 0, AcceptingInput ? Color.BrownLight : Color.Brown);
+			for (int i = 0; i < MAX_SYMBOLS; i++)
 			{
-				var x = Position.X + i - 11;
+				var x = Position.X + i - MAX_SYMBOLS;
+				Screen.EditCell(new Point(x, Position.Y), new(1, 22), 0, AcceptingInput ? Color.BrownLight : Color.Brown);
 				if (Value.Length <= i) Screen.EditCell(new Point(x, Position.Y), new Point(13, 22), 1, Color.Gray);
-				else
-				{
-					var isNumber = Text.IsNumber(Value[i].ToString());
-					var curX = 35 + Value[i] - (isNumber ? 48 : 97);
-					var tileIndexes = new Point(curX, isNumber ? 17 : 18);
-					if (curX > 47) tileIndexes += new Point(-13, 1);
-					if (tileIndexes.X == -30) tileIndexes = new(0, 0);
-					Screen.EditCell(new Point(x, Position.Y), tileIndexes, 1, Color.White);
-				}
 			}
+			Screen.DisplayText(Position - new Point(MAX_SYMBOLS, 0), 1, Color.White, Value);
 		}
 
 		protected virtual void OnSubmit() { }

@@ -11,6 +11,14 @@ namespace RPG1bit
 		{
 			public enum Type { None, SaveLoad }
 			public static Type CurrentTabType { get; set; }
+
+			public static void Close()
+			{
+				CurrentTabType = NavigationPanel.Tab.Type.None;
+				Display();
+				Info.Display();
+				DisplayAllObjects();
+			}
 		}
 		public static class Info
 		{
@@ -160,6 +168,7 @@ namespace RPG1bit
 			for (int y = 0; y < 18; y++)
 				for (int x = 18; x < 32; x++)
 				{
+					Screen.EditCell(new Point(x, y), new Point(0, 0), 2, Color.Brown);
 					Screen.EditCell(new Point(x, y), new Point(4, 22), 1, Color.Brown);
 					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.BrownDark);
 				}

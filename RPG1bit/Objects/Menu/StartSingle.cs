@@ -6,8 +6,8 @@ namespace RPG1bit
 	public class StartSingle : Object
 	{
 		public StartSingle(CreationDetails creationDetails) : base(creationDetails) { }
-		protected override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new singleplayer game session.  ";
-		protected override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new singleplayer game session.  ";
+		public override void OnLeftClicked()
 		{
 			if (Map.CurrentSession != Map.Session.Single) Map.DestroyAllSessionObjects();
 			Map.CurrentSession = Map.Session.Single;
