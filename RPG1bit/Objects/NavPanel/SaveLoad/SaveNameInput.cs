@@ -56,9 +56,11 @@ namespace RPG1bit
 							Height = 1,
 							IsUI = true,
 							IsLeftClickable = true,
+							IsRightClickable = true,
 							IsInTab = true,
 							AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
 						}));
+						list.ScrollToBottom();
 						break;
 					}
 			}

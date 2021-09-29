@@ -13,10 +13,15 @@ namespace RPG1bit
 			Assets.Load(Assets.Type.DataSlot, $"Maps\\{Name}.mapdata");
 			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = descriptions[new(0, 23)];
+
+			if (Map.CurrentSession != Map.Session.MapEdit) Map.DestroyAllSessionObjects();
+			Map.CurrentSession = Map.Session.MapEdit;
+			Map.DisplayNavigationPanel();
+			Map.CreateUIButtons();
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"Left click to load map: '{Name.ToUpper()}'";
+			NavigationPanel.Info.Textbox.Text = $"[LMB] Load / [RMB] Delete\nMap: '{Name.ToUpper()}'";
 			NavigationPanel.Info.ShowClickableIndicator();
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}

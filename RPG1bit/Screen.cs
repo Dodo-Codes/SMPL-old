@@ -87,6 +87,10 @@ namespace RPG1bit
 				EditCell(new Point(x, position.Y), tileIndexes, depth, color);
 			}
 		}
+		public static bool CellIsOnScreen(Point cell)
+		{
+			return cell.X >= 0 && cell.Y >= 0 && cell.X <= 31 && cell.Y <= 18;
+		}
 
 		private static void OnDisplay(Camera camera)
 		{

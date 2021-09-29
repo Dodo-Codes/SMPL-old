@@ -123,6 +123,7 @@ namespace RPG1bit
 			Height = creationDetails.Height;
 			IsDragable = creationDetails.IsDragable;
 			IsLeftClickable = creationDetails.IsLeftClickable;
+			IsRightClickable = creationDetails.IsRightClickable;
 			IsConfirmingClick = creationDetails.IsConfirmingClick;
 			IsUI = creationDetails.IsUI;
 			AppearOnTab = creationDetails.AppearOnTab;
@@ -161,6 +162,7 @@ namespace RPG1bit
 				NavigationPanel.Info.ShowClickableIndicator(IsLeftClickable);
 				NavigationPanel.Info.ShowDragableIndicator(IsDragable);
 				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable || IsDragable);
+				NavigationPanel.Info.ShowRightClickableIndicator(IsRightClickable);
 				leftClicked = false;
 				OnHovered();
 			}
@@ -178,6 +180,7 @@ namespace RPG1bit
 		{
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
+			if (Screen.CellIsOnScreen(mousePos) == false) return;
 
 			if (Map.CurrentSession == Map.Session.None && mousePos.X < 18)
 			{
@@ -197,6 +200,7 @@ namespace RPG1bit
 				NavigationPanel.Info.ShowClickableIndicator(false);
 				NavigationPanel.Info.ShowDragableIndicator(false);
 				NavigationPanel.Info.ShowLeftClickableIndicator(false);
+				NavigationPanel.Info.ShowRightClickableIndicator(false);
 
 				for (int i = 0; i < 3; i++)
 				{
@@ -269,7 +273,7 @@ namespace RPG1bit
 		{
 			var scrPos = Map.MapToScreenPosition(Position);
 			var isHiddenUI = IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType;
-			if (Position.X >= 0 && Position.X <= 31 && Position.Y >= 0 && Position.Y <= 18)
+			if (Screen.CellIsOnScreen(Position))
 				Screen.EditCell(IsUI ? Position : scrPos, TileIndexes, Height, isHiddenUI ? new Color() : Position.Color);
 			OnDisplay();
 		}

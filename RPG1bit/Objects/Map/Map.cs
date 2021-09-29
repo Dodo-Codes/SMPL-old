@@ -25,52 +25,54 @@ namespace RPG1bit
 
 		public static void CreateUIButtons()
 		{
-			new MoveCamera(new Object.CreationDetails()
+			if (Gate.EnterOnceWhile("camera", true))
 			{
-				Name = "camera-move-up",
-				Position = new(0, 1) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(19, 20) },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Up };
-			new MoveCamera(new Object.CreationDetails()
-			{
-				Name = "camera-move-down",
-				Position = new(0, 2) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(21, 20) },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Down };
-			new MoveCamera(new Object.CreationDetails()
-			{
-				Name = "camera-move-left",
-				Position = new(1, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(22, 20) },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Left };
-			new MoveCamera(new Object.CreationDetails()
-			{
-				Name = "camera-move-right",
-				Position = new(2, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(20, 20) },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Right };
-			new MoveCamera(new Object.CreationDetails()
-			{
-				Name = "camera-center",
-				Position = new(0, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(19, 14) },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Center };
-
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "camera-move-up",
+					Position = new(0, 1) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(19, 20) },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+				}) { CurrentType = MoveCamera.Type.Up };
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "camera-move-down",
+					Position = new(0, 2) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(21, 20) },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+				}) { CurrentType = MoveCamera.Type.Down };
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "camera-move-left",
+					Position = new(1, 0) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(22, 20) },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+				}) { CurrentType = MoveCamera.Type.Left };
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "camera-move-right",
+					Position = new(2, 0) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(20, 20) },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+				}) { CurrentType = MoveCamera.Type.Right };
+				new MoveCamera(new Object.CreationDetails()
+				{
+					Name = "camera-center",
+					Position = new(0, 0) { Color = Color.Gray },
+					TileIndexes = new Point[] { new(19, 14) },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+				}) { CurrentType = MoveCamera.Type.Center };
+			}
 			if (Gate.EnterOnceWhile("game-buttons", CurrentSession == Session.Single || CurrentSession == Session.Multi))
 			{
 				new SlotHead(new Object.CreationDetails()

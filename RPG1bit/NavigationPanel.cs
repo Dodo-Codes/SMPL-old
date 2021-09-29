@@ -14,7 +14,7 @@ namespace RPG1bit
 
 			public static void Close()
 			{
-				CurrentTabType = NavigationPanel.Tab.Type.None;
+				CurrentTabType = Type.None;
 				Display();
 				Info.Display();
 				DisplayAllObjects();
@@ -27,7 +27,7 @@ namespace RPG1bit
 			public static Area Area { get; set; }
 			public static Effects Effects { get; set; }
 
-			private static bool clickable, leftClickable, dragable;
+			private static bool clickable, leftClickable, rightClickable, dragable;
 
 			public static void Create()
 			{
@@ -58,6 +58,7 @@ namespace RPG1bit
 				ShowClickableIndicator(clickable);
 				ShowDragableIndicator(dragable);
 				ShowLeftClickableIndicator(leftClickable);
+				ShowRightClickableIndicator(rightClickable);
 			}
 
 			private static void OnDisplay(Camera camera)
@@ -79,7 +80,12 @@ namespace RPG1bit
 			public static void ShowLeftClickableIndicator(bool show = true)
 			{
 				leftClickable = show;
-				Screen.EditCell(new Point(31, 17), new Point(29, 15), 2, show ? Color.White : new Color());
+				Screen.EditCell(new Point(31, 15), new Point(29, 15), 2, show ? Color.White : new Color());
+			}
+			public static void ShowRightClickableIndicator(bool show = true)
+			{
+				rightClickable = show;
+				Screen.EditCell(new Point(31, 17), new Point(30, 15), 2, show ? Color.White : new Color());
 			}
 		}
 
