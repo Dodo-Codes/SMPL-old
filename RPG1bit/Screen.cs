@@ -34,9 +34,8 @@ namespace RPG1bit
 					quad.TileGridWidth = new Size(1, 1);
 					quad.SetTextureCropTile(new(0, 0));
 					quad.SetColor(c, c, c, c);
-					Sprite.SetQuad($"0 {quadID}", quad);
-					Sprite.SetQuad($"1 {quadID}", quad);
-					Sprite.SetQuad($"2 {quadID}", quad);
+					for (int i = 0; i < 4; i++)
+						Sprite.SetQuad($"{i} {quadID}", quad);
 				}
 		}
 		public static void Create()
@@ -48,6 +47,7 @@ namespace RPG1bit
 			NavigationPanel.Info.Create();
 			Object.Initialize();
 			Hoverer.Create();
+			Map.Initialize();
 		}
 		public static void Display()
 		{

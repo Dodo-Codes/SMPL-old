@@ -18,7 +18,6 @@ namespace RPG1bit
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 			if (ObjectList.Lists.ContainsKey("load-map-list")) RemoveFromList(ObjectList.Lists["load-map-list"]);
 
-
 			void RemoveFromList(ObjectList list)
 			{
 				for (int i = 0; i < list.Objects.Count; i++)

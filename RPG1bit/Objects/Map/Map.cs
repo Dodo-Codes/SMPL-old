@@ -9,19 +9,41 @@ namespace RPG1bit
 	{
 		public enum Session { None, Single, Multi, MapEdit }
 
-		public static Point[,,] Data { get; set; } = new Point[100, 100, 3];
-		private static Point cameraPosition = new(8, 8);
+		public static Size Size => new(1000, 1000);
+		public static Point[,,] RawData { get; set; } = DefaultRawData;
+		public static Point[,,] DefaultRawData => new Point[(int)Size.W, (int)Size.H, 4];
+
+		private static Point cameraPosition = new(Size.W / 2, Size.H / 2);
 		public static Point CameraPosition
 		{
 			get { return cameraPosition; }
 			set
 			{
 				cameraPosition = new Point(
-					Number.Limit(value.X, new Number.Range(8, Data.GetLength(1) - 9)),
-					Number.Limit(value.Y, new Number.Range(8, Data.GetLength(0) - 9)));
+					Number.Limit(value.X, new Number.Range(8, RawData.GetLength(1) - 9)),
+					Number.Limit(value.Y, new Number.Range(8, RawData.GetLength(0) - 9)));
 			}
 		}
 		public static Session CurrentSession { get; set; }
+
+		public static void Initialize()
+		{
+			Assets.CallWhen.LoadEnd(OnLoadEnd);
+		}
+		private static void OnLoadEnd()
+		{
+			if (Assets.ValuesAreLoaded("camera-position", "map-data", "map-offset"))
+			{
+				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
+				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
+				var mapOffset = Text.FromJSON<Point>(Assets.GetValue("map-offset"));
+				if (mapData != default) InsertMapData(mapData, mapOffset);
+				if (cameraPos != default) CameraPosition = cameraPos;
+
+				Display(); // for the map iteself
+				Object.DisplayAllObjects(); // for the ui
+			}
+		}
 
 		public static void CreateUIButtons()
 		{
@@ -206,15 +228,15 @@ namespace RPG1bit
 			for (int i = 0; i < objsToDestroy.Count; i++)
 				objsToDestroy[i].Destroy();
 		}
-
+		
 		public static void Display()
 		{
 			for (int y = (int)CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
 				for (int x = (int)CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
 				{
 					var scrPos = MapToScreenPosition(new(x, y));
-					for (int z = 0; z < 3; z++)
-						Screen.EditCell(scrPos, Data[x, y, z], z, Data[x, y, z].Color);
+					for (int z = 0; z < 4; z++)
+						Screen.EditCell(scrPos, RawData[x, y, z], z, RawData[x, y, z].Color);
 				}
 		}
 		public static void DisplayNavigationPanel()
@@ -231,6 +253,8 @@ namespace RPG1bit
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
+				Screen.EditCell(new(7, 0), new(25, 0), 1, Color.Gray);
+
 				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
 				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
 				Screen.EditCell(new(0, 11), new(37, 18), 1, Color.Gray);
@@ -256,7 +280,20 @@ namespace RPG1bit
 			DisplayNavigationPanel();
 			CreateUIButtons();
 		}
+		public static void InsertMapData(Point[,,] data, Point offset)
+		{
+			RawData = DefaultRawData;
+			for (int y = 0; y < data.GetLength(1); y++)
+				for (int x = 0; x < data.GetLength(0); x++)
+					for (int z = 0; z < 3; z++)
+						RawData[(int)(x + offset.X), (int)(y + offset.Y), z] = data[x, y, z];
+		}
 
+		public static bool IsHovered()
+		{
+			var mousePos = Screen.GetCellAtCursorPosition();
+			return mousePos.X > 0 && mousePos.Y > 0 && mousePos.X < 18 && mousePos.Y < 18;
+		}
 		public static Point MapToScreenPosition(Point mapPos)
 		{
 			return mapPos - CameraPosition + new Point(9, 9);

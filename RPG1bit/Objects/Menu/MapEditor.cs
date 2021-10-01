@@ -18,24 +18,21 @@ namespace RPG1bit
 			{ new(00, 02), new Point[] { new(00, 02), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
 
 			// water
-			{ new(07, 03), new Point[] { new(07, 03) } },
-			{ new(08, 03), new Point[] { new(08, 03) } },
-			{ new(09, 03), new Point[] { new(09, 03) } },
-			{ new(10, 03), new Point[] { new(10, 03) } },
-			{ new(11, 03), new Point[] { new(11, 03) } },
-			{ new(12, 03), new Point[] { new(12, 03) } },
-			{ new(07, 04), new Point[] { new(07, 04) } },
-			{ new(08, 04), new Point[] { new(08, 04) } },
-			{ new(09, 04), new Point[] { new(09, 04) } },
-			{ new(10, 04), new Point[] { new(10, 04) } },
-			{ new(11, 04), new Point[] { new(11, 04) } },
-			{ new(12, 04), new Point[] { new(12, 04) } },
-			{ new(13, 04), new Point[] { new(13, 04) } },
-			{ new(14, 04), new Point[] { new(14, 04) } },
-			{ new(07, 05), new Point[] { new(07, 05) } },
-			{ new(08, 05), new Point[] { new(08, 05) } },
-			{ new(09, 05), new Point[] { new(09, 05) } },
-			{ new(10, 05), new Point[] { new(10, 05) } },
+			{ new(07, 03), new Point[] { new(07, 03) } }, { new(08, 03), new Point[] { new(08, 03) } },
+			{ new(09, 03), new Point[] { new(09, 03) } }, { new(10, 03), new Point[] { new(10, 03) } },
+			{ new(11, 03), new Point[] { new(11, 03) } }, { new(12, 03), new Point[] { new(12, 03) } },
+			{ new(07, 04), new Point[] { new(07, 04) } }, { new(08, 04), new Point[] { new(08, 04) } },
+			{ new(09, 04), new Point[] { new(09, 04) } }, { new(10, 04), new Point[] { new(10, 04) } },
+			{ new(11, 04), new Point[] { new(11, 04) } }, { new(12, 04), new Point[] { new(12, 04) } },
+			{ new(13, 04), new Point[] { new(13, 04) } }, { new(14, 04), new Point[] { new(14, 04) } },
+			{ new(07, 05), new Point[] { new(07, 05) } }, { new(08, 05), new Point[] { new(08, 05) } },
+			{ new(09, 05), new Point[] { new(09, 05) } }, { new(10, 05), new Point[] { new(10, 05) } },
+			{ new(11, 05), new Point[] { new(11, 05) } },
+
+			//bridge
+			{ new(12, 05), new Point[] { new(12, 05) } }, { new(13, 05), new Point[] { new(13, 05) } },
+			{ new(14, 05), new Point[] { new(14, 05) } }, { new(15, 05), new Point[] { new(15, 05) } },
+			{ new(16, 05), new Point[] { new(16, 05) } },
 		};
 		private static Point CurrentTile
 		{
@@ -49,21 +46,7 @@ namespace RPG1bit
 			}
 		}
 
-		public MapEditor(CreationDetails creationDetails) : base(creationDetails) { Assets.CallWhen.LoadEnd(OnLoadEnd); }
-
-		private static void OnLoadEnd()
-		{
-			if (Assets.ValuesAreLoaded("camera-position", "map-data"))
-			{
-				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
-				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
-				Map.Data = mapData;
-				Map.CameraPosition = cameraPos;
-
-				Map.Display(); // for the map iteself
-				DisplayAllObjects(); // for the ui
-			}
-		}
+		public MapEditor(CreationDetails creationDetails) : base(creationDetails) { }
 
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
 		public override void OnLeftClicked()
@@ -72,11 +55,37 @@ namespace RPG1bit
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
-			Map.Data = new Point[100, 100, 3];
+			Map.RawData = Map.DefaultRawData;
 
 			Map.CreateUIButtons();
 			Map.Display(); // for the map iteself
 			DisplayAllObjects(); // for the ui
+		}
+		public static Point[,,] GetSavableMapData(Point[,,] rawData, out Point offset)
+		{
+			var lastTilePos = new Point(-1, -1);
+			var firstTilePos = new Point(rawData.GetLength(1), rawData.GetLength(0));
+
+			for (int y = 0; y < rawData.GetLength(1); y++)
+				for (int x = 0; x < rawData.GetLength(0); x++)
+					for (int z = 0; z < 3; z++)
+					{
+						if (rawData[x, y, z] != new Point(0, 0))
+						{
+							if (x < firstTilePos.X) firstTilePos.X = x;
+							if (y < firstTilePos.Y) firstTilePos.Y = y;
+							if (lastTilePos.X < x) lastTilePos.X = x;
+							if (lastTilePos.Y < y) lastTilePos.Y = y;
+						}
+					}
+
+			var result = new Point[(int)(lastTilePos.X - firstTilePos.X + 1), (int)(lastTilePos.Y - firstTilePos.Y + 1), 3];
+			for (int y = 0; y < result.GetLength(1); y++)
+				for (int x = 0; x < result.GetLength(0); x++)
+					for (int z = 0; z < 3; z++)
+						result[x, y, z] = rawData[(int)(x + firstTilePos.X), (int)(y + firstTilePos.Y), z];
+			offset = firstTilePos;
+			return result;
 		}
 
 		public static void EditCurrentTile()
@@ -92,10 +101,9 @@ namespace RPG1bit
 				var dirX = pos.X > clickPos.X ? 1 : -1;
 				for (double y = clickPos.Y; y != pos.Y + dirY; y += dirY)
 					for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
-						Map.Data[(int)x, (int)y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
+						Map.RawData[(int)x, (int)y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
 			}
-
-			Map.Data[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
+			Map.RawData[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
 			Map.Display();
 			NavigationPanel.Tab.Close();
 		}
@@ -105,6 +113,13 @@ namespace RPG1bit
 			SwitchColor.UpdateIndicator();
 			SwitchType.SelectHoveredTileType();
 			SwitchType.UpdateIndicator();
+		}
+		public static void EditPlayerTile()
+		{
+			var pos = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
+			Map.RawData[(int)pos.X, (int)pos.Y, 3] = new(Map.RawData[(int)pos.X, (int)pos.Y, 3] == new Point(25, 0) ? 0 : 25, 0);
+			Map.Display();
+			NavigationPanel.Tab.Close();
 		}
 	}
 }

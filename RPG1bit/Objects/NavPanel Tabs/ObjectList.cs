@@ -30,7 +30,6 @@ namespace RPG1bit
 
 			Screen.Display();
 		}
-
 		private void Always()
 		{
 			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;

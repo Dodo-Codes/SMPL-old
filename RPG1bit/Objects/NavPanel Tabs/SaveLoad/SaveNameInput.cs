@@ -28,13 +28,18 @@ namespace RPG1bit
 				case Map.Session.MapEdit:
 					{
 						var slot = new Assets.DataSlot($"Maps\\{name}.mapdata");
+						var offset = new Point();
+						var mapData = MapEditor.GetSavableMapData(Map.RawData, out offset);
+
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
-						slot.SetValue("map-data", Text.ToJSON(Map.Data));
+						slot.SetValue("map-offset", Text.ToJSON(offset));
+						slot.SetValue("map-data", Text.ToJSON(mapData));
 						Assets.SaveDataSlots(slot);
 
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
 						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
 
+						SaveLoad.UpdateTab();
 						break;
 
 						void AddToList(ObjectList list)
@@ -80,7 +85,6 @@ namespace RPG1bit
 					}
 			}
 			Value = "";
-			OnDisplay();
 			Screen.Display();
 		}
 	}

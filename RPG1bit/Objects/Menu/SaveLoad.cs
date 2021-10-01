@@ -9,15 +9,21 @@ namespace RPG1bit
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Save/Load a session.";
 		public override void OnLeftClicked()
 		{
+			UpdateTab();
+		}
+		public static void UpdateTab()
+		{
+			CreateTab();
+
 			var noSessionsStr = ObjectList.Lists.ContainsKey("load-list") == false ||
 				ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found." : "";
 			NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.SaveLoad, "save or load");
 			NavigationPanel.Tab.Textbox.Text = $"Load a previously saved session.\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
 				$"    Save the current session.";
 
-			CreateTab();
 			Screen.Display();
 		}
+
 		private static void CreateTab()
 		{
 			if (Gate.EnterOnceWhile("create-save-load-tab", true))

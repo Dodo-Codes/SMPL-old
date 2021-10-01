@@ -32,12 +32,9 @@ namespace RPG1bit
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
 			{ new(01, 22), "" }, // background color
 			{ new(00, 00), "Void." },
-			{ new(04, 22), "Game navigation panel." },
-			{ new(00, 23), "Game navigation panel." },
-			{ new(29, 15), "Game navigation panel." },
-			{ new(30, 15), "Game navigation panel." },
-			{ new(02, 22), "Game navigation panel." },
-			{ new(03, 22), "Game navigation panel." },
+			{ new(04, 22), "Game navigation panel." }, { new(00, 23), "Game navigation panel." },
+			{ new(29, 15), "Game navigation panel." }, { new(30, 15), "Game navigation panel." },
+			{ new(02, 22), "Game navigation panel." }, { new(03, 22), "Game navigation panel." },
 			{ new(01, 23), "Information box." },
 
 			{ new(13, 22), "Left click and type anything..." },
@@ -54,10 +51,10 @@ namespace RPG1bit
 
 			{ new(37, 18), "Change the brush color." },
 			{ new(41, 19), "Change the brush type." },
-			{ new(42, 18), "Change the brush height." },
-			{ new(36, 17), "Change the brush height." },
-			{ new(37, 17), "Change the brush height." },
-			{ new(38, 17), "Change the brush height." },
+			{ new(42, 18), "Change the brush height." }, { new(36, 17), "Change the brush height." },
+			{ new(37, 17), "Change the brush height." }, { new(38, 17), "Change the brush height." },
+			{ new(25, 00), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
+				"   of those tiles or anywhere on the map\n           if no player tile is present." },
 			{ new(41, 13), "[LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
 			{ new(42, 13), "[RMB] Erase a tile.\n[Shift + RMB] Erase a square of tiles." },
 			{ new(43, 13), "[MMB] Pick a brush from the tile\n    at that particular height." },
@@ -65,16 +62,19 @@ namespace RPG1bit
 			{ new(04, 00), "Grass." }, { new(05, 00), "Grass." }, { new(06, 00), "Grass." }, { new(07, 00), "Grass." },
 			{ new(00, 01), "Tree." }, { new(1, 1), "Tree." }, { new(2, 1), "Trees." }, { new(3, 1), "Trees." }, { new(4, 1), "Tree." },
 			{ new(05, 01), "Tree." }, { new(6, 1), "Tree." }, { new(7, 1), "Tree." },
-			{ new(05, 2), "Cactuses." }, { new(6, 2), "Cactus." },
+			{ new(05, 02), "Cactuses." }, { new(6, 2), "Cactus." },
 			{ new(07, 02), "Palm." },
 			{ new(04, 02), "Rocks." },
 			{ new(00, 02), "Bush." }, { new(1, 2), "Bush." }, { new(2, 2), "Bush." }, { new(3, 2), "Dead bush." },
 
 			{ new(07, 03), "Water." }, { new(8, 3), "Water." }, { new(9, 3), "Water." }, { new(10, 3), "Water." },
-			{ new(11, 3), "Water." }, { new(12, 3), "Water." }, { new(7, 4), "Water." }, { new(8, 4), "Water." },
-			{ new(9, 4), "Water." }, { new(10, 4), "Water." }, { new(11, 4), "Water." }, { new(12, 4), "Water." },
-			{ new(13, 4), "Water." }, { new(14, 4), "Water." }, { new(7, 5), "Water." }, { new(8, 5), "Water." },
-			{ new(9, 5), "Water." }, { new(10, 5), "Water." },
+			{ new(11, 03), "Water." }, { new(12, 3), "Water." }, { new(7, 4), "Water." }, { new(8, 4), "Water." },
+			{ new(09, 04), "Water." }, { new(10, 4), "Water." }, { new(11, 4), "Water." }, { new(12, 4), "Water." },
+			{ new(13, 04), "Water." }, { new(14, 4), "Water." }, { new(7, 5), "Water." }, { new(8, 5), "Water." },
+			{ new(09, 05), "Water." }, { new(10, 5), "Water." },
+
+			{ new(12, 05), "Bridge." }, { new(13, 5), "Bridge." }, { new(14, 5), "Broken bridge." }, { new(15, 5), "Bridge." },
+			{ new(16, 5), "Bridge." },
 
 			{ new(32, 00), "Helmet." },
 		};
@@ -116,6 +116,7 @@ namespace RPG1bit
 		{
 			Game.CallWhen.Running(StaticAlways, 0);
 			Mouse.CallWhen.ButtonPress(OnButtonClicked);
+			Keyboard.CallWhen.KeyPress(OnKeyPressed);
 		}
 		public Object(CreationDetails creationDetails)
 		{
@@ -135,6 +136,13 @@ namespace RPG1bit
 			AppearOnTab = creationDetails.AppearOnTab;
 			IsInTab = creationDetails.IsInTab;
 		}
+
+		private static void OnKeyPressed(Keyboard.Key key)
+		{
+			if (key != Keyboard.Key.P || Map.IsHovered() == false) return;
+			MapEditor.EditPlayerTile();
+		}
+
 		public void Destroy()
 		{
 			objects[Position].Remove(this);
@@ -196,10 +204,11 @@ namespace RPG1bit
 			}
 			if (mousePos != prevCursorPos)
 			{
-				var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
-				if (Map.CurrentSession == Map.Session.MapEdit && isOverMap &&
-					(Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right)))
-					MapEditor.EditCurrentTile();
+				if (Map.CurrentSession == Map.Session.MapEdit && Map.IsHovered())
+				{
+					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right)) MapEditor.EditCurrentTile();
+					if (Keyboard.KeyIsPressed(Keyboard.Key.P)) MapEditor.EditPlayerTile();
+				}
 
 				NavigationPanel.Info.Textbox.Text = "";
 				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
