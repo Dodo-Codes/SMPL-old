@@ -10,6 +10,7 @@ namespace SMPL.Gear
 		public static double AvailableRAM { get; private set; }
 		public static double PercentUsedRAM { get; private set; }
 		public static double PercentCPU { get; private set; }
+		public static uint DrawCallsPerFrame { get; internal set; }
 
 		internal static Clock frameDeltaTime;
 		internal static uint frameCount;

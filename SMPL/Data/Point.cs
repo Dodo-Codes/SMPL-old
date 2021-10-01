@@ -40,6 +40,7 @@ namespace SMPL.Data
 				new(From(botLeft), Color.From(Color)),
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
+			Performance.DrawCallsPerFrame++;
 		}
 
 		public bool IsInvalid() => double.IsNaN(X) || double.IsNaN(Y);

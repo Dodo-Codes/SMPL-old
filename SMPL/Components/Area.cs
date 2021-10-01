@@ -278,6 +278,7 @@ namespace SMPL.Components
 					var sc = ChunkSize / 600;
 					coordinatesText.Scale = Size.From(new Size(sc, sc));
 					camera.rendTexture.Draw(coordinatesText);
+					Performance.DrawCallsPerFrame++;
 				}
 		}
 		public static Point PositionToParallax(Point position, Size parallaxPercent, Camera camera)

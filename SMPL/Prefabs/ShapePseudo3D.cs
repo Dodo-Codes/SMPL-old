@@ -158,6 +158,7 @@ namespace SMPL.Prefabs
 					texture.Smooth = IsSmooth;
 				}
 				camera.rendTexture.Draw(Components.Sprite.QuadsToVerts(quads).Item2, PrimitiveType.Quads, new RenderStates(texture));
+				Performance.DrawCallsPerFrame++;
 			}
 		}
 

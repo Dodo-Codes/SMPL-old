@@ -9,15 +9,56 @@ namespace RPG1bit
 	{
 		public static class Tab
 		{
-			public enum Type { None, SaveLoad }
-			public static Type CurrentTabType { get; set; }
+			public static Textbox Textbox { get; set; }
+			public static Area Area { get; set; }
+			public static Effects Effects { get; set; }
 
+			public enum Type { None, Single, Multi, SaveLoad }
+			public static Type CurrentTabType { get; set; }
+			public static string Title { get; set; }
+
+			public static void Create()
+			{
+				Camera.CallWhen.Display(OnDisplay);
+
+				Area = new("tab-area");
+				Effects = new("tab-effects");
+				Effects.OutlineWidth = 10;
+				Effects.BackgroundColor = new();
+
+				var sz = Camera.WorldCamera.Size / 2;
+				Area.Position = new Point(60 * 25.5, 60 * 7.9) - new Point(sz.W, sz.H);
+				Area.Size = new(60 * 13, 60 * 12);
+
+				Textbox = new("tab-textbox");
+				Textbox.AreaUniqueID = "tab-area";
+				Textbox.EffectsUniqueID = "tab-effects";
+				Textbox.FontPath = "Assets\\font.ttf";
+				Textbox.CharacterSize = 128;
+				Textbox.Spacing = new(4, 0.5);
+				Textbox.Scale = new(0.4, 0.4);
+				Textbox.OriginPercent = new(50, 0);
+				Textbox.Text = "";
+			}
 			public static void Close()
 			{
 				CurrentTabType = Type.None;
+				Title = "";
+				Textbox.Text = "";
 				Display();
-				Info.Display();
 				DisplayAllObjects();
+			}
+			public static void Open(Type type, string title)
+			{
+				Close();
+				CurrentTabType = type;
+				Title = title;
+			}
+
+			private static void OnDisplay(Camera camera)
+			{
+				if (Textbox == null) return;
+				Textbox.Display(camera);
 			}
 		}
 		public static class Info
@@ -98,7 +139,6 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(43, 16) },
 				Height = 1,
 				IsLeftClickable = true,
-				IsConfirmingClick = true,
 				IsUI = true,
 			});
 			new StartMulti(new CreationDetails()
@@ -107,7 +147,6 @@ namespace RPG1bit
 				Position = new(20, 0) { Color = Color.GrayDark },
 				TileIndexes = new Point[] { new(44, 16) },
 				Height = 1,
-				IsConfirmingClick = true,
 				IsUI = true,
 			});
 			new SaveLoad(new CreationDetails()
@@ -190,9 +229,12 @@ namespace RPG1bit
 				Screen.EditCell(new Point(x, 0), new Point(1, 22), 0, Color.BrownDark);
 			}
 
+			Screen.DisplayText(new(19, 1), 2, Color.GrayLight, Tab.Title);
 			Screen.EditCell(new Point(28, 0), new Point(33, 15), 1, Color.Gray);
 			Screen.EditCell(new Point(22, 0), new Point(4, 22), 1, Color.Brown);
 			Screen.EditCell(new Point(29, 0), new Point(4, 22), 1, Color.Brown);
+
+			Info.Display();
 		}
 	}
 }

@@ -227,6 +227,7 @@ namespace SMPL.Components
 				if (Effects == null) camera.rendTexture.Draw(Area.sprite);
 				else camera.rendTexture.Draw(Area.sprite,
 					new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
+				Performance.DrawCallsPerFrame++;
 			}
 			void Dispose()
 			{

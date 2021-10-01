@@ -111,6 +111,7 @@ namespace SMPL.Data
 				new(Point.From(endLeft), Color.From(EndPosition.Color)),
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
+			Performance.DrawCallsPerFrame++;
 		}
 	}
 }

@@ -8,14 +8,34 @@ namespace RPG1bit
 	{
 		public static readonly Dictionary<Point, Point[]> randomTiles = new()
 		{
-			{ new(1, 22), new Point[] { new(1, 22) } }, // background
-			{ new(5, 0), new Point[] { new(4, 0), new(5, 0), new(6, 0), new(7, 0) } }, // grass
-			{ new(5, 1), new Point[] { new(3, 1), new(4, 1), new(5, 1), new(6, 1), new(7, 1) } }, // oak trees
-			{ new(1, 1), new Point[] { new(0, 1), new(1, 1), new(2, 1) } }, // pine trees
-			{ new(6, 2), new Point[] { new(5, 2), new(6, 2) } }, // cactus
-			{ new(7, 2), new Point[] { new(7, 2) } }, // palm
-			{ new(4, 2), new Point[] { new(4, 2) } }, // rocks
-			{ new(0, 2), new Point[] { new(0, 2), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
+			{ new(01, 22), new Point[] { new(01, 22) } }, // background
+			{ new(05, 00), new Point[] { new(04, 00), new(5, 0), new(6, 0), new(7, 0) } }, // grass
+			{ new(05, 01), new Point[] { new(03, 01), new(4, 1), new(5, 1), new(6, 1), new(7, 1) } }, // oak trees
+			{ new(01, 01), new Point[] { new(00, 01), new(1, 1), new(2, 1) } }, // pine trees
+			{ new(06, 02), new Point[] { new(05, 02), new(6, 2) } }, // cactus
+			{ new(07, 02), new Point[] { new(07, 02) } }, // palm
+			{ new(04, 02), new Point[] { new(04, 02) } }, // rocks
+			{ new(00, 02), new Point[] { new(00, 02), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
+
+			// water
+			{ new(07, 03), new Point[] { new(07, 03) } },
+			{ new(08, 03), new Point[] { new(08, 03) } },
+			{ new(09, 03), new Point[] { new(09, 03) } },
+			{ new(10, 03), new Point[] { new(10, 03) } },
+			{ new(11, 03), new Point[] { new(11, 03) } },
+			{ new(12, 03), new Point[] { new(12, 03) } },
+			{ new(07, 04), new Point[] { new(07, 04) } },
+			{ new(08, 04), new Point[] { new(08, 04) } },
+			{ new(09, 04), new Point[] { new(09, 04) } },
+			{ new(10, 04), new Point[] { new(10, 04) } },
+			{ new(11, 04), new Point[] { new(11, 04) } },
+			{ new(12, 04), new Point[] { new(12, 04) } },
+			{ new(13, 04), new Point[] { new(13, 04) } },
+			{ new(14, 04), new Point[] { new(14, 04) } },
+			{ new(07, 05), new Point[] { new(07, 05) } },
+			{ new(08, 05), new Point[] { new(08, 05) } },
+			{ new(09, 05), new Point[] { new(09, 05) } },
+			{ new(10, 05), new Point[] { new(10, 05) } },
 		};
 		private static Point CurrentTile
 		{

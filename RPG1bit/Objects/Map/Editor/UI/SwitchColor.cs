@@ -16,7 +16,8 @@ namespace RPG1bit
 			Color.MagentaLight, Color.Magenta, Color.MagentaDark,
 			Color.OrangeLight, Color.Orange, Color.OrangeDark,
 			Color.PinkLight, Color.Pink, Color.PinkDark,
-			Color.YellowLight, Color.Yellow, Color.YellowDark
+			Color.YellowLight, Color.Yellow, Color.YellowDark,
+			Color.WaterLight, Color.Water, Color.WaterDark,
 		};
 		private static int colorIndex;
 

@@ -123,7 +123,7 @@ namespace SMPL.Gear
 			var keyStr = keyArgs.KeyChar.ToString();
 			keyStr = keyStr.Replace('\r', '\n');
 			var isBackSpace = keyStr == "\b";
-			var isEnter = keyStr == Environment.NewLine;
+			var isEnter = Environment.NewLine.Contains(keyStr);
 			var isTab = keyStr == "\t";
 			if (keyStr == "\b") keyStr = "";
 

@@ -138,6 +138,7 @@ namespace SMPL.Data
 			Text.text.DisplayedString = text;
 			Text.text.Position = Point.From(camera.Position);
 			camera.rendTexture.Draw(Text.text);
+			Performance.DrawCallsPerFrame++;
 		}
 	}
 }

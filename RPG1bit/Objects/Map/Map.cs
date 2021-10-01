@@ -25,54 +25,53 @@ namespace RPG1bit
 
 		public static void CreateUIButtons()
 		{
-			if (Gate.EnterOnceWhile("camera", true))
+			// these are not creating multiple times cuz they are destroyed beforehand
+			new MoveCamera(new Object.CreationDetails()
 			{
-				new MoveCamera(new Object.CreationDetails()
-				{
-					Name = "camera-move-up",
-					Position = new(0, 1) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(19, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				}) { CurrentType = MoveCamera.Type.Up };
-				new MoveCamera(new Object.CreationDetails()
-				{
-					Name = "camera-move-down",
-					Position = new(0, 2) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(21, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				}) { CurrentType = MoveCamera.Type.Down };
-				new MoveCamera(new Object.CreationDetails()
-				{
-					Name = "camera-move-left",
-					Position = new(1, 0) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(22, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				}) { CurrentType = MoveCamera.Type.Left };
-				new MoveCamera(new Object.CreationDetails()
-				{
-					Name = "camera-move-right",
-					Position = new(2, 0) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(20, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				}) { CurrentType = MoveCamera.Type.Right };
-				new MoveCamera(new Object.CreationDetails()
-				{
-					Name = "camera-center",
-					Position = new(0, 0) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(19, 14) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				}) { CurrentType = MoveCamera.Type.Center };
-			}
+				Name = "camera-move-up",
+				Position = new(0, 1) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(19, 20) },
+				Height = 1,
+				IsUI = true,
+				IsLeftClickable = true,
+			}) { CurrentType = MoveCamera.Type.Up };
+			new MoveCamera(new Object.CreationDetails()
+			{
+				Name = "camera-move-down",
+				Position = new(0, 2) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(21, 20) },
+				Height = 1,
+				IsUI = true,
+				IsLeftClickable = true,
+			}) { CurrentType = MoveCamera.Type.Down };
+			new MoveCamera(new Object.CreationDetails()
+			{
+				Name = "camera-move-left",
+				Position = new(1, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(22, 20) },
+				Height = 1,
+				IsUI = true,
+				IsLeftClickable = true,
+			}) { CurrentType = MoveCamera.Type.Left };
+			new MoveCamera(new Object.CreationDetails()
+			{
+				Name = "camera-move-right",
+				Position = new(2, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(20, 20) },
+				Height = 1,
+				IsUI = true,
+				IsLeftClickable = true,
+			}) { CurrentType = MoveCamera.Type.Right };
+			new MoveCamera(new Object.CreationDetails()
+			{
+				Name = "camera-center",
+				Position = new(0, 0) { Color = Color.Gray },
+				TileIndexes = new Point[] { new(19, 14) },
+				Height = 1,
+				IsUI = true,
+				IsLeftClickable = true,
+			}) { CurrentType = MoveCamera.Type.Center };
+
 			if (Gate.EnterOnceWhile("game-buttons", CurrentSession == Session.Single || CurrentSession == Session.Multi))
 			{
 				new SlotHead(new Object.CreationDetails()
@@ -244,6 +243,18 @@ namespace RPG1bit
 				Screen.EditCell(new(0, 16), new(36 + SwitchHeight.BrushHeight, 17), 1, Color.Gray);
 				Screen.EditCell(new(0, 4), SwitchType.BrushType, 1, SwitchColor.BrushColor);
 			}
+		}
+		public static void LoadMap(Session session, string name)
+		{
+			if (Assets.ValuesAreLoaded("map-data", "camera-position")) Assets.UnloadValues("map-data", "camera-position");
+			Assets.Load(Assets.Type.DataSlot, $"Maps\\{name}.mapdata");
+			NavigationPanel.Tab.Close();
+			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
+
+			if (CurrentSession != session) DestroyAllSessionObjects();
+			CurrentSession = session;
+			DisplayNavigationPanel();
+			CreateUIButtons();
 		}
 
 		public static Point MapToScreenPosition(Point mapPos)

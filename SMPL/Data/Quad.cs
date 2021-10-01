@@ -30,6 +30,7 @@ namespace SMPL.Data
 			if (Window.DrawNotAllowed()) return;
 			var verts = new Vertex[] { CornerA.Vertex, CornerB.Vertex, CornerC.Vertex, CornerD.Vertex };
 			camera.rendTexture.Draw(verts, PrimitiveType.Quads);
+			Performance.DrawCallsPerFrame++;
 		}
 
 		public void SetTextureCropCoordinates(Point topLeft, Point downRight)

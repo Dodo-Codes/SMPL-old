@@ -42,7 +42,7 @@ namespace RPG1bit
 
 			{ new(13, 22), "Left click and type anything..." },
 
-			{ new(44, 16), "Start a new multiplayer game session.\n      (not available in this version)" },
+			{ new(44, 16), "Start a new multiplayer game session.\n  (not available in this game version)" },
 
 			{ new(05, 22), "On your head:" },
 			{ new(06, 22), "On your body:" },
@@ -69,6 +69,12 @@ namespace RPG1bit
 			{ new(07, 02), "Palm." },
 			{ new(04, 02), "Rocks." },
 			{ new(00, 02), "Bush." }, { new(1, 2), "Bush." }, { new(2, 2), "Bush." }, { new(3, 2), "Dead bush." },
+
+			{ new(07, 03), "Water." }, { new(8, 3), "Water." }, { new(9, 3), "Water." }, { new(10, 3), "Water." },
+			{ new(11, 3), "Water." }, { new(12, 3), "Water." }, { new(7, 4), "Water." }, { new(8, 4), "Water." },
+			{ new(9, 4), "Water." }, { new(10, 4), "Water." }, { new(11, 4), "Water." }, { new(12, 4), "Water." },
+			{ new(13, 4), "Water." }, { new(14, 4), "Water." }, { new(7, 5), "Water." }, { new(8, 5), "Water." },
+			{ new(9, 5), "Water." }, { new(10, 5), "Water." },
 
 			{ new(32, 00), "Helmet." },
 		};

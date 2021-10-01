@@ -6,6 +6,8 @@ namespace RPG1bit
 {
 	public class ObjectList : Object
 	{
+		public static Dictionary<string, ObjectList> Lists { get; } = new();
+
 		public Size Size { get; private set; }
 		public List<Object> Objects { get; set; } = new();
 		public int scrollIndex;
@@ -13,9 +15,20 @@ namespace RPG1bit
 
 		public ObjectList(CreationDetails creationDetails, Size size) : base(creationDetails)
 		{
+			Lists[Name] = this;
 			Mouse.CallWhen.ButtonRelease(OnButtonRelease);
+			Mouse.CallWhen.WheelScroll(OnWheelScroll);
 			Size = size;
 			Game.CallWhen.Running(Always);
+		}
+
+		private void OnWheelScroll(Mouse.Wheel wheel, double delta)
+		{
+			if (wheel != Mouse.Wheel.Vertical || IsHovered() == false) return;
+			if (delta == 1) ScrollUp();
+			else if (delta == -1) ScrollDown();
+
+			Screen.Display();
 		}
 
 		private void Always()
@@ -25,11 +38,12 @@ namespace RPG1bit
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (mousePos != lastMousePos)
 			{
-				if (Objects.Count > Size.H)
+				if (Objects.Count >= Size.H)
 				{
-					if (mousePos == new Point(Position.X + Size.W / 2, Position.Y))
+					if (mousePos == new Point(Position.X + Size.W / 2, Position.Y) && scrollIndex > 0)
 						NavigationPanel.Info.Textbox.Text = "Scroll up the list.";
-					else if (mousePos == new Point(Position.X + Size.W / 2, Position.Y + Size.H))
+					else if (mousePos == new Point(Position.X + Size.W / 2, Position.Y + Size.H) &&
+						scrollIndex < Objects.Count - (int)Size.H + 1)
 						NavigationPanel.Info.Textbox.Text = "Scroll down the list.";
 				}
 				if (IsHovered())
@@ -48,27 +62,24 @@ namespace RPG1bit
 		}
 		private void OnButtonRelease(Mouse.Button button)
 		{
+			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
-			if (mousePos == new Point(Position.X + Size.W / 2, Position.Y))
-				scrollIndex -= scrollIndex == 0 ? 0 : 1;
-			else if (mousePos == new Point(Position.X + Size.W / 2, Position.Y + Size.H))
-				scrollIndex += scrollIndex == Objects.Count || Objects.Count <= Size.H + scrollIndex - 1 ? 0 : 1;
+			if (button == Mouse.Button.Left && mousePos == new Point(Position.X + Size.W / 2, Position.Y) &&
+				LeftClickPosition == mousePos)
+				ScrollUp();
+			else if (button == Mouse.Button.Left && mousePos == new Point(Position.X + Size.W / 2, Position.Y + Size.H) &&
+				LeftClickPosition == mousePos)
+				ScrollDown();
 			else if (IsHovered())
 			{
 				var index = (int)(mousePos.Y - Position.Y + scrollIndex) - 1;
 				if (Objects.Count <= index) return;
 				if (button == Mouse.Button.Left && Objects[index].IsLeftClickable && LeftClickPosition.Y == mousePos.Y)
 					Objects[index].OnLeftClicked();
-				else if (button == Mouse.Button.Right && RightClickPosition.Y == mousePos.Y)
-				{
-					if (Objects[index] is LoadMapValue) FileSystem.DeleteFiles($"Maps\\{Objects[index].Name}.mapdata");
-					Objects.RemoveAt(index);
-					scrollIndex = 0;
-				}
+				else if (button == Mouse.Button.Right && RightClickPosition.Y == mousePos.Y && Objects[index].IsLeftClickable)
+					Objects[index].OnRightClicked();
 			}
-			NavigationPanel.Display();
-			NavigationPanel.Info.Display();
-			DisplayAllObjects();
+			Screen.Display();
 		}
 		public override void OnDisplay()
 		{
@@ -88,14 +99,24 @@ namespace RPG1bit
 				var pos = new Point(Position.X + 1, y);
 				var iconIndexes = new Point(0, 0);
 				if (Objects[i] is LoadMapValue) iconIndexes = new Point(47, 06);
-				Screen.EditCell(pos - new Point(1, 0), iconIndexes, 1, Color.White);
+				if (Objects[i] is StartSingleOnMap) iconIndexes = new Point(32, 15);
+				Screen.EditCell(pos - new Point(1, 0), iconIndexes, 2, Color.White);
 				Screen.DisplayText(pos, 2, Color.White, Objects[i].Name);
 			}
-			if (Objects.Count >= Size.H)
-			{
-				if (scrollIndex > 0) Screen.EditCell(Position + new Point(Size.W / 2, 0), new Point(23, 20), 1, Color.White);
+			DisplayScrollArrows();
+		}
+		public void DisplayScrollArrows()
+		{
+			if (Objects.Count < Size.H) return;
+
+			if (scrollIndex > 0) Screen.EditCell(Position + new Point(Size.W / 2, 0), new Point(23, 20), 1, Color.White);
+			if (scrollIndex < Objects.Count - (int)Size.H + 1)
 				Screen.EditCell(Position + new Point(Size.W / 2, Size.H), new Point(25, 20), 1, Color.White);
-			}
+		}
+
+		public void ScrollToTop()
+		{
+			scrollIndex = 0;
 		}
 		public void ScrollToBottom()
 		{
@@ -104,11 +125,11 @@ namespace RPG1bit
 		}
 		public void ScrollUp()
 		{
-
+			scrollIndex -= scrollIndex == 0 ? 0 : 1;
 		}
 		public void ScrollDown()
 		{
-
+			scrollIndex += scrollIndex == Objects.Count || Objects.Count <= Size.H + scrollIndex - 1 ? 0 : 1;
 		}
 
 		public bool IsHovered()

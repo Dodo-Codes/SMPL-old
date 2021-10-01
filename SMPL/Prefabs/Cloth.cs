@@ -90,6 +90,7 @@ namespace SMPL.Prefabs
 				}
 			var qs = Sprite.QuadsToVerts(quads);
 			camera.rendTexture.Draw(qs.Item2, PrimitiveType.Quads, new RenderStates(Assets.textures[TexturePath]));
+			Performance.DrawCallsPerFrame++;
 		}
 
 		public void Cut(int x, int y)

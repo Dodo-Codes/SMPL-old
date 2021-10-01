@@ -228,6 +228,7 @@ namespace SMPL.Gear
 		{
 			if (IsHidden) return;
 
+			Performance.DrawCallsPerFrame = 0;
 			window.SetActive(true);
 			window.Clear();
 			isDrawing = true;

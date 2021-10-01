@@ -22,7 +22,7 @@ namespace SMPL.Components
 		internal static List<Textbox> texts = new();
 		internal void UpdateAllData()
 		{
-			if (Text == null || Text.Trim() == "") return;
+			if (Text == null) return;
 			var Area = (Area)PickByUniqueID(AreaUniqueID);
 			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
 			Area.text.Font = FontPath == null || Assets.fonts.ContainsKey(FontPath) == false ? null : Assets.fonts[FontPath];
@@ -203,6 +203,7 @@ namespace SMPL.Components
 
 			if (Effects == null) camera.rendTexture.Draw(Area.sprite);
 			else camera.rendTexture.Draw(Area.sprite, new RenderStates(BlendMode.Alpha, Transform.Identity, null, Effects.shader));
+			Performance.DrawCallsPerFrame++;
 
 			rend.Dispose();
 			OnDisplay?.Invoke(this);

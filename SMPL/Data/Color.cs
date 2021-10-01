@@ -46,6 +46,10 @@ namespace SMPL.Data
 		public static Color Brown			=> new(125, 75,	25);
 		public static Color BrownDark		=> new(50,	37,	25);
 
+		public static Color WaterLight	=> new(0,	150,	200);
+		public static Color Water			=> new(0,	100,	150);
+		public static Color WaterDark		=> new(0,	50,	100);
+
 		public Color(double red, double green, double blue, double alpha = 255)
 		{
 			R = red;

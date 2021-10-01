@@ -26,10 +26,7 @@ namespace RPG1bit
 			if (Gate.EnterOnceWhile("graphics-and-font-loaded", Assets.AreLoaded("Assets\\graphics.png", "Assets\\font.ttf")))
 			{
 				Screen.Create();
-
-				NavigationPanel.Display();
-				NavigationPanel.Info.Display();
-				Object.DisplayAllObjects(); // for the ui
+				Screen.Display();
 			}
 		}
 	}

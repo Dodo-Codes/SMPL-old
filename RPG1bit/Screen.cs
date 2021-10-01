@@ -44,9 +44,15 @@ namespace RPG1bit
 			CreateAndInitializeScreen();
 
 			NavigationPanel.CreateButtons();
+			NavigationPanel.Tab.Create();
 			NavigationPanel.Info.Create();
 			Object.Initialize();
 			Hoverer.Create();
+		}
+		public static void Display()
+		{
+			NavigationPanel.Display();
+			Object.DisplayAllObjects();
 		}
 
 		public static Point GetCellAtCursorPosition()
@@ -75,6 +81,8 @@ namespace RPG1bit
 		}
 		public static void DisplayText(Point position, int depth, Color color, string text)
 		{
+			if (text == null) return;
+			text = text.ToLower();
 			for (int i = 0; i < text.Length; i++)
 			{
 				var x = position.X + i;
