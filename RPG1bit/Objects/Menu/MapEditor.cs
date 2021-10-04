@@ -51,7 +51,7 @@ namespace RPG1bit
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
 		public override void OnLeftClicked()
 		{
-			if (Map.CurrentSession != Map.Session.MapEdit) Map.DestroyAllSessionObjects();
+			Map.DestroyAllSessionObjects();
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
@@ -79,6 +79,11 @@ namespace RPG1bit
 						}
 					}
 
+			if (lastTilePos.X == -1 || lastTilePos.Y == -1)
+			{
+				offset = default;
+				return default;
+			}
 			var result = new Point[(int)(lastTilePos.X - firstTilePos.X + 1), (int)(lastTilePos.Y - firstTilePos.Y + 1), 3];
 			for (int y = 0; y < result.GetLength(1); y++)
 				for (int x = 0; x < result.GetLength(0); x++)
@@ -117,7 +122,7 @@ namespace RPG1bit
 		public static void EditPlayerTile()
 		{
 			var pos = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
-			Map.RawData[(int)pos.X, (int)pos.Y, 3] = new(Map.RawData[(int)pos.X, (int)pos.Y, 3] == new Point(25, 0) ? 0 : 25, 0);
+			Map.RawData[(int)pos.X, (int)pos.Y, 3] = new(Map.RawData[(int)pos.X, (int)pos.Y, 3] == Map.TilePlayer ? 0 : 25, 0);
 			Map.Display();
 			NavigationPanel.Tab.Close();
 		}

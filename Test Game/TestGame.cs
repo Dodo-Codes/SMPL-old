@@ -9,7 +9,7 @@ namespace TestGame
 
       public override void OnGameCreated()
       {
-         new Player();
+         new Player("player");
       }
    }
 }

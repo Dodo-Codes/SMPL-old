@@ -49,15 +49,5 @@ namespace RPG1bit
 					}));
 			}
 		}
-		private void Execute()
-		{
-			if (Map.CurrentSession != Map.Session.Single) Map.DestroyAllSessionObjects();
-			Map.CurrentSession = Map.Session.Single;
-			Map.DisplayNavigationPanel();
-
-			Map.CreateUIButtons();
-			Map.Display(); // for the map itself
-			DisplayAllObjects(); // for the map ui
-		}
 	}
 }

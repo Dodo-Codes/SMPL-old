@@ -146,6 +146,8 @@ namespace RPG1bit
 		public void Destroy()
 		{
 			objects[Position].Remove(this);
+			if (objects[Position].Count == 0) objects.Remove(Position);
+			Mouse.StopCallWhen.ButtonRelease(OnButtonRelease);
 		}
 		public static void DisplayAllObjects()
 		{
@@ -194,7 +196,7 @@ namespace RPG1bit
 		{
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
-			if (Screen.CellIsOnScreen(mousePos) == false) return;
+			if (Screen.CellIsOnScreen(mousePos, true) == false) return;
 
 			if (Map.CurrentSession == Map.Session.None && mousePos.X < 18)
 			{
@@ -288,7 +290,7 @@ namespace RPG1bit
 		{
 			var scrPos = Map.MapToScreenPosition(Position);
 			var isHiddenUI = IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType;
-			if (Screen.CellIsOnScreen(Position))
+			if (Screen.CellIsOnScreen(Position, IsUI))
 				Screen.EditCell(IsUI ? Position : scrPos, TileIndexes, Height, isHiddenUI ? new Color() : Position.Color);
 			OnDisplay();
 		}

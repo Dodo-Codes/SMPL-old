@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SMPL.Gear
 {
@@ -71,6 +72,55 @@ namespace SMPL.Gear
 			}
 			if (order >= l.Length) pz += new ParamsFour<T1, T2, T3, T4>(method);
 			return pz;
+		}
+
+		internal enum Type
+		{
+			MouseButtonDoubleClick, MouseButtonPress, MouseButtonHold, MouseButtonRelease, MouseWheelScroll,
+			MouseCursorLeaveWindow, MouseCursorEnterWindow
+		}
+		internal struct EventArgs
+		{
+			public Mouse.Button MouseButton { get; set; }
+			public Mouse.Wheel Wheel { get; set; }
+			public double[] Double { get; set; }
+			public int[] Int { get; set; }
+			public int[] String { get; set; }
+		}
+		internal static Dictionary<Type, SortedDictionary<uint, List<string>>> notifications = new();
+
+		internal static void NotificationEnable(Type notificationType, string thingUID, uint order)
+		{
+			if (notifications.ContainsKey(notificationType) == false) notifications[notificationType] = new();
+			if (notifications[notificationType].ContainsKey(order) == false) notifications[notificationType][order] = new();
+			if (notifications[notificationType][order].Contains(thingUID) == false) notifications[notificationType][order].Add(thingUID);
+		}
+		internal static void NotificationDisable(Type notificationType, string thingUID)
+		{
+			if (notifications.ContainsKey(notificationType) == false) return;
+			var orders = notifications[notificationType];
+			foreach (var kvp in orders)
+				kvp.Value.Remove(thingUID);
+		}
+		internal static void Notify(Type notificationType, EventArgs eventArgs = default)
+		{
+			if (notifications.ContainsKey(notificationType) == false) return;
+			var orders = notifications[notificationType];
+			foreach (var kvp in orders)
+				for (int i = 0; i < kvp.Value.Count; i++)
+				{
+					var thing = Thing.PickByUniqueID(kvp.Value[i]);
+					switch (notificationType)
+					{
+						case Type.MouseButtonDoubleClick: thing.OnMouseButtonDoubleClick(eventArgs.MouseButton); break;
+						case Type.MouseButtonPress: break;
+						case Type.MouseButtonHold: break;
+						case Type.MouseButtonRelease: break;
+						case Type.MouseWheelScroll: break;
+						case Type.MouseCursorEnterWindow: break;
+						case Type.MouseCursorLeaveWindow: break;
+					}
+				}
 		}
 	}
 }

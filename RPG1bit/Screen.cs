@@ -95,8 +95,13 @@ namespace RPG1bit
 				EditCell(new Point(x, position.Y), tileIndexes, depth, color);
 			}
 		}
-		public static bool CellIsOnScreen(Point cell)
+		public static bool CellIsOnScreen(Point cell, bool isUI)
 		{
+			if (isUI == false)
+			{
+				var camPos = Map.CameraPosition;
+				return cell.X >= camPos.X - 8 && cell.Y >= camPos.Y - 8 && cell.X <= camPos.Y + 8 && cell.Y <= camPos.Y + 8;
+			}
 			return cell.X >= 0 && cell.Y >= 0 && cell.X <= 31 && cell.Y <= 18;
 		}
 

@@ -147,5 +147,7 @@ namespace SMPL.Gear
 					return false;
 			return true;
 		}
+
+		public virtual void OnMouseButtonDoubleClick(Mouse.Button button) { }
 	}
 }

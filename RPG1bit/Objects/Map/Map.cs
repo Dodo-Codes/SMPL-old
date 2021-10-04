@@ -9,6 +9,10 @@ namespace RPG1bit
 	{
 		public enum Session { None, Single, Multi, MapEdit }
 
+		public static Point TileVoid => new(0, 0);
+		public static Point TileBarrier => new(0, 22);
+		public static Point TilePlayer => new(25, 0);
+
 		public static Size Size => new(1000, 1000);
 		public static Point[,,] RawData { get; set; } = DefaultRawData;
 		public static Point[,,] DefaultRawData => new Point[(int)Size.W, (int)Size.H, 4];
@@ -40,8 +44,42 @@ namespace RPG1bit
 				if (mapData != default) InsertMapData(mapData, mapOffset);
 				if (cameraPos != default) CameraPosition = cameraPos;
 
-				Display(); // for the map iteself
-				Object.DisplayAllObjects(); // for the ui
+				if (CurrentSession == Session.Single && mapData != default)
+				{
+					var bottomRight = mapOffset + new Point(mapData.GetLength(1), mapData.GetLength(0));
+					var playerTiles = new List<Point>();
+					var barrierTiles = new List<Point>();
+					for (int y = (int)mapOffset.Y; y < bottomRight.Y; y++)
+						for (int x = (int)mapOffset.X; x < bottomRight.X; x++)
+						{
+							if (RawData[x, y, 3] == TilePlayer) playerTiles.Add(new Point(x, y));
+							else if (RawData[x, y, 3] == TileBarrier) barrierTiles.Add(new Point(x, y));
+						}
+					if (playerTiles.Count == 0)
+					{
+						var randPoint = new Point(RandX(), RandY());
+						while (RandPointIsBarrier()) randPoint = new(RandX(), RandY());
+						new Player(new Object.CreationDetails()
+						{
+							Name = "player",
+							Position = randPoint,
+							Height = 3,
+							TileIndexes = new Point[] { TilePlayer }
+						});
+
+						bool RandPointIsBarrier() => RawData[(int)randPoint.X, (int)randPoint.Y, 3] == TileBarrier;
+						double RandX() => Probability.Randomize(new(mapOffset.X, bottomRight.X));
+						double RandY() => Probability.Randomize(new(mapOffset.Y, bottomRight.Y));
+					}
+					else
+					{
+						var randPoint = playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))];
+						mapData[(int)randPoint.X, (int)randPoint.Y, 3] = randPoint;
+					}
+				}
+
+				Display();
+				Object.DisplayAllObjects();
 			}
 		}
 
@@ -94,7 +132,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Center };
 
-			if (Gate.EnterOnceWhile("game-buttons", CurrentSession == Session.Single || CurrentSession == Session.Multi))
+			if (CurrentSession == Session.Single || CurrentSession == Session.Multi)
 			{
 				new SlotHead(new Object.CreationDetails()
 				{
@@ -155,7 +193,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 			}
-			if (Gate.EnterOnceWhile("map-editor-buttons", CurrentSession == Session.MapEdit))
+			if (CurrentSession == Session.MapEdit)
 			{
 				new SwitchType(new Object.CreationDetails()
 				{
@@ -253,7 +291,7 @@ namespace RPG1bit
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
-				Screen.EditCell(new(7, 0), new(25, 0), 1, Color.Gray);
+				Screen.EditCell(new(7, 0), TilePlayer, 1, Color.Gray);
 
 				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
 				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
@@ -270,15 +308,18 @@ namespace RPG1bit
 		}
 		public static void LoadMap(Session session, string name)
 		{
-			if (Assets.ValuesAreLoaded("map-data", "camera-position")) Assets.UnloadValues("map-data", "camera-position");
+			if (Assets.ValuesAreLoaded("map-data", "camera-position", "map-offset"))
+				Assets.UnloadValues("map-data", "camera-position", "map-offset");
 			Assets.Load(Assets.Type.DataSlot, $"Maps\\{name}.mapdata");
 			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
 
-			if (CurrentSession != session) DestroyAllSessionObjects();
+			DestroyAllSessionObjects();
 			CurrentSession = session;
+
 			DisplayNavigationPanel();
 			CreateUIButtons();
+			Console.Log(Object.objects.Count);
 		}
 		public static void InsertMapData(Point[,,] data, Point offset)
 		{
