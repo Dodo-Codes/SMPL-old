@@ -10,58 +10,16 @@ namespace SMPL.Gear
 	[JsonObject(MemberSerialization.OptIn)]
 	public class Thing
 	{
-		private string uniqueID;
-
-		//===========
-
 		internal static readonly Dictionary<string, Thing> uniqueIDs = new();
 		internal static readonly Dictionary<string, List<Thing>> tagObjs = new();
 		internal static readonly Dictionary<Thing, List<string>> objTags = new();
-		internal bool cannotCreate;
-
-		internal bool ErrorIfDestroyed()
-		{
-			if (IsDestroyed)
-			{
-				Debug.LogError(2, $"This {nameof(Thing)} is destroyed.");
-				return true;
-			}
-			return false;
-		}
-		internal static void ErrorAlreadyHasUID(string uniqueID)
-		{
-			Debug.LogError(2, $"A {nameof(Thing)} with uniqueID '{uniqueID}' already exists.\n" +
-				$"The newly created {nameof(Thing)} was destroyed because of this.");
-		}
-
-		// ======
 
 		public static string[] AllUniqueIDs => uniqueIDs.Keys.ToArray();
 		public static Thing[] AllInstances => uniqueIDs.Values.ToArray();
 		public static string[] AllTags => tagObjs.Keys.ToArray();
 
-		public static bool TagsExist(params string[] tags)
-		{
-			for (int i = 0; i < tags.Length; i++)
-				if (tagObjs.ContainsKey(tags[i]) == false)
-					return false;
-			return true;
-		}
-		public static bool UniqueIDsExits(params string[] uniqueIDs)
-		{
-			for (int i = 0; i < uniqueIDs.Length; i++)
-				if (Thing.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
-					return false;
-			return true;
-		}
-		public static Thing PickByUniqueID(string uniqueID)
-		{
-			return uniqueID != null && uniqueIDs.ContainsKey(uniqueID) ? uniqueIDs[uniqueID] : default;
-		}
-		public static Thing[] PickByTag(string tag) => tagObjs.ContainsKey(tag) ? tagObjs[tag].ToArray() : Array.Empty<Thing>();
-
-		// ======
-
+		internal bool cannotCreate;
+		private string uniqueID;
 		[JsonProperty]
 		public bool IsDestroyed { get; private set; }
 		[JsonProperty]
@@ -102,15 +60,41 @@ namespace SMPL.Gear
 		public virtual void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
-			IsDestroyed = true;
 			if (cannotCreate) return;
-			uniqueIDs.Remove(UniqueID);
+			uniqueIDs.Remove(uniqueID);
 			if (objTags.ContainsKey(this))
 			{
 				RemoveAllTags();
 				objTags.Remove(this);
 			}
+
+			foreach (var kvp in Events.notifications)
+				foreach (var kvp2 in kvp.Value)
+					if (kvp2.Value.Contains(uniqueID))
+						kvp2.Value.Remove(uniqueID);
+
+			IsDestroyed = true;
 		}
+
+		public static bool TagsExist(params string[] tags)
+		{
+			for (int i = 0; i < tags.Length; i++)
+				if (tagObjs.ContainsKey(tags[i]) == false)
+					return false;
+			return true;
+		}
+		public static bool UniqueIDsExits(params string[] uniqueIDs)
+		{
+			for (int i = 0; i < uniqueIDs.Length; i++)
+				if (Thing.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
+					return false;
+			return true;
+		}
+		public static Thing PickByUniqueID(string uniqueID)
+		{
+			return uniqueID != null && uniqueIDs.ContainsKey(uniqueID) ? uniqueIDs[uniqueID] : default;
+		}
+		public static Thing[] PickByTag(string tag) => tagObjs.ContainsKey(tag) ? tagObjs[tag].ToArray() : Array.Empty<Thing>();
 
 		public void AddTags(params string[] tags)
 		{
@@ -197,5 +181,20 @@ namespace SMPL.Gear
 		public virtual void OnTimerCreateAndStart(Timer timer) { }
 		public virtual void OnTimerUpdate(Timer timer) { }
 		public virtual void OnTimerEnd(Timer timer) { }
+
+		internal bool ErrorIfDestroyed()
+		{
+			if (IsDestroyed)
+			{
+				Debug.LogError(2, $"This {nameof(Thing)} is destroyed.");
+				return true;
+			}
+			return false;
+		}
+		internal static void ErrorAlreadyHasUID(string uniqueID)
+		{
+			Debug.LogError(2, $"A {nameof(Thing)} with uniqueID '{uniqueID}' already exists.\n" +
+				$"The newly created {nameof(Thing)} was destroyed because of this.");
+		}
 	}
 }

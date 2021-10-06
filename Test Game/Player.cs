@@ -6,7 +6,7 @@ namespace TestGame
 	{
       public Player(string uniqueID) : base(uniqueID)
       {
-			Window.Event.Subscribe.Resize(uniqueID);
+			Window.Event.Subscribe.Resize(null);
       }
 
 		public override void OnWindowResize()
