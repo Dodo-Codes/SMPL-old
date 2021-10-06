@@ -149,5 +149,11 @@ namespace SMPL.Gear
 		}
 
 		public virtual void OnMouseButtonDoubleClick(Mouse.Button button) { }
+		public virtual void OnMouseButtonPress(Mouse.Button button) { }
+		public virtual void OnMouseButtonRelease(Mouse.Button button) { }
+		public virtual void OnMouseButtonHold(Mouse.Button button) { }
+		public virtual void OnMouseWheelScroll(Mouse.Wheel wheel, double delta) { }
+		public virtual void OnMouseCursorWindowEnter() { }
+		public virtual void OnMouseCursorWindowLeave() { }
 	}
 }

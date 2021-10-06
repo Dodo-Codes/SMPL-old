@@ -7,11 +7,6 @@ namespace SMPL.Components
 {
 	public class Timer : Thing
    {
-      private static readonly List<Timer> timers = new();
-      private static event Events.ParamsOne<Timer> OnEnd, OnPause;
-      private static event Events.ParamsTwo<Timer, double> OnCreateAndStart;
-      private static event Events.ParamsFour<Timer, double, double, double> OnUpdate;
-
       private double progress, countdown, endCount, duration;
       private bool isPaused;
 

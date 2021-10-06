@@ -32,16 +32,16 @@ namespace SMPL.Gear
 				public static class Subscrive
 				{
 					public static void WindowEnter(string thingUID, uint order) =>
-						Events.NotificationEnable(Events.Type.MouseCursorEnterWindow, thingUID, order);
+						Events.NotificationEnable(Events.Type.CursorEnterWindow, thingUID, order);
 					public static void WindowLeave(string thingUID, uint order) =>
-						Events.NotificationEnable(Events.Type.MouseCursorLeaveWindow, thingUID, order);
+						Events.NotificationEnable(Events.Type.CursorLeaveWindow, thingUID, order);
 				}
 				public static class Unsubscribe
 				{
 					public static void WindowEnter(string thingUID) =>
-						Events.NotificationDisable(Events.Type.MouseCursorEnterWindow, thingUID);
+						Events.NotificationDisable(Events.Type.CursorEnterWindow, thingUID);
 					public static void WindowLeave(string thingUID) =>
-						Events.NotificationDisable(Events.Type.MouseCursorLeaveWindow, thingUID);
+						Events.NotificationDisable(Events.Type.CursorLeaveWindow, thingUID);
 				}
 			}
 
@@ -89,9 +89,9 @@ namespace SMPL.Gear
 			}
 
 			internal static void OnMouseCursorEnterWindow(object sender, EventArgs e) =>
-				Events.Notify(Events.Type.MouseCursorEnterWindow);
+				Events.Notify(Events.Type.CursorEnterWindow);
 			internal static void OnMouseCursorLeaveWindow(object sender, EventArgs e) =>
-				Events.Notify(Events.Type.MouseCursorLeaveWindow);
+				Events.Notify(Events.Type.CursorLeaveWindow);
 		}
 
 		public static Button[] ButtonsPressed { get { return buttonsHeld.ToArray(); } }
@@ -103,28 +103,28 @@ namespace SMPL.Gear
 			public static class Subscribe
 			{
 				public static void ButtonDoubleClick(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.MouseButtonDoubleClick, thingUID, order);
+					Events.NotificationEnable(Events.Type.ButtonDoubleClick, thingUID, order);
 				public static void ButtonPress(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.MouseButtonPress, thingUID, order);
+					Events.NotificationEnable(Events.Type.ButtonPress, thingUID, order);
 				public static void ButtonHold(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.MouseButtonHold, thingUID, order);
+					Events.NotificationEnable(Events.Type.ButtonHold, thingUID, order);
 				public static void ButtonRelease(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.MouseButtonRelease, thingUID, order);
+					Events.NotificationEnable(Events.Type.ButtonRelease, thingUID, order);
 				public static void WheelScroll(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.MouseWheelScroll, thingUID, order);
+					Events.NotificationEnable(Events.Type.WheelScroll, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void ButtonDoubleClick(string thingUID) =>
-					Events.NotificationDisable(Events.Type.MouseButtonDoubleClick, thingUID);
+					Events.NotificationDisable(Events.Type.ButtonDoubleClick, thingUID);
 				public static void ButtonPress(string thingUID) =>
-					Events.NotificationDisable(Events.Type.MouseButtonPress, thingUID);
+					Events.NotificationDisable(Events.Type.ButtonPress, thingUID);
 				public static void ButtonHold(string thingUID) =>
-					Events.NotificationDisable(Events.Type.MouseButtonHold, thingUID);
+					Events.NotificationDisable(Events.Type.ButtonHold, thingUID);
 				public static void ButtonRelease(string thingUID) =>
-					Events.NotificationDisable(Events.Type.MouseButtonRelease, thingUID);
+					Events.NotificationDisable(Events.Type.ButtonRelease, thingUID);
 				public static void WheelScroll(string thingUID) =>
-					Events.NotificationDisable(Events.Type.MouseWheelScroll, thingUID);
+					Events.NotificationDisable(Events.Type.WheelScroll, thingUID);
 			}
 		}
 
@@ -140,13 +140,13 @@ namespace SMPL.Gear
 		internal static void Update()
 		{
 			for (int i = 0; i < buttonsHeld.Count; i++)
-				Events.Notify(Events.Type.MouseButtonHold, new() { MouseButton = buttonsHeld[i] });
+				Events.Notify(Events.Type.ButtonHold, new() { Button = buttonsHeld[i] });
 			Cursor.lastFrameCursorPosScr = Cursor.PositionScreen;
 		}
 		internal static void CancelInput()
 		{
 			for (int i = 0; i < buttonsHeld.Count; i++)
-				Events.Notify(Events.Type.MouseButtonRelease, new() { MouseButton = buttonsHeld[i]});
+				Events.Notify(Events.Type.ButtonRelease, new() { Button = buttonsHeld[i]});
 			buttonsHeld.Clear();
 		}
 
@@ -155,14 +155,14 @@ namespace SMPL.Gear
 			var buttonArgs = (MouseButtonEventArgs)e;
 			var button = (Button)buttonArgs.Button;
 			buttonsHeld.Add(button);
-			Events.Notify(Events.Type.MouseButtonPress, new Events.EventArgs() { MouseButton = button });
+			Events.Notify(Events.Type.ButtonPress, new Events.EventArgs() { Button = button });
 		}
 		internal static void OnMouseButtonRelease(object sender, EventArgs e)
 		{
 			var buttonArgs = (MouseButtonEventArgs)e;
 			var button = (Button)buttonArgs.Button;
 			buttonsHeld.Remove(button);
-			Events.Notify(Events.Type.MouseButtonRelease, new Events.EventArgs() { MouseButton = button });
+			Events.Notify(Events.Type.ButtonRelease, new Events.EventArgs() { Button = button });
 		}
 		internal static void OnMouseButtonDoubleClick(object sender, EventArgs e)
 		{
@@ -176,13 +176,13 @@ namespace SMPL.Gear
 				case MouseButtons.XButton1: button = Button.ExtraButton1; break;
 				case MouseButtons.XButton2: button = Button.ExtraButton2; break;
 			}
-			Events.Notify(Events.Type.MouseButtonDoubleClick, new Events.EventArgs() { MouseButton = button });
+			Events.Notify(Events.Type.ButtonDoubleClick, new Events.EventArgs() { Button = button });
 		}
 		internal static void OnMouseWheelScroll(object sender, EventArgs e)
 		{
 			var arguments = (MouseWheelScrollEventArgs)e;
 			var wheel = (Wheel)arguments.Wheel;
-			Events.Notify(Events.Type.MouseWheelScroll, new() { Wheel = wheel, Double = new double[] { arguments.Delta } });
+			Events.Notify(Events.Type.WheelScroll, new() { Wheel = wheel, Double = new double[] { arguments.Delta } });
 		}
 	}
 }

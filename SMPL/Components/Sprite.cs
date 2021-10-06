@@ -11,8 +11,6 @@ namespace SMPL.Components
 {
 	public class Sprite : Visual
 	{
-		private static event Events.ParamsOne<Sprite> OnDisplay;
-
 		private bool isRepeated, isSmooth;
 		private string texturePath;
 
@@ -45,11 +43,6 @@ namespace SMPL.Components
 
 		// ===============
 
-		public static class CallWhen
-		{
-			public static void Display(Action<Sprite> method, uint order = uint.MaxValue) =>
-				OnDisplay = Events.Add(OnDisplay, method, order);
-		}
 		[JsonProperty]
 		public bool IsRepeated
 		{
@@ -207,7 +200,6 @@ namespace SMPL.Components
 			UpdateSprite();
 			Draw();
 			Dispose();
-			OnDisplay?.Invoke(this);
 
 			void UpdateSprite()
 			{

@@ -68,8 +68,6 @@ namespace SMPL.Gear
 		}
 		public enum Type { Texture, Font, Music, Sound, DataSlot }
 
-		private static event Events.ParamsZero OnAssetLoadStart, OnAssetLoadUpdate, OnAssetLoadEnd, OnDataSlotSaveStart,
-			OnDataSlotSaveUpdate, OnDataSlotSaveEnd;
 		internal static Dictionary<string, Texture> textures = new();
 		internal static Dictionary<string, Font> fonts = new();
 		internal static Dictionary<string, Sound> sounds = new();
@@ -82,20 +80,38 @@ namespace SMPL.Gear
 		private static readonly List<DataSlot> queuedSaveSlots = new();
 		public static double Percent { get; private set; }
 
-		public static class CallWhen
+		public static class Event
 		{
-			public static void LoadStart(Action method, uint order = uint.MaxValue) =>
-				OnAssetLoadStart = Events.Add(OnAssetLoadStart, method, order);
-			public static void LoadUpdate(Action method, uint order = uint.MaxValue) =>
-				OnAssetLoadUpdate = Events.Add(OnAssetLoadUpdate, method, order);
-			public static void LoadEnd(Action method, uint order = uint.MaxValue) =>
-				OnAssetLoadEnd = Events.Add(OnAssetLoadEnd, method, order);
-			public static void DataSlotSaveStart(Action method, uint order = uint.MaxValue) =>
-				OnDataSlotSaveStart = Events.Add(OnDataSlotSaveStart, method, order);
-			public static void DataSlotSaveUpdate(Action method, uint order = uint.MaxValue) =>
-				OnDataSlotSaveUpdate = Events.Add(OnDataSlotSaveUpdate, method, order);
-			public static void DataSlotSaveEnd(Action method, uint order = uint.MaxValue) =>
-				OnDataSlotSaveEnd = Events.Add(OnDataSlotSaveEnd, method, order);
+			public static class Subscribe
+			{
+				public static void LoadStart(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.LoadStart, thingUID, order);
+				public static void LoadUpdate(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.LoadUpdate, thingUID, order);
+				public static void LoadEnd(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.LoadEnd, thingUID, order);
+				public static void DataSlotSaveStart(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.DataSlotSaveStart, thingUID, order);
+				public static void DataSlotSaveUpdate(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.DataSlotSaveUpdate, thingUID, order);
+				public static void DataSlotSaveEnd(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.DataSlotSaveEnd, thingUID, order);
+			}
+			public static class Unsubscribe
+			{
+				public static void LoadStart(string thingUID) =>
+					Events.NotificationDisable(Events.Type.LoadStart, thingUID);
+				public static void LoadUpdate(string thingUID) =>
+					Events.NotificationDisable(Events.Type.LoadUpdate, thingUID);
+				public static void LoadEnd(string thingUID) =>
+					Events.NotificationDisable(Events.Type.LoadEnd, thingUID);
+				public static void DataSlotSaveStart(string thingUID) =>
+					Events.NotificationDisable(Events.Type.DataSlotSaveStart, thingUID);
+				public static void DataSlotSaveUpdate(string thingUID) =>
+					Events.NotificationDisable(Events.Type.DataSlotSaveUpdate, thingUID);
+				public static void DataSlotSaveEnd(string thingUID) =>
+					Events.NotificationDisable(Events.Type.DataSlotSaveEnd, thingUID);
+			}
 		}
 
 		public static void Unload(Type asset, params string[] filePaths)
@@ -218,12 +234,12 @@ namespace SMPL.Gear
 		}
 		private static void UpdateMainThread()
 		{
-			if (assetLoadBegin) OnAssetLoadStart?.Invoke();
-			if (assetLoadUpdate) OnAssetLoadUpdate?.Invoke();
-			if (assetLoadEnd) OnAssetLoadEnd?.Invoke();
-			if (slotSaveStart) OnDataSlotSaveStart?.Invoke();
-			if (slotSaveUpdate) OnDataSlotSaveUpdate?.Invoke();
-			if (slotSaveEnd) OnDataSlotSaveEnd?.Invoke();
+			if (assetLoadBegin) Events.Notify(Events.Type.LoadStart, new());
+			if (assetLoadUpdate) Events.Notify(Events.Type.LoadUpdate, new());
+			if (assetLoadEnd) Events.Notify(Events.Type.LoadEnd, new());
+			if (slotSaveStart) Events.Notify(Events.Type.DataSlotSaveStart, new());
+			if (slotSaveUpdate) Events.Notify(Events.Type.DataSlotSaveUpdate, new());
+			if (slotSaveEnd) Events.Notify(Events.Type.DataSlotSaveEnd, new());
 
 			assetLoadBegin = false;
 			assetLoadUpdate = false;

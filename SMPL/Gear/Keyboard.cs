@@ -6,14 +6,6 @@ namespace SMPL.Gear
 {
 	public static class Keyboard
 	{
-		public struct TextInput
-		{
-			public enum Type { Text, Backspace, Enter, Tab }
-
-			public string Value { get; set; }
-			public Type CurrentType { get; set; }
-		}
-
 		public enum Key
 		{
 			/// <summary>
@@ -66,28 +58,40 @@ namespace SMPL.Gear
 		internal static List<Key> keysHeld = new();
 		public static bool KeyIsPressed(Key key) => keysHeld.Contains(key);
 
-		private static event Events.ParamsOne<Key> OnKeyPress, OnKeyHold, OnKeyRelease;
-		private static event Events.ParamsOne<TextInput> OnTextInput;
-		private static event Events.ParamsThree<string, string, string> OnLanguageChange;
-
-		public static class CallWhen
+		public static class Event
 		{
-			public static void KeyPress(Action<Key> method, uint order = uint.MaxValue) =>
-				OnKeyPress = Events.Add(OnKeyPress, method, order);
-			public static void KeyHold(Action<Key> method, uint order = uint.MaxValue) =>
-				OnKeyHold = Events.Add(OnKeyHold, method, order);
-			public static void KeyRelease(Action<Key> method, uint order = uint.MaxValue) =>
-				OnKeyRelease = Events.Add(OnKeyRelease, method, order);
-			public static void TextInput(Action<TextInput> method, uint order = uint.MaxValue) =>
-				OnTextInput = Events.Add(OnTextInput, method, order);
-			//string englishName, string nativeName, string languageCode
-			public static void LanguageChange(Action<string, string, string> method, uint order = uint.MaxValue) =>
-				OnLanguageChange = Events.Add(OnLanguageChange, method, order);
+			public static class Subscribe
+			{
+				public static void KeyPress(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.KeyPress, thingUID, order);
+				public static void KeyHold(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.KeyHold, thingUID, order);
+				public static void KeyRelease(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.KeyRelease, thingUID, order);
+				public static void TextInput(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.TextInput, thingUID, order);
+				public static void LanguageChange(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.LanguageChange, thingUID, order);
+			}
+			public static class Unsubscribe
+			{
+				public static void KeyPress(string thingUID) =>
+					Events.NotificationDisable(Events.Type.KeyPress, thingUID);
+				public static void KeyHold(string thingUID) =>
+					Events.NotificationDisable(Events.Type.KeyHold, thingUID);
+				public static void KeyRelease(string thingUID) =>
+					Events.NotificationDisable(Events.Type.KeyRelease, thingUID);
+				public static void TextInput(string thingUID) =>
+					Events.NotificationDisable(Events.Type.TextInput, thingUID);
+				public static void LanguageChange(string thingUID) =>
+					Events.NotificationDisable(Events.Type.LanguageChange, thingUID);
+			}
 		}
 
 		internal static void Update()
 		{
-			for (int i = 0; i < keysHeld.Count; i++) OnKeyHold?.Invoke(keysHeld[i]);
+			for (int i = 0; i < keysHeld.Count; i++)
+				Events.Notify(Events.Type.KeyHold, new Events.EventArgs() { Key = keysHeld[i] });
 		}
 		internal static void Initialize()
 		{
@@ -100,7 +104,8 @@ namespace SMPL.Gear
 
 		internal static void CancelInput()
 		{
-			for (int i = 0; i < keysHeld.Count; i++) OnKeyRelease?.Invoke(keysHeld[i]);
+			for (int i = 0; i < keysHeld.Count; i++)
+				Events.Notify(Events.Type.KeyRelease, new Events.EventArgs() { Key = keysHeld[i] });
 			keysHeld.Clear();
 		}
 		internal static void OnKeyPress_(object sender, EventArgs e)
@@ -108,14 +113,14 @@ namespace SMPL.Gear
 			var keyArgs = (SFML.Window.KeyEventArgs)e;
 			var key = (Key)keyArgs.Code;
 			keysHeld.Add(key);
-			OnKeyPress?.Invoke(key);
+			Events.Notify(Events.Type.KeyPress, new Events.EventArgs() { Key = key });
 		}
 		internal static void OnKeyRelease_(object sender, EventArgs e)
 		{
 			var keyArgs = (SFML.Window.KeyEventArgs)e;
 			var key = (Key)keyArgs.Code;
 			keysHeld.Remove(key);
-			OnKeyRelease?.Invoke(key);
+			Events.Notify(Events.Type.KeyRelease, new Events.EventArgs() { Key = key });
 		}
 		internal static void OnTextInput_(object sender, EventArgs e)
 		{
@@ -127,17 +132,15 @@ namespace SMPL.Gear
 			var isTab = keyStr == "\t";
 			if (keyStr == "\b") keyStr = "";
 
-			var textInput = new TextInput() { Value = keyStr };
-			if (isBackSpace) textInput.CurrentType = TextInput.Type.Backspace;
-			else if (isEnter) textInput.CurrentType = TextInput.Type.Enter;
-			else if (isTab) textInput.CurrentType = TextInput.Type.Tab;
-			OnTextInput?.Invoke(textInput);
+			Events.Notify(Events.Type.TextInput, new()
+			{ String = new string[] { keyStr }, Bool = new bool[] { isBackSpace, isEnter, isTab } });
 		}
 		internal static void OnLanguageChange_(object sender, EventArgs e)
 		{
 			var langArgs = (InputLanguageChangedEventArgs)e;
 			var culture = langArgs.InputLanguage.Culture;
-			OnLanguageChange?.Invoke(culture.EnglishName, culture.NativeName, culture.Name);
+			Events.Notify(Events.Type.LanguageChange, new()
+			{ String = new string[] { culture.EnglishName, culture.NativeName, culture.Name } });
 		}
 	}
 }

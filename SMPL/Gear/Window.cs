@@ -67,22 +67,38 @@ namespace SMPL.Gear
 		private static bool resizable;
 		internal static SFML.Graphics.Sprite world = new();
 
-		private static event Events.ParamsZero OnResize, OnClose, OnFocus, OnUnfocus, OnMaximize, OnMinimize;
-
-		public static class CallWhen
+		public static class Event
 		{
-			public static void Resize(Action method, uint order = uint.MaxValue) =>
-				OnResize = Events.Add(OnResize, method, order);
-			public static void Close(Action method, uint order = uint.MaxValue) =>
-				OnClose = Events.Add(OnClose, method, order);
-			public static void Focus(Action method, uint order = uint.MaxValue) =>
-				OnFocus = Events.Add(OnFocus, method, order);
-			public static void Unocus(Action method, uint order = uint.MaxValue) =>
-				OnUnfocus = Events.Add(OnUnfocus, method, order);
-			public static void Maximize(Action method, uint order = uint.MaxValue) =>
-				OnMaximize = Events.Add(OnMaximize, method, order);
-			public static void Minimize(Action method, uint order = uint.MaxValue) =>
-				OnMinimize = Events.Add(OnMinimize, method, order);
+			public static class Subscribe
+			{
+				public static void Resize(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.Resize, thingUID, order);
+				public static void Close(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.Close, thingUID, order);
+				public static void Focus(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.Focus, thingUID, order);
+				public static void Unfocus(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.Unfocus, thingUID, order);
+				public static void Maximize(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.Maximize, thingUID, order);
+				public static void Minimize(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.Minimize, thingUID, order);
+			}
+			public static class Unsubscribe
+			{
+				public static void Resize(string thingUID) =>
+					Events.NotificationDisable(Events.Type.Resize, thingUID);
+				public static void Close(string thingUID) =>
+					Events.NotificationDisable(Events.Type.Close, thingUID);
+				public static void Focus(string thingUID) =>
+					Events.NotificationDisable(Events.Type.Focus, thingUID);
+				public static void Unfocus(string thingUID) =>
+					Events.NotificationDisable(Events.Type.Unfocus, thingUID);
+				public static void Maximize(string thingUID) =>
+					Events.NotificationDisable(Events.Type.Maximize, thingUID);
+				public static void Minimize(string thingUID) =>
+					Events.NotificationDisable(Events.Type.Minimize, thingUID);
+			}
 		}
 
 		public static State CurrentState
@@ -182,7 +198,7 @@ namespace SMPL.Gear
 
 		public static void Close()
       {
-			OnClose?.Invoke();
+			Events.Notify(Events.Type.Close);
 			window.Close();
 		}
 		public static void RequestFocus() => window.RequestFocus();
@@ -279,20 +295,20 @@ namespace SMPL.Gear
 		}
 
 		internal static void OnWindowClose(object sender, EventArgs e) => Close();
-		internal static void OnWindowFocus(object sender, EventArgs e) => OnFocus?.Invoke();
+		internal static void OnWindowFocus(object sender, EventArgs e) => Events.Notify(Events.Type.Focus);
 		internal static void OnWindowUnfocus(object sender, EventArgs e)
 		{
 			Mouse.CancelInput();
 			Keyboard.CancelInput();
-			OnUnfocus?.Invoke();
+			Events.Notify(Events.Type.Unfocus);
 		}
 		internal static void OnWindowResize(object sender, EventArgs e)
 		{
 			switch (CurrentState)
 			{
-				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); OnResize?.Invoke(); break; }
-				case State.Minimized: OnMinimize?.Invoke(); break;
-				case State.Maximized: OnMaximize?.Invoke(); break;
+				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); Events.Notify(Events.Type.Resize); break; }
+				case State.Minimized: Events.Notify(Events.Type.Minimize); break;
+				case State.Maximized: Events.Notify(Events.Type.Maximize); break;
 			}
 		}
 	}
