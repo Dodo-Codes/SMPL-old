@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SMPL.Components;
+using System;
 using System.Collections.Generic;
 
 namespace SMPL.Gear
@@ -7,18 +8,22 @@ namespace SMPL.Gear
 	{
 		internal enum Type
 		{
+			GameUpdate,
 			ButtonDoubleClick, ButtonPress, ButtonHold, ButtonRelease, WheelScroll, CursorLeaveWindow, CursorEnterWindow,
-
 			LoadStart, LoadUpdate, LoadEnd, DataSlotSaveStart, DataSlotSaveUpdate, DataSlotSaveEnd,
-
 			KeyPress, KeyHold, KeyRelease, TextInput, LanguageChange,
-
 			Resize, Close, Focus, Unfocus, Maximize, Minimize,
-
-			ServerStart, ServerStop, ClientConnect, ClientDisconnet, ClientTakenUniqueID, MessageReceived
+			ServerStart, ServerStop, ClientConnect, ClientDisconnect, ClientTakenUniqueID, MessageReceived,
+			AudioStart, AudioPlay, AudioPause, AudioStop, AudioEnd, AudioLoop,
+			TimerCreateAndStart, TimerUpdate, TimerEnd,
+			CameraDisplay
 		}
 		internal struct EventArgs
 		{
+			public Keyboard.TextInput TextInput { get; set; }
+			public Timer Timer { get; set; }
+			public Camera Camera { get; set; }
+			public Audio Audio { get; set; }
 			public Multiplayer.Message Message { get; set; }
 			public Keyboard.Key Key { get; set; }
 			public Mouse.Button Button { get; set; }
@@ -53,6 +58,7 @@ namespace SMPL.Gear
 					var thing = Thing.PickByUniqueID(kvp.Value[i]);
 					switch (notificationType)
 					{
+						case Type.GameUpdate: thing.OnGameUpdate(); break;
 						case Type.ButtonDoubleClick: thing.OnMouseButtonDoubleClick(eventArgs.Button); break;
 						case Type.ButtonPress: thing.OnMouseButtonPress(eventArgs.Button); break;
 						case Type.ButtonHold: thing.OnMouseButtonHold(eventArgs.Button); break;
@@ -60,6 +66,40 @@ namespace SMPL.Gear
 						case Type.WheelScroll: thing.OnMouseWheelScroll(eventArgs.Wheel, eventArgs.Double[0]); break;
 						case Type.CursorEnterWindow: thing.OnMouseCursorWindowEnter(); break;
 						case Type.CursorLeaveWindow: thing.OnMouseCursorWindowLeave(); break;
+						case Type.LoadStart: thing.OnAssetsLoadStart(); break;
+						case Type.LoadUpdate: thing.OnAssetsLoadUpdate(); break;
+						case Type.LoadEnd: thing.OnAssetsLoadEnd(); break;
+						case Type.DataSlotSaveStart: thing.OnAssetsDataSlotSaveStart(); break;
+						case Type.DataSlotSaveUpdate: thing.OnAssetsDataSlotSaveUpdate(); break;
+						case Type.DataSlotSaveEnd: thing.OnAssetsDataSlotSaveEnd(); break;
+						case Type.KeyPress: thing.OnKeyboardKeyPress(eventArgs.Key); break;
+						case Type.KeyHold: thing.OnKeyboardKeyHold(eventArgs.Key); break;
+						case Type.KeyRelease: thing.OnKeyboardKeyRelease(eventArgs.Key); break;
+						case Type.TextInput: thing.OnKeyboardTextInput(eventArgs.TextInput); break;
+						case Type.LanguageChange:
+							thing.OnKeyboardLanguageChange(eventArgs.String[0], eventArgs.String[1], eventArgs.String[2]); break;
+						case Type.Resize: thing.OnWindowResize(); break;
+						case Type.Close: thing.OnWindowClose(); break;
+						case Type.Focus: thing.OnWindowFocus(); break;
+						case Type.Unfocus: thing.OnWindowUnfocus(); break;
+						case Type.Maximize: thing.OnWindowMaximize(); break;
+						case Type.Minimize: thing.OnWindowMinimize(); break;
+						case Type.ServerStart: thing.OnMultiplayerServerStart(); break;
+						case Type.ServerStop: thing.OnMultiplayerServerStop(); break;
+						case Type.ClientConnect: thing.OnMultiplayerClientConnect(eventArgs.String[0]); break;
+						case Type.ClientDisconnect: thing.OnMultiplayerClientDisconnect(eventArgs.String[0]); break;
+						case Type.ClientTakenUniqueID: thing.OnMultiplayerClientTakenUniqueID(eventArgs.String[0]); break;
+						case Type.MessageReceived: thing.OnMultiplayerMessageReceived(eventArgs.Message); break;
+						case Type.AudioStart: thing.OnAudioStart(eventArgs.Audio); break;
+						case Type.AudioPlay: thing.OnAudioPlay(eventArgs.Audio); break;
+						case Type.AudioPause: thing.OnAudioPause(eventArgs.Audio); break;
+						case Type.AudioStop: thing.OnAudioStop(eventArgs.Audio); break;
+						case Type.AudioEnd: thing.OnAudioEnd(eventArgs.Audio); break;
+						case Type.AudioLoop: thing.OnAudioLoop(eventArgs.Audio); break;
+						case Type.TimerCreateAndStart: thing.OnTimerCreateAndStart(eventArgs.Timer); break;
+						case Type.TimerUpdate: thing.OnTimerUpdate(eventArgs.Timer); break;
+						case Type.TimerEnd: thing.OnTimerEnd(eventArgs.Timer); break;
+						case Type.CameraDisplay: thing.OnCameraDisplay(eventArgs.Camera); break;
 					}
 				}
 		}

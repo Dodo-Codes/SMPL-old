@@ -6,13 +6,12 @@ namespace TestGame
 	{
       public Player(string uniqueID) : base(uniqueID)
       {
-			Mouse.Event.Subscribe.ButtonDoubleClick(uniqueID, 0);
+			Window.Event.Subscribe.Resize(uniqueID);
       }
 
-		public override void OnMouseButtonDoubleClick(Mouse.Button button)
+		public override void OnWindowResize()
 		{
-			Console.Log("test");
-			Mouse.Event.Unsubscribe.ButtonDoubleClick(UniqueID);
+			Console.Log(Window.CurrentState);
 		}
 	}
 }

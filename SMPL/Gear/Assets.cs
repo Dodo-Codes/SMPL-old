@@ -48,6 +48,33 @@ namespace SMPL.Gear
 				FilePath = filePath;
 			}
 
+			public static class Event
+			{
+				public static class Subscribe
+				{
+					public static void SaveStart(string thingUID, uint order = uint.MaxValue) =>
+						Events.NotificationEnable(Events.Type.DataSlotSaveStart, thingUID, order);
+					public static void SaveUpdate(string thingUID, uint order = uint.MaxValue) =>
+						Events.NotificationEnable(Events.Type.DataSlotSaveUpdate, thingUID, order);
+					public static void SaveEnd(string thingUID, uint order = uint.MaxValue) =>
+						Events.NotificationEnable(Events.Type.DataSlotSaveEnd, thingUID, order);
+				}
+				public static class Unsubscribe
+				{
+					public static void SaveStart(string thingUID) =>
+						Events.NotificationDisable(Events.Type.DataSlotSaveStart, thingUID);
+					public static void SaveUpdate(string thingUID) =>
+						Events.NotificationDisable(Events.Type.DataSlotSaveUpdate, thingUID);
+					public static void SaveEnd(string thingUID) =>
+						Events.NotificationDisable(Events.Type.DataSlotSaveEnd, thingUID);
+				}
+			}
+
+			public static void Save(params DataSlot[] dataSlots)
+			{
+				for (int i = 0; i < dataSlots.Length; i++)
+					queuedSaveSlots.Add(dataSlots[i]);
+			}
 			public void SetValue(string key, string value)
 			{
 				if (values == null) values = new();
@@ -90,12 +117,6 @@ namespace SMPL.Gear
 					Events.NotificationEnable(Events.Type.LoadUpdate, thingUID, order);
 				public static void LoadEnd(string thingUID, uint order = uint.MaxValue) =>
 					Events.NotificationEnable(Events.Type.LoadEnd, thingUID, order);
-				public static void DataSlotSaveStart(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.DataSlotSaveStart, thingUID, order);
-				public static void DataSlotSaveUpdate(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.DataSlotSaveUpdate, thingUID, order);
-				public static void DataSlotSaveEnd(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.DataSlotSaveEnd, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
@@ -105,12 +126,6 @@ namespace SMPL.Gear
 					Events.NotificationDisable(Events.Type.LoadUpdate, thingUID);
 				public static void LoadEnd(string thingUID) =>
 					Events.NotificationDisable(Events.Type.LoadEnd, thingUID);
-				public static void DataSlotSaveStart(string thingUID) =>
-					Events.NotificationDisable(Events.Type.DataSlotSaveStart, thingUID);
-				public static void DataSlotSaveUpdate(string thingUID) =>
-					Events.NotificationDisable(Events.Type.DataSlotSaveUpdate, thingUID);
-				public static void DataSlotSaveEnd(string thingUID) =>
-					Events.NotificationDisable(Events.Type.DataSlotSaveEnd, thingUID);
 			}
 		}
 
@@ -202,11 +217,6 @@ namespace SMPL.Gear
 				Debug.LogError(2, $"Cannot load {name} asset '{path}' because it is already loaded.");
 				return true;
 			}
-		}
-		public static void SaveDataSlots(params DataSlot[] dataSlots)
-		{
-			for (int i = 0; i < dataSlots.Length; i++)
-				queuedSaveSlots.Add(dataSlots[i]);
 		}
 		public static bool ValuesAreLoaded(params string[] keys)
 		{

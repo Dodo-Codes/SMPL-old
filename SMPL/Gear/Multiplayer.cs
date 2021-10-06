@@ -178,7 +178,7 @@ namespace SMPL.Gear
 							{
 								clientIDs.Remove(msg.Content);
 								Console.Log($"Client '{msg.Content}' disconnected. {ConnectedClients()}\n");
-								Events.Notify(Events.Type.ClientDisconnet, new() { String = new string[] { msg.Content } });
+								Events.Notify(Events.Type.ClientDisconnect, new() { String = new string[] { msg.Content } });
 								break;
 							}
 						case Message.Type.ClientOnline: // Someone just connected and is getting updated on who is already online
@@ -262,7 +262,7 @@ namespace SMPL.Gear
 				SendMessage(msg);
 
 				Console.Log($"Client '{disconnectedClient}' disconnected. {ConnectedClients()}\n");
-				Events.Notify(Events.Type.ClientDisconnet, new() { String = new string[] { disconnectedClient } });
+				Events.Notify(Events.Type.ClientDisconnect, new() { String = new string[] { disconnectedClient } });
 			}
 			protected override void OnReceived(byte[] buffer, long offset, long size)
 			{
@@ -313,7 +313,7 @@ namespace SMPL.Gear
 					ClientIsConnected = false;
 					Console.Log("Disconnected from the LAN Server.\n");
 					clientIDs.Clear();
-					Events.Notify(Events.Type.ClientDisconnet, new() { String = new string[] { ClientUniqueID } });
+					Events.Notify(Events.Type.ClientDisconnect, new() { String = new string[] { ClientUniqueID } });
 					if (stop == true) return;
 				}
 
@@ -399,7 +399,7 @@ namespace SMPL.Gear
 				public static void ClientConnect(string thingUID, uint order = uint.MaxValue) =>
 					Events.NotificationEnable(Events.Type.ClientConnect, thingUID, order);
 				public static void ClientDisconnect(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ClientDisconnet, thingUID, order);
+					Events.NotificationEnable(Events.Type.ClientDisconnect, thingUID, order);
 				public static void ClientTakenUniqueID(string thingUID, uint order = uint.MaxValue) =>
 					Events.NotificationEnable(Events.Type.ClientTakenUniqueID, thingUID, order);
 				public static void MessageReceive(string thingUID, uint order = uint.MaxValue) =>
@@ -414,7 +414,7 @@ namespace SMPL.Gear
 				public static void ClientConnect(string thingUID) =>
 					Events.NotificationDisable(Events.Type.ClientConnect, thingUID);
 				public static void ClientDisconnect(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ClientDisconnet, thingUID);
+					Events.NotificationDisable(Events.Type.ClientDisconnect, thingUID);
 				public static void ClientTakenUniqueID(string thingUID) =>
 					Events.NotificationDisable(Events.Type.ClientTakenUniqueID, thingUID);
 				public static void MessageReceive(string thingUID) =>

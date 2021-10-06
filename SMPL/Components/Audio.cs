@@ -9,12 +9,45 @@ namespace SMPL.Components
 {
    public class Audio : Thing
    {
-      private static event Events.ParamsOne<Audio> OnStart, OnPlay, OnPause, OnStop, OnEnd, OnLoop;
       private readonly static List<Audio> audios = new();
       private bool stopped, rewindIsNotLoop;
       private double lastFrameProg;
 
-		private bool IsMono()
+      public static class Event
+      {
+         public static class Subscribe
+         {
+            public static void OnStart(string thingUID, uint order = uint.MaxValue) =>
+               Events.NotificationEnable(Events.Type.AudioStart, thingUID, order);
+            public static void OnPlay(string thingUID, uint order = uint.MaxValue) =>
+               Events.NotificationEnable(Events.Type.AudioPlay, thingUID, order);
+            public static void OnPause(string thingUID, uint order = uint.MaxValue) =>
+               Events.NotificationEnable(Events.Type.AudioPause, thingUID, order);
+            public static void OnStop(string thingUID, uint order = uint.MaxValue) =>
+               Events.NotificationEnable(Events.Type.AudioStop, thingUID, order);
+            public static void OnEnd(string thingUID, uint order = uint.MaxValue) =>
+               Events.NotificationEnable(Events.Type.AudioEnd, thingUID, order);
+            public static void OnLoop(string thingUID, uint order = uint.MaxValue) =>
+               Events.NotificationEnable(Events.Type.AudioLoop, thingUID, order);
+         }
+         public static class Unsubscribe
+         {
+            public static void OnStart(string thingUID) =>
+               Events.NotificationDisable(Events.Type.AudioStart, thingUID);
+            public static void OnPlay(string thingUID) =>
+               Events.NotificationDisable(Events.Type.AudioPlay, thingUID);
+            public static void OnPause(string thingUID) =>
+               Events.NotificationDisable(Events.Type.AudioPause, thingUID);
+            public static void OnStop(string thingUID) =>
+               Events.NotificationDisable(Events.Type.AudioStop, thingUID);
+            public static void OnEnd(string thingUID) =>
+               Events.NotificationDisable(Events.Type.AudioEnd, thingUID);
+            public static void OnLoop(string thingUID) =>
+               Events.NotificationDisable(Events.Type.AudioLoop, thingUID);
+         }
+      }
+
+      private bool IsMono()
       {
          if ((CurrentType == Type.Sound && sound.SoundBuffer.ChannelCount == 1) ||
             (CurrentType == Type.Music && music.ChannelCount == 1) ||
@@ -43,12 +76,11 @@ namespace SMPL.Components
 		{
 			for (int i = 0; i < audios.Count; i++)
 			{
-            if (Gate.EnterOnceWhile($"{audios[i].FilePath}-enda915'kf",
-               audios[i].IsPlaying == false && audios[i].IsPaused == false && audios[i].stopped == false))
-                  OnEnd?.Invoke(audios[i]);
-            if (audios[i].FileProgress + audios[i].FileDuration / 2 < audios[i].lastFrameProg &&
-               audios[i].rewindIsNotLoop == false)
-                  OnLoop?.Invoke(audios[i]);
+            if (Gate.EnterOnceWhile($"{audios[i].FilePath}-enda915'kf", audios[i].IsPlaying == false &&
+               audios[i].IsPaused == false && audios[i].stopped == false))
+               Events.Notify(Events.Type.AudioEnd, new() { Audio = audios[i] });
+            if (audios[i].FileProgress + audios[i].FileDuration / 2 < audios[i].lastFrameProg && audios[i].rewindIsNotLoop == false)
+               Events.Notify(Events.Type.AudioLoop, new() { Audio = audios[i] });
             audios[i].lastFrameProg = audios[i].FileProgress;
             audios[i].rewindIsNotLoop = false;
          }
@@ -58,21 +90,6 @@ namespace SMPL.Components
 
       public enum Type { NotLoaded, Sound, Music }
 
-      public static class CallWhen
-      {
-         public static void Start(Action<Audio> method, uint order = uint.MaxValue) =>
-            OnStart = Events.Add(OnStart, method, order);
-         public static void End(Action<Audio> method, uint order = uint.MaxValue) =>
-            OnEnd = Events.Add(OnEnd, method, order);
-         public static void Play(Action<Audio> method, uint order = uint.MaxValue) =>
-            OnPlay = Events.Add(OnPlay, method, order);
-         public static void Pause(Action<Audio> method, uint order = uint.MaxValue) =>
-            OnPause = Events.Add(OnPause, method, order);
-         public static void Stop(Action<Audio> method, uint order = uint.MaxValue) =>
-            OnStop = Events.Add(OnPause, method, order);
-         public static void Loop(Action<Audio> method, uint order = uint.MaxValue) =>
-            OnLoop = Events.Add(OnLoop, method, order);
-      }
       public static Point ListenerPosition
       {
          get { return new() { X = Listener.Position.X, Y = Listener.Position.Z }; }
@@ -108,8 +125,8 @@ namespace SMPL.Components
                if (value && IsPlaying) music.Pause();
                else if (value == false && IsPaused) music.Play();
             }
-            if (value && IsPlaying) OnPause?.Invoke(this);
-            else if (value == false && IsPaused) OnPlay?.Invoke(this);
+            if (value && IsPlaying) Events.Notify(Events.Type.AudioPause, new() { Audio = this });
+            else if (value == false && IsPaused) Events.Notify(Events.Type.AudioPlay, new() { Audio = this });
          }
       }
       public bool IsPlaying
@@ -134,10 +151,10 @@ namespace SMPL.Components
             }
             if (value)
             {
-               if (IsPaused == false) OnStart?.Invoke(this);
-               OnPlay?.Invoke(this);
+               if (IsPaused == false) Events.Notify(Events.Type.AudioStart, new() { Audio = this });
+               Events.Notify(Events.Type.AudioPlay, new() { Audio = this });
             }
-            else if ((IsPlaying || IsPaused)) OnStop?.Invoke(this);
+            else if ((IsPlaying || IsPaused)) Events.Notify(Events.Type.AudioStop, new() { Audio = this });
          }
       }
       public double Duration => IsNotLoaded() ? default : FileDuration / Speed;

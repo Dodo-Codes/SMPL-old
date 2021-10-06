@@ -10,13 +10,24 @@ namespace SMPL.Gear
 {
 	public abstract class Game
 	{
-		private static event Events.ParamsZero OnStart, OnUpdate;
-
-		private static void SummaryExample() { }
 		///<summary>
 		///text, <paramref name="param"/>, <see cref="char"/>, <typeparamref name="Type"/>
 		///</summary>
 		private static void Main() { }
+
+		public static class Event
+		{
+			public static class Subscribe
+			{
+				public static void Update(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.GameUpdate, thingUID, order);
+			}
+			public static class Unsubscribe
+			{
+				public static void Update(string thingUID) =>
+					Events.NotificationDisable(Events.Type.GameUpdate, thingUID);
+			}
+		}
 
 		private static void RunGame()
 		{
@@ -36,22 +47,12 @@ namespace SMPL.Gear
 
 				Application.DoEvents();
 				Window.window.DispatchEvents();
-				OnUpdate?.Invoke();
+				Events.Notify(Events.Type.GameUpdate);
 				Window.Draw();
 
 				Components.Timer.Update();
 				Performance.Update();
 			}
-		}
-
-		// ==================
-
-		public static class CallWhen
-		{
-			public static void Start(Action method, uint order = uint.MaxValue) =>
-				OnStart = Events.Add(OnStart, method, order);
-			public static void Running(Action method, uint order = uint.MaxValue) =>
-				OnUpdate = Events.Add(OnUpdate, method, order);
 		}
 
 		public static void Start(Game game, Size pixelSize)
@@ -66,7 +67,6 @@ namespace SMPL.Gear
 			Keyboard.Initialize();
 
 			game.OnGameCreated();
-			OnStart?.Invoke();
 
 			RunGame();
 		}

@@ -304,11 +304,12 @@ namespace SMPL.Gear
 		}
 		internal static void OnWindowResize(object sender, EventArgs e)
 		{
+			CurrentState = (State)form.WindowState;
 			switch (CurrentState)
 			{
 				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); Events.Notify(Events.Type.Resize); break; }
-				case State.Minimized: Events.Notify(Events.Type.Minimize); break;
-				case State.Maximized: Events.Notify(Events.Type.Maximize); break;
+				case State.Minimized: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Minimize); break; }
+				case State.Maximized: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Maximize); break; }
 			}
 		}
 	}

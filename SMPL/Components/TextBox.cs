@@ -9,8 +9,6 @@ namespace SMPL.Components
 {
 	public class Textbox : Visual
 	{
-		private static event Events.ParamsOne<Textbox> OnDisplay;
-
 		private Point position, originPercent;
 		private double angle, charSize;
 		private Size scale, spacing;
@@ -49,14 +47,6 @@ namespace SMPL.Components
 			Area.text.Position = Point.From(Position) + ownerOrOff;
 			Area.text.Rotation = (float)Angle;
 			Area.text.Scale = Size.From(Scale);
-		}
-
-		// =================
-
-		public static class CallWhen
-		{
-			public static void Display(Action<Textbox> method, uint order = uint.MaxValue) =>
-				OnDisplay = Events.Add(OnDisplay, method, order);
 		}
 
 		public Point Position
@@ -206,7 +196,6 @@ namespace SMPL.Components
 			Performance.DrawCallsPerFrame++;
 
 			rend.Dispose();
-			OnDisplay?.Invoke(this);
 		}
 	}
 }

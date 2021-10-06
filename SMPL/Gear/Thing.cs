@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SMPL.Components;
 using SMPL.Gear;
 using System;
 using System.Collections.Generic;
@@ -148,6 +149,16 @@ namespace SMPL.Gear
 			return true;
 		}
 
+		public virtual void OnGameUpdate() { }
+		public virtual void OnCameraDisplay(Camera camera) { }
+
+		public virtual void OnWindowResize() { }
+		public virtual void OnWindowClose() { }
+		public virtual void OnWindowFocus() { }
+		public virtual void OnWindowUnfocus() { }
+		public virtual void OnWindowMaximize() { }
+		public virtual void OnWindowMinimize() { }
+
 		public virtual void OnMouseButtonDoubleClick(Mouse.Button button) { }
 		public virtual void OnMouseButtonPress(Mouse.Button button) { }
 		public virtual void OnMouseButtonRelease(Mouse.Button button) { }
@@ -155,5 +166,36 @@ namespace SMPL.Gear
 		public virtual void OnMouseWheelScroll(Mouse.Wheel wheel, double delta) { }
 		public virtual void OnMouseCursorWindowEnter() { }
 		public virtual void OnMouseCursorWindowLeave() { }
+
+		public virtual void OnAssetsLoadStart() { }
+		public virtual void OnAssetsLoadUpdate() { }
+		public virtual void OnAssetsLoadEnd() { }
+		public virtual void OnAssetsDataSlotSaveStart() { }
+		public virtual void OnAssetsDataSlotSaveUpdate() { }
+		public virtual void OnAssetsDataSlotSaveEnd() { }
+
+		public virtual void OnKeyboardKeyPress(Keyboard.Key key) { }
+		public virtual void OnKeyboardKeyHold(Keyboard.Key key) { }
+		public virtual void OnKeyboardKeyRelease(Keyboard.Key key) { }
+		public virtual void OnKeyboardTextInput(Keyboard.TextInput textInput) { }
+		public virtual void OnKeyboardLanguageChange(string englishName, string nativeName, string languageCode) { }
+
+		public virtual void OnMultiplayerServerStart() { }
+		public virtual void OnMultiplayerServerStop() { }
+		public virtual void OnMultiplayerClientConnect(string clientUniqueID) { }
+		public virtual void OnMultiplayerClientDisconnect(string clientUniqueID) { }
+		public virtual void OnMultiplayerClientTakenUniqueID(string oldClientUniqueID) { }
+		public virtual void OnMultiplayerMessageReceived(Multiplayer.Message message) { }
+
+		public virtual void OnAudioStart(Audio audio) { }
+		public virtual void OnAudioPlay(Audio audio) { }
+		public virtual void OnAudioPause(Audio audio) { }
+		public virtual void OnAudioStop(Audio audio) { }
+		public virtual void OnAudioEnd(Audio audio) { }
+		public virtual void OnAudioLoop(Audio audio) { }
+
+		public virtual void OnTimerCreateAndStart(Timer timer) { }
+		public virtual void OnTimerUpdate(Timer timer) { }
+		public virtual void OnTimerEnd(Timer timer) { }
 	}
 }

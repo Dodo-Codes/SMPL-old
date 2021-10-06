@@ -6,6 +6,14 @@ namespace SMPL.Gear
 {
 	public static class Keyboard
 	{
+		public struct TextInput
+		{
+			public enum Type { Text, Backspace, Enter, Tab }
+
+			public string Value { get; set; }
+			public Type CurrentType { get; set; }
+		}
+
 		public enum Key
 		{
 			/// <summary>
@@ -131,9 +139,12 @@ namespace SMPL.Gear
 			var isEnter = Environment.NewLine.Contains(keyStr);
 			var isTab = keyStr == "\t";
 			if (keyStr == "\b") keyStr = "";
+			var textInput = new TextInput() { CurrentType = TextInput.Type.Text, Value = keyStr };
 
-			Events.Notify(Events.Type.TextInput, new()
-			{ String = new string[] { keyStr }, Bool = new bool[] { isBackSpace, isEnter, isTab } });
+			if (isBackSpace) textInput.CurrentType = TextInput.Type.Backspace;
+			else if (isEnter) textInput.CurrentType = TextInput.Type.Enter;
+			else if (isTab) textInput.CurrentType = TextInput.Type.Tab;
+			Events.Notify(Events.Type.TextInput, new() { TextInput = textInput });
 		}
 		internal static void OnLanguageChange_(object sender, EventArgs e)
 		{

@@ -10,11 +10,8 @@ namespace SMPL.Components
 {
 	public class Camera : Thing
 	{
-		private static event Events.ParamsOne<Camera> OnDisplay;
 		private double depth;
 		private Data.Color bgColor;
-
-		// =============
 
 		internal const string WorldCameraUID = "smpl-world-camera";
 		internal const string WorldCameraAreaUID = "smpl-world-camera-area";
@@ -25,16 +22,30 @@ namespace SMPL.Components
 		internal Size startSize;
 		internal string displayUID;
 
+		public static class Event
+		{
+			public static class Subscribe
+			{
+				public static void Display(string thingUID, uint order = uint.MaxValue) =>
+					Events.NotificationEnable(Events.Type.CameraDisplay, thingUID, order);
+			}
+			public static class Unsubscribe
+			{
+				public static void Display(string thingUID) =>
+					Events.NotificationDisable(Events.Type.CameraDisplay, thingUID);
+			}
+		}
+
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
-			OnDisplay?.Invoke(WorldCamera);
+			Events.Notify(Events.Type.CameraDisplay, new() { Camera = WorldCamera });
 			foreach (var kvpp in sortedCameras)
 				for (int j = 0; j < kvpp.Value.Count; j++)
 				{
 					if (kvpp.Value[j] == WorldCamera) continue;
 					kvpp.Value[j].StartDraw();
-					OnDisplay?.Invoke(kvpp.Value[j]);
+					Events.Notify(Events.Type.CameraDisplay, new() { Camera = kvpp.Value[j] });
 				}
 			WorldCamera.EndDraw();
 		}
@@ -74,13 +85,6 @@ namespace SMPL.Components
 			}
 		}
 
-		// ============
-
-		public static class CallWhen
-		{
-			public static void Display(Action<Camera> method, uint order = uint.MaxValue) =>
-				OnDisplay = Events.Add(OnDisplay, method, order);
-		}
 		public static Camera WorldCamera { get; internal set; }
 
 		public string AreaDisplayUniqueID

@@ -7,10 +7,9 @@ namespace SMPL.Components
 {
 	public class Timer : Thing
    {
+      private static readonly List<Timer> timers = new();
       private double progress, countdown, endCount, duration;
       private bool isPaused;
-
-      //=============
 
 		internal static void Update()
       {
@@ -20,33 +19,16 @@ namespace SMPL.Components
             if (timers[i] == null) continue;
             if (timers[i].Countdown < 0) timers[i].Countdown = 0;
             if (timers[i].IsPaused || timers[i].Countdown == 0) continue;
-            var prevCd = timers[i].Countdown;
-            var prevPr = timers[i].Progress;
-            var prevPrPer = timers[i].ProgressPercent;
             timers[i].Countdown -= dt;
-            OnUpdate?.Invoke(timers[i], prevCd, prevPr, prevPrPer);
+            Events.Notify(Events.Type.TimerUpdate, new() { Timer = timers[i] });
             if (Gate.EnterOnceWhile(timers[i] + "end-as;li3'f2", timers[i].Countdown <= 0) ||
                dt > timers[i].Duration)
             {
                timers[i].EndCount++;
                timers[i].Countdown = 0;
-               OnEnd?.Invoke(timers[i]);
+               Events.Notify(Events.Type.TimerEnd, new() { Timer = timers[i] });
             }
          }
-      }
-
-      //=============
-
-      public static class CallWhen
-      {
-         public static void CreateAndStart(Action<Timer, double> method, uint order = uint.MaxValue) =>
-         OnCreateAndStart = Events.Add(OnCreateAndStart, method, order);
-         public static void End(Action<Timer> method, uint order = uint.MaxValue) =>
-            OnEnd = Events.Add(OnEnd, method, order);
-         public static void Pause(Action<Timer> method, uint order = uint.MaxValue) =>
-            OnPause = Events.Add(OnPause, method, order);
-         public static void Update(Action<Timer, double, double, double> method, uint order = uint.MaxValue) =>
-            OnUpdate = Events.Add(OnUpdate, method, order);
       }
 
       public double EndCount
@@ -99,7 +81,7 @@ namespace SMPL.Components
          timers.Add(this);
          Duration = durationInSeconds;
          Countdown = Duration;
-         OnCreateAndStart?.Invoke(this, Duration);
+         Events.Notify(Events.Type.TimerCreateAndStart, new() { Timer = this });
          if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
       }
 		public override void Destroy()
