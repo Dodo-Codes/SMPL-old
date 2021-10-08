@@ -5,7 +5,7 @@ namespace RPG1bit
 {
 	public class SaveNameInput : TextInputField
 	{
-		public SaveNameInput(CreationDetails creationDetails) : base(creationDetails) { }
+		public SaveNameInput(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered()
 		{
 			NavigationPanel.Info.ShowLeftClickableIndicator();
@@ -34,7 +34,7 @@ namespace RPG1bit
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
 						slot.SetValue("map-offset", Text.ToJSON(offset));
 						slot.SetValue("map-data", Text.ToJSON(mapData));
-						Assets.SaveDataSlots(slot);
+						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
 						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
@@ -52,7 +52,7 @@ namespace RPG1bit
 									break;
 								}
 							if (overwriting) return;
-							var value = (Object)new LoadMapValue(new CreationDetails()
+							var value = (Object)new LoadMapValue(name, new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { Color = new() },
@@ -66,7 +66,7 @@ namespace RPG1bit
 							});
 							if (list.Name == "load-map-list")
 							{
-								value = new StartSingleOnMap(new CreationDetails()
+								value = new StartSingleOnMap(name, new CreationDetails()
 								{
 									Name = name,
 									Position = new(-10, 0) { Color = new() },

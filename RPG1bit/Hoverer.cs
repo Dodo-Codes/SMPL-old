@@ -4,16 +4,15 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public static class Hoverer
+	public class Hoverer : Thing
 	{
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
 		public static Point CursorTextureTileIndexes { get; set; } = new(36, 10);
 		public static Color CursorTextureColor { get; set; } = Color.White;
-
-		public static void Create()
+		public Hoverer(string uniqueID) : base(uniqueID)
 		{
-			Camera.CallWhen.Display(OnDisplay);
+			Camera.Event.Subscribe.Display(UniqueID);
 
 			Area = new("hoverer-area");
 			Sprite = new("hoverer-sprite");
@@ -22,7 +21,7 @@ namespace RPG1bit
 			Area.OriginPercent = new(0, 0);
 		}
 
-		private static void OnDisplay(Camera camera)
+		public override void OnCameraDisplay(Camera camera)
 		{
 			if (Assets.AreLoaded("Assets\\graphics.png") == false) return;
 

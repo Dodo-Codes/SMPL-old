@@ -107,13 +107,9 @@ namespace SMPL.Gear
 			var searcher = new ManagementObjectSearcher("select * from Win32_" + $"{dataType}");
 			var result = searcher.Get();
 			foreach (var item in result)
-			{
 				foreach (var PC in item.Properties)
-				{
-					Console.Log($"{PC.Name} {PC.Value}");
-				}
-				return item[name];
-			}
+					if (PC.Name == name)
+						return item[name];
 			return default;
 #pragma warning restore CA1416
 		}
@@ -147,12 +143,12 @@ namespace SMPL.Gear
 				Type = null
 			};
 		}
-		public static string ProcessorName { get { return GetData(DataType.Processor, "Name") as string; } }
-		public static int ProcessorNumberOfCores { get { return Convert.ToInt32(GetData(DataType.Processor, "NumberOfCores")); } }
-		public static string VideoCardName { get { return GetData(DataType.VideoController, "Name") as string; } }
-		public static int KeyboardNumberOfFs { get { return (UInt16)GetData(DataType.Keyboard, "NumberOfFunctionKeys"); } }
-		public static string OperatingSystemName { get { return GetData(DataType.OperatingSystem, "Caption") as string; } }
-		public static string SoundDeviceName { get { return GetData(DataType.SoundDevice, "Name") as string; } }
+		public static string ProcessorName { get; private set; }
+		public static int ProcessorNumberOfCores { get; private set; }
+		public static string VideoCardName { get; private set; }
+		public static int KeyboardNumberOfFs { get; private set; }
+		public static string OperatingSystemName { get; private set; }
+		public static string SoundDeviceName { get; private set; }
 		public static double RAM { get; private set; }
 
 		private static Platform platform;
@@ -169,6 +165,13 @@ namespace SMPL.Gear
 			if (OperatingSystem.IsLinux()) platform = Platform.Linux;
 			if (OperatingSystem.IsIOS()) platform = Platform.iOS;
 			if (OperatingSystem.IsMacOS()) platform = Platform.MacOS;
+
+			ProcessorName = (GetData(DataType.Processor, "Name") as string).Trim();
+			ProcessorNumberOfCores = Convert.ToInt32(GetData(DataType.Processor, "NumberOfCores"));
+			VideoCardName = GetData(DataType.VideoController, "Name") as string;
+			KeyboardNumberOfFs = (UInt16)GetData(DataType.Keyboard, "NumberOfFunctionKeys");
+			OperatingSystemName = GetData(DataType.OperatingSystem, "Caption") as string;
+			SoundDeviceName = GetData(DataType.SoundDevice, "Name") as string;
 		}
 
 	}

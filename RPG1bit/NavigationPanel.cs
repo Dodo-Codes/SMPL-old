@@ -5,9 +5,9 @@ using static RPG1bit.Object;
 
 namespace RPG1bit
 {
-	public static class NavigationPanel
+	public class NavigationPanel : Thing
 	{
-		public static class Tab
+		public class Tab : Thing
 		{
 			public static Textbox Textbox { get; set; }
 			public static Area Area { get; set; }
@@ -17,9 +17,9 @@ namespace RPG1bit
 			public static Type CurrentTabType { get; set; }
 			public static string Title { get; set; }
 
-			public static void Create()
+			public Tab(string uniqueID) : base(uniqueID)
 			{
-				Camera.CallWhen.Display(OnDisplay);
+				Camera.Event.Subscribe.Display(uniqueID);
 
 				Area = new("tab-area");
 				Effects = new("tab-effects");
@@ -40,6 +40,7 @@ namespace RPG1bit
 				Textbox.OriginPercent = new(50, 0);
 				Textbox.Text = "";
 			}
+
 			public static void Close()
 			{
 				CurrentTabType = Type.None;
@@ -55,13 +56,13 @@ namespace RPG1bit
 				Title = title;
 			}
 
-			private static void OnDisplay(Camera camera)
+			public override void OnCameraDisplay(Camera camera)
 			{
 				if (Textbox == null) return;
 				Textbox.Display(camera);
 			}
 		}
-		public static class Info
+		public class Info : Thing
 		{
 			public const string GameVersion = "v0.1";
 			public static Textbox Textbox { get; set; }
@@ -70,9 +71,9 @@ namespace RPG1bit
 
 			private static bool clickable, leftClickable, rightClickable, dragable;
 
-			public static void Create()
+			public Info(string uniqueID) : base(uniqueID)
 			{
-				Camera.CallWhen.Display(OnDisplay);
+				Camera.Event.Subscribe.Display(uniqueID);
 
 				Area = new("info-area");
 				Effects = new("info-effects");
@@ -102,7 +103,7 @@ namespace RPG1bit
 				ShowRightClickableIndicator(rightClickable);
 			}
 
-			private static void OnDisplay(Camera camera)
+			public override void OnCameraDisplay(Camera camera)
 			{
 				if (Textbox == null) return;
 				Textbox.Display(camera);
@@ -115,24 +116,26 @@ namespace RPG1bit
 			}
 			public static void ShowDragableIndicator(bool show = true)
 			{
+				if (clickable && show == false) return;
 				dragable = show;
-				Screen.EditCell(new Point(31, 16), new Point(3, 22), 2, show ? Color.White : new Color());
+				var both = clickable && dragable ? new Point(2, 23) : new Point(3, 22);
+				Screen.EditCell(new Point(31, 16), both, 1, show ? Color.White : new Color());
 			}
 			public static void ShowLeftClickableIndicator(bool show = true)
 			{
 				leftClickable = show;
-				Screen.EditCell(new Point(31, 15), new Point(29, 15), 2, show ? Color.White : new Color());
+				Screen.EditCell(new Point(31, 15), new Point(29, 15), 1, show ? Color.White : new Color());
 			}
 			public static void ShowRightClickableIndicator(bool show = true)
 			{
 				rightClickable = show;
-				Screen.EditCell(new Point(31, 17), new Point(30, 15), 2, show ? Color.White : new Color());
+				Screen.EditCell(new Point(31, 17), new Point(30, 15), 1, show ? Color.White : new Color());
 			}
 		}
 
-		public static void CreateButtons()
+		public NavigationPanel(string uniqueID) : base(uniqueID)
 		{
-			new StartSingle(new CreationDetails()
+			new StartSingle("start-singleplayer", new CreationDetails()
 			{
 				Name = "start-singleplayer",
 				Position = new(19, 0) { Color = Color.Gray },
@@ -141,7 +144,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 				IsUI = true,
 			});
-			new StartMulti(new CreationDetails()
+			new StartMulti("start-multiplayer", new CreationDetails()
 			{
 				Name = "start-multiplayer",
 				Position = new(20, 0) { Color = Color.GrayDark },
@@ -149,7 +152,7 @@ namespace RPG1bit
 				Height = 1,
 				IsUI = true,
 			});
-			new SaveLoad(new CreationDetails()
+			new SaveLoad("save-load", new CreationDetails()
 			{
 				Name = "save-load",
 				Position = new(23, 0) { Color = Color.Gray },
@@ -158,7 +161,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 				IsUI = true,
 			});
-			new MapEditor(new CreationDetails()
+			new MapEditor("map-editor", new CreationDetails()
 			{
 				Name = "map-editor",
 				Position = new(21, 0) { Color = Color.Gray },
@@ -169,7 +172,7 @@ namespace RPG1bit
 				IsLeftClickable = true
 			});
 
-			new AdjustSound(new CreationDetails()
+			new AdjustSound("sound", new CreationDetails()
 			{
 				Name = "sound",
 				Position = new(26, 0) { Color = new Color(175, 175, 175) },
@@ -178,7 +181,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			});
-			new AdjustMusic(new CreationDetails()
+			new AdjustMusic("music", new CreationDetails()
 			{
 				Name = "music",
 				Position = new(27, 0) { Color = new Color(175, 175, 175) },
@@ -188,7 +191,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 			});
 
-			new MinimizeGame(new CreationDetails()
+			new MinimizeGame("-", new CreationDetails()
 			{
 				Name = "-",
 				Position = new(30, 0) { Color = Color.Gray },
@@ -197,7 +200,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			});
-			new ExitGame(new CreationDetails()
+			new ExitGame("x", new CreationDetails()
 			{
 				Name = "x",
 				Position = new(31, 0) { Color = Color.RedDark },
@@ -213,26 +216,22 @@ namespace RPG1bit
 			for (int y = 0; y < 18; y++)
 				for (int x = 18; x < 32; x++)
 				{
-					Screen.EditCell(new Point(x, y), new Point(0, 0), 2, Color.Brown);
-					Screen.EditCell(new Point(x, y), new Point(4, 22), 1, Color.Brown);
 					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.BrownDark);
+					Screen.EditCell(new Point(x, y), new Point(0, 0), 1, new());
 				}
-			for (int y = 2; y < 14; y++)
-				for (int x = 19; x < 32; x++)
-				{
-					Screen.EditCell(new Point(x, y), new Point(0, 23), 1, Color.Brown);
-					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.BrownDark);
-				}
-			for (int x = 19; x < 32; x++)
-			{
-				Screen.EditCell(new Point(x, 0), new Point(0, 23), 1, Color.Brown);
-				Screen.EditCell(new Point(x, 0), new Point(1, 22), 0, Color.BrownDark);
-			}
 
-			Screen.DisplayText(new(19, 1), 2, Color.GrayLight, Tab.Title);
+			for (int x = 18; x < 32; x++)
+			{
+				Screen.EditCell(new Point(x, 1), new Point(4, 22), 0, Color.Brown);
+				Screen.EditCell(new Point(x, 14), new Point(4, 22), 0, Color.Brown);
+			}
+			for (int y = 0; y < 18; y++)
+				Screen.EditCell(new Point(18, y), new Point(4, 22), 0, Color.Brown);
+
+			Screen.DisplayText(new(19, 1), 1, Color.GrayLight, Tab.Title);
 			Screen.EditCell(new Point(28, 0), new Point(33, 15), 1, Color.Gray);
-			Screen.EditCell(new Point(22, 0), new Point(4, 22), 1, Color.Brown);
-			Screen.EditCell(new Point(29, 0), new Point(4, 22), 1, Color.Brown);
+			Screen.EditCell(new Point(22, 0), new Point(4, 22), 0, Color.Brown);
+			Screen.EditCell(new Point(29, 0), new Point(4, 22), 0, Color.Brown);
 
 			Info.Display();
 		}

@@ -7,7 +7,7 @@ namespace RPG1bit
 	{
 		public static int BrushHeight { get; private set; }
 
-		public SwitchHeight(CreationDetails creationDetails) : base(creationDetails)
+		public SwitchHeight(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Screen.EditCell(new(0, 16), new(36, 17), 1, Color.Gray);
 		}

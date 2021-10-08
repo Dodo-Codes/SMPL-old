@@ -133,6 +133,7 @@ namespace SMPL.Gear
 			return true;
 		}
 
+		public virtual void OnGameStart() { }
 		public virtual void OnGameUpdate() { }
 		public virtual void OnCameraDisplay(Camera camera) { }
 
@@ -142,6 +143,7 @@ namespace SMPL.Gear
 		public virtual void OnWindowUnfocus() { }
 		public virtual void OnWindowMaximize() { }
 		public virtual void OnWindowMinimize() { }
+		public virtual void OnWindowFullscreen() { }
 
 		public virtual void OnMouseButtonDoubleClick(Mouse.Button button) { }
 		public virtual void OnMouseButtonPress(Mouse.Button button) { }

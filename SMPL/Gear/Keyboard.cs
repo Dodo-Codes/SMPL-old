@@ -71,28 +71,28 @@ namespace SMPL.Gear
 			public static class Subscribe
 			{
 				public static void KeyPress(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.KeyPress, thingUID, order);
+					Events.Enable(Events.Type.KeyPress, thingUID, order);
 				public static void KeyHold(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.KeyHold, thingUID, order);
+					Events.Enable(Events.Type.KeyHold, thingUID, order);
 				public static void KeyRelease(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.KeyRelease, thingUID, order);
+					Events.Enable(Events.Type.KeyRelease, thingUID, order);
 				public static void TextInput(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.TextInput, thingUID, order);
+					Events.Enable(Events.Type.TextInput, thingUID, order);
 				public static void LanguageChange(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.LanguageChange, thingUID, order);
+					Events.Enable(Events.Type.LanguageChange, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void KeyPress(string thingUID) =>
-					Events.NotificationDisable(Events.Type.KeyPress, thingUID);
+					Events.Disable(Events.Type.KeyPress, thingUID);
 				public static void KeyHold(string thingUID) =>
-					Events.NotificationDisable(Events.Type.KeyHold, thingUID);
+					Events.Disable(Events.Type.KeyHold, thingUID);
 				public static void KeyRelease(string thingUID) =>
-					Events.NotificationDisable(Events.Type.KeyRelease, thingUID);
+					Events.Disable(Events.Type.KeyRelease, thingUID);
 				public static void TextInput(string thingUID) =>
-					Events.NotificationDisable(Events.Type.TextInput, thingUID);
+					Events.Disable(Events.Type.TextInput, thingUID);
 				public static void LanguageChange(string thingUID) =>
-					Events.NotificationDisable(Events.Type.LanguageChange, thingUID);
+					Events.Disable(Events.Type.LanguageChange, thingUID);
 			}
 		}
 

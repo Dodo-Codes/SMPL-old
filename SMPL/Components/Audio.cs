@@ -18,32 +18,32 @@ namespace SMPL.Components
          public static class Subscribe
          {
             public static void OnStart(string thingUID, uint order = uint.MaxValue) =>
-               Events.NotificationEnable(Events.Type.AudioStart, thingUID, order);
+               Events.Enable(Events.Type.AudioStart, thingUID, order);
             public static void OnPlay(string thingUID, uint order = uint.MaxValue) =>
-               Events.NotificationEnable(Events.Type.AudioPlay, thingUID, order);
+               Events.Enable(Events.Type.AudioPlay, thingUID, order);
             public static void OnPause(string thingUID, uint order = uint.MaxValue) =>
-               Events.NotificationEnable(Events.Type.AudioPause, thingUID, order);
+               Events.Enable(Events.Type.AudioPause, thingUID, order);
             public static void OnStop(string thingUID, uint order = uint.MaxValue) =>
-               Events.NotificationEnable(Events.Type.AudioStop, thingUID, order);
+               Events.Enable(Events.Type.AudioStop, thingUID, order);
             public static void OnEnd(string thingUID, uint order = uint.MaxValue) =>
-               Events.NotificationEnable(Events.Type.AudioEnd, thingUID, order);
+               Events.Enable(Events.Type.AudioEnd, thingUID, order);
             public static void OnLoop(string thingUID, uint order = uint.MaxValue) =>
-               Events.NotificationEnable(Events.Type.AudioLoop, thingUID, order);
+               Events.Enable(Events.Type.AudioLoop, thingUID, order);
          }
          public static class Unsubscribe
          {
             public static void OnStart(string thingUID) =>
-               Events.NotificationDisable(Events.Type.AudioStart, thingUID);
+               Events.Disable(Events.Type.AudioStart, thingUID);
             public static void OnPlay(string thingUID) =>
-               Events.NotificationDisable(Events.Type.AudioPlay, thingUID);
+               Events.Disable(Events.Type.AudioPlay, thingUID);
             public static void OnPause(string thingUID) =>
-               Events.NotificationDisable(Events.Type.AudioPause, thingUID);
+               Events.Disable(Events.Type.AudioPause, thingUID);
             public static void OnStop(string thingUID) =>
-               Events.NotificationDisable(Events.Type.AudioStop, thingUID);
+               Events.Disable(Events.Type.AudioStop, thingUID);
             public static void OnEnd(string thingUID) =>
-               Events.NotificationDisable(Events.Type.AudioEnd, thingUID);
+               Events.Disable(Events.Type.AudioEnd, thingUID);
             public static void OnLoop(string thingUID) =>
-               Events.NotificationDisable(Events.Type.AudioLoop, thingUID);
+               Events.Disable(Events.Type.AudioLoop, thingUID);
          }
       }
 

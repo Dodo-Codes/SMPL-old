@@ -112,6 +112,8 @@ namespace SMPL.Data
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 			Performance.DrawCallsPerFrame++;
+			Performance.QuadDrawsPerFrame++;
+			Performance.VertexDrawsPerFrame += 4;
 		}
 	}
 }

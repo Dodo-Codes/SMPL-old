@@ -393,32 +393,32 @@ namespace SMPL.Gear
 			public static class Subscribe
 			{
 				public static void ServerStart(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ServerStart, thingUID, order);
+					Events.Enable(Events.Type.ServerStart, thingUID, order);
 				public static void ServerStop(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ServerStop, thingUID, order);
+					Events.Enable(Events.Type.ServerStop, thingUID, order);
 				public static void ClientConnect(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ClientConnect, thingUID, order);
+					Events.Enable(Events.Type.ClientConnect, thingUID, order);
 				public static void ClientDisconnect(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ClientDisconnect, thingUID, order);
+					Events.Enable(Events.Type.ClientDisconnect, thingUID, order);
 				public static void ClientTakenUniqueID(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ClientTakenUniqueID, thingUID, order);
+					Events.Enable(Events.Type.ClientTakenUniqueID, thingUID, order);
 				public static void MessageReceive(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.MessageReceived, thingUID, order);
+					Events.Enable(Events.Type.MessageReceived, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void ServerStart(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ServerStart, thingUID);
+					Events.Disable(Events.Type.ServerStart, thingUID);
 				public static void ServerStop(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ServerStop, thingUID);
+					Events.Disable(Events.Type.ServerStop, thingUID);
 				public static void ClientConnect(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ClientConnect, thingUID);
+					Events.Disable(Events.Type.ClientConnect, thingUID);
 				public static void ClientDisconnect(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ClientDisconnect, thingUID);
+					Events.Disable(Events.Type.ClientDisconnect, thingUID);
 				public static void ClientTakenUniqueID(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ClientTakenUniqueID, thingUID);
+					Events.Disable(Events.Type.ClientTakenUniqueID, thingUID);
 				public static void MessageReceive(string thingUID) =>
-					Events.NotificationDisable(Events.Type.MessageReceived, thingUID);
+					Events.Disable(Events.Type.MessageReceived, thingUID);
 			}
 		}
 

@@ -364,7 +364,7 @@ namespace SMPL.Components
 			{
 				if (ErrorIfDestroyed()) return;
 				var owner = (Visual)PickByUniqueID(visualOwnerUID);
-				if (owner is Sprite && creationFrame == Performance.frameCount) return;
+				if (owner is Sprite && creationFrame == Performance.FrameCount) return;
 				fillColor = value;
 				if (owner is Textbox) return;
 				shader?.SetUniform("FillRed", (float)value.R / 255f);

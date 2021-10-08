@@ -27,12 +27,12 @@ namespace SMPL.Components
 			public static class Subscribe
 			{
 				public static void Display(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.CameraDisplay, thingUID, order);
+					Events.Enable(Events.Type.CameraDisplay, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void Display(string thingUID) =>
-					Events.NotificationDisable(Events.Type.CameraDisplay, thingUID);
+					Events.Disable(Events.Type.CameraDisplay, thingUID);
 			}
 		}
 

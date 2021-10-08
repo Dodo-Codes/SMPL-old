@@ -8,11 +8,11 @@ namespace SMPL.Gear
 	{
 		internal enum Type
 		{
-			GameUpdate,
+			GameStart, GameUpdate, GameStop,
 			ButtonDoubleClick, ButtonPress, ButtonHold, ButtonRelease, WheelScroll, CursorLeaveWindow, CursorEnterWindow,
 			LoadStart, LoadUpdate, LoadEnd, DataSlotSaveStart, DataSlotSaveUpdate, DataSlotSaveEnd,
 			KeyPress, KeyHold, KeyRelease, TextInput, LanguageChange,
-			Resize, Close, Focus, Unfocus, Maximize, Minimize,
+			Resize, Close, Focus, Unfocus, Maximize, Minimize, Fullscreen,
 			ServerStart, ServerStop, ClientConnect, ClientDisconnect, ClientTakenUniqueID, MessageReceived,
 			AudioStart, AudioPlay, AudioPause, AudioStop, AudioEnd, AudioLoop,
 			TimerCreateAndStart, TimerUpdate, TimerEnd,
@@ -35,15 +35,16 @@ namespace SMPL.Gear
 		}
 		internal static Dictionary<Type, SortedDictionary<uint, List<string>>> notifications = new();
 
-		internal static void NotificationEnable(Type notificationType, string thingUID, uint order)
+		internal static void Enable(Type notificationType, string thingUID, uint order)
 		{
+			if (Game.NotStartedError(3)) return;
 			if (notifications.ContainsKey(notificationType) == false) notifications[notificationType] = new();
 			if (notifications[notificationType].ContainsKey(order) == false) notifications[notificationType][order] = new();
 			if (notifications[notificationType][order].Contains(thingUID) == false) notifications[notificationType][order].Add(thingUID);
 		}
-		internal static void NotificationDisable(Type notificationType, string thingUID)
+		internal static void Disable(Type notificationType, string thingUID)
 		{
-			if (notifications.ContainsKey(notificationType) == false) return;
+			if (Game.NotStartedError(3) || notifications.ContainsKey(notificationType) == false) return;
 			var orders = notifications[notificationType];
 			foreach (var kvp in orders)
 				kvp.Value.Remove(thingUID);
@@ -51,13 +52,14 @@ namespace SMPL.Gear
 		internal static void Notify(Type notificationType, EventArgs eventArgs = default)
 		{
 			if (notifications.ContainsKey(notificationType) == false) return;
-			var orders = notifications[notificationType];
+			var orders = new SortedDictionary<uint, List<string>>(notifications[notificationType]);
 			foreach (var kvp in orders)
 				for (int i = 0; i < kvp.Value.Count; i++)
 				{
 					var thing = Thing.PickByUniqueID(kvp.Value[i]);
 					switch (notificationType)
 					{
+						case Type.GameStart: thing.OnGameStart(); break;
 						case Type.GameUpdate: thing.OnGameUpdate(); break;
 						case Type.ButtonDoubleClick: thing.OnMouseButtonDoubleClick(eventArgs.Button); break;
 						case Type.ButtonPress: thing.OnMouseButtonPress(eventArgs.Button); break;
@@ -84,6 +86,7 @@ namespace SMPL.Gear
 						case Type.Unfocus: thing.OnWindowUnfocus(); break;
 						case Type.Maximize: thing.OnWindowMaximize(); break;
 						case Type.Minimize: thing.OnWindowMinimize(); break;
+						case Type.Fullscreen: thing.OnWindowFullscreen(); break;
 						case Type.ServerStart: thing.OnMultiplayerServerStart(); break;
 						case Type.ServerStop: thing.OnMultiplayerServerStop(); break;
 						case Type.ClientConnect: thing.OnMultiplayerClientConnect(eventArgs.String[0]); break;

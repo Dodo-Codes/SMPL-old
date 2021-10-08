@@ -46,7 +46,7 @@ namespace RPG1bit
 			}
 		}
 
-		public MapEditor(CreationDetails creationDetails) : base(creationDetails) { }
+		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
 		public override void OnLeftClicked()
@@ -68,7 +68,7 @@ namespace RPG1bit
 
 			for (int y = 0; y < rawData.GetLength(1); y++)
 				for (int x = 0; x < rawData.GetLength(0); x++)
-					for (int z = 0; z < 3; z++)
+					for (int z = 0; z < 4; z++)
 					{
 						if (rawData[x, y, z] != new Point(0, 0))
 						{
@@ -84,10 +84,10 @@ namespace RPG1bit
 				offset = default;
 				return default;
 			}
-			var result = new Point[(int)(lastTilePos.X - firstTilePos.X + 1), (int)(lastTilePos.Y - firstTilePos.Y + 1), 3];
+			var result = new Point[(int)(lastTilePos.X - firstTilePos.X + 1), (int)(lastTilePos.Y - firstTilePos.Y + 1), 4];
 			for (int y = 0; y < result.GetLength(1); y++)
 				for (int x = 0; x < result.GetLength(0); x++)
-					for (int z = 0; z < 3; z++)
+					for (int z = 0; z < 4; z++)
 						result[x, y, z] = rawData[(int)(x + firstTilePos.X), (int)(y + firstTilePos.Y), z];
 			offset = firstTilePos;
 			return result;
@@ -96,7 +96,7 @@ namespace RPG1bit
 		public static void EditCurrentTile()
 		{
 			var LMB = Mouse.ButtonIsPressed(Mouse.Button.Left);
-			var clickPos = Map.ScreenToMapPosition(LMB ? LeftClickPosition : RightClickPosition);
+			var clickPos = Map.ScreenToMapPosition(LMB ? Base.LeftClickPosition : Base.RightClickPosition);
 			var mouseCell = Screen.GetCellAtCursorPosition();
 			var pos = Map.ScreenToMapPosition(mouseCell);
 

@@ -32,16 +32,14 @@ namespace SMPL.Gear
 				public static class Subscrive
 				{
 					public static void WindowEnter(string thingUID, uint order) =>
-						Events.NotificationEnable(Events.Type.CursorEnterWindow, thingUID, order);
+						Events.Enable(Events.Type.CursorEnterWindow, thingUID, order);
 					public static void WindowLeave(string thingUID, uint order) =>
-						Events.NotificationEnable(Events.Type.CursorLeaveWindow, thingUID, order);
+						Events.Enable(Events.Type.CursorLeaveWindow, thingUID, order);
 				}
 				public static class Unsubscribe
 				{
-					public static void WindowEnter(string thingUID) =>
-						Events.NotificationDisable(Events.Type.CursorEnterWindow, thingUID);
-					public static void WindowLeave(string thingUID) =>
-						Events.NotificationDisable(Events.Type.CursorLeaveWindow, thingUID);
+					public static void WindowEnter(string thingUID) => Events.Disable(Events.Type.CursorEnterWindow, thingUID);
+					public static void WindowLeave(string thingUID) => Events.Disable(Events.Type.CursorLeaveWindow, thingUID);
 				}
 			}
 
@@ -103,28 +101,28 @@ namespace SMPL.Gear
 			public static class Subscribe
 			{
 				public static void ButtonDoubleClick(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ButtonDoubleClick, thingUID, order);
+					Events.Enable(Events.Type.ButtonDoubleClick, thingUID, order);
 				public static void ButtonPress(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ButtonPress, thingUID, order);
+					Events.Enable(Events.Type.ButtonPress, thingUID, order);
 				public static void ButtonHold(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ButtonHold, thingUID, order);
+					Events.Enable(Events.Type.ButtonHold, thingUID, order);
 				public static void ButtonRelease(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.ButtonRelease, thingUID, order);
+					Events.Enable(Events.Type.ButtonRelease, thingUID, order);
 				public static void WheelScroll(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.WheelScroll, thingUID, order);
+					Events.Enable(Events.Type.WheelScroll, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void ButtonDoubleClick(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ButtonDoubleClick, thingUID);
+					Events.Disable(Events.Type.ButtonDoubleClick, thingUID);
 				public static void ButtonPress(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ButtonPress, thingUID);
+					Events.Disable(Events.Type.ButtonPress, thingUID);
 				public static void ButtonHold(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ButtonHold, thingUID);
+					Events.Disable(Events.Type.ButtonHold, thingUID);
 				public static void ButtonRelease(string thingUID) =>
-					Events.NotificationDisable(Events.Type.ButtonRelease, thingUID);
+					Events.Disable(Events.Type.ButtonRelease, thingUID);
 				public static void WheelScroll(string thingUID) =>
-					Events.NotificationDisable(Events.Type.WheelScroll, thingUID);
+					Events.Disable(Events.Type.WheelScroll, thingUID);
 			}
 		}
 

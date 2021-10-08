@@ -41,6 +41,8 @@ namespace SMPL.Data
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 			Performance.DrawCallsPerFrame++;
+			Performance.QuadDrawsPerFrame++;
+			Performance.VertexDrawsPerFrame += 4;
 		}
 
 		public bool IsInvalid() => double.IsNaN(X) || double.IsNaN(Y);

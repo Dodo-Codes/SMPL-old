@@ -125,7 +125,7 @@ namespace SMPL.Data
 			return Encoding.UTF8.GetString(data);
 		}
 
-		public static void Display(Camera camera, string text, string fontPath)
+		public static void Display(Camera camera, object text, string fontPath, Point offset = default)
 		{
 			if (Window.DrawNotAllowed()) return;
 			if (fontPath == null || Assets.fonts.ContainsKey(fontPath) == false)
@@ -134,9 +134,12 @@ namespace SMPL.Data
 				return;
 			}
 
+			Text.text.LineSpacing = 0.8f;
+			Text.text.Scale = Size.From(new Size(1.13 / Window.PixelSize.W, 1.13 / Window.PixelSize.H));
 			Text.text.Font = Assets.fonts[fontPath];
-			Text.text.DisplayedString = text;
-			Text.text.Position = Point.From(camera.Position);
+			Text.text.DisplayedString = text.ToString();
+			Text.text.Position = Point.From(camera.Position + offset);
+			Text.text.OutlineThickness = 2;
 			camera.rendTexture.Draw(Text.text);
 			Performance.DrawCallsPerFrame++;
 		}

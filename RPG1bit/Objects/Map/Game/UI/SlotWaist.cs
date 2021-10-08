@@ -4,7 +4,7 @@ namespace RPG1bit
 {
 	public class SlotWaist : Object
 	{
-		public SlotWaist(CreationDetails creationDetails) : base(creationDetails) { }
+		public SlotWaist(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnDroppedUpon()
 		{

@@ -6,7 +6,7 @@ namespace RPG1bit
 	{
 		public static int Percent { get; set; } = 50;
 
-		public AdjustSound(CreationDetails creationDetails) : base(creationDetails) { }
+		public AdjustSound(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Adjust the sound effects volume.";
 		public override void OnLeftClicked()
 		{

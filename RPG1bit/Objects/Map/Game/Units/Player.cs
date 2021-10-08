@@ -4,6 +4,6 @@ namespace RPG1bit
 {
 	public class Player : Object
 	{
-		public Player(CreationDetails creationDetails) : base(creationDetails) { }
+		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 	}
 }

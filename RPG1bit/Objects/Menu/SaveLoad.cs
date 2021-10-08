@@ -5,7 +5,7 @@ namespace RPG1bit
 {
 	public class SaveLoad : Object
 	{
-		public SaveLoad(CreationDetails creationDetails) : base(creationDetails) { }
+		public SaveLoad(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Save/Load a session.";
 		public override void OnLeftClicked()
 		{
@@ -28,7 +28,7 @@ namespace RPG1bit
 		{
 			if (Gate.EnterOnceWhile("create-save-load-tab", true))
 			{
-				new SaveNameInput(new CreationDetails()
+				new SaveNameInput("save-session", new CreationDetails()
 				{
 					Name = "save-session",
 					Position = new(31, 13),
@@ -39,7 +39,7 @@ namespace RPG1bit
 					IsInTab = true,
 					AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
 				});
-				var mapList = new ObjectList(new CreationDetails()
+				var mapList = new ObjectList("load-list", new CreationDetails()
 				{
 					Name = "load-list",
 					Position = new(19, 3),
@@ -53,7 +53,7 @@ namespace RPG1bit
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
 				for (int i = 0; i < maps.Length; i++)
-					mapList.Objects.Add(new LoadMapValue(new CreationDetails()
+					mapList.Objects.Add(new LoadMapValue(maps[i], new CreationDetails()
 					{
 						Name = maps[i],
 						Position = new(-10, 0) { Color = new() },

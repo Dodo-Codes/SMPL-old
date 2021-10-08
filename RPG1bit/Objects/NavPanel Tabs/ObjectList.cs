@@ -13,16 +13,16 @@ namespace RPG1bit
 		public int scrollIndex;
 		private Point lastMousePos;
 
-		public ObjectList(CreationDetails creationDetails, Size size) : base(creationDetails)
+		public ObjectList(string uniqueID, CreationDetails creationDetails, Size size) : base(uniqueID, creationDetails)
 		{
 			Lists[Name] = this;
-			Mouse.CallWhen.ButtonRelease(OnButtonRelease);
-			Mouse.CallWhen.WheelScroll(OnWheelScroll);
+			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
+			Mouse.Event.Subscribe.WheelScroll(uniqueID);
 			Size = size;
-			Game.CallWhen.Running(Always);
+			Game.Event.Subscribe.Update(uniqueID);
 		}
 
-		private void OnWheelScroll(Mouse.Wheel wheel, double delta)
+		public override void OnMouseWheelScroll(Mouse.Wheel wheel, double delta)
 		{
 			if (wheel != Mouse.Wheel.Vertical || IsHovered() == false) return;
 			if (delta == 1) ScrollUp();
@@ -30,7 +30,7 @@ namespace RPG1bit
 
 			Screen.Display();
 		}
-		private void Always()
+		public override void OnGameUpdate()
 		{
 			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
@@ -59,23 +59,23 @@ namespace RPG1bit
 			}
 			lastMousePos = mousePos;
 		}
-		private void OnButtonRelease(Mouse.Button button)
+		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (button == Mouse.Button.Left && mousePos == new Point(Position.X + Size.W / 2, Position.Y) &&
-				LeftClickPosition == mousePos)
+				Base.LeftClickPosition == mousePos)
 				ScrollUp();
 			else if (button == Mouse.Button.Left && mousePos == new Point(Position.X + Size.W / 2, Position.Y + Size.H) &&
-				LeftClickPosition == mousePos)
+				Base.LeftClickPosition == mousePos)
 				ScrollDown();
 			else if (IsHovered())
 			{
 				var index = (int)(mousePos.Y - Position.Y + scrollIndex) - 1;
 				if (Objects.Count <= index) return;
-				if (button == Mouse.Button.Left && Objects[index].IsLeftClickable && LeftClickPosition.Y == mousePos.Y)
+				if (button == Mouse.Button.Left && Objects[index].IsLeftClickable && Base.LeftClickPosition.Y == mousePos.Y)
 					Objects[index].OnLeftClicked();
-				else if (button == Mouse.Button.Right && RightClickPosition.Y == mousePos.Y && Objects[index].IsLeftClickable)
+				else if (button == Mouse.Button.Right && Base.RightClickPosition.Y == mousePos.Y && Objects[index].IsLeftClickable)
 					Objects[index].OnRightClicked();
 			}
 			Screen.Display();
@@ -99,8 +99,8 @@ namespace RPG1bit
 				var iconIndexes = new Point(0, 0);
 				if (Objects[i] is LoadMapValue) iconIndexes = new Point(47, 06);
 				if (Objects[i] is StartSingleOnMap) iconIndexes = new Point(32, 15);
-				Screen.EditCell(pos - new Point(1, 0), iconIndexes, 2, Color.White);
-				Screen.DisplayText(pos, 2, Color.White, Objects[i].Name);
+				Screen.EditCell(pos - new Point(1, 0), iconIndexes, 1, Color.White);
+				Screen.DisplayText(pos, 1, Color.White, Objects[i].Name);
 			}
 			DisplayScrollArrows();
 		}

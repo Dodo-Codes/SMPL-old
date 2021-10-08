@@ -61,7 +61,7 @@ namespace SMPL.Gear
 		public static string ToText(double timeInSeconds, Format format = new())
 		{
 			timeInSeconds = Number.Sign(timeInSeconds, false);
-			var secondsStr = timeInSeconds.ToString();
+			var secondsStr = $"{timeInSeconds:F0}";
 			var ms = 0;
 			if (secondsStr.Contains('.'))
 			{
@@ -70,8 +70,8 @@ namespace SMPL.Gear
 				timeInSeconds = Number.Round(timeInSeconds, toward: Number.RoundToward.Down);
 			}
 			var sec = timeInSeconds % 60;
-			var min = Number.Round(timeInSeconds / 60 % 60, toward: Number.RoundToward.Down);
-			var hr = Number.Round(timeInSeconds / 3600, toward: Number.RoundToward.Down);
+			var min = FromNumber(timeInSeconds, Convertion.SecondsToMinutes) % 60;
+			var hr = FromNumber(timeInSeconds, Convertion.SecondsToHours);
 			var msShow = !format.Milliseconds.AreSkipped;
 			var secShow = !format.Seconds.AreSkipped;
 			var minShow = !format.Minutes.AreSkipped;

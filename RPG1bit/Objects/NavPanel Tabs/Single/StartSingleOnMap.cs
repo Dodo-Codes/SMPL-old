@@ -5,7 +5,7 @@ namespace RPG1bit
 {
 	public class StartSingleOnMap : Object
 	{
-		public StartSingleOnMap(CreationDetails creationDetails) : base(creationDetails) { }
+		public StartSingleOnMap(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnLeftClicked()
 		{

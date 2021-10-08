@@ -4,14 +4,14 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public static class Screen
+	public class Screen : Thing
 	{
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
 
-		private static void CreateAndInitializeScreen()
+		public Screen(string uniqueID) : base(uniqueID)
 		{
-			Camera.CallWhen.Display(OnDisplay);
+			Camera.Event.Subscribe.Display(uniqueID);
 
 			Area = new("map-area");
 			Area.Size = Camera.WorldCamera.Size;
@@ -35,20 +35,13 @@ namespace RPG1bit
 					quad.SetTextureCropTile(new(0, 0));
 					quad.SetColor(c, c, c, c);
 					for (int i = 0; i < 4; i++)
+					{
+						if (i > 1 && (x == 0 || y == 0 || x > 18)) break;
 						Sprite.SetQuad($"{i} {quadID}", quad);
+					}
 				}
 		}
-		public static void Create()
-		{
-			CreateAndInitializeScreen();
 
-			NavigationPanel.CreateButtons();
-			NavigationPanel.Tab.Create();
-			NavigationPanel.Info.Create();
-			Object.Initialize();
-			Hoverer.Create();
-			Map.Initialize();
-		}
 		public static void Display()
 		{
 			NavigationPanel.Display();
@@ -105,7 +98,7 @@ namespace RPG1bit
 			return cell.X >= 0 && cell.Y >= 0 && cell.X <= 31 && cell.Y <= 18;
 		}
 
-		private static void OnDisplay(Camera camera)
+		public override void OnCameraDisplay(Camera camera)
 		{
 			if (Sprite == null) return;
 			Sprite.Display(camera);

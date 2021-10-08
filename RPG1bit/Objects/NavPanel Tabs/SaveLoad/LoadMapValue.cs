@@ -5,7 +5,7 @@ namespace RPG1bit
 {
 	public class LoadMapValue : Object
 	{
-		public LoadMapValue(CreationDetails creationDetails) : base(creationDetails) { }
+		public LoadMapValue(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnLeftClicked()
 		{

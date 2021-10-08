@@ -4,7 +4,7 @@ namespace RPG1bit
 {
 	public class StartMulti : Object
 	{
-		public StartMulti(CreationDetails creationDetails) : base(creationDetails) { }
+		public StartMulti(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnLeftClicked() { }
 	}
 }

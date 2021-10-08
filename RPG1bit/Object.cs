@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Object
+	public class Object : Thing
 	{
 		public struct CreationDetails
 		{
@@ -92,9 +92,7 @@ namespace RPG1bit
 		public NavigationPanel.Tab.Type AppearOnTab { get; }
 
 		private bool leftClicked;
-		private static Point prevCursorPos = new(-1, 0);
-		public static Point LeftClickPosition { get; private set; }
-		public static Point RightClickPosition { get; private set; }
+
 		private Point position;
 		public Point Position
 		{
@@ -112,16 +110,10 @@ namespace RPG1bit
 			}
 		}
 
-		public static void Initialize()
+		public Object(string uniqueID, CreationDetails creationDetails) : base(uniqueID)
 		{
-			Game.CallWhen.Running(StaticAlways, 0);
-			Mouse.CallWhen.ButtonPress(OnButtonClicked);
-			Keyboard.CallWhen.KeyPress(OnKeyPressed);
-		}
-		public Object(CreationDetails creationDetails)
-		{
-			Mouse.CallWhen.ButtonRelease(OnButtonRelease);
-			Game.CallWhen.Running(Always);
+			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
+			Game.Event.Subscribe.Update(uniqueID);
 
 			Name = creationDetails.Name;
 			TileIndexes = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
@@ -137,17 +129,10 @@ namespace RPG1bit
 			IsInTab = creationDetails.IsInTab;
 		}
 
-		private static void OnKeyPressed(Keyboard.Key key)
-		{
-			if (key != Keyboard.Key.P || Map.IsHovered() == false) return;
-			MapEditor.EditPlayerTile();
-		}
-
-		public void Destroy()
+		public override void Destroy()
 		{
 			objects[Position].Remove(this);
 			if (objects[Position].Count == 0) objects.Remove(Position);
-			Mouse.StopCallWhen.ButtonRelease(OnButtonRelease);
 		}
 		public static void DisplayAllObjects()
 		{
@@ -160,7 +145,7 @@ namespace RPG1bit
 			return objects.ContainsKey(position) ? objects[position] : new List<Object>();
 		}
 
-		private void Always()
+		public override void OnGameUpdate()
 		{
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
@@ -181,10 +166,11 @@ namespace RPG1bit
 				NavigationPanel.Info.ShowRightClickableIndicator(IsRightClickable);
 				leftClicked = false;
 				OnHovered();
+				NavigationPanel.Info.Display();
 			}
 			if (IsDragable &&
 				Gate.EnterOnceWhile($"on-unhover-{Position}", cursorPos != Position &&
-				Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == LeftClickPosition))
+				Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == Base.LeftClickPosition))
 			{
 				HoldingObject = this;
 				Hoverer.CursorTextureTileIndexes = TileIndexes;
@@ -192,58 +178,15 @@ namespace RPG1bit
 				OnDragStart();
 			}
 		}
-		private static void StaticAlways()
-		{
-			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
-			var mousePos = Screen.GetCellAtCursorPosition();
-			if (Screen.CellIsOnScreen(mousePos, true) == false) return;
 
-			if (Map.CurrentSession == Map.Session.None && mousePos.X < 18)
-			{
-				NavigationPanel.Info.Textbox.Scale = new(0.6, 0.6);
-				NavigationPanel.Info.Textbox.Text = $"{Window.Title} {NavigationPanel.Info.GameVersion}";
-				return;
-			}
-			if (mousePos != prevCursorPos)
-			{
-				if (Map.CurrentSession == Map.Session.MapEdit && Map.IsHovered())
-				{
-					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right)) MapEditor.EditCurrentTile();
-					if (Keyboard.KeyIsPressed(Keyboard.Key.P)) MapEditor.EditPlayerTile();
-				}
-
-				NavigationPanel.Info.Textbox.Text = "";
-				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
-				NavigationPanel.Info.ShowClickableIndicator(false);
-				NavigationPanel.Info.ShowDragableIndicator(false);
-				NavigationPanel.Info.ShowLeftClickableIndicator(false);
-				NavigationPanel.Info.ShowRightClickableIndicator(false);
-
-				for (int i = 0; i < 3; i++)
-				{
-					var quadID = $"{i} cell {mousePos.X} {mousePos.Y}";
-					var quad = Screen.Sprite.GetQuad(quadID);
-					var coord = quad.CornerA.TextureCoordinate;
-					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
-					var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
-					var description = descriptions.ContainsKey(key) ? descriptions[key] : "";
-					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
-
-					if (NavigationPanel.Info.Textbox.Text != "" && description == descriptions[new(0, 0)]) break;
-					NavigationPanel.Info.Textbox.Text = $"{description}{sep}{NavigationPanel.Info.Textbox.Text}";
-				}
-			}
-			prevCursorPos = mousePos;
-		}
-
-		private void OnButtonRelease(Mouse.Button button)
+		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (button == Mouse.Button.Left)
 			{
-				if (IsLeftClickable && Position == mousePos && Position == LeftClickPosition)
+				if (IsLeftClickable && Position == mousePos && Position == Base.LeftClickPosition)
 				{
 					if (IsConfirmingClick && Map.CurrentSession != Map.Session.None && leftClicked == false)
 					{
@@ -269,22 +212,11 @@ namespace RPG1bit
 					Hoverer.CursorTextureTileIndexes = new(36, 10);
 				}
 			}
-			if (button == Mouse.Button.Right && IsRightClickable && Position == mousePos && Position == RightClickPosition)
+			if (button == Mouse.Button.Right && IsRightClickable && Position == mousePos && Position == Base.RightClickPosition)
 			{
 				OnHovered();
 				OnRightClicked();
 			}
-		}
-		private static void OnButtonClicked(Mouse.Button button)
-		{
-			var mousePos = Screen.GetCellAtCursorPosition();
-			if (button == Mouse.Button.Left) LeftClickPosition = mousePos;
-			if (button == Mouse.Button.Right) RightClickPosition = mousePos;
-
-			var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
-			if (Map.CurrentSession != Map.Session.MapEdit || isOverMap == false) return;
-			if (button == Mouse.Button.Left || button == Mouse.Button.Right) MapEditor.EditCurrentTile();
-			if (button == Mouse.Button.Middle) MapEditor.PickCurrentTile();
 		}
 		public void Display()
 		{

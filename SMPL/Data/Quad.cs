@@ -31,6 +31,8 @@ namespace SMPL.Data
 			var verts = new Vertex[] { CornerA.Vertex, CornerB.Vertex, CornerC.Vertex, CornerD.Vertex };
 			camera.rendTexture.Draw(verts, PrimitiveType.Quads);
 			Performance.DrawCallsPerFrame++;
+			Performance.QuadDrawsPerFrame++;
+			Performance.VertexDrawsPerFrame += 4;
 		}
 
 		public void SetTextureCropCoordinates(Point topLeft, Point downRight)

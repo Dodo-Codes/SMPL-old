@@ -197,6 +197,9 @@ namespace SMPL.Components
 
 			if (Effects != null) Effects.shader?.SetUniform("Texture", Area.sprite.Texture);
 
+			Performance.VertexDrawsPerFrame += (uint)verts.Length;
+			Performance.QuadDrawsPerFrame += (uint)quads.Count;
+
 			UpdateSprite();
 			Draw();
 			Dispose();

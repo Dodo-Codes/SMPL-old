@@ -4,7 +4,7 @@ namespace RPG1bit
 {
 	public class SlotFeet : Object
 	{
-		public SlotFeet(CreationDetails creationDetails) : base(creationDetails) { }
+		public SlotFeet(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnDroppedUpon()
 		{

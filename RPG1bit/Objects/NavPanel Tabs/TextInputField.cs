@@ -14,14 +14,14 @@ namespace RPG1bit
 
 		private Point lastMousePos;
 
-		public TextInputField(CreationDetails creationDetails) : base(creationDetails)
+		public TextInputField(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			Keyboard.CallWhen.TextInput(OnTextInput);
-			Mouse.CallWhen.ButtonPress(OnButtonPress);
-			Game.CallWhen.Running(Always);
+			Keyboard.Event.Subscribe.TextInput(uniqueID);
+			Mouse.Event.Subscribe.ButtonPress(uniqueID);
+			Game.Event.Subscribe.Update(uniqueID);
 		}
 
-		private void Always()
+		public override void OnGameUpdate()
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (mousePos != lastMousePos && mousePos.X > Position.X - MAX_SYMBOLS - 1 &&
@@ -29,7 +29,7 @@ namespace RPG1bit
 				OnHovered();
 			lastMousePos = mousePos;
 		}
-		private void OnButtonPress(Mouse.Button button)
+		public override void OnMouseButtonPress(Mouse.Button button)
 		{
 			Typing = false;
 			AcceptingInput = false;
@@ -48,7 +48,7 @@ namespace RPG1bit
 				}
 			}
 		}
-		private void OnTextInput(Keyboard.TextInput textInput)
+		public override void OnKeyboardTextInput(Keyboard.TextInput textInput)
 		{
 			if (AcceptingInput == false) return;
 			switch (textInput.CurrentType)

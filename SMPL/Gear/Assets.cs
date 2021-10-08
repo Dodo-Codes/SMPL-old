@@ -53,27 +53,26 @@ namespace SMPL.Gear
 				public static class Subscribe
 				{
 					public static void SaveStart(string thingUID, uint order = uint.MaxValue) =>
-						Events.NotificationEnable(Events.Type.DataSlotSaveStart, thingUID, order);
+						Events.Enable(Events.Type.DataSlotSaveStart, thingUID, order);
 					public static void SaveUpdate(string thingUID, uint order = uint.MaxValue) =>
-						Events.NotificationEnable(Events.Type.DataSlotSaveUpdate, thingUID, order);
+						Events.Enable(Events.Type.DataSlotSaveUpdate, thingUID, order);
 					public static void SaveEnd(string thingUID, uint order = uint.MaxValue) =>
-						Events.NotificationEnable(Events.Type.DataSlotSaveEnd, thingUID, order);
+						Events.Enable(Events.Type.DataSlotSaveEnd, thingUID, order);
 				}
 				public static class Unsubscribe
 				{
 					public static void SaveStart(string thingUID) =>
-						Events.NotificationDisable(Events.Type.DataSlotSaveStart, thingUID);
+						Events.Disable(Events.Type.DataSlotSaveStart, thingUID);
 					public static void SaveUpdate(string thingUID) =>
-						Events.NotificationDisable(Events.Type.DataSlotSaveUpdate, thingUID);
+						Events.Disable(Events.Type.DataSlotSaveUpdate, thingUID);
 					public static void SaveEnd(string thingUID) =>
-						Events.NotificationDisable(Events.Type.DataSlotSaveEnd, thingUID);
+						Events.Disable(Events.Type.DataSlotSaveEnd, thingUID);
 				}
 			}
 
-			public static void Save(params DataSlot[] dataSlots)
+			public void Save()
 			{
-				for (int i = 0; i < dataSlots.Length; i++)
-					queuedSaveSlots.Add(dataSlots[i]);
+				queuedSaveSlots.Add(this);
 			}
 			public void SetValue(string key, string value)
 			{
@@ -105,27 +104,27 @@ namespace SMPL.Gear
 		private static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd, slotSaveStart, slotSaveUpdate, slotSaveEnd;
 		private static readonly List<QueuedAsset> queuedAssets = new();
 		private static readonly List<DataSlot> queuedSaveSlots = new();
-		public static double Percent { get; private set; }
+		public static double LoadPercent { get; private set; }
 
 		public static class Event
 		{
 			public static class Subscribe
 			{
 				public static void LoadStart(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.LoadStart, thingUID, order);
+					Events.Enable(Events.Type.LoadStart, thingUID, order);
 				public static void LoadUpdate(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.LoadUpdate, thingUID, order);
+					Events.Enable(Events.Type.LoadUpdate, thingUID, order);
 				public static void LoadEnd(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.LoadEnd, thingUID, order);
+					Events.Enable(Events.Type.LoadEnd, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void LoadStart(string thingUID) =>
-					Events.NotificationDisable(Events.Type.LoadStart, thingUID);
+					Events.Disable(Events.Type.LoadStart, thingUID);
 				public static void LoadUpdate(string thingUID) =>
-					Events.NotificationDisable(Events.Type.LoadUpdate, thingUID);
+					Events.Disable(Events.Type.LoadUpdate, thingUID);
 				public static void LoadEnd(string thingUID) =>
-					Events.NotificationDisable(Events.Type.LoadEnd, thingUID);
+					Events.Disable(Events.Type.LoadEnd, thingUID);
 			}
 		}
 
@@ -263,7 +262,7 @@ namespace SMPL.Gear
 			while (Window.window.IsOpen)
 			{
 				Thread.Sleep(1);
-				Percent = 100;
+				LoadPercent = 100;
 				var loadedCount = 0;
 				assetLoadBegin = true;
 				slotSaveStart = true;
@@ -347,7 +346,7 @@ namespace SMPL.Gear
 				{
 					loadedCount++;
 					var percent = Number.ToPercent(loadedCount, new Number.Range(0, queuedAssets.Count + queuedSaveSlots.Count));
-					Percent = percent;
+					LoadPercent = percent;
 					assetLoadUpdate = queuedAssets.Count > 0;
 					slotSaveUpdate = queuedSaveSlots.Count > 0;
 				}

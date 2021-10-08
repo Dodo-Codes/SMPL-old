@@ -6,7 +6,7 @@ namespace RPG1bit
 {
 	public class StartSingle : Object
 	{
-		public StartSingle(CreationDetails creationDetails) : base(creationDetails) { }
+		public StartSingle(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new singleplayer game session.  ";
 		public override void OnLeftClicked()
 		{
@@ -22,7 +22,7 @@ namespace RPG1bit
 		{
 			if (Gate.EnterOnceWhile("create-single-tab", true))
 			{
-				var mapList = new ObjectList(new CreationDetails()
+				var mapList = new ObjectList("load-map-list", new CreationDetails()
 				{
 					Name = "load-map-list",
 					Position = new(19, 4),
@@ -36,7 +36,7 @@ namespace RPG1bit
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
 				for (int i = 0; i < maps.Length; i++)
-					mapList.Objects.Add(new StartSingleOnMap(new CreationDetails()
+					mapList.Objects.Add(new StartSingleOnMap(maps[i], new CreationDetails()
 					{
 						Name = maps[i],
 						Position = new(-10, 0) { Color = new() },

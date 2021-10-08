@@ -11,7 +11,7 @@ namespace RPG1bit
 		private static readonly Point[] graphicIndexes = MapEditor.randomTiles.Keys.ToArray();
 		public static Point BrushType => graphicIndexes[index];
 
-		public SwitchType(CreationDetails creationDetails) : base(creationDetails) { }
+		public SwitchType(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Change the brush type.";
 		public override void OnLeftClicked()
 		{

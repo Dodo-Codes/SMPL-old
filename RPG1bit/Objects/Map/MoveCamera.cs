@@ -27,12 +27,12 @@ namespace RPG1bit
 		}
 		private readonly Point[] directions = new Point[] { new(), new(-1, 0), new(1, 0), new(0, -1), new(0, 1) };
 
-		public MoveCamera(CreationDetails creationDetails) : base(creationDetails)
+		public MoveCamera(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			Keyboard.CallWhen.TextInput(OnKeyPressed);
+			Keyboard.Event.Subscribe.TextInput(uniqueID);
 		}
 
-		private void OnKeyPressed(Keyboard.TextInput textInput)
+		public override void OnKeyboardTextInput(Keyboard.TextInput textInput)
 		{
 			if (TextInputField.Typing || Map.CurrentSession == Map.Session.None ||
 				textInput.Value.ToLower() != Key.ToString().ToLower()) return;
@@ -49,6 +49,7 @@ namespace RPG1bit
 		{
 			Map.CameraPosition += directions[(int)CurrentType];
 			Map.Display();
+			DisplayAllObjects();
 		}
 	}
 }

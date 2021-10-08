@@ -72,32 +72,32 @@ namespace SMPL.Gear
 			public static class Subscribe
 			{
 				public static void Resize(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.Resize, thingUID, order);
+					Events.Enable(Events.Type.Resize, thingUID, order);
 				public static void Close(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.Close, thingUID, order);
+					Events.Enable(Events.Type.Close, thingUID, order);
 				public static void Focus(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.Focus, thingUID, order);
+					Events.Enable(Events.Type.Focus, thingUID, order);
 				public static void Unfocus(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.Unfocus, thingUID, order);
+					Events.Enable(Events.Type.Unfocus, thingUID, order);
 				public static void Maximize(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.Maximize, thingUID, order);
+					Events.Enable(Events.Type.Maximize, thingUID, order);
 				public static void Minimize(string thingUID, uint order = uint.MaxValue) =>
-					Events.NotificationEnable(Events.Type.Minimize, thingUID, order);
+					Events.Enable(Events.Type.Minimize, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void Resize(string thingUID) =>
-					Events.NotificationDisable(Events.Type.Resize, thingUID);
+					Events.Disable(Events.Type.Resize, thingUID);
 				public static void Close(string thingUID) =>
-					Events.NotificationDisable(Events.Type.Close, thingUID);
+					Events.Disable(Events.Type.Close, thingUID);
 				public static void Focus(string thingUID) =>
-					Events.NotificationDisable(Events.Type.Focus, thingUID);
+					Events.Disable(Events.Type.Focus, thingUID);
 				public static void Unfocus(string thingUID) =>
-					Events.NotificationDisable(Events.Type.Unfocus, thingUID);
+					Events.Disable(Events.Type.Unfocus, thingUID);
 				public static void Maximize(string thingUID) =>
-					Events.NotificationDisable(Events.Type.Maximize, thingUID);
+					Events.Disable(Events.Type.Maximize, thingUID);
 				public static void Minimize(string thingUID) =>
-					Events.NotificationDisable(Events.Type.Minimize, thingUID);
+					Events.Disable(Events.Type.Minimize, thingUID);
 			}
 		}
 
@@ -138,7 +138,7 @@ namespace SMPL.Gear
 
 		public static string Title
 		{
-			get { return form.Text; }
+			get { return form == null || form.Text == null ? "SMPL Game" : form.Text; }
 			set { window.SetTitle(value); }
 		}
 		public static Point Position
@@ -151,6 +151,7 @@ namespace SMPL.Gear
 			get { return new Size(window.Size.X, window.Size.Y); }
 			set { window.Size = new Vector2u((uint)value.W, (uint)value.H); }
 		}
+		public static Size PixelSize { get; internal set; }
 
 		private static bool preventsSleep;
 		public static bool PreventsSleep
@@ -244,7 +245,7 @@ namespace SMPL.Gear
 		{
 			if (IsHidden) return;
 
-			Performance.DrawCallsPerFrame = 0;
+			Performance.ResetDrawCounters();
 			window.SetActive(true);
 			window.Clear();
 			isDrawing = true;
@@ -252,6 +253,7 @@ namespace SMPL.Gear
 			isDrawing = false;
 			window.Display();
 			window.SetActive(false);
+			Performance.prevDrawCallsPerFr = Performance.DrawCallsPerFrame;
 		}
 
 		internal static bool DrawNotAllowed()
@@ -267,6 +269,7 @@ namespace SMPL.Gear
 		{
 			form = new Form();
 
+			PixelSize = pixelSize;
 			window = new RenderWindow(form.Handle);
 			window.SetVisible(true);
 			window.SetTitle($"{nameof(SMPL)} Game");
@@ -304,12 +307,13 @@ namespace SMPL.Gear
 		}
 		internal static void OnWindowResize(object sender, EventArgs e)
 		{
-			CurrentState = (State)form.WindowState;
+			if (CurrentState != State.Fullscreen) CurrentState = (State)form.WindowState;
 			switch (CurrentState)
 			{
 				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); Events.Notify(Events.Type.Resize); break; }
 				case State.Minimized: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Minimize); break; }
 				case State.Maximized: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Maximize); break; }
+				case State.Fullscreen: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Fullscreen); break; }
 			}
 		}
 	}
