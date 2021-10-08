@@ -19,6 +19,7 @@ namespace SMPL.Gear
 		public static uint DrawCallsPerFrame { get; internal set; }
 		public static uint VertexDrawsPerFrame { get; internal set; }
 		public static uint QuadDrawsPerFrame { get; internal set; }
+		public static bool Boost { get; set; } = true;
 
 		internal static Clock frameDeltaTime;
 		public static uint FrameCount { get; private set; }

@@ -56,7 +56,14 @@ namespace RPG1bit
 				case Keyboard.TextInput.Type.Text: break;
 				case Keyboard.TextInput.Type.Backspace:
 					{ Value = Value.Length == 0 ? Value : Value.Remove(Value.Length - 1); OnDisplay(); } return;
-				case Keyboard.TextInput.Type.Enter: OnSubmit(); return;
+				case Keyboard.TextInput.Type.Enter:
+					{
+						OnSubmit();
+						Typing = false;
+						AcceptingInput = false;
+						OnDisplay();
+						return;
+					}
 				case Keyboard.TextInput.Type.Tab: return;
 			}
 			var isLetter = Text.IsLetters(textInput.Value);

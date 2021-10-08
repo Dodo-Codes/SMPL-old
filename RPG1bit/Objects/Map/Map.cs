@@ -10,9 +10,8 @@ namespace RPG1bit
 	{
 		public enum Session { None, Single, Multi, MapEdit }
 
-		public static Point TileVoid => new(0, 0);
 		public static Point TileBarrier => new(0, 22);
-		public static Point TilePlayer => new(25, 0);
+		public static Point TilePlayer => new(24, 8);
 
 		public static Size Size => new(1000, 1000);
 		public static Point[,,] RawData { get; set; }
@@ -77,12 +76,12 @@ namespace RPG1bit
 						Name = "player",
 						Position = randPoint,
 						Height = 3,
-						TileIndexes = new Point[] { TilePlayer }
+						TileIndexes = new Point[] { new(25, 0) }
 					});
 
 					bool RandPointIsBarrier() => RawData[(int)randPoint.X, (int)randPoint.Y, 3] == TileBarrier;
-					double RandX() => Probability.Randomize(new(mapOffset.X - 1, bottomRight.X - 1));
-					double RandY() => Probability.Randomize(new(mapOffset.Y - 1, bottomRight.Y - 1));
+					double RandX() => Probability.Randomize(new(mapOffset.X, bottomRight.X - 1));
+					double RandY() => Probability.Randomize(new(mapOffset.Y, bottomRight.Y - 1));
 				}
 
 				Display();
@@ -141,7 +140,7 @@ namespace RPG1bit
 
 			if (CurrentSession == Session.Single || CurrentSession == Session.Multi)
 			{
-				new SlotHead("head", new Object.CreationDetails()
+				new EquipSlot("head", new Object.CreationDetails()
 				{
 					Name = "head",
 					Position = new(0, 7) { Color = Color.Gray },
@@ -149,7 +148,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new SlotBody("body", new Object.CreationDetails()
+				new EquipSlot("body", new Object.CreationDetails()
 				{
 					Name = "body",
 					Position = new(0, 8) { Color = Color.Gray },
@@ -157,7 +156,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new SlotFeet("feet", new Object.CreationDetails()
+				new EquipSlot("feet", new Object.CreationDetails()
 				{
 					Name = "feet",
 					Position = new(0, 9) { Color = Color.Gray },
@@ -166,7 +165,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 
-				new SlotHandLeft("hand-left", new Object.CreationDetails()
+				new EquipSlot("hand-left", new Object.CreationDetails()
 				{
 					Name = "hand-left",
 					Position = new(0, 5) { Color = Color.Gray },
@@ -174,7 +173,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new SlotHandRight("hand-right", new Object.CreationDetails()
+				new EquipSlot("hand-right", new Object.CreationDetails()
 				{
 					Name = "hand-right",
 					Position = new(0, 4) { Color = Color.Gray },
@@ -183,7 +182,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 
-				new SlotBack("carry-back", new Object.CreationDetails()
+				new EquipSlot("carry-back", new Object.CreationDetails()
 				{
 					Name = "carry-back",
 					Position = new(0, 11) { Color = Color.Gray },
@@ -191,7 +190,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new SlotWaist("carry-waist", new Object.CreationDetails()
+				new EquipSlot("carry-waist", new Object.CreationDetails()
 				{
 					Name = "carry-waist",
 					Position = new(0, 12) { Color = Color.Gray },

@@ -261,7 +261,8 @@ namespace SMPL.Gear
 		{
 			while (Window.window.IsOpen)
 			{
-				Thread.Sleep(1);
+				if (Performance.Boost == false) Thread.Sleep(1);
+
 				LoadPercent = 100;
 				var loadedCount = 0;
 				assetLoadBegin = true;
@@ -328,7 +329,7 @@ namespace SMPL.Gear
 							Directory.CreateDirectory(Path.GetDirectoryName(path));
 							var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i]);
 							str = Data.Text.Encrypt(str, 'H', true);
-							System.IO.File.WriteAllText(path, str);
+							File.WriteAllText(path, str);
 						}
 						catch (Exception)
 						{

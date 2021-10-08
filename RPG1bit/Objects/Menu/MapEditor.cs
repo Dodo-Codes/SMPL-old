@@ -122,7 +122,8 @@ namespace RPG1bit
 		public static void EditPlayerTile()
 		{
 			var pos = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
-			Map.RawData[(int)pos.X, (int)pos.Y, 3] = new(Map.RawData[(int)pos.X, (int)pos.Y, 3] == Map.TilePlayer ? 0 : 25, 0);
+			Map.RawData[(int)pos.X, (int)pos.Y, 3] = Map.RawData[(int)pos.X, (int)pos.Y, 3] == Map.TilePlayer ?
+				new(0, 0) : Map.TilePlayer;
 			Map.Display();
 			NavigationPanel.Tab.Close();
 		}

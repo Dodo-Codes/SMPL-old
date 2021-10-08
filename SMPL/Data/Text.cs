@@ -135,7 +135,7 @@ namespace SMPL.Data
 			}
 
 			Text.text.LineSpacing = 0.8f;
-			Text.text.Scale = Size.From(new Size(1.13 / Window.PixelSize.W, 1.13 / Window.PixelSize.H));
+			Text.text.Scale = Size.From(new Size(1 / Window.PixelSize.W, 1 / Window.PixelSize.H));
 			Text.text.Font = Assets.fonts[fontPath];
 			Text.text.DisplayedString = text.ToString();
 			Text.text.Position = Point.From(camera.Position + offset);

@@ -51,7 +51,6 @@ namespace SMPL.Gear
 			Assets.Initialize();
 			Keyboard.Initialize();
 
-			Performance.FPSLimit = 60;
 			Window.PreventsSleep = true;
 
 			game.OnGameCreate();
@@ -63,7 +62,7 @@ namespace SMPL.Gear
 		{
 			while (Window.window.IsOpen)
 			{
-				Thread.Sleep(1);
+				if (Performance.Boost == false) Thread.Sleep(1);
 
 				Performance.EarlyUpdate();
 

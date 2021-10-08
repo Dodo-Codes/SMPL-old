@@ -73,7 +73,7 @@ namespace SMPL.Gear
 				$"{description}\n";
 			Console.Log(result);
 		}
-		public static void Display(Camera camera)
+		public static void Display()
 		{
 			if (Window.DrawNotAllowed()) return;
 			if (Assets.fonts.Count == 0)
@@ -91,7 +91,7 @@ namespace SMPL.Gear
 			for (int i = 0; i < Mouse.buttonsHeld.Count; i++)
 				pressedButtons += $"{Mouse.buttonsHeld[i]}" + (i < Mouse.buttonsHeld.Count - 1 ? ", " : "");
 
-			if (output == "" || Performance.FrameCount % 3 == 0)
+			if (output == "" || Performance.FrameCount % 5 == 0)
 				output =
 					$"FPS Average: {Performance.FPSAverage:F1} / Limit: {Performance.FPSLimit:F1} / Raw: {Performance.FPS:F1}\n" +
 					$"CPU Usage: {Performance.PercentCPU:F2}%\n" +
@@ -104,6 +104,7 @@ namespace SMPL.Gear
 					$"Quads drawn per frame: {Performance.QuadDrawsPerFrame} (Vertices: {Performance.VertexDrawsPerFrame})\n" +
 					$"Frame count (ticks): {Performance.FrameCount}\n" +
 					$"VSync Enabled: {Performance.VSyncEnabled}\n" +
+					$"Performance boost: {Performance.Boost}\n" +
 					$"\n" +
 					$"OS: {Hardware.OperatingSystemName}\n" +
 					$"GPU: {Hardware.VideoCardName}\n" +
@@ -143,7 +144,7 @@ namespace SMPL.Gear
 			foreach (var kvp in Assets.fonts)
 			{
 				var sz = Window.Size / Window.PixelSize;
-				Text.Display(camera, output, kvp.Key, new Point(-sz.W + sz.W / 100, -sz.H) / 2);
+				Text.Display(Camera.WorldCamera, output, kvp.Key, new Point(-sz.W + sz.W / 100, -sz.H) / 2);
 				break;
 			}
 		}

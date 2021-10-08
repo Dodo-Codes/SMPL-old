@@ -53,7 +53,7 @@ namespace RPG1bit
 			{ new(41, 19), "Change the brush type." },
 			{ new(42, 18), "Change the brush height." }, { new(36, 17), "Change the brush height." },
 			{ new(37, 17), "Change the brush height." }, { new(38, 17), "Change the brush height." },
-			{ new(25, 00), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
+			{ new(24, 08), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
 				"   of those tiles or anywhere on the map\n           if no player tile is present." },
 			{ new(41, 13), "[LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
 			{ new(42, 13), "[RMB] Erase a tile.\n[Shift + RMB] Erase a square of tiles." },

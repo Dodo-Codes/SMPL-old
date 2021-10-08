@@ -2,7 +2,7 @@
 
 namespace RPG1bit
 {
-	public class Player : Object
+	public class Player : Unit
 	{
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 	}
