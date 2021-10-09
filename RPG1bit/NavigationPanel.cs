@@ -172,18 +172,18 @@ namespace RPG1bit
 				IsLeftClickable = true
 			});
 
-			new AdjustSound("sound", new CreationDetails()
+			new AdjustVolume("adjust-sound-volume", new CreationDetails()
 			{
-				Name = "sound",
+				Name = "Sound effects",
 				Position = new(26, 0) { Color = new Color(175, 175, 175) },
 				TileIndexes = new Point[] { new(38, 16) },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
 			});
-			new AdjustMusic("music", new CreationDetails()
+			new AdjustVolume("adjust-music-volume", new CreationDetails()
 			{
-				Name = "music",
+				Name = "Music",
 				Position = new(27, 0) { Color = new Color(175, 175, 175) },
 				TileIndexes = new Point[] { new(39, 16) },
 				Height = 1,

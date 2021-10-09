@@ -11,7 +11,12 @@ namespace TestGame
 
 		public override void OnGameCreate()
 		{
+			Mouse.Event.Subscribe.ButtonPress(UniqueID);
 			new Player("test");
+		}
+		public override void OnMouseButtonPress(Mouse.Button button)
+		{
+			Console.Log("press");
 		}
 	}
 }

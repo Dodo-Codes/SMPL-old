@@ -146,9 +146,10 @@ namespace SMPL.Components
 			set
 			{
 				if (ErrorIfDestroyed()) return;
-				originPercent = new Point(
-					Number.Limit(value.X, new Number.Range(0, 100)),
-					Number.Limit(value.Y, new Number.Range(0, 100)));
+				originPercent = value;
+				//originPercent = new Point(
+				//	Number.Limit(value.X, new Number.Range(0, 100)),
+				//	Number.Limit(value.Y, new Number.Range(0, 100)));
 				UpdateHitboxes();
 				UpdateChunkInfo();
 			}

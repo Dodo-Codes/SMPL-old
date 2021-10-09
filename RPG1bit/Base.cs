@@ -58,7 +58,7 @@ namespace RPG1bit
 				if (Map.CurrentSession == Map.Session.MapEdit && Map.IsHovered())
 				{
 					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right)) MapEditor.EditCurrentTile();
-					if (Keyboard.KeyIsPressed(Keyboard.Key.P)) MapEditor.EditPlayerTile();
+					EditSpecialTiles();
 				}
 
 				NavigationPanel.Info.Textbox.Text = "";
@@ -98,8 +98,13 @@ namespace RPG1bit
 		}
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
-			if (key != Keyboard.Key.P || Map.IsHovered() == false) return;
-			MapEditor.EditPlayerTile();
+			if (Map.IsHovered() == false) return;
+			EditSpecialTiles();
+		}
+		public static void EditSpecialTiles()
+		{
+			if (Keyboard.KeyIsPressed(Keyboard.Key.P)) MapEditor.EditSpecialTile(Map.TilePlayer);
+			else if (Keyboard.KeyIsPressed(Keyboard.Key.B)) MapEditor.EditSpecialTile(Map.TileBarrier);
 		}
 	}
 }

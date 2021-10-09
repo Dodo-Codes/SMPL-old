@@ -95,6 +95,7 @@ namespace SMPL.Gear
 		public static Button[] ButtonsPressed { get { return buttonsHeld.ToArray(); } }
 		internal static List<Button> buttonsHeld = new();
 		public static bool ButtonIsPressed(Button button) => SFML.Window.Mouse.IsButtonPressed((SFML.Window.Mouse.Button)button);
+		private static bool pressEventHappened;
 
 		public static class Event
 		{
@@ -154,13 +155,19 @@ namespace SMPL.Gear
 			var button = (Button)buttonArgs.Button;
 			buttonsHeld.Add(button);
 			Events.Notify(Events.Type.ButtonPress, new Events.EventArgs() { Button = button });
+			pressEventHappened = true;
 		}
 		internal static void OnMouseButtonRelease(object sender, EventArgs e)
 		{
 			var buttonArgs = (MouseButtonEventArgs)e;
 			var button = (Button)buttonArgs.Button;
 			buttonsHeld.Remove(button);
+			// sometimes the press does press event does not trigger when double clicking but thankfully the release does,
+			// allowing for a dirty workaroundy hacky fixy dixy
+			if (pressEventHappened == false)
+				Events.Notify(Events.Type.ButtonPress, new Events.EventArgs() { Button = button });
 			Events.Notify(Events.Type.ButtonRelease, new Events.EventArgs() { Button = button });
+			pressEventHappened = false;
 		}
 		internal static void OnMouseButtonDoubleClick(object sender, EventArgs e)
 		{

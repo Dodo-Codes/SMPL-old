@@ -6,6 +6,7 @@ namespace RPG1bit
 {
 	public class MoveCamera : Object
 	{
+		public static bool IsAnchored { get; set; }
 		public enum Type { Center, Left, Right, Up, Down }
 		public Keyboard.Key Key { get; private set; }
 		private Type currentType;
@@ -42,12 +43,27 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			NavigationPanel.Info.Textbox.Text = $" [{Key}] Move the view: {CurrentType}.";
+			if (CurrentType == Type.Center)
+			{
+				var anchorStr = IsAnchored ? "detach" : "attach";
+				NavigationPanel.Info.Textbox.Text = $" [{Key}] Center the view and\n  {anchorStr} it to the character.";
+			}
 		}
-		public override void OnLeftClicked() => Execute();
+		public override void OnLeftClicked()
+		{
+			Execute();
+			OnHovered();
+		}
 
 		private void Execute()
 		{
 			Map.CameraPosition += directions[(int)CurrentType];
+			var player = ((Object)PickByUniqueID("player"));
+			if (CurrentType == Type.Center && player != null)
+			{
+				IsAnchored = !IsAnchored;
+				Map.CameraPosition = player.Position;
+			}
 			Map.Display();
 			DisplayAllObjects();
 		}

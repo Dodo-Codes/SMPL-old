@@ -10,7 +10,7 @@ namespace RPG1bit
 	{
 		public enum Session { None, Single, Multi, MapEdit }
 
-		public static Point TileBarrier => new(0, 22);
+		public static Point TileBarrier => new(0, 22) { Color = SwitchColor.BrushColor };
 		public static Point TilePlayer => new(24, 8);
 
 		public static Size Size => new(1000, 1000);
@@ -48,7 +48,6 @@ namespace RPG1bit
 				{
 					var bottomRight = mapOffset + new Point(mapData.GetLength(1), mapData.GetLength(0));
 					var playerTiles = new List<Point>();
-					var barrierTiles = new List<Point>();
 					for (int y = (int)mapOffset.Y; y < bottomRight.Y; y++)
 						for (int x = (int)mapOffset.X; x < bottomRight.X; x++)
 						{
@@ -59,8 +58,9 @@ namespace RPG1bit
 							}
 							else if (RawData[x, y, 3] == TileBarrier)
 							{
-								barrierTiles.Add(new Point(x, y));
-								RawData[x, y, 3] = default;
+								var tile = TileBarrier;
+								tile.Color = new Color();
+								RawData[x, y, 3] = tile;
 							}
 						}
 
@@ -128,7 +128,10 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Right };
-			new MoveCamera("camera-center", new Object.CreationDetails()
+
+			if (CurrentSession == Session.Single || CurrentSession == Session.Multi)
+			{
+				new MoveCamera("camera-center", new Object.CreationDetails()
 			{
 				Name = "camera-center",
 				Position = new(0, 0) { Color = Color.Gray },
@@ -137,9 +140,6 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Center };
-
-			if (CurrentSession == Session.Single || CurrentSession == Session.Multi)
-			{
 				new EquipSlot("head", new Object.CreationDetails()
 				{
 					Name = "head",
@@ -277,11 +277,8 @@ namespace RPG1bit
 		{
 			for (int y = (int)CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
 				for (int x = (int)CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
-				{
-					var scrPos = MapToScreenPosition(new(x, y));
 					for (int z = 0; z < 4; z++)
-						Screen.EditCell(scrPos, RawData[x, y, z], z, RawData[x, y, z].Color);
-				}
+						Screen.EditCell(MapToScreenPosition(new(x, y)), RawData[x, y, z], z, RawData[x, y, z].Color);
 		}
 		public static void DisplayNavigationPanel()
 		{
@@ -298,6 +295,7 @@ namespace RPG1bit
 			if (CurrentSession == Session.MapEdit)
 			{
 				Screen.EditCell(new(7, 0), TilePlayer, 1, Color.Gray);
+				Screen.EditCell(new(6, 0), TileBarrier, 1, Color.Gray);
 
 				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
 				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
@@ -310,6 +308,10 @@ namespace RPG1bit
 
 				Screen.EditCell(new(0, 16), new(36 + SwitchHeight.BrushHeight, 17), 1, Color.Gray);
 				Screen.EditCell(new(0, 4), SwitchType.BrushType, 1, SwitchColor.BrushColor);
+			}
+			else if (CurrentSession == Session.Single)
+			{
+				Screen.EditCell(new(4, 0), new(4, 23), 1, Color.Gray);
 			}
 		}
 		public static void LoadMap(Session session, string name)

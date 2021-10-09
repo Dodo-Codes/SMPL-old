@@ -119,11 +119,11 @@ namespace RPG1bit
 			SwitchType.SelectHoveredTileType();
 			SwitchType.UpdateIndicator();
 		}
-		public static void EditPlayerTile()
+		public static void EditSpecialTile(Point tileIndexes)
 		{
 			var pos = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
-			Map.RawData[(int)pos.X, (int)pos.Y, 3] = Map.RawData[(int)pos.X, (int)pos.Y, 3] == Map.TilePlayer ?
-				new(0, 0) : Map.TilePlayer;
+			var p = Map.RawData[(int)pos.X, (int)pos.Y, 3] == tileIndexes ? new(0, 0) : tileIndexes;
+			Map.RawData[(int)pos.X, (int)pos.Y, 3] = p;
 			Map.Display();
 			NavigationPanel.Tab.Close();
 		}

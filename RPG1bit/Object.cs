@@ -49,10 +49,14 @@ namespace RPG1bit
 			{ new(10, 22), "On your back:" },
 			{ new(11, 22), "On your waist:" },
 
+			{ new(04, 23), "[LMB] Move the character." },
+
 			{ new(37, 18), "Change the brush color." },
 			{ new(41, 19), "Change the brush type." },
 			{ new(42, 18), "Change the brush height." }, { new(36, 17), "Change the brush height." },
 			{ new(37, 17), "Change the brush height." }, { new(38, 17), "Change the brush height." },
+			{ new(00, 22), "      [B] Paint/Erase a barrier tile.\n  This tile prevents units from walking\n" +
+				"      over it. It is invisible ingame." },
 			{ new(24, 08), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
 				"   of those tiles or anywhere on the map\n           if no player tile is present." },
 			{ new(41, 13), "[LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
@@ -99,13 +103,17 @@ namespace RPG1bit
 			get { return position; }
 			set
 			{
+				if (objects.ContainsKey(position))
+				{
+					objects[position].Remove(this);
+					if (objects[position].Count == 0) objects.Remove(position);
+				}
 				position = value;
 				if (objects.ContainsKey(value) == false)
 				{
 					objects.Add(value, new List<Object>() { this });
 					return;
 				}
-				objects[position].Remove(this);
 				objects[value].Add(this);
 			}
 		}
@@ -133,6 +141,7 @@ namespace RPG1bit
 		{
 			objects[Position].Remove(this);
 			if (objects[Position].Count == 0) objects.Remove(Position);
+			base.Destroy();
 		}
 		public static void DisplayAllObjects()
 		{
@@ -173,8 +182,8 @@ namespace RPG1bit
 				Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == Base.LeftClickPosition))
 			{
 				HoldingObject = this;
-				Hoverer.CursorTextureTileIndexes = TileIndexes;
-				Hoverer.CursorTextureColor = Position.Color;
+				Hoverer.CursorTileIndexes = TileIndexes;
+				Hoverer.CursorColor = Position.Color;
 				OnDragStart();
 			}
 		}
@@ -184,9 +193,11 @@ namespace RPG1bit
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
 			var mousePos = Screen.GetCellAtCursorPosition();
+			var pos = IsUI ? Position : Map.MapToScreenPosition(Position);
+
 			if (button == Mouse.Button.Left)
 			{
-				if (IsLeftClickable && Position == mousePos && Position == Base.LeftClickPosition)
+				if (IsLeftClickable && pos == mousePos && pos == Base.LeftClickPosition)
 				{
 					if (IsConfirmingClick && Map.CurrentSession != Map.Session.None && leftClicked == false)
 					{
@@ -209,10 +220,10 @@ namespace RPG1bit
 							objects[mousePos][i].OnDroppedUpon();
 					HoldingObject.OnDragEnd();
 					HoldingObject = null;
-					Hoverer.CursorTextureTileIndexes = new(36, 10);
+					Hoverer.CursorTileIndexes = new(36, 10);
 				}
 			}
-			if (button == Mouse.Button.Right && IsRightClickable && Position == mousePos && Position == Base.RightClickPosition)
+			if (button == Mouse.Button.Right && IsRightClickable && pos == mousePos && pos == Base.RightClickPosition)
 			{
 				OnHovered();
 				OnRightClicked();
