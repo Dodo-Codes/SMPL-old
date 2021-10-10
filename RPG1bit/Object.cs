@@ -59,8 +59,8 @@ namespace RPG1bit
 				"      over it. It is invisible ingame." },
 			{ new(24, 08), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
 				"   of those tiles or anywhere on the map\n           if no player tile is present." },
-			{ new(41, 13), "[LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
-			{ new(42, 13), "[RMB] Erase a tile.\n[Shift + RMB] Erase a square of tiles." },
+			{ new(41, 13), "           [LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
+			{ new(42, 13), "           [RMB] Erase a tile.\n[Shift + RMB] Erase a square of tiles." },
 			{ new(43, 13), "[MMB] Pick a brush from the tile\n    at that particular height." },
 
 			{ new(04, 00), "Grass." }, { new(05, 00), "Grass." }, { new(06, 00), "Grass." }, { new(07, 00), "Grass." },
@@ -79,6 +79,16 @@ namespace RPG1bit
 
 			{ new(12, 05), "Bridge." }, { new(13, 5), "Bridge." }, { new(14, 5), "Broken bridge." }, { new(15, 5), "Bridge." },
 			{ new(16, 5), "Bridge." },
+
+			{ new(09, 00), "Dirt road." }, { new(10, 0), "Dirt road." }, { new(11, 0), "Dirt road." }, { new(12, 0), "Dirt road." },
+			{ new(13, 00), "Dirt road." }, { new(14, 0), "Dirt road." }, { new(15, 0), "Dirt road." }, { new(9, 1), "Dirt road." },
+			{ new(10, 01), "Dirt road." }, { new(11, 1), "Dirt road." }, { new(12, 1), "Dirt road." }, { new(13, 1), "Dirt road." },
+			{ new(14, 01), "Dirt road." }, { new(8, 0), "Dirt road." },
+
+			{ new(15, 01), "Stone road" }, { new(16, 1), "Stone road" }, { new(17, 1), "Stone road" }, { new(8, 2), "Stone road" },
+			{ new(09, 02), "Stone road" }, { new(10, 2), "Stone road" }, { new(11, 2), "Stone road" }, { new(12, 2), "Stone road" },
+			{ new(13, 02), "Stone road" }, { new(14, 2), "Stone road" }, { new(15, 2), "Stone road" }, { new(16, 2), "Stone road" },
+			{ new(17, 02), "Stone road" }, { new(13, 3), "Stone road" }, { new(14, 3), "Stone road" },
 
 			{ new(32, 00), "Helmet." },
 		};

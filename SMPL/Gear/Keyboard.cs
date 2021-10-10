@@ -13,7 +13,6 @@ namespace SMPL.Gear
 			public string Value { get; set; }
 			public Type CurrentType { get; set; }
 		}
-
 		public enum Key
 		{
 			/// <summary>
@@ -62,10 +61,6 @@ namespace SMPL.Gear
 			F2 = 86, F3 = 87, F4 = 88, F5 = 89, F6 = 90, F7 = 91, F8 = 92, F9 = 93, F10 = 94, F11 = 95, F12 = 96, F13 = 97,
 			F14 = 98, F15 = 99, Pause = 100,
 		}
-		public static Key[] KeysPressed { get { return keysHeld.ToArray(); } }
-		internal static List<Key> keysHeld = new();
-		public static bool KeyIsPressed(Key key) => keysHeld.Contains(key);
-
 		public static class Event
 		{
 			public static class Subscribe
@@ -96,6 +91,13 @@ namespace SMPL.Gear
 			}
 		}
 
+		public static Key[] KeysPressed { get { return keysHeld.ToArray(); } }
+		internal static List<Key> keysHeld = new();
+
+		public static bool KeyIsPressed(Key key)
+		{
+			return SFML.Window.Keyboard.IsKeyPressed((SFML.Window.Keyboard.Key)key) && Window.HasFocus;
+		}
 		internal static void Update()
 		{
 			for (int i = 0; i < keysHeld.Count; i++)

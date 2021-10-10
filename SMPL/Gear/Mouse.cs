@@ -91,12 +91,6 @@ namespace SMPL.Gear
 			internal static void OnMouseCursorLeaveWindow(object sender, EventArgs e) =>
 				Events.Notify(Events.Type.CursorLeaveWindow);
 		}
-
-		public static Button[] ButtonsPressed { get { return buttonsHeld.ToArray(); } }
-		internal static List<Button> buttonsHeld = new();
-		public static bool ButtonIsPressed(Button button) => SFML.Window.Mouse.IsButtonPressed((SFML.Window.Mouse.Button)button);
-		private static bool pressEventHappened;
-
 		public static class Event
 		{
 			public static class Subscribe
@@ -127,6 +121,14 @@ namespace SMPL.Gear
 			}
 		}
 
+		internal static List<Button> buttonsHeld = new();
+		private static bool pressEventHappened;
+		public static Button[] ButtonsPressed { get { return buttonsHeld.ToArray(); } }
+
+		public static bool ButtonIsPressed(Button button)
+		{
+			return Window.HasFocus && SFML.Window.Mouse.IsButtonPressed((SFML.Window.Mouse.Button)button);
+		}
 		internal static void Initialize()
 		{
 			Window.window.MouseButtonPressed += new EventHandler<MouseButtonEventArgs>(OnMouseButtonPress);

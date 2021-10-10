@@ -29,10 +29,29 @@ namespace RPG1bit
 			{ new(09, 05), new Point[] { new(09, 05) } }, { new(10, 05), new Point[] { new(10, 05) } },
 			{ new(11, 05), new Point[] { new(11, 05) } },
 
-			//bridge
+			// bridge
 			{ new(12, 05), new Point[] { new(12, 05) } }, { new(13, 05), new Point[] { new(13, 05) } },
 			{ new(14, 05), new Point[] { new(14, 05) } }, { new(15, 05), new Point[] { new(15, 05) } },
 			{ new(16, 05), new Point[] { new(16, 05) } },
+
+			// dirt road
+			{ new(08, 00), new Point[] { new(8, 0) } }, { new(9, 0), new Point[] { new(9, 0) } },
+			{ new(10, 00), new Point[] { new(10, 0) } }, { new(11, 0), new Point[] { new(11, 0) } },
+			{ new(12, 00), new Point[] { new(12, 0) } }, { new(13, 0), new Point[] { new(13, 0) } },
+			{ new(14, 00), new Point[] { new(14, 0) } }, { new(15, 0), new Point[] { new(15, 0) } },
+			{ new(09, 01), new Point[] { new(9, 1) } }, { new(10, 1), new Point[] { new(10, 1) } },
+			{ new(11, 01), new Point[] { new(11, 1) } }, { new(12, 1), new Point[] { new(12, 1) } },
+			{ new(13, 01), new Point[] { new(13, 1) } }, { new(14, 1), new Point[] { new(14, 1) } },
+
+			// stone road
+			{ new(15, 01), new Point[] { new(15, 1) } }, { new(16, 1), new Point[] { new(16, 1) } },
+			{ new(17, 01), new Point[] { new(17, 1) } }, { new(8, 2), new Point[] { new(8, 2) } },
+			{ new(09, 02), new Point[] { new(9, 2) } }, { new(10, 2), new Point[] { new(10, 2) } },
+			{ new(11, 02), new Point[] { new(11, 2) } }, { new(12, 2), new Point[] { new(12, 2) } },
+			{ new(13, 02), new Point[] { new(13, 2) } }, { new(14, 2), new Point[] { new(14, 2) } },
+			{ new(15, 02), new Point[] { new(15, 2) } }, { new(16, 2), new Point[] { new(16, 2) } },
+			{ new(17, 02), new Point[] { new(17, 2) } }, { new(13, 3), new Point[] { new(13, 3) } },
+			{ new(14, 03), new Point[] { new(14, 3) } },
 		};
 		private static Point CurrentTile
 		{
