@@ -41,7 +41,7 @@ namespace RPG1bit
 					{
 						Name = maps[i],
 						Position = new(-10, 0) { Color = new() },
-						TileIndexes = new Point[] { new Point(1, 22) },
+						TileIndexes = new Point[] { new Point(32, 15) },
 						Height = 1,
 						IsUI = true,
 						IsLeftClickable = true,

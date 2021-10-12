@@ -52,12 +52,26 @@ namespace RPG1bit
 				}, new Size(12, 8));
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
+				var sessions = FileSystem.GetFileNames(false, "Sessions");
 				for (int i = 0; i < maps.Length; i++)
 					mapList.Objects.Add(new LoadMapValue(maps[i], new CreationDetails()
 					{
 						Name = maps[i],
 						Position = new(-10, 0) { Color = new() },
-						TileIndexes = new Point[] { new Point(1, 22) },
+						TileIndexes = new Point[] { new Point(47, 06) },
+						Height = 1,
+						IsUI = true,
+						IsLeftClickable = true,
+						IsRightClickable = true,
+						IsInTab = true,
+						AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+					}));
+				for (int i = 0; i < sessions.Length; i++)
+					mapList.Objects.Add(new LoadSingleSessionValue(sessions[i], new CreationDetails()
+					{
+						Name = sessions[i],
+						Position = new(-10, 0) { Color = new() },
+						TileIndexes = new Point[] { new Point(14, 10) },
 						Height = 1,
 						IsUI = true,
 						IsLeftClickable = true,

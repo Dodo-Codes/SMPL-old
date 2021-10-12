@@ -96,10 +96,7 @@ namespace RPG1bit
 				if (y > Position.Y + Size.H - 1) break;
 				if (y < Position.Y + 1) continue;
 				var pos = new Point(Position.X + 1, y);
-				var iconIndexes = new Point(0, 0);
-				if (Objects[i] is LoadMapValue) iconIndexes = new Point(47, 06);
-				if (Objects[i] is StartSingleOnMap) iconIndexes = new Point(32, 15);
-				Screen.EditCell(pos - new Point(1, 0), iconIndexes, 1, Color.White);
+				Screen.EditCell(pos - new Point(1, 0), Objects[i].TileIndexes, 1, Color.White);
 				Screen.DisplayText(pos, 1, Color.White, Objects[i].Name);
 			}
 			DisplayScrollArrows();

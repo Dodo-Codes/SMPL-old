@@ -23,6 +23,7 @@ namespace SMPL.Gear
 			[JsonProperty]
 			internal Dictionary<string, string> values;
 			public string FilePath { get; set; }
+			public bool IsEncrypted { get; set; }
 
 			public Area[] Areas { get; set; }
 			public Audio[] Audios { get; set; }
@@ -46,6 +47,7 @@ namespace SMPL.Gear
 				Hitboxes = default; Sprites = default; Textboxes = default; Timers = default; Clothes = default; Ropes = default;
 				SegmentedLines = default; ProbabilityTables = default;
 				FilePath = filePath;
+				IsEncrypted = true;
 			}
 
 			public static class Event
@@ -93,7 +95,6 @@ namespace SMPL.Gear
 			}
 		}
 		public enum Type { Texture, Font, Music, Sound, DataSlot }
-
 		internal static Dictionary<string, Texture> textures = new();
 		internal static Dictionary<string, Font> fonts = new();
 		internal static Dictionary<string, Sound> sounds = new();
@@ -127,7 +128,6 @@ namespace SMPL.Gear
 					Events.Disable(Events.Type.LoadEnd, thingUID);
 			}
 		}
-
 		public static void Unload(Type asset, params string[] filePaths)
 		{
 			for (int i = 0; i < filePaths.Length; i++)
@@ -181,6 +181,10 @@ namespace SMPL.Gear
 				}
 				values.Remove(keys[i]);
 			}
+		}
+		public static void UnloadAllValues()
+		{
+			values.Clear();
 		}
 		public static bool AreLoaded(params string[] filePaths)
 		{
@@ -290,8 +294,9 @@ namespace SMPL.Gear
 										var str = "";
 										try
 										{
-											str = System.IO.File.ReadAllText(path);
-											str = Data.Text.Decrypt(str, 'H', true);
+											str = File.ReadAllText(path);
+											if (str[0] != '{')
+												str = Data.Text.Decrypt(str, 'H');
 											var slot = JsonConvert.DeserializeObject<DataSlot>(str);
 
 											if (slot.values == null) continue;
@@ -316,6 +321,8 @@ namespace SMPL.Gear
 						Thread.Sleep(1);
 					}
 					queuedAssets.Clear(); // done loading, clear queue
+					assetLoadBegin = false;
+					assetLoadUpdate = false;
 					assetLoadEnd = true;
 				}
 				if (queuedSaveSlots != null && queuedSaveSlots.Count > 0)
@@ -327,8 +334,9 @@ namespace SMPL.Gear
 						try
 						{
 							Directory.CreateDirectory(Path.GetDirectoryName(path));
-							var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i]);
-							str = Data.Text.Encrypt(str, 'H', true);
+							var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i], Formatting.Indented);
+							if (curQueuedSaveSlots[i].IsEncrypted)
+								str = Data.Text.Encrypt(str, 'H');
 							File.WriteAllText(path, str);
 						}
 						catch (Exception)

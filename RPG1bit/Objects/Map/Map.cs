@@ -16,6 +16,7 @@ namespace RPG1bit
 		public static Size Size => new(1000, 1000);
 		public static Point[,,] RawData { get; set; }
 		public static Point[,,] DefaultRawData => new Point[(int)Size.W, (int)Size.H, 4];
+		public static string CurrentMapName { get; private set; }
 
 		private static Point cameraPosition = new(Size.W / 2, Size.H / 2);
 		public static Point CameraPosition
@@ -24,8 +25,8 @@ namespace RPG1bit
 			set
 			{
 				cameraPosition = new Point(
-					Number.Limit(value.X, new Number.Range(8, RawData.GetLength(1) - 9)),
-					Number.Limit(value.Y, new Number.Range(8, RawData.GetLength(0) - 9)));
+					Number.Limit(value.X, new Number.Range(8, RawData.GetLength(0) - 9)),
+					Number.Limit(value.Y, new Number.Range(8, RawData.GetLength(1) - 9)));
 			}
 		}
 		public static Session CurrentSession { get; set; }
@@ -36,17 +37,17 @@ namespace RPG1bit
 		}
 		public override void OnAssetsLoadEnd()
 		{
-			if (Assets.ValuesAreLoaded("camera-position", "map-data", "map-offset"))
+			if (Assets.ValuesAreLoaded("map-data"))
 			{
 				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
 				var mapOffset = Text.FromJSON<Point>(Assets.GetValue("map-offset"));
-				if (mapData != default) InsertMapData(mapData, mapOffset);
+				if (mapData != default && mapOffset != default) InsertMapData(mapData, mapOffset);
 				if (cameraPos != default) CameraPosition = cameraPos;
 
 				if (CurrentSession == Session.Single && mapData != default)
 				{
-					var bottomRight = mapOffset + new Point(mapData.GetLength(1), mapData.GetLength(0));
+					var bottomRight = mapOffset + new Point(mapData.GetLength(0), mapData.GetLength(1));
 					var playerTiles = new List<Point>();
 					for (int y = (int)mapOffset.Y; y < bottomRight.Y; y++)
 						for (int x = (int)mapOffset.X; x < bottomRight.X; x++)
@@ -71,22 +72,31 @@ namespace RPG1bit
 						while (RandPointIsBarrier())
 							randPoint = new(RandX(), RandY());
 
-					new Player("player", new Object.CreationDetails()
+					if (Assets.ValuesAreLoaded("map-name") == false)
 					{
-						Name = "player",
-						Position = randPoint,
-						Height = 3,
-						TileIndexes = new Point[] { new(25, 0) }
-					});
+						var player = new Player("player", new Object.CreationDetails()
+						{
+							Name = "player",
+							Position = randPoint,
+							Height = 3,
+							TileIndexes = new Point[] { new(25, 0) }
+						});
+						CameraPosition = player.Position;
+					}
 
 					bool RandPointIsBarrier() => RawData[(int)randPoint.X, (int)randPoint.Y, 3] == TileBarrier;
 					double RandX() => Probability.Randomize(new(mapOffset.X, bottomRight.X - 1));
 					double RandY() => Probability.Randomize(new(mapOffset.Y, bottomRight.Y - 1));
 				}
-
-				Display();
-				Object.DisplayAllObjects();
 			}
+			if (Assets.ValuesAreLoaded("map-name"))
+			{
+				var player = Text.FromJSON<Player>(Assets.GetValue("player"));
+				CameraPosition = player.Position;
+			}
+			Assets.UnloadAllValues();
+			Display();
+			Object.DisplayAllObjects();
 		}
 
 		public static void CreateUIButtons()
@@ -265,7 +275,7 @@ namespace RPG1bit
 			foreach (var kvp in Object.objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
 				{
-					if (kvp.Value[i].IsUI && kvp.Value[i].Position.X > 18) continue;
+					if ((kvp.Value[i].IsUI && kvp.Value[i].Position.X > 18) || kvp.Value[i].IsInTab) continue;
 					objsToDestroy.Add(kvp.Value[i]);
 				}
 
@@ -275,6 +285,7 @@ namespace RPG1bit
 		
 		public static void Display()
 		{
+			if (RawData == null) return;
 			for (int y = (int)CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
 				for (int x = (int)CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
 					for (int z = 0; z < 4; z++)
@@ -316,14 +327,13 @@ namespace RPG1bit
 		}
 		public static void LoadMap(Session session, string name)
 		{
-			if (Assets.ValuesAreLoaded("map-data", "camera-position", "map-offset"))
-				Assets.UnloadValues("map-data", "camera-position", "map-offset");
 			Assets.Load(Assets.Type.DataSlot, $"Maps\\{name}.mapdata");
 			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
 
 			DestroyAllSessionObjects();
 			CurrentSession = session;
+			CurrentMapName = name;
 
 			DisplayNavigationPanel();
 			CreateUIButtons();

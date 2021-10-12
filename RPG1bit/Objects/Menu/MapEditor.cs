@@ -83,7 +83,7 @@ namespace RPG1bit
 		public static Point[,,] GetSavableMapData(Point[,,] rawData, out Point offset)
 		{
 			var lastTilePos = new Point(-1, -1);
-			var firstTilePos = new Point(rawData.GetLength(1), rawData.GetLength(0));
+			var firstTilePos = new Point(rawData.GetLength(0), rawData.GetLength(1));
 
 			for (int y = 0; y < rawData.GetLength(1); y++)
 				for (int x = 0; x < rawData.GetLength(0); x++)

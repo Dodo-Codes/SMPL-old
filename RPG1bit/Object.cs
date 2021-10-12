@@ -1,6 +1,7 @@
 ﻿using SMPL.Components;
 using SMPL.Data;
 using SMPL.Gear;
+using System;
 using System.Collections.Generic;
 
 namespace RPG1bit
@@ -30,8 +31,8 @@ namespace RPG1bit
 				"Music by opengameart.org/users/yubatake\n" +
 				"Music by opengameart.org/users/avgvsta\n" +
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
-			{ new(01, 22), "" }, // background color
 			{ new(00, 00), "Void." },
+			{ new(01, 22), "" }, // background color
 			{ new(04, 22), "Game navigation panel." }, { new(00, 23), "Game navigation panel." },
 			{ new(29, 15), "Game navigation panel." }, { new(30, 15), "Game navigation panel." },
 			{ new(02, 22), "Game navigation panel." }, { new(03, 22), "Game navigation panel." },
@@ -94,20 +95,32 @@ namespace RPG1bit
 		};
 		public static Object HoldingObject { get; set; }
 
-		public string Name { get; }
-		public Point TileIndexes { get; }
-		public int Height { get; }
-		public bool IsDragable { get; }
-		public bool IsLeftClickable { get; }
-		public bool IsRightClickable { get; }
-		public bool IsConfirmingClick { get; }
-		public bool IsUI { get; }
-		public bool IsInTab { get; }
-		public NavigationPanel.Tab.Type AppearOnTab { get; }
+		[Newtonsoft.Json.JsonProperty]
+		public string Name { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public Point TileIndexes { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public int Height { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public bool IsDragable { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public bool IsLeftClickable { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public bool IsRightClickable { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public bool IsConfirmingClick { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public bool IsUI { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public bool IsInTab { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
+		public NavigationPanel.Tab.Type AppearOnTab { get; private set; }
+		[Newtonsoft.Json.JsonProperty]
 
 		private bool leftClicked;
 
 		private Point position;
+		[Newtonsoft.Json.JsonProperty]
 		public Point Position
 		{
 			get { return position; }
@@ -133,6 +146,8 @@ namespace RPG1bit
 			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
 			Game.Event.Subscribe.Update(uniqueID);
 
+			if (creationDetails.TileIndexes == null) return;
+
 			Name = creationDetails.Name;
 			TileIndexes = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
 				creationDetails.TileIndexes[(int)Probability.Randomize(new(0, creationDetails.TileIndexes.Length - 1))];
@@ -146,11 +161,11 @@ namespace RPG1bit
 			AppearOnTab = creationDetails.AppearOnTab;
 			IsInTab = creationDetails.IsInTab;
 		}
-
 		public override void Destroy()
 		{
 			objects[Position].Remove(this);
 			if (objects[Position].Count == 0) objects.Remove(Position);
+			if (HoldingObject == this) HoldingObject = null;
 			base.Destroy();
 		}
 		public static void DisplayAllObjects()
@@ -241,10 +256,11 @@ namespace RPG1bit
 		}
 		public void Display()
 		{
+			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+
 			var scrPos = Map.MapToScreenPosition(Position);
-			var isHiddenUI = IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType;
 			if (Screen.CellIsOnScreen(Position, IsUI))
-				Screen.EditCell(IsUI ? Position : scrPos, TileIndexes, Height, isHiddenUI ? new Color() : Position.Color);
+				Screen.EditCell(IsUI ? Position : scrPos, TileIndexes, Height, Position.Color);
 			OnDisplay();
 		}
 

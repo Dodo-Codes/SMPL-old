@@ -1,5 +1,7 @@
 ﻿using SMPL.Data;
 using SMPL.Gear;
+using System;
+using System.Collections.Generic;
 
 namespace RPG1bit
 {
@@ -23,7 +25,43 @@ namespace RPG1bit
 			switch (Map.CurrentSession)
 			{
 				case Map.Session.None: return;
-				case Map.Session.Single: break;
+				case Map.Session.Single:
+					{
+						var slot = new Assets.DataSlot($"Sessions\\{name}.session");
+						//var sessionObjects = new List<Object>();
+						//foreach (var kvp in objects)
+						//	for (int i = 0; i < kvp.Value.Count; i++)
+						//		if (kvp.Value[i].IsUI == false)
+						//			sessionObjects.Add(kvp.Value[i]);
+						slot.SetValue("player", Text.ToJSON((Player)PickByUniqueID("player")));
+						slot.SetValue("map-name", Map.CurrentMapName);
+						slot.IsEncrypted = false;
+						slot.Save();
+
+						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
+
+						break;
+						void AddToList(ObjectList list)
+						{
+							if (IsOverwriting(list)) return;
+
+							var value = (Object)new LoadSingleSessionValue(name, new CreationDetails()
+							{
+								Name = name,
+								Position = new(-10, 0) { Color = new() },
+								TileIndexes = new Point[] { new Point(14, 10) },
+								Height = 1,
+								IsUI = true,
+								IsLeftClickable = true,
+								IsRightClickable = true,
+								IsInTab = true,
+								AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+							});
+
+							list.Objects.Add(value);
+							list.ScrollToBottom();
+						}
+					}
 				case Map.Session.Multi: break;
 				case Map.Session.MapEdit:
 					{
@@ -39,24 +77,17 @@ namespace RPG1bit
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
 						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
 
-						SaveLoad.UpdateTab();
 						break;
 
 						void AddToList(ObjectList list)
 						{
-							var overwriting = false;
-							for (int i = 0; i < list.Objects.Count; i++)
-								if (list.Objects[i].Name == name)
-								{
-									overwriting = true;
-									break;
-								}
-							if (overwriting) return;
+							if (IsOverwriting(list)) return;
+
 							var value = (Object)new LoadMapValue(name, new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { Color = new() },
-								TileIndexes = new Point[] { new Point(1, 22) },
+								TileIndexes = new Point[] { new Point(47, 06) },
 								Height = 1,
 								IsUI = true,
 								IsLeftClickable = true,
@@ -70,7 +101,7 @@ namespace RPG1bit
 								{
 									Name = name,
 									Position = new(-10, 0) { Color = new() },
-									TileIndexes = new Point[] { new Point(1, 22) },
+									TileIndexes = new Point[] { new Point(32, 15) },
 									Height = 1,
 									IsUI = true,
 									IsLeftClickable = true,
@@ -83,8 +114,16 @@ namespace RPG1bit
 							list.ScrollToBottom();
 						}
 					}
+				bool IsOverwriting(ObjectList list)
+					{
+						for (int i = 0; i < list.Objects.Count; i++)
+							if (list.Objects[i].Name == name)
+								return true;
+						return false;
+					}
 			}
 			Value = "";
+			SaveLoad.UpdateTab();
 			Screen.Display();
 		}
 	}
