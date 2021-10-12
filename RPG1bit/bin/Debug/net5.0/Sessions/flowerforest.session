@@ -1,0 +1,21 @@
+{
+  "values": {
+    "player": "{\"leftClicked\":false,\"Name\":\"player\",\"TileIndexes\":{\"X\":25.0,\"Y\":0.0,\"Color\":{\"R\":255.0,\"G\":255.0,\"B\":255.0,\"A\":255.0}},\"Height\":3,\"IsDragable\":false,\"IsLeftClickable\":false,\"IsRightClickable\":false,\"IsConfirmingClick\":false,\"IsUI\":false,\"IsInTab\":false,\"AppearOnTab\":0,\"Position\":{\"X\":503.0,\"Y\":504.0,\"Color\":{\"R\":255.0,\"G\":255.0,\"B\":255.0,\"A\":255.0}},\"IsDestroyed\":false,\"UniqueID\":\"player\",\"Tags\":[]}",
+    "map-name": "flowerforest"
+  },
+  "FilePath": "Sessions\\flowerforest.session",
+  "IsEncrypted": false,
+  "Areas": null,
+  "Audios": null,
+  "Cameras": null,
+  "Effects": null,
+  "Families": null,
+  "Hitboxes": null,
+  "Sprites": null,
+  "Textboxes": null,
+  "Timers": null,
+  "Clothes": null,
+  "Ropes": null,
+  "SegmentedLines": null,
+  "ProbabilityTables": null
+}

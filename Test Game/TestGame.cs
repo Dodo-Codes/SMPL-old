@@ -1,6 +1,4 @@
 ﻿using SMPL.Gear;
-using SMPL.Data;
-using SMPL.Components;
 
 namespace TestGame
 {
@@ -11,7 +9,12 @@ namespace TestGame
 
 		public override void OnGameCreate()
 		{
+			Event.Subscribe.Update(UniqueID, 0);
+		}
 
+		public override void OnGameUpdate()
+		{
+			Console.Log("hello");
 		}
 	}
 }

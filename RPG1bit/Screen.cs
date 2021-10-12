@@ -93,7 +93,7 @@ namespace RPG1bit
 			if (isUI == false)
 			{
 				var camPos = Map.CameraPosition;
-				return cell.X >= camPos.X - 8 && cell.Y >= camPos.Y - 8 && cell.X <= camPos.Y + 8 && cell.Y <= camPos.Y + 8;
+				return cell.X >= camPos.X - 8 && cell.X <= camPos.X + 8 && cell.Y >= camPos.Y - 8 && cell.Y <= camPos.Y + 8;
 			}
 			return cell.X >= 0 && cell.Y >= 0 && cell.X <= 31 && cell.Y <= 18;
 		}
@@ -102,6 +102,7 @@ namespace RPG1bit
 		{
 			if (Sprite == null) return;
 			Sprite.Display(camera);
+			Debug.Display();
 		}
 	}
 }

@@ -72,6 +72,8 @@ namespace RPG1bit
 			{ new(04, 02), "Rocks." },
 			{ new(00, 02), "Bush." }, { new(1, 2), "Bush." }, { new(2, 2), "Bush." }, { new(3, 2), "Dead bush." },
 
+			{ new(15, 3), "Flowers." }, { new(16, 3), "Flowers." },
+
 			{ new(07, 03), "Water." }, { new(8, 3), "Water." }, { new(9, 3), "Water." }, { new(10, 3), "Water." },
 			{ new(11, 03), "Water." }, { new(12, 3), "Water." }, { new(7, 4), "Water." }, { new(8, 4), "Water." },
 			{ new(09, 04), "Water." }, { new(10, 4), "Water." }, { new(11, 4), "Water." }, { new(12, 4), "Water." },

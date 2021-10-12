@@ -5,7 +5,7 @@ using SMPL.Prefabs;
 
 namespace RacerPseudo3D
 {
-	public static class Road
+	public class Road : Thing
 	{
 		public static Area PavementArea { get; set; }
 		public static Area BorderLeftArea { get; set; }
@@ -15,10 +15,10 @@ namespace RacerPseudo3D
 		public static ShapePseudo3D BorderLeft { get; set; }
 		public static ShapePseudo3D BorderRight { get; set; }
 
-		public static void Create()
+		public Road(string uniqueID) : base(uniqueID)
 		{
 			Assets.Load(Assets.Type.Texture, "road.jpg", "border.png");
-			Camera.CallWhen.Display(OnDisplay);
+			Camera.Event.Subscribe.Display(uniqueID);
 
 			PavementArea = new Area("pavement-area");
 			BorderLeftArea = new Area("border-left-area");
@@ -45,6 +45,9 @@ namespace RacerPseudo3D
 			Pavement.PercentDepth = 500_000;
 			PavementArea.Size = new(200, 10);
 
+			BorderLeft.PercentDepth = 50;
+			BorderLeft.PercentZ = -50;
+
 			//Pavement.SetSideVisibility(ShapePseudo3D.Side.Far, false);
 			//BorderRight.SetSideVisibility(ShapePseudo3D.Side.Far, false);
 			//BorderLeft.SetSideVisibility(ShapePseudo3D.Side.Far, false);
@@ -53,7 +56,8 @@ namespace RacerPseudo3D
 			BorderLeft.AreaUniqueID = BorderLeftArea.UniqueID;
 			BorderRight.AreaUniqueID = BorderRightArea.UniqueID;
 		}
-		private static void OnDisplay(Camera camera)
+
+		public override void OnCameraDisplay(Camera camera)
 		{
 			Camera.WorldCamera.Position = Mouse.Cursor.PositionWindow;
 
