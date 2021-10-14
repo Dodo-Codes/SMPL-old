@@ -28,14 +28,8 @@ namespace RPG1bit
 				case Map.Session.Single:
 					{
 						var slot = new Assets.DataSlot($"Sessions\\{name}.session");
-						//var sessionObjects = new List<Object>();
-						//foreach (var kvp in objects)
-						//	for (int i = 0; i < kvp.Value.Count; i++)
-						//		if (kvp.Value[i].IsUI == false)
-						//			sessionObjects.Add(kvp.Value[i]);
 						slot.SetValue("player", Text.ToJSON((Player)PickByUniqueID("player")));
 						slot.SetValue("map-name", Map.CurrentMapName);
-						slot.IsEncrypted = false;
 						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
@@ -68,7 +62,13 @@ namespace RPG1bit
 						var slot = new Assets.DataSlot($"Maps\\{name}.mapdata");
 						var offset = new Point();
 						var mapData = MapEditor.GetSavableMapData(Map.RawData, out offset);
+						var signs = new List<Sign>();
+						foreach (var kvp in objects)
+							for (int i = 0; i < objects[kvp.Key].Count; i++)
+								if (objects[kvp.Key][i] is Sign)
+									signs.Add((Sign)objects[kvp.Key][i]);
 
+						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
 						slot.SetValue("map-offset", Text.ToJSON(offset));
 						slot.SetValue("map-data", Text.ToJSON(mapData));

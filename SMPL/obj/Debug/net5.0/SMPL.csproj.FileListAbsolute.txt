@@ -12,7 +12,6 @@ D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.GeneratedMSBuildEditorConfig.editor
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.AssemblyInfoInputs.cache
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.AssemblyInfo.cs
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.csproj.CoreCompileInputs.cache
-D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.csproj.CopyComplete
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.dll
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\ref\SMPL.dll
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.pdb
@@ -120,4 +119,4 @@ G:\SFML\SMPL\obj\Debug\net5.0\SMPL.dll
 G:\SFML\SMPL\obj\Debug\net5.0\ref\SMPL.dll
 G:\SFML\SMPL\obj\Debug\net5.0\SMPL.pdb
 G:\SFML\SMPL\obj\Debug\net5.0\SMPL.genruntimeconfig.cache
-D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.csprojAssemblyReference.cache
+D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.csproj.AssemblyReference.cache

@@ -102,7 +102,6 @@ namespace RPG1bit
 		{
 			if (Sprite == null) return;
 			Sprite.Display(camera);
-			Debug.Display();
 		}
 	}
 }

@@ -53,8 +53,12 @@ namespace RPG1bit
 			{ new(15, 02), new Point[] { new(15, 02) } }, { new(16, 02), new Point[] { new(16, 02) } },
 			{ new(17, 02), new Point[] { new(17, 02) } }, { new(13, 03), new Point[] { new(13, 03) } },
 			{ new(14, 03), new Point[] { new(14, 03) } },
+
+			// signs
+			{ new(01, 07), new Point[] { new(01, 07) } }, { new(00, 07), new Point[] { new(00, 07) } },
+			{ new(02, 07), new Point[] { new(02, 07) } },
 		};
-		private static Point CurrentTile
+		private static Point BrushTile
 		{
 			get
 			{
@@ -117,23 +121,56 @@ namespace RPG1bit
 		{
 			var LMB = Mouse.ButtonIsPressed(Mouse.Button.Left);
 			var clickPos = Map.ScreenToMapPosition(LMB ? Base.LeftClickPosition : Base.RightClickPosition);
-			var mouseCell = Screen.GetCellAtCursorPosition();
-			var pos = Map.ScreenToMapPosition(mouseCell);
+			var mousePos = Screen.GetCellAtCursorPosition();
+			var pos = Map.ScreenToMapPosition(mousePos);
+			var brushTile = BrushTile;
+			var hoveredTile = Screen.GetCellIndexesAtPosition(mousePos, SwitchHeight.BrushHeight);
 
-			if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos)
+			// sign hardcoding
+			if (TileIsSign(hoveredTile))
 			{
-				var dirY = pos.Y > clickPos.Y ? 1 : -1;
-				var dirX = pos.X > clickPos.X ? 1 : -1;
-				for (double y = clickPos.Y; y != pos.Y + dirY; y += dirY)
-					for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
-						Map.RawData[(int)x, (int)y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
+				// overwrite / delete
+				var heights = objects.ContainsKey(pos) ? objects[pos] : new();
+				for (int i = 0; i < heights.Count; i++)
+					if (heights[i].IsUI == false && (heights[i].Height == SwitchHeight.BrushHeight || heights[i] is Sign))
+						heights[i].Destroy();
 			}
-			Map.RawData[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? CurrentTile : new(0, 0);
-			Map.Display();
+			if (TileIsSign(brushTile) && LMB)
+			{
+				var sign = new Sign($"{pos}", new CreationDetails()
+				{
+					Name = "Sign",
+					Position = new(pos.X, pos.Y) { Color = SwitchColor.BrushColor },
+					Height = SwitchHeight.BrushHeight,
+					TileIndexes = new Point[] { brushTile },
+				});
+				sign.OnHovered();
+			}
+
+			if (TileIsSign(brushTile) == false)
+			{
+				if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos)
+				{
+					var dirY = pos.Y > clickPos.Y ? 1 : -1;
+					var dirX = pos.X > clickPos.X ? 1 : -1;
+					for (double y = clickPos.Y; y != pos.Y + dirY; y += dirY)
+						for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
+							EditTile();
+				}
+				EditTile();
+			}
+
 			NavigationPanel.Tab.Close();
+			Map.Display();
+			DisplayAllObjects();
+
+			void EditTile() => Map.RawData[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? brushTile : new(0, 0);
+			bool TileIsSign(Point p) => p.Y == 7 && (p.X == 0 || p.X == 1 || p.X == 2);
 		}
 		public static void PickCurrentTile()
 		{
+			var indexes = Screen.GetCellIndexesAtPosition(Screen.GetCellAtCursorPosition(), SwitchHeight.BrushHeight);
+			if (indexes == new Point(0, 0)) return;
 			SwitchColor.SelectHoveredTileColor();
 			SwitchColor.UpdateIndicator();
 			SwitchType.SelectHoveredTileType();

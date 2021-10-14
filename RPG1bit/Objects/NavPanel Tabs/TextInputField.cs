@@ -8,7 +8,7 @@ namespace RPG1bit
 	{
 		public const int MAX_SYMBOLS = 12;
 
-		public static bool Typing { get; private set; }
+		public static bool Typing { get; set; }
 		public string Value { get; set; } = "";
 		public bool AcceptingInput { get; set; }
 

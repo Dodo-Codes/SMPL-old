@@ -79,7 +79,13 @@ namespace RPG1bit
 					var description = Object.descriptions.ContainsKey(key) ? Object.descriptions[key] : "";
 					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
 
-					if (NavigationPanel.Info.Textbox.Text != "" && description == Object.descriptions[new(0, 0)]) break;
+					if (mousePos.Y > 0)
+					{
+						if (key == Map.TileBarrier) description = "Unwalkable terrain.";
+						else if (key == Map.TilePlayer) description = "Player tile.";
+					}
+
+					if (NavigationPanel.Info.Textbox.Text != "" && description == Object.descriptions[new(0, 0)]) continue;
 					NavigationPanel.Info.Textbox.Text = $"{description}{sep}{NavigationPanel.Info.Textbox.Text}";
 				}
 			}
@@ -91,18 +97,18 @@ namespace RPG1bit
 			if (button == Mouse.Button.Left) LeftClickPosition = mousePos;
 			if (button == Mouse.Button.Right) RightClickPosition = mousePos;
 
-			var isOverMap = mousePos.X < 18 && mousePos.Y < 18 && mousePos.X > 0 && mousePos.Y > 0;
-			if (Map.CurrentSession != Map.Session.MapEdit || isOverMap == false) return;
+			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false) return;
 			if (button == Mouse.Button.Left || button == Mouse.Button.Right) MapEditor.EditCurrentTile();
 			if (button == Mouse.Button.Middle) MapEditor.PickCurrentTile();
 		}
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
-			if (Map.IsHovered() == false) return;
+			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false) return;
 			EditSpecialTiles();
 		}
 		public static void EditSpecialTiles()
 		{
+			if (TextInputField.Typing) return;
 			if (Keyboard.KeyIsPressed(Keyboard.Key.P)) MapEditor.EditSpecialTile(Map.TilePlayer);
 			else if (Keyboard.KeyIsPressed(Keyboard.Key.B)) MapEditor.EditSpecialTile(Map.TileBarrier);
 		}

@@ -42,6 +42,7 @@ namespace RPG1bit
 				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
 				var mapOffset = Text.FromJSON<Point>(Assets.GetValue("map-offset"));
+				if (Assets.ValuesAreLoaded("signs")) Text.FromJSON<List<Sign>>(Assets.GetValue("signs"));
 				if (mapData != default && mapOffset != default) InsertMapData(mapData, mapOffset);
 				if (cameraPos != default) CameraPosition = cameraPos;
 

@@ -11,12 +11,10 @@ D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\System.Deployment.dll
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\System.Runtime.Serialization.Formatters.Soap.dll
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\System.Windows.Forms.dll
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\SMPL.pdb
-D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.csprojAssemblyReference.cache
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.GeneratedMSBuildEditorConfig.editorconfig
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.AssemblyInfoInputs.cache
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.AssemblyInfo.cs
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.csproj.CoreCompileInputs.cache
-D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.csproj.CopyComplete
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.dll
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\ref\RPG1bit.dll
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.pdb
@@ -157,3 +155,4 @@ D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_mysticIsle.og
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_princess.ogg
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_tavern.ogg
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_temple.ogg
+D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.csproj.AssemblyReference.cache

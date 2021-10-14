@@ -232,9 +232,14 @@ namespace SMPL.Gear
 
 		public static string GetValue(string key)
 		{
+			if (values.ContainsKey(key) == false)
+			{
+				Debug.LogError(1, $"The key '{key}' was not found.");
+				return default;
+			}
 			var result = default(string);
-			if (Statics.TryCast(Assets.values[key], out result) == false)
-				Debug.LogError(1, $"Could not retrieve the value from index '{key}'.");
+			if (Statics.TryCast(values[key], out result) == false)
+				Debug.LogError(1, $"Could not retrieve the value from key '{key}'.");
 			return result;
 		}
 

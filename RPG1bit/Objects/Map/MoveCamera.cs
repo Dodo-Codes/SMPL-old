@@ -45,8 +45,8 @@ namespace RPG1bit
 			NavigationPanel.Info.Textbox.Text = $" [{Key}] Move the view: {CurrentType}.";
 			if (CurrentType == Type.Center)
 			{
-				var anchorStr = IsAnchored ? "detach" : "attach";
-				NavigationPanel.Info.Textbox.Text = $" [{Key}] Center the view and\n  {anchorStr} it to the character.";
+				var anchorStr = IsAnchored ? "detach it from" : "attach it to";
+				NavigationPanel.Info.Textbox.Text = $" [{Key}] Center the view and\n  {anchorStr} the character.";
 			}
 		}
 		public override void OnLeftClicked()

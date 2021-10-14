@@ -3,6 +3,7 @@ using SMPL.Data;
 using SMPL.Gear;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RPG1bit
 {
@@ -70,7 +71,7 @@ namespace RPG1bit
 			{ new(05, 02), "Cactuses." }, { new(6, 2), "Cactus." },
 			{ new(07, 02), "Palm." },
 			{ new(04, 02), "Rocks." },
-			{ new(00, 02), "Bush." }, { new(1, 2), "Bush." }, { new(2, 2), "Bush." }, { new(3, 2), "Dead bush." },
+			{ new(00, 02), "Bush." }, { new(1, 2), "Bush." }, { new(2, 2), "Bush." }, { new(3, 2), "Bush." },
 
 			{ new(15, 3), "Flowers." }, { new(16, 3), "Flowers." },
 
@@ -93,36 +94,38 @@ namespace RPG1bit
 			{ new(13, 02), "Stone road" }, { new(14, 2), "Stone road" }, { new(15, 2), "Stone road" }, { new(16, 2), "Stone road" },
 			{ new(17, 02), "Stone road" }, { new(13, 3), "Stone road" }, { new(14, 3), "Stone road" },
 
+			{ new(25, 00), "Player." },
+
 			{ new(32, 00), "Helmet." },
 		};
 		public static Object HoldingObject { get; set; }
 
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public string Name { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public Point TileIndexes { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public int Height { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public bool IsDragable { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public bool IsLeftClickable { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public bool IsRightClickable { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public bool IsConfirmingClick { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public bool IsUI { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public bool IsInTab { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public NavigationPanel.Tab.Type AppearOnTab { get; private set; }
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 
 		private bool leftClicked;
 
 		private Point position;
-		[Newtonsoft.Json.JsonProperty]
+		[JsonProperty]
 		public Point Position
 		{
 			get { return position; }
@@ -187,7 +190,9 @@ namespace RPG1bit
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
 			var cursorPos = Screen.GetCellAtCursorPosition();
-			if (Gate.EnterOnceWhile($"on-hover-{Position}", cursorPos == Position))
+			var curPos = cursorPos;
+			if (IsUI == false) curPos = Map.ScreenToMapPosition(cursorPos);
+			if (Gate.EnterOnceWhile($"on-hover-{Position}", curPos == Position))
 			{
 				var quad = Screen.Sprite.GetQuad($"{Height} cell {cursorPos.X} {cursorPos.Y}");
 				var coord = quad.CornerA.TextureCoordinate;
@@ -204,16 +209,20 @@ namespace RPG1bit
 				OnHovered();
 				NavigationPanel.Info.Display();
 			}
-			if (IsDragable &&
-				Gate.EnterOnceWhile($"on-unhover-{Position}", cursorPos != Position &&
-				Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == Base.LeftClickPosition))
+			if (Gate.EnterOnceWhile($"on-unhover-{Position}", curPos != Position))
 			{
-				HoldingObject = this;
-				Hoverer.CursorTileIndexes = TileIndexes;
-				Hoverer.CursorColor = Position.Color;
-				OnDragStart();
+				OnUnhovered();
+
+				if (IsDragable && Mouse.ButtonIsPressed(Mouse.Button.Left) && Position == Base.LeftClickPosition)
+				{
+					HoldingObject = this;
+					Hoverer.CursorTileIndexes = TileIndexes;
+					Hoverer.CursorColor = Position.Color;
+					OnDragStart();
+				}
 			}
 		}
+
 
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
@@ -269,6 +278,7 @@ namespace RPG1bit
 		public virtual void OnLeftClicked() { }
 		public virtual void OnRightClicked() { }
 		public virtual void OnHovered() { }
+		public virtual void OnUnhovered() { }
 		public virtual void OnDragStart() { }
 		public virtual void OnDragEnd() { }
 		public virtual void OnDroppedUpon() { }
