@@ -13,7 +13,7 @@ namespace RPG1bit
 			public static Area Area { get; set; }
 			public static Effects Effects { get; set; }
 
-			public enum Type { None, Single, Multi, SaveLoad }
+			public enum Type { None, Single, Multi, SaveLoad, MapEditor }
 			public static Type CurrentTabType { get; set; }
 			public static string Title { get; set; }
 
@@ -46,14 +46,18 @@ namespace RPG1bit
 				CurrentTabType = Type.None;
 				Title = "";
 				Textbox.Text = "";
-				Display();
-				DisplayAllObjects();
 			}
 			public static void Open(Type type, string title)
 			{
 				Close();
 				CurrentTabType = type;
 				Title = title;
+				Screen.Display();
+			}
+			public static bool IsHovered()
+			{
+				var mousePos = Screen.GetCellAtCursorPosition();
+				return mousePos.X > 18 && mousePos.Y > 1 && mousePos.X < 32 && mousePos.Y < 14;
 			}
 
 			public override void OnCameraDisplay(Camera camera)
@@ -147,7 +151,7 @@ namespace RPG1bit
 			new StartMulti("start-multiplayer", new CreationDetails()
 			{
 				Name = "start-multiplayer",
-				Position = new(20, 0) { Color = Color.GrayDark },
+				Position = new(20, 0) { Color = Color.Gray / 1.2 },
 				TileIndexes = new Point[] { new(44, 16) },
 				Height = 1,
 				IsUI = true,
@@ -203,7 +207,7 @@ namespace RPG1bit
 			new ExitGame("x", new CreationDetails()
 			{
 				Name = "x",
-				Position = new(31, 0) { Color = Color.RedDark },
+				Position = new(31, 0) { Color = Color.Red - 50 },
 				TileIndexes = new Point[] { new(40, 13) },
 				Height = 1,
 				IsLeftClickable = true,
@@ -216,7 +220,7 @@ namespace RPG1bit
 			for (int y = 0; y < 18; y++)
 				for (int x = 18; x < 32; x++)
 				{
-					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.BrownDark);
+					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 1.3);
 					Screen.EditCell(new Point(x, y), new Point(0, 0), 1, new());
 				}
 
@@ -228,7 +232,7 @@ namespace RPG1bit
 			for (int y = 0; y < 18; y++)
 				Screen.EditCell(new Point(18, y), new Point(4, 22), 0, Color.Brown);
 
-			Screen.DisplayText(new(19, 1), 1, Color.GrayLight, Tab.Title);
+			Screen.DisplayText(new(19, 1), 1, Color.Gray + 125, Tab.Title);
 			Screen.EditCell(new Point(28, 0), new Point(33, 15), 1, Color.Gray);
 			Screen.EditCell(new Point(22, 0), new Point(4, 22), 0, Color.Brown);
 			Screen.EditCell(new Point(29, 0), new Point(4, 22), 0, Color.Brown);

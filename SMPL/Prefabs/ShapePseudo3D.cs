@@ -221,7 +221,7 @@ namespace SMPL.Prefabs
 			var botSide = Number.IsBetween(ang, new Number.Range(0, 180), true, true);
 			var leftSide = Number.IsBetween(ang, new Number.Range(90, 270), true, true);
 
-			colors[Side.Far] = Data.Color.GrayDark;
+			colors[Side.Far] = Data.Color.Gray - 125;
 			if (skippedSides.Count > 0)
 				colors[Side.Far] = Shade(Number.Map(lightDepth,
 					new Number.Range(0, PercentDepth / skippedSides.Count * 2), new Number.Range(50, 255)));

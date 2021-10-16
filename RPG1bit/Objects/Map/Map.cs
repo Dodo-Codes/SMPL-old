@@ -10,7 +10,7 @@ namespace RPG1bit
 	{
 		public enum Session { None, Single, Multi, MapEdit }
 
-		public static Point TileBarrier => new(0, 22) { Color = SwitchColor.BrushColor };
+		public static Point TileBarrier => new(0, 22);
 		public static Point TilePlayer => new(24, 8);
 
 		public static Size Size => new(1000, 1000);
@@ -212,56 +212,10 @@ namespace RPG1bit
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
-				new SwitchType("tile-up", new Object.CreationDetails()
-				{
-					Name = "tile-up",
-					Position = new(0, 6) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(23, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				});
-				new SwitchType("tile-down", new Object.CreationDetails()
-				{
-					Name = "tile-down",
-					Position = new(0, 8) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(25, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				});
-				new SwitchColor("color-up", new Object.CreationDetails()
-				{
-					Name = "color-up",
-					Position = new(0, 10) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(23, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				});
-				new SwitchColor("color-down", new Object.CreationDetails()
-				{
-					Name = "color-down",
-					Position = new(0, 12) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(25, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				});
-				new SwitchHeight("height-up", new Object.CreationDetails()
+				new SwitchHeight("brush-height", new Object.CreationDetails()
 				{
 					Name = "height-up",
-					Position = new(0, 14) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(23, 20) },
-					Height = 1,
-					IsUI = true,
-					IsLeftClickable = true,
-				});
-				new SwitchHeight("height-down", new Object.CreationDetails()
-				{
-					Name = "height-down",
-					Position = new(0, 17) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(25, 20) },
+					Position = new(0, 5),
 					Height = 1,
 					IsUI = true,
 					IsLeftClickable = true,
@@ -297,29 +251,18 @@ namespace RPG1bit
 			for (int x = 0; x < 18; x++)
 			{
 				Screen.EditCell(new(x, 0), new(4, 22), 1, Color.Brown);
-				Screen.EditCell(new(x, 0), new(1, 22), 0, Color.BrownDark);
+				Screen.EditCell(new(x, 0), new(1, 22), 0, Color.Brown / 1.3);
 			}
 			for (int y = 0; y < 18; y++)
 			{
 				Screen.EditCell(new(0, y), new(4, 22), 1, Color.Brown);
-				Screen.EditCell(new(0, y), new(1, 22), 0, Color.BrownDark);
+				Screen.EditCell(new(0, y), new(1, 22), 0, Color.Brown / 1.3);
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
-				Screen.EditCell(new(7, 0), TilePlayer, 1, Color.Gray);
-				Screen.EditCell(new(6, 0), TileBarrier, 1, Color.Gray);
+				Screen.EditCell(new(0, 4), new(1, 22), 1, Color.White);
 
-				Screen.EditCell(new(0, 4), new(5, 0), 1, Color.White);
-				Screen.EditCell(new(0, 7), new(41, 19), 1, Color.Gray);
-				Screen.EditCell(new(0, 11), new(37, 18), 1, Color.Gray);
-				Screen.EditCell(new(0, 15), new(42, 18), 1, Color.Gray);
-
-				Screen.EditCell(new(9, 0), new(41, 13), 1, Color.Gray);
-				Screen.EditCell(new(10, 0), new(43, 13), 1, Color.Gray);
 				Screen.EditCell(new(11, 0), new(42, 13), 1, Color.Gray);
-
-				Screen.EditCell(new(0, 16), new(36 + SwitchHeight.BrushHeight, 17), 1, Color.Gray);
-				Screen.EditCell(new(0, 4), SwitchType.BrushType, 1, SwitchColor.BrushColor);
 			}
 			else if (CurrentSession == Session.Single)
 			{

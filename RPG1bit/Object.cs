@@ -79,7 +79,7 @@ namespace RPG1bit
 			{ new(11, 03), "Water." }, { new(12, 3), "Water." }, { new(7, 4), "Water." }, { new(8, 4), "Water." },
 			{ new(09, 04), "Water." }, { new(10, 4), "Water." }, { new(11, 4), "Water." }, { new(12, 4), "Water." },
 			{ new(13, 04), "Water." }, { new(14, 4), "Water." }, { new(7, 5), "Water." }, { new(8, 5), "Water." },
-			{ new(09, 05), "Water." }, { new(10, 5), "Water." },
+			{ new(09, 05), "Water." }, { new(10, 5), "Water." }, { new(11, 5), "Water." },
 
 			{ new(12, 05), "Bridge." }, { new(13, 5), "Bridge." }, { new(14, 5), "Broken bridge." }, { new(15, 5), "Bridge." },
 			{ new(16, 5), "Bridge." },
@@ -87,12 +87,22 @@ namespace RPG1bit
 			{ new(09, 00), "Dirt road." }, { new(10, 0), "Dirt road." }, { new(11, 0), "Dirt road." }, { new(12, 0), "Dirt road." },
 			{ new(13, 00), "Dirt road." }, { new(14, 0), "Dirt road." }, { new(15, 0), "Dirt road." }, { new(9, 1), "Dirt road." },
 			{ new(10, 01), "Dirt road." }, { new(11, 1), "Dirt road." }, { new(12, 1), "Dirt road." }, { new(13, 1), "Dirt road." },
-			{ new(14, 01), "Dirt road." }, { new(8, 0), "Dirt road." },
+			{ new(14, 01), "Dirt road." }, { new(8, 0), "Dirt road." }, { new(8, 1), "Dirt road." },
 
-			{ new(15, 01), "Stone road" }, { new(16, 1), "Stone road" }, { new(17, 1), "Stone road" }, { new(8, 2), "Stone road" },
-			{ new(09, 02), "Stone road" }, { new(10, 2), "Stone road" }, { new(11, 2), "Stone road" }, { new(12, 2), "Stone road" },
-			{ new(13, 02), "Stone road" }, { new(14, 2), "Stone road" }, { new(15, 2), "Stone road" }, { new(16, 2), "Stone road" },
-			{ new(17, 02), "Stone road" }, { new(13, 3), "Stone road" }, { new(14, 3), "Stone road" },
+			{ new(15, 01), "Stone road." }, { new(16, 1), "Stone road." }, { new(17, 1), "Stone road." }, { new(8, 2), "Stone road." },
+			{ new(09, 02), "Stone road." }, { new(10, 2), "Stone road." }, { new(11, 2), "Stone road." }, { new(12, 2), "Stone road." },
+			{ new(13, 02), "Stone road." }, { new(14, 2), "Stone road." }, { new(15, 2), "Stone road." }, { new(16, 2), "Stone road." },
+			{ new(17, 02), "Stone road." }, { new(13, 3), "Stone road." }, { new(14, 3), "Stone road." },
+
+			{ new(01, 07), "Sign." },
+			{ new(00, 07),	"Sign." },
+			{ new(02, 07), "Sign." },
+
+			{ new(00, 03), "Fence." }, { new(01, 03), "Fence." }, { new(02, 03), "Fence." }, { new(05, 03), "Fence." },
+			{ new(06, 03), "Fence." }, { new(03, 04), "Fence." }, { new(02, 04), "Fence." },
+			{ new(03, 03), "Closed fence gate." }, { new(05, 04), "Closed fence gate." }, { new(04, 04), "Closed fence gate." },
+			{ new(00, 04), "Closed fence gate." }, { new(04, 03), "Opened fence gate." }, { new(06, 04), "Opened fence gate." },
+			{ new(06, 05), "Opened fence gate." }, { new(01, 04), "Opened fence gate." },
 
 			{ new(25, 00), "Player." },
 
@@ -151,10 +161,11 @@ namespace RPG1bit
 			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
 			Game.Event.Subscribe.Update(uniqueID);
 
-			if (creationDetails.TileIndexes == null) return;
+			if (creationDetails.TileIndexes == null && creationDetails.Name == null && creationDetails.Height == 0) return;
 
 			Name = creationDetails.Name;
-			TileIndexes = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
+			if (creationDetails.TileIndexes != null)
+				TileIndexes = creationDetails.TileIndexes.Length == 0 ? creationDetails.TileIndexes[0] :
 				creationDetails.TileIndexes[(int)Probability.Randomize(new(0, creationDetails.TileIndexes.Length - 1))];
 			Position = creationDetails.Position;
 			Height = creationDetails.Height;
@@ -223,7 +234,6 @@ namespace RPG1bit
 			}
 		}
 
-
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
@@ -269,10 +279,11 @@ namespace RPG1bit
 		{
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
-			var scrPos = Map.MapToScreenPosition(Position);
-			if (Screen.CellIsOnScreen(Position, IsUI))
-				Screen.EditCell(IsUI ? Position : scrPos, TileIndexes, Height, Position.Color);
-			OnDisplay();
+			var mapPos = Map.MapToScreenPosition(Position);
+			if (Screen.CellIsOnScreen(Position, IsUI) == false) return;
+
+			Screen.EditCell(IsUI ? Position : mapPos, TileIndexes, Height, Position.Color);
+			OnDisplay(IsUI ? Position : mapPos);
 		}
 
 		public virtual void OnLeftClicked() { }
@@ -282,6 +293,6 @@ namespace RPG1bit
 		public virtual void OnDragStart() { }
 		public virtual void OnDragEnd() { }
 		public virtual void OnDroppedUpon() { }
-		public virtual void OnDisplay() { }
+		public virtual void OnDisplay(Point screenPos) { }
 	}
 }

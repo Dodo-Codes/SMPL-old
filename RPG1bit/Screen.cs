@@ -44,6 +44,7 @@ namespace RPG1bit
 
 		public static void Display()
 		{
+			Map.Display();
 			NavigationPanel.Display();
 			Object.DisplayAllObjects();
 		}

@@ -14,41 +14,23 @@ namespace SMPL.Data
 		public static Color Transparent	=> new(0,	0,		0,		0);
 		public static Color White			=> new(255, 255,	255);
 		public static Color Black			=> new(0,	0,		0);
-		public static Color GrayLight		=> new(175, 175,	175);
 		public static Color Gray			=> new(125, 125,	125);
-		public static Color GrayDark		=> new(75,	75,	75);
-		public static Color RedLight		=> new(255, 125,	125);
 		public static Color Red				=> new(255, 0,		0);
-		public static Color RedDark		=> new(125, 0,		0);
-		public static Color GreenLight	=> new(125, 255,	125);
 		public static Color Green			=> new(0,	255,	0);
-		public static Color GreenDark		=> new(0,	125,	0);
-		public static Color BlueLight		=> new(125, 125,	255);
 		public static Color Blue			=> new(0,	0,		255);
-		public static Color BlueDark		=> new(0,	0,		125);
-		public static Color YellowLight	=> new(255, 255,	125);
 		public static Color Yellow			=> new(255, 255,	0);
-		public static Color YellowDark	=> new(125, 125,	0);
-		public static Color MagentaLight	=> new(255, 125,	255);
 		public static Color Magenta		=> new(255, 0,		255);
-		public static Color MagentaDark	=> new(125, 0,		125);
-		public static Color CyanLight		=> new(125, 255,	255);
 		public static Color Cyan			=> new(0,	255,	255);
-		public static Color CyanDark		=> new(0,	125,	125);
-
-		public static Color PinkLight		=> new(255, 225,	225);
 		public static Color Pink			=> new(255, 175,	175);
-		public static Color PinkDark		=> new(255, 125,	125);
-		public static Color OrangeLight	=> new(255, 175,	125);
 		public static Color Orange			=> new(255, 125,	75);
-		public static Color OrangeDark	=> new(255, 75,	25);
-		public static Color BrownLight	=> new(175, 125,	75);
 		public static Color Brown			=> new(125, 75,	25);
-		public static Color BrownDark		=> new(50,	37,	25);
 
-		public static Color WaterLight	=> new(0,	150,	200);
 		public static Color Water			=> new(0,	100,	150);
-		public static Color WaterDark		=> new(0,	50,	100);
+		public static Color Sky				=> new(135, 206,	235);
+		public static Color Wood			=> new(186, 140,	100);
+		public static Color Grass			=> new(52,	140,	50);
+		public static Color LeafSummer	=> new(45,	90,	40);
+		public static Color LeafAutumn	=> new(152,	72,	43);
 
 		public Color(double red, double green, double blue, double alpha = 255)
 		{
@@ -139,6 +121,7 @@ namespace SMPL.Data
 			color.To255();
 			return color;
 		}
+
 		public bool IsInvalid() => double.IsNaN(R) || double.IsNaN(G) || double.IsNaN(B) || double.IsNaN(A);
 
 		internal void To255()
@@ -158,6 +141,11 @@ namespace SMPL.Data
 		public static bool operator !=(Color a, Color b) => a.R != b.R || a.G != b.G || a.B != b.B || a.A != b.A;
 		public static Color operator -(Color a, Color b) => new(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
 		public static Color operator +(Color a, Color b) => new(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
+
+		public static Color operator -(Color a, double b) => new(a.R - b, a.G - b, a.B - b, a.A - b);
+		public static Color operator +(Color a, double b) => new(a.R + b, a.G + b, a.B + b, a.A + b);
+		public static Color operator /(Color a, double b) => new(a.R / b, a.G / b, a.B / b, a.A / b);
+		public static Color operator *(Color a, double b) => new(a.R * b, a.G * b, a.B * b, a.A * b);
 
 		public override string ToString() => $"{R} {G} {B} {A}";
 		public override bool Equals(object obj) => base.Equals(obj);

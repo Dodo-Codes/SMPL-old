@@ -33,7 +33,7 @@ namespace RPG1bit
 					IsLeftClickable = true,
 					IsInTab = true,
 					AppearOnTab = NavigationPanel.Tab.Type.Single,
-				}, new Size(12, 9));
+				}, new Size(13, 9));
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
 				for (int i = 0; i < maps.Length; i++)

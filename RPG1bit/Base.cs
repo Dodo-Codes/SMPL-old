@@ -23,7 +23,7 @@ namespace RPG1bit
 
 			Event.Subscribe.Update(UniqueID, 0);
 			Mouse.Event.Subscribe.ButtonPress(UniqueID);
-			Keyboard.Event.Subscribe.KeyPress(UniqueID);
+			Mouse.Event.Subscribe.ButtonRelease(UniqueID);
 		}
 
 		public override void OnWindowFocus() => Window.CurrentState = Window.State.Fullscreen;
@@ -57,7 +57,8 @@ namespace RPG1bit
 			{
 				if (Map.CurrentSession == Map.Session.MapEdit && Map.IsHovered())
 				{
-					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right)) MapEditor.EditCurrentTile();
+					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right))
+						MapEditor.EditCurrentTile();
 					EditSpecialTiles();
 				}
 
@@ -97,9 +98,12 @@ namespace RPG1bit
 			if (button == Mouse.Button.Left) LeftClickPosition = mousePos;
 			if (button == Mouse.Button.Right) RightClickPosition = mousePos;
 
-			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false) return;
-			if (button == Mouse.Button.Left || button == Mouse.Button.Right) MapEditor.EditCurrentTile();
-			if (button == Mouse.Button.Middle) MapEditor.PickCurrentTile();
+			if ((Map.IsHovered() || NavigationPanel.Tab.IsHovered()) && button == Mouse.Button.Middle)
+				MapEditor.PickCurrentTile();
+			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false)
+				return;
+			if (button == Mouse.Button.Left || button == Mouse.Button.Right)
+				MapEditor.EditCurrentTile();
 		}
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{

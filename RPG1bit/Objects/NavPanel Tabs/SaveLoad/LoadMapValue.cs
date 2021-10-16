@@ -10,6 +10,9 @@ namespace RPG1bit
 		public override void OnLeftClicked()
 		{
 			Map.LoadMap(Map.Session.MapEdit, Name);
+
+			if (Map.CurrentSession == Map.Session.MapEdit)
+				NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
 		}
 		public override void OnRightClicked()
 		{
@@ -34,6 +37,11 @@ namespace RPG1bit
 			NavigationPanel.Info.Textbox.Text = $"[LMB] Load / [RMB] Delete\nMap Edit session: '{Name.ToUpper()}'";
 			NavigationPanel.Info.ShowClickableIndicator();
 			NavigationPanel.Info.ShowLeftClickableIndicator();
+		}
+		public override void OnDisplay(Point screenPos)
+		{
+			Screen.EditCell(screenPos, TileIndexes, 1, Color.White);
+			Screen.DisplayText(screenPos + new Point(1, 0), 1, Color.White, Name);
 		}
 	}
 }
