@@ -92,7 +92,7 @@ namespace RPG1bit
 			{ new(06, 02), new Point[] { new(05, 02), new(6, 2) } }, // cactus
 		};
 		public static List<Point> SpecialTiles => new() { new(00, 22), new(24, 08) };																  
-		public static Point Brush { get; private set; } = new(1, 22);
+		public static Point Brush { get; set; } = new(1, 22);
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
@@ -117,14 +117,7 @@ namespace RPG1bit
 		{
 			if (Gate.EnterOnceWhile("map-editor-brush", true))
 			{
-				new EditBrushTitle("edit-brush-title", new()
-				{
-					Position = new(19, 2),
-					Height = 1,
-					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
-					IsInTab = true,
-					IsUI = true
-				});
+				NavigationPanel.Tab.Texts[NavigationPanel.Tab.Type.MapEditor] = "[MMB] Pick tile.        [LMB] Pick color.";
 
 				var list = new ObjectList("brush-tiles", new()
 				{
@@ -145,6 +138,37 @@ namespace RPG1bit
 						Name = i.ToString()
 					})); ;
 				}
+
+				new ColorPick("brush-r", new()
+				{
+					Position = new(29, 3) { C = Color.Red },
+					Height = 1,
+					Name = "r",
+					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					IsInTab = true,
+					IsLeftClickable = true,
+					IsUI = true
+				}, 11, true);
+				new ColorPick("brush-g", new()
+				{
+					Position = new(30, 3) { C = Color.Green },
+					Height = 1,
+					Name = "g",
+					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					IsInTab = true,
+					IsLeftClickable = true,
+					IsUI = true
+				}, 11, true);
+				new ColorPick("brush-b", new()
+				{
+					Position = new(31, 3) { C = Color.Blue },
+					Height = 1,
+					Name = "b",
+					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					IsInTab = true,
+					IsLeftClickable = true,
+					IsUI = true
+				}, 11, true);
 			}
 		}
 		public static void EditCurrentTile()
@@ -209,6 +233,7 @@ namespace RPG1bit
 
 			Brush = indexes;
 			Screen.EditCell(new Point(0, 4), Brush, 1, Brush.C);
+			ColorPick.UpdateBrushColorPickers();
 		}
 
 		public override void OnMouseButtonRelease(Mouse.Button button)

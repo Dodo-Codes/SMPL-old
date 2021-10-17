@@ -14,13 +14,7 @@ namespace RPG1bit
 		public static void UpdateTab()
 		{
 			CreateTab();
-
-			var noSessionsStr = ObjectList.Lists.ContainsKey("load-list") == false ||
-				ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found." : "";
 			NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.SaveLoad, "save or load");
-			NavigationPanel.Tab.Textbox.Text = $"Load a previously saved session.\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
-				$"    Save the current session.";
-
 			Screen.Display();
 		}
 
@@ -79,6 +73,12 @@ namespace RPG1bit
 						IsInTab = true,
 						AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
 					}));
+
+				var noSessionsStr = ObjectList.Lists.ContainsKey("load-list") == false ||
+					ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found." : "";
+				NavigationPanel.Tab.Texts[NavigationPanel.Tab.Type.SaveLoad] =
+					$"Load a previously saved session.\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
+					$"    Save the current session.";
 			}
 		}
 	}

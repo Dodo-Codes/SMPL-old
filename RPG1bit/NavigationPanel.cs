@@ -1,6 +1,7 @@
 ﻿using SMPL.Components;
 using SMPL.Data;
 using SMPL.Gear;
+using System.Collections.Generic;
 using static RPG1bit.Object;
 
 namespace RPG1bit
@@ -16,6 +17,7 @@ namespace RPG1bit
 			public enum Type { None, Single, Multi, SaveLoad, MapEditor }
 			public static Type CurrentTabType { get; set; }
 			public static string Title { get; set; }
+			public static Dictionary<Type, string> Texts { get; set; } = new();
 
 			public Tab(string uniqueID) : base(uniqueID)
 			{
@@ -52,6 +54,7 @@ namespace RPG1bit
 				Close();
 				CurrentTabType = type;
 				Title = title;
+				Textbox.Text = Texts.ContainsKey(type) ? Texts[type] : "";
 				Screen.Display();
 			}
 			public static bool IsHovered()
