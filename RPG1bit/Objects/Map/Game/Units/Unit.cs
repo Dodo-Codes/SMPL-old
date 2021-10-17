@@ -34,7 +34,7 @@ namespace RPG1bit
 
 		public bool CanMoveIntoCell(Point cell)
 		{
-			return CellIsInReach(cell) && Map.RawData[(int)cell.X, (int)cell.Y, 3] != Map.TileBarrier;
+			return Map.RawData.ContainsKey(cell) && CellIsInReach(cell) && Map.RawData[cell][3] != Map.TileBarrier;
 		}
 	}
 }

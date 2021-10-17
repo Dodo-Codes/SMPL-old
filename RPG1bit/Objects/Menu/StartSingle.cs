@@ -40,7 +40,7 @@ namespace RPG1bit
 					mapList.Objects.Add(new StartSingleOnMap(maps[i], new CreationDetails()
 					{
 						Name = maps[i],
-						Position = new(-10, 0) { Color = new() },
+						Position = new(-10, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(32, 15) },
 						Height = 1,
 						IsUI = true,

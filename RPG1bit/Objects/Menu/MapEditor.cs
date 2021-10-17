@@ -8,81 +8,81 @@ namespace RPG1bit
 	{
 		public static readonly Point[] tiles = new Point[]
 		{
-			new(01, 22) { Color = Color.White },		// background
-			new(00, 22) { Color = Color.Red },			// barrier
-			new(24, 08) { Color = Color.White },		// player spawn tile
+			new(01, 22) { C = Color.White },		// background
+			new(00, 22) { C = Color.Red },			// barrier
+			new(24, 08) { C = Color.White },		// player spawn tile
 			new(), new(), new(), new(), new(), new(),
-			new(05, 00) { Color = Color.Grass },		// grass
-			new(00, 02) { Color = Color.Grass },		// bushes
-			new(15, 03) { Color = Color.Yellow },		// flowers
-			new(05, 01) { Color = Color.LeafSummer }, // oak trees
-			new(01, 01) { Color = Color.LeafSummer }, // pine trees
-			new(07, 02) { Color = Color.Grass },		// palm
-			new(06, 02) { Color = Color.Grass },		// cactus
-			new(04, 02) { Color = Color.White - 50},	// rocks
+			new(05, 00) { C = Color.Grass },		// grass
+			new(00, 02) { C = Color.Grass },		// bushes
+			new(15, 03) { C = Color.Yellow },		// flowers
+			new(05, 01) { C = Color.LeafSummer }, // oak trees
+			new(01, 01) { C = Color.LeafSummer }, // pine trees
+			new(07, 02) { C = Color.Grass },		// palm
+			new(06, 02) { C = Color.Grass },		// cactus
+			new(04, 02) { C = Color.White - 50},	// rocks
 			new(),
 			// water
-			new(12, 3) { Color = Color.Water }, new(8, 03) { Color = Color.Water }, new(07, 4) { Color = Color.Water },
-			new(10, 4) { Color = Color.Water }, new(13, 4) { Color = Color.Water }, new(14, 4) { Color = Color.Water },
-			new(14, 4) { Color = Color.Water }, new(14, 4) { Color = Color.Water }, new(7, 05) { Color = Color.Water },
-			new(11, 3) { Color = Color.Water }, new(07, 3) { Color = Color.Water }, new(09, 3) { Color = Color.Water },
-			new(11, 4) { Color = Color.Water }, new(08, 5) { Color = Color.Water }, new(14, 4) { Color = Color.Water },
-			new(14, 4) { Color = Color.Water }, new(14, 4) { Color = Color.Water }, new(09, 5) { Color = Color.Water },
-			new(09, 4) { Color = Color.Water }, new(10, 3) { Color = Color.Water }, new(08, 4) { Color = Color.Water },
-			new(12, 4) { Color = Color.Water }, new(11, 5) { Color = Color.Water }, new(14, 4) { Color = Color.Water },
-			new(14, 4) { Color = Color.Water }, new(14, 4) { Color = Color.Water }, new(10, 5) { Color = Color.Water },
+			new(12, 3) { C = Color.Water }, new(8, 03) { C = Color.Water }, new(07, 4) { C = Color.Water },
+			new(10, 4) { C = Color.Water }, new(13, 4) { C = Color.Water }, new(14, 4) { C = Color.Water },
+			new(14, 4) { C = Color.Water }, new(14, 4) { C = Color.Water }, new(7, 05) { C = Color.Water },
+			new(11, 3) { C = Color.Water }, new(07, 3) { C = Color.Water }, new(09, 3) { C = Color.Water },
+			new(11, 4) { C = Color.Water }, new(08, 5) { C = Color.Water }, new(14, 4) { C = Color.Water },
+			new(14, 4) { C = Color.Water }, new(14, 4) { C = Color.Water }, new(09, 5) { C = Color.Water },
+			new(09, 4) { C = Color.Water }, new(10, 3) { C = Color.Water }, new(08, 4) { C = Color.Water },
+			new(12, 4) { C = Color.Water }, new(11, 5) { C = Color.Water }, new(14, 4) { C = Color.Water },
+			new(14, 4) { C = Color.Water }, new(14, 4) { C = Color.Water }, new(10, 5) { C = Color.Water },
 			// bridge
-			new(12, 05) { Color = Color.Wood - 30 }, new(13, 05) { Color = Color.Wood - 30 },
-			new(13, 05) { Color = Color.Wood - 30 }, new(13, 05) { Color = Color.Wood - 30 },
-			new(13, 05) { Color = Color.Wood - 30 }, new(14, 05) { Color = Color.Wood - 30 },
-			new(15, 05) { Color = Color.Wood - 30 }, new(), new(16, 05) { Color = Color.Wood - 30 },
+			new(12, 05) { C = Color.Wood - 30 }, new(13, 05) { C = Color.Wood - 30 },
+			new(13, 05) { C = Color.Wood - 30 }, new(13, 05) { C = Color.Wood - 30 },
+			new(13, 05) { C = Color.Wood - 30 }, new(14, 05) { C = Color.Wood - 30 },
+			new(15, 05) { C = Color.Wood - 30 }, new(), new(16, 05) { C = Color.Wood - 30 },
 			// dirt road
-			new(10, 01) { Color = Color.Brown * 1.2 }, new(12, 00) { Color = Color.Brown * 1.2 },
-			new(08, 01) { Color = Color.Brown * 1.2 }, new(12, 00) { Color = Color.Brown * 1.2 },
-			new(08, 01) { Color = Color.Brown * 1.2 }, new(08, 01) { Color = Color.Brown * 1.2 },
-			new(08, 01) { Color = Color.Brown * 1.2 }, new(11, 01) { Color = Color.Brown * 1.2 },
-			new(08, 00) { Color = Color.Brown * 1.2 }, new(09, 00) { Color = Color.Brown * 1.2 },
-			new(11, 00) { Color = Color.Brown * 1.2 }, new(14, 01) { Color = Color.Brown * 1.2 },
-			new(13, 00) { Color = Color.Brown * 1.2 }, new(15, 00) { Color = Color.Brown * 1.2 },
-			new(14, 01) { Color = Color.Brown * 1.2 }, new(09, 01) { Color = Color.Brown * 1.2 },
-			new(09, 00) { Color = Color.Brown * 1.2 }, new(09, 00) { Color = Color.Brown * 1.2 },
-			new(13, 01) { Color = Color.Brown * 1.2 }, new(12, 00) { Color = Color.Brown * 1.2 },
-			new(14, 00) { Color = Color.Brown * 1.2 }, new(12, 00) { Color = Color.Brown * 1.2 },
-			new(14, 00) { Color = Color.Brown * 1.2 }, new(14, 00) { Color = Color.Brown * 1.2 },
-			new(14, 00) { Color = Color.Brown * 1.2 }, new(12, 01) { Color = Color.Brown * 1.2 },
-			new(10, 00) { Color = Color.Brown * 1.2 },
+			new(10, 01) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
+			new(08, 01) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
+			new(08, 01) { C = Color.Brown * 1.2 }, new(08, 01) { C = Color.Brown * 1.2 },
+			new(08, 01) { C = Color.Brown * 1.2 }, new(11, 01) { C = Color.Brown * 1.2 },
+			new(08, 00) { C = Color.Brown * 1.2 }, new(09, 00) { C = Color.Brown * 1.2 },
+			new(11, 00) { C = Color.Brown * 1.2 }, new(14, 01) { C = Color.Brown * 1.2 },
+			new(13, 00) { C = Color.Brown * 1.2 }, new(15, 00) { C = Color.Brown * 1.2 },
+			new(14, 01) { C = Color.Brown * 1.2 }, new(09, 01) { C = Color.Brown * 1.2 },
+			new(09, 00) { C = Color.Brown * 1.2 }, new(09, 00) { C = Color.Brown * 1.2 },
+			new(13, 01) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
+			new(14, 00) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
+			new(14, 00) { C = Color.Brown * 1.2 }, new(14, 00) { C = Color.Brown * 1.2 },
+			new(14, 00) { C = Color.Brown * 1.2 }, new(12, 01) { C = Color.Brown * 1.2 },
+			new(10, 00) { C = Color.Brown * 1.2 },
 
 			// stone road
-			new(11, 02) { Color = Color.Gray + 50 }, new(09, 02) { Color = Color.Gray + 50 },
-			new(17, 02) { Color = Color.Gray + 50 }, new(09, 02) { Color = Color.Gray + 50 },
-			new(17, 02) { Color = Color.Gray + 50 }, new(17, 02) { Color = Color.Gray + 50 },
-			new(17, 02) { Color = Color.Gray + 50 }, new(12, 02) { Color = Color.Gray + 50 },
-			new(15, 01) { Color = Color.Gray + 50 }, new(16, 01) { Color = Color.Gray + 50 },
-			new(08, 02) { Color = Color.Gray + 50 }, new(14, 03) { Color = Color.Gray + 50 },
-			new(10, 02) { Color = Color.Gray + 50 }, new(16, 02) { Color = Color.Gray + 50 },
-			new(14, 03) { Color = Color.Gray + 50 }, new(13, 03) { Color = Color.Gray + 50 },
-			new(16, 01) { Color = Color.Gray + 50 }, new(16, 01) { Color = Color.Gray + 50 },
-			new(14, 02) { Color = Color.Gray + 50 }, new(09, 02) { Color = Color.Gray + 50 },
-			new(15, 02) { Color = Color.Gray + 50 }, new(09, 02) { Color = Color.Gray + 50 },
-			new(15, 02) { Color = Color.Gray + 50 }, new(15, 02) { Color = Color.Gray + 50 },
-			new(15, 02) { Color = Color.Gray + 50 }, new(13, 02) { Color = Color.Gray + 50 },
-			new(17, 01) { Color = Color.Gray + 50 },
+			new(11, 02) { C = Color.Gray + 50 }, new(09, 02) { C = Color.Gray + 50 },
+			new(17, 02) { C = Color.Gray + 50 }, new(09, 02) { C = Color.Gray + 50 },
+			new(17, 02) { C = Color.Gray + 50 }, new(17, 02) { C = Color.Gray + 50 },
+			new(17, 02) { C = Color.Gray + 50 }, new(12, 02) { C = Color.Gray + 50 },
+			new(15, 01) { C = Color.Gray + 50 }, new(16, 01) { C = Color.Gray + 50 },
+			new(08, 02) { C = Color.Gray + 50 }, new(14, 03) { C = Color.Gray + 50 },
+			new(10, 02) { C = Color.Gray + 50 }, new(16, 02) { C = Color.Gray + 50 },
+			new(14, 03) { C = Color.Gray + 50 }, new(13, 03) { C = Color.Gray + 50 },
+			new(16, 01) { C = Color.Gray + 50 }, new(16, 01) { C = Color.Gray + 50 },
+			new(14, 02) { C = Color.Gray + 50 }, new(09, 02) { C = Color.Gray + 50 },
+			new(15, 02) { C = Color.Gray + 50 }, new(09, 02) { C = Color.Gray + 50 },
+			new(15, 02) { C = Color.Gray + 50 }, new(15, 02) { C = Color.Gray + 50 },
+			new(15, 02) { C = Color.Gray + 50 }, new(13, 02) { C = Color.Gray + 50 },
+			new(17, 01) { C = Color.Gray + 50 },
 
 			// signs
-			new(01, 07) { Color = Color.Wood }, new(00, 07) { Color = Color.Wood }, new(02, 07) { Color = Color.Wood },
+			new(01, 07) { C = Color.Wood }, new(00, 07) { C = Color.Wood }, new(02, 07) { C = Color.Wood },
 			new(), new(), new(), new(), new(), new(),
 
 			// fences
-			new(00, 03) { Color = Color.Wood / 1.2 }, new(01, 03) { Color = Color.Wood / 1.2 }, new(02, 03) { Color = Color.Wood / 1.2 },
-			new(03, 03) { Color = Color.Wood }, new(04, 03) { Color = Color.Wood }, new(05, 04) { Color = Color.Wood / 1.2 },
-			new(04, 04) { Color = Color.Wood / 1.2 }, new(06, 04) { Color = Color.Wood }, new(06, 05) { Color = Color.Wood },
-			new(05, 03) { Color = Color.Gray }, new(), new(06, 03) { Color = Color.Gray }, new(00, 04) { Color = Color.Gray + 50},
-			new(01, 04) { Color = Color.Gray + 50}, new(03, 04) { Color = Color.Gray }, new(02, 04) { Color = Color.Gray },
+			new(00, 03) { C = Color.Wood / 1.2 }, new(01, 03) { C = Color.Wood / 1.2 }, new(02, 03) { C = Color.Wood / 1.2 },
+			new(03, 03) { C = Color.Wood }, new(04, 03) { C = Color.Wood }, new(05, 04) { C = Color.Wood / 1.2 },
+			new(04, 04) { C = Color.Wood / 1.2 }, new(06, 04) { C = Color.Wood }, new(06, 05) { C = Color.Wood },
+			new(05, 03) { C = Color.Gray }, new(), new(06, 03) { C = Color.Gray }, new(00, 04) { C = Color.Gray + 50},
+			new(01, 04) { C = Color.Gray + 50}, new(03, 04) { C = Color.Gray }, new(02, 04) { C = Color.Gray },
 		};
 		public static readonly Dictionary<Point, Point[]> randomTiles = new()
 		{
 			{ new(01, 22), new Point[] { new(01, 22) } }, // background
-			{ new(05, 00) { Color = Color.Grass }, new Point[] { new(04, 00), new(5, 0), new(6, 0), new(7, 0) } }, // grass
+			{ new(05, 00) { C = Color.Grass }, new Point[] { new(04, 00), new(5, 0), new(6, 0), new(7, 0) } }, // grass
 			{ new(00, 02), new Point[] { new(00, 02), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
 			{ new(15, 03), new Point[] { new(15, 03), new(16, 03) } }, // flowers
 			{ new(04, 02), new Point[] { new(04, 02) } }, // rocks
@@ -91,6 +91,7 @@ namespace RPG1bit
 			{ new(07, 02), new Point[] { new(07, 02) } }, // palm
 			{ new(06, 02), new Point[] { new(05, 02), new(6, 2) } }, // cactus
 		};
+		public static List<Point> SpecialTiles => new() { new(00, 22), new(24, 08) };																  
 		public static Point Brush { get; private set; } = new(1, 22);
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
@@ -105,42 +106,11 @@ namespace RPG1bit
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
-			Map.RawData = Map.DefaultRawData;
+			Map.RawData.Clear();
 
 			Map.CreateUIButtons();
 			CreateTab();
 			NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
-		}
-		public static Point[,,] GetSavableMapData(Point[,,] rawData, out Point offset)
-		{
-			var lastTilePos = new Point(-1, -1);
-			var firstTilePos = new Point(rawData.GetLength(0), rawData.GetLength(1));
-
-			for (int y = 0; y < rawData.GetLength(1); y++)
-				for (int x = 0; x < rawData.GetLength(0); x++)
-					for (int z = 0; z < 4; z++)
-					{
-						if (rawData[x, y, z] != new Point(0, 0))
-						{
-							if (x < firstTilePos.X) firstTilePos.X = x;
-							if (y < firstTilePos.Y) firstTilePos.Y = y;
-							if (lastTilePos.X < x) lastTilePos.X = x;
-							if (lastTilePos.Y < y) lastTilePos.Y = y;
-						}
-					}
-
-			if (lastTilePos.X == -1 || lastTilePos.Y == -1)
-			{
-				offset = default;
-				return default;
-			}
-			var result = new Point[(int)(lastTilePos.X - firstTilePos.X + 1), (int)(lastTilePos.Y - firstTilePos.Y + 1), 4];
-			for (int y = 0; y < result.GetLength(1); y++)
-				for (int x = 0; x < result.GetLength(0); x++)
-					for (int z = 0; z < 4; z++)
-						result[x, y, z] = rawData[(int)(x + firstTilePos.X), (int)(y + firstTilePos.Y), z];
-			offset = firstTilePos;
-			return result;
 		}
 
 		public static void CreateTab()
@@ -199,7 +169,7 @@ namespace RPG1bit
 				var sign = new Sign($"{pos}", new CreationDetails()
 				{
 					Name = "Sign",
-					Position = new(pos.X, pos.Y) { Color = Brush.Color },
+					Position = new(pos.X, pos.Y) { C = Brush.C },
 					Height = SwitchHeight.BrushHeight,
 					TileIndexes = new Point[] { Brush },
 				});
@@ -208,15 +178,23 @@ namespace RPG1bit
 
 			if (TileIsSign(Brush) == false)
 			{
-				if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos)
+				var isSpecial = SpecialTiles.Contains(Brush);
+				if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos && isSpecial == false)
 				{
 					var dirY = pos.Y > clickPos.Y ? 1 : -1;
 					var dirX = pos.X > clickPos.X ? 1 : -1;
 					for (double y = clickPos.Y; y != pos.Y + dirY; y += dirY)
 						for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
-							Map.RawData[(int)x, (int)y, SwitchHeight.BrushHeight] = LMB ? Brush : new(0, 0);
+						{
+							var p = new Point(x, y);
+							if (Map.RawData.ContainsKey(p) == false)
+								Map.RawData[p] = new Point[4];
+							Map.RawData[p][SwitchHeight.BrushHeight] = LMB ? Brush : new(0, 0);
+						}
 				}
-				Map.RawData[(int)pos.X, (int)pos.Y, SwitchHeight.BrushHeight] = LMB ? Brush : new(0, 0);
+				if (Map.RawData.ContainsKey(pos) == false)
+					Map.RawData[pos] = new Point[4];
+				Map.RawData[pos][isSpecial ? 3 : SwitchHeight.BrushHeight] = LMB ? Brush : new(0, 0);
 			}
 
 			Screen.Display();
@@ -230,14 +208,7 @@ namespace RPG1bit
 			if (indexes == new Point(0, 0)) return;
 
 			Brush = indexes;
-			Screen.EditCell(new Point(0, 4), Brush, 1, Brush.Color);
-		}
-		public static void EditSpecialTile(Point tileIndexes)
-		{
-			var pos = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
-			var p = Map.RawData[(int)pos.X, (int)pos.Y, 3] == tileIndexes ? new(0, 0) : tileIndexes;
-			Map.RawData[(int)pos.X, (int)pos.Y, 3] = p;
-			Map.Display();
+			Screen.EditCell(new Point(0, 4), Brush, 1, Brush.C);
 		}
 
 		public override void OnMouseButtonRelease(Mouse.Button button)

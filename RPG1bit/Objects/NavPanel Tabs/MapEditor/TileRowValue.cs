@@ -16,7 +16,7 @@ namespace RPG1bit
 			for (int i = 0; i < 9; i++)
 			{
 				if (y + i >= mapEditorTiles.Length) return;
-				Screen.EditCell(screenPos + new Point(i, 0), mapEditorTiles[y + i], 1, mapEditorTiles[y + i].Color);
+				Screen.EditCell(screenPos + new Point(i, 0), mapEditorTiles[y + i], 1, mapEditorTiles[y + i].C);
 			}
 		}
 	}

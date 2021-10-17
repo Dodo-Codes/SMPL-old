@@ -9,16 +9,16 @@ namespace SMPL.Data
 {
 	public struct Point
 	{
-		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
+		public static Point Invalid => new(double.NaN, double.NaN) { C = Color.Invalid };
 		public static Point One => new(1, 1);
 
 		public double X { get; set; }
 		public double Y { get; set; }
-		public Color Color { get; set; }
+		public Color C { get; set; }
 
 		public Point(double x, double y)
 		{
-			Color = Color.White;
+			C = Color.White;
 			X = x;
 			Y = y;
 		}
@@ -34,10 +34,10 @@ namespace SMPL.Data
 
 			var vert = new Vertex[]
 			{
-				new(From(topLeft), Color.From(Color)),
-				new(From(topRight), Color.From(Color)),
-				new(From(botRight), Color.From(Color)),
-				new(From(botLeft), Color.From(Color)),
+				new(From(topLeft), Color.From(C)),
+				new(From(topRight), Color.From(C)),
+				new(From(botRight), Color.From(C)),
+				new(From(botLeft), Color.From(C)),
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 			Performance.DrawCallsPerFrame++;

@@ -42,7 +42,7 @@ namespace RPG1bit
 							var value = (Object)new LoadSingleSessionValue(name, new CreationDetails()
 							{
 								Name = name,
-								Position = new(-10, 0) { Color = new() },
+								Position = new(-10, 0) { C = new() },
 								TileIndexes = new Point[] { new Point(14, 10) },
 								Height = 1,
 								IsUI = true,
@@ -60,18 +60,20 @@ namespace RPG1bit
 				case Map.Session.MapEdit:
 					{
 						var slot = new Assets.DataSlot($"Maps\\{name}.mapdata");
-						var offset = new Point();
-						var mapData = MapEditor.GetSavableMapData(Map.RawData, out offset);
-						var signs = new List<Sign>();
+						var signs = new List<CompactSignData>();
 						foreach (var kvp in objects)
 							for (int i = 0; i < objects[kvp.Key].Count; i++)
-								if (objects[kvp.Key][i] is Sign)
-									signs.Add((Sign)objects[kvp.Key][i]);
+								if (objects[kvp.Key][i] is Sign sign)
+									signs.Add(new()
+									{
+										P = new(sign.Position.X, sign.Position.Y) { C = new(sign.Height, 0, 0, 0)},
+										I = sign.TileIndexes,
+										T = sign.Text
+									});
 
 						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
-						slot.SetValue("map-offset", Text.ToJSON(offset));
-						slot.SetValue("map-data", Text.ToJSON(mapData));
+						slot.SetValue("map-data", Text.ToJSON(Map.GetSavableData()));
 						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
@@ -86,7 +88,7 @@ namespace RPG1bit
 							var value = (Object)new LoadMapValue(name, new CreationDetails()
 							{
 								Name = name,
-								Position = new(-10, 0) { Color = new() },
+								Position = new(-10, 0) { C = new() },
 								TileIndexes = new Point[] { new Point(47, 06) },
 								Height = 1,
 								IsUI = true,
@@ -100,7 +102,7 @@ namespace RPG1bit
 								value = new StartSingleOnMap(name, new CreationDetails()
 								{
 									Name = name,
-									Position = new(-10, 0) { Color = new() },
+									Position = new(-10, 0) { C = new() },
 									TileIndexes = new Point[] { new Point(32, 15) },
 									Height = 1,
 									IsUI = true,

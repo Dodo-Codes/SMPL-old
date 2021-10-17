@@ -63,7 +63,7 @@ namespace RPG1bit
 			var id = $"{depth} cell {position.X} {position.Y}";
 			var quad = Sprite.GetQuad(id);
 			var coord = quad.CornerA.TextureCoordinate;
-			return new(coord.X / 17, coord.Y / 17) { Color = quad.CornerA.Position.Color };
+			return new(coord.X / 17, coord.Y / 17) { C = quad.CornerA.Position.C };
 		}
 		public static void EditCell(Point cellIndexes, Point tileIndexes, int depth, Color color)
 		{

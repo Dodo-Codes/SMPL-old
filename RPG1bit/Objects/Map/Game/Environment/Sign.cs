@@ -5,6 +5,13 @@ using Newtonsoft.Json;
 
 namespace RPG1bit
 {
+	public struct CompactSignData
+	{
+		public Point P { get; set; }
+		public Point I { get; set; }
+		public string T { get; set; }
+	}
+
 	public class Sign : Object
 	{
 		[JsonProperty]

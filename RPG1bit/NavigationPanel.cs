@@ -142,8 +142,8 @@ namespace RPG1bit
 			new StartSingle("start-singleplayer", new CreationDetails()
 			{
 				Name = "start-singleplayer",
-				Position = new(19, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(43, 16) },
+				Position = new(19, 0),
+				TileIndexes = new Point[] { new(43, 16) { C = Color.Gray } },
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,
@@ -151,16 +151,16 @@ namespace RPG1bit
 			new StartMulti("start-multiplayer", new CreationDetails()
 			{
 				Name = "start-multiplayer",
-				Position = new(20, 0) { Color = Color.Gray / 1.2 },
-				TileIndexes = new Point[] { new(44, 16) },
+				Position = new(20, 0),
+				TileIndexes = new Point[] { new(44, 16) { C = Color.Gray / 1.2 } },
 				Height = 1,
 				IsUI = true,
 			});
 			new SaveLoad("save-load", new CreationDetails()
 			{
 				Name = "save-load",
-				Position = new(23, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(42, 16) },
+				Position = new(23, 0),
+				TileIndexes = new Point[] { new(42, 16) { C = Color.Gray } },
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,
@@ -168,8 +168,8 @@ namespace RPG1bit
 			new MapEditor("map-editor", new CreationDetails()
 			{
 				Name = "map-editor",
-				Position = new(21, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(47, 06) },
+				Position = new(21, 0),
+				TileIndexes = new Point[] { new(47, 06) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsConfirmingClick = true,
@@ -179,8 +179,8 @@ namespace RPG1bit
 			new AdjustVolume("adjust-sound-volume", new CreationDetails()
 			{
 				Name = "Sound effects",
-				Position = new(26, 0) { Color = new Color(175, 175, 175) },
-				TileIndexes = new Point[] { new(38, 16) },
+				Position = new(26, 0),
+				TileIndexes = new Point[] { new(38, 16) { C = new Color(175, 175, 175) } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -188,8 +188,8 @@ namespace RPG1bit
 			new AdjustVolume("adjust-music-volume", new CreationDetails()
 			{
 				Name = "Music",
-				Position = new(27, 0) { Color = new Color(175, 175, 175) },
-				TileIndexes = new Point[] { new(39, 16) },
+				Position = new(27, 0),
+				TileIndexes = new Point[] { new(39, 16) { C = new Color(175, 175, 175) } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -198,8 +198,8 @@ namespace RPG1bit
 			new MinimizeGame("-", new CreationDetails()
 			{
 				Name = "-",
-				Position = new(30, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(37, 20) },
+				Position = new(30, 0),
+				TileIndexes = new Point[] { new(37, 20) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -207,8 +207,8 @@ namespace RPG1bit
 			new ExitGame("x", new CreationDetails()
 			{
 				Name = "x",
-				Position = new(31, 0) { Color = Color.Red - 50 },
-				TileIndexes = new Point[] { new(40, 13) },
+				Position = new(31, 0),
+				TileIndexes = new Point[] { new(40, 13) { C = Color.Red - 50 } },
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,

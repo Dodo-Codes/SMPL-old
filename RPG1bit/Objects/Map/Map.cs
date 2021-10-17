@@ -13,22 +13,10 @@ namespace RPG1bit
 		public static Point TileBarrier => new(0, 22);
 		public static Point TilePlayer => new(24, 8);
 
-		public static Size Size => new(1000, 1000);
-		public static Point[,,] RawData { get; set; }
-		public static Point[,,] DefaultRawData => new Point[(int)Size.W, (int)Size.H, 4];
+		public static Dictionary<Point, Point[]> RawData { get; set; } = new();
 		public static string CurrentMapName { get; private set; }
 
-		private static Point cameraPosition = new(Size.W / 2, Size.H / 2);
-		public static Point CameraPosition
-		{
-			get { return cameraPosition; }
-			set
-			{
-				cameraPosition = new Point(
-					Number.Limit(value.X, new Number.Range(8, RawData.GetLength(0) - 9)),
-					Number.Limit(value.Y, new Number.Range(8, RawData.GetLength(1) - 9)));
-			}
-		}
+		public static Point CameraPosition { get; set; }
 		public static Session CurrentSession { get; set; }
 
 		public Map(string uniqueID) : base(uniqueID)
@@ -40,38 +28,48 @@ namespace RPG1bit
 			if (Assets.ValuesAreLoaded("map-data"))
 			{
 				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
-				var mapData = Text.FromJSON<Point[,,]>(Assets.GetValue("map-data"));
-				var mapOffset = Text.FromJSON<Point>(Assets.GetValue("map-offset"));
-				if (Assets.ValuesAreLoaded("signs")) Text.FromJSON<List<Sign>>(Assets.GetValue("signs"));
-				if (mapData != default && mapOffset != default) InsertMapData(mapData, mapOffset);
-				if (cameraPos != default) CameraPosition = cameraPos;
+				var mapData = Text.FromJSON<Dictionary<string, string>>(Assets.GetValue("map-data"));
+				var signData = new List<CompactSignData>();
+				if (Assets.ValuesAreLoaded("signs")) signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
+				if (mapData != default)
+					foreach (var kvp in mapData)
+						RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
+				CameraPosition = cameraPos;
+
+				for (int i = 0; i < signData.Count; i++)
+				{
+					new Sign($"{signData[i].P}-{i}-{signData[i].P.C.R}", new()
+					{
+						Position = signData[i].P,
+						TileIndexes = new Point[] { signData[i].I },
+						Height = (int)signData[i].P.C.R,
+					});
+				}
 
 				if (CurrentSession == Session.Single && mapData != default)
 				{
-					var bottomRight = mapOffset + new Point(mapData.GetLength(0), mapData.GetLength(1));
+					var freeTile = new Point(0, 0);
 					var playerTiles = new List<Point>();
-					for (int y = (int)mapOffset.Y; y < bottomRight.Y; y++)
-						for (int x = (int)mapOffset.X; x < bottomRight.X; x++)
+					foreach (var kvp in RawData)
+					{
+						var pos = new Point(kvp.Key.X, kvp.Key.Y);
+						if (RawData[pos][3] == TilePlayer)
 						{
-							if (RawData[x, y, 3] == TilePlayer)
-							{
-								playerTiles.Add(new Point(x, y));
-								RawData[x, y, 3] = default;
-							}
-							else if (RawData[x, y, 3] == TileBarrier)
-							{
-								var tile = TileBarrier;
-								tile.Color = new Color();
-								RawData[x, y, 3] = tile;
-							}
+							playerTiles.Add(pos);
+							RawData[pos][3] = default;
 						}
+						else if (RawData[pos][3] == TileBarrier)
+						{
+							var tile = TileBarrier;
+							tile.C = new Color();
+							RawData[pos][3] = tile;
+						}
+						else if (RawData[pos][3] == new Point(0, 0))
+							freeTile = pos;
+					}
 
-					var randPoint = new Point(RandX(), RandY());
-					if (playerTiles.Count > 0)
-						randPoint = playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))];
-					else
-						while (RandPointIsBarrier())
-							randPoint = new(RandX(), RandY());
+					var randPoint = playerTiles.Count > 0 ?
+						playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
 
 					if (Assets.ValuesAreLoaded("map-name") == false)
 					{
@@ -84,10 +82,6 @@ namespace RPG1bit
 						});
 						CameraPosition = player.Position;
 					}
-
-					bool RandPointIsBarrier() => RawData[(int)randPoint.X, (int)randPoint.Y, 3] == TileBarrier;
-					double RandX() => Probability.Randomize(new(mapOffset.X, bottomRight.X - 1));
-					double RandY() => Probability.Randomize(new(mapOffset.Y, bottomRight.Y - 1));
 				}
 			}
 			if (Assets.ValuesAreLoaded("map-name"))
@@ -98,6 +92,12 @@ namespace RPG1bit
 			Assets.UnloadAllValues();
 			Display();
 			Object.DisplayAllObjects();
+
+			if (CurrentSession == Session.MapEdit)
+			{
+				MapEditor.CreateTab();
+				NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
+			}
 		}
 
 		public static void CreateUIButtons()
@@ -106,8 +106,8 @@ namespace RPG1bit
 			new MoveCamera("camera-move-up", new Object.CreationDetails()
 			{
 				Name = "camera-move-up",
-				Position = new(0, 1) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(19, 20) },
+				Position = new(0, 1),
+				TileIndexes = new Point[] { new(19, 20) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -115,8 +115,8 @@ namespace RPG1bit
 			new MoveCamera("camera-move-down", new Object.CreationDetails()
 			{
 				Name = "camera-move-down",
-				Position = new(0, 2) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(21, 20) },
+				Position = new(0, 2),
+				TileIndexes = new Point[] { new(21, 20) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -124,8 +124,8 @@ namespace RPG1bit
 			new MoveCamera("camera-move-left", new Object.CreationDetails()
 			{
 				Name = "camera-move-left",
-				Position = new(1, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(22, 20) },
+				Position = new(1, 0),
+				TileIndexes = new Point[] { new(22, 20) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -133,8 +133,8 @@ namespace RPG1bit
 			new MoveCamera("camera-move-right", new Object.CreationDetails()
 			{
 				Name = "camera-move-right",
-				Position = new(2, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(20, 20) },
+				Position = new(2, 0),
+				TileIndexes = new Point[] { new(20, 20) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -145,8 +145,8 @@ namespace RPG1bit
 				new MoveCamera("camera-center", new Object.CreationDetails()
 			{
 				Name = "camera-center",
-				Position = new(0, 0) { Color = Color.Gray },
-				TileIndexes = new Point[] { new(19, 14) },
+				Position = new(0, 0),
+				TileIndexes = new Point[] { new(19, 14) { C = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -154,24 +154,24 @@ namespace RPG1bit
 				new EquipSlot("head", new Object.CreationDetails()
 				{
 					Name = "head",
-					Position = new(0, 7) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(5, 22) },
+					Position = new(0, 7),
+					TileIndexes = new Point[] { new(5, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 				new EquipSlot("body", new Object.CreationDetails()
 				{
 					Name = "body",
-					Position = new(0, 8) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(6, 22) },
+					Position = new(0, 8),
+					TileIndexes = new Point[] { new(6, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 				new EquipSlot("feet", new Object.CreationDetails()
 				{
 					Name = "feet",
-					Position = new(0, 9) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(7, 22) },
+					Position = new(0, 9),
+					TileIndexes = new Point[] { new(7, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -179,16 +179,16 @@ namespace RPG1bit
 				new EquipSlot("hand-left", new Object.CreationDetails()
 				{
 					Name = "hand-left",
-					Position = new(0, 5) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(8, 22) },
+					Position = new(0, 5),
+					TileIndexes = new Point[] { new(8, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 				new EquipSlot("hand-right", new Object.CreationDetails()
 				{
 					Name = "hand-right",
-					Position = new(0, 4) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(9, 22) },
+					Position = new(0, 4),
+					TileIndexes = new Point[] { new(9, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -196,16 +196,16 @@ namespace RPG1bit
 				new EquipSlot("carry-back", new Object.CreationDetails()
 				{
 					Name = "carry-back",
-					Position = new(0, 11) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(10, 22) },
+					Position = new(0, 11),
+					TileIndexes = new Point[] { new(10, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 				new EquipSlot("carry-waist", new Object.CreationDetails()
 				{
 					Name = "carry-waist",
-					Position = new(0, 12) { Color = Color.Gray },
-					TileIndexes = new Point[] { new(11, 22) },
+					Position = new(0, 12),
+					TileIndexes = new Point[] { new(11, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -241,10 +241,26 @@ namespace RPG1bit
 		public static void Display()
 		{
 			if (RawData == null) return;
-			for (int y = (int)CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
-				for (int x = (int)CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
+			for (double y = CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
+				for (double x = CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
+				{
+					var pos = new Point(x, y);
+					if (RawData.ContainsKey(pos) == false)
+					{
+						for (int z = 0; z < 4; z++)
+							Screen.EditCell(MapToScreenPosition(pos), new(), z, new());
+						continue;
+					}
+
+					var tilesInCoord = 0;
 					for (int z = 0; z < 4; z++)
-						Screen.EditCell(MapToScreenPosition(new(x, y)), RawData[x, y, z], z, RawData[x, y, z].Color);
+					{
+						if (RawData[pos][z] != new Point(0, 0)) tilesInCoord++;
+						Screen.EditCell(MapToScreenPosition(pos), RawData[pos][z], z, RawData[pos][z].C);
+					}
+					if (tilesInCoord == 0)
+						RawData.Remove(pos);
+				}
 		}
 		public static void DisplayNavigationPanel()
 		{
@@ -262,6 +278,8 @@ namespace RPG1bit
 			{
 				Screen.EditCell(new(0, 4), new(1, 22), 1, Color.White);
 
+				Screen.EditCell(new(9, 0), new(41, 13), 1, Color.Gray);
+				Screen.EditCell(new(10, 0), new(43, 13), 1, Color.Gray);
 				Screen.EditCell(new(11, 0), new(42, 13), 1, Color.Gray);
 			}
 			else if (CurrentSession == Session.Single)
@@ -282,15 +300,14 @@ namespace RPG1bit
 			DisplayNavigationPanel();
 			CreateUIButtons();
 		}
-		public static void InsertMapData(Point[,,] data, Point offset)
-		{
-			RawData = DefaultRawData;
-			for (int y = 0; y < data.GetLength(1); y++)
-				for (int x = 0; x < data.GetLength(0); x++)
-					for (int z = 0; z < 4; z++)
-						RawData[(int)(x + offset.X), (int)(y + offset.Y), z] = data[x, y, z];
-		}
 
+		public static Dictionary<string, string> GetSavableData()
+		{
+			var result = new Dictionary<string, string>();
+			foreach (var kvp in RawData)
+				result[Text.ToJSON(kvp.Key)] = Text.ToJSON(kvp.Value);
+			return result;
+		}
 		public static bool IsHovered()
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();

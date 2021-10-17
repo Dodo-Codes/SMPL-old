@@ -228,7 +228,7 @@ namespace RPG1bit
 				{
 					HoldingObject = this;
 					Hoverer.CursorTileIndexes = TileIndexes;
-					Hoverer.CursorColor = Position.Color;
+					Hoverer.CursorColor = Position.C;
 					OnDragStart();
 				}
 			}
@@ -282,8 +282,11 @@ namespace RPG1bit
 			var mapPos = Map.MapToScreenPosition(Position);
 			if (Screen.CellIsOnScreen(Position, IsUI) == false) return;
 
-			Screen.EditCell(IsUI ? Position : mapPos, TileIndexes, Height, Position.Color);
-			OnDisplay(IsUI ? Position : mapPos);
+			if (Position != new Point(-10, 0))
+			{
+				Screen.EditCell(IsUI ? Position : mapPos, TileIndexes, Height, TileIndexes.C);
+				OnDisplay(IsUI ? Position : mapPos);
+			}
 		}
 
 		public virtual void OnLeftClicked() { }

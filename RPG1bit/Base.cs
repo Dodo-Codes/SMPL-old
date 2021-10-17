@@ -59,7 +59,6 @@ namespace RPG1bit
 				{
 					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right))
 						MapEditor.EditCurrentTile();
-					EditSpecialTiles();
 				}
 
 				NavigationPanel.Info.Textbox.Text = "";
@@ -104,17 +103,6 @@ namespace RPG1bit
 				return;
 			if (button == Mouse.Button.Left || button == Mouse.Button.Right)
 				MapEditor.EditCurrentTile();
-		}
-		public override void OnKeyboardKeyPress(Keyboard.Key key)
-		{
-			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false) return;
-			EditSpecialTiles();
-		}
-		public static void EditSpecialTiles()
-		{
-			if (TextInputField.Typing) return;
-			if (Keyboard.KeyIsPressed(Keyboard.Key.P)) MapEditor.EditSpecialTile(Map.TilePlayer);
-			else if (Keyboard.KeyIsPressed(Keyboard.Key.B)) MapEditor.EditSpecialTile(Map.TileBarrier);
 		}
 	}
 }
