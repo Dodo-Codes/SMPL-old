@@ -16,10 +16,8 @@ namespace RPG1bit
 		public ObjectList(string uniqueID, CreationDetails creationDetails, Size size) : base(uniqueID, creationDetails)
 		{
 			Lists[uniqueID] = this;
-			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
 			Mouse.Event.Subscribe.WheelScroll(uniqueID);
 			Size = size;
-			Game.Event.Subscribe.Update(uniqueID);
 		}
 
 		public override void OnMouseWheelScroll(Mouse.Wheel wheel, double delta)

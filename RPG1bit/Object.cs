@@ -105,6 +105,7 @@ namespace RPG1bit
 			{ new(47, 22), "Opened door." },
 
 			// single
+			{ new(7, 23), "On the ground:" },
 			{ new(05, 22), "On your head:" },
 			{ new(06, 22), "On your body:" },
 			{ new(07, 22), "On your feet:" },

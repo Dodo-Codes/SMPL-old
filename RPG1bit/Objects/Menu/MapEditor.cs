@@ -110,10 +110,7 @@ namespace RPG1bit
 		{ new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22) };
 		public static Point Brush { get; set; } = new(1, 22);
 
-		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
-		{
-			Mouse.Event.Subscribe.ButtonRelease(UniqueID);
-		}
+		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
 		public override void OnLeftClicked()

@@ -18,7 +18,6 @@ namespace RPG1bit
 		{
 			Keyboard.Event.Subscribe.TextInput(uniqueID);
 			Mouse.Event.Subscribe.ButtonPress(uniqueID);
-			Game.Event.Subscribe.Update(uniqueID);
 		}
 
 		public override void OnGameUpdate()

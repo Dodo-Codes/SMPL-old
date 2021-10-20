@@ -16,8 +16,6 @@ namespace RPG1bit
 		{
 			Size = size;
 			IsVertical = isVertical;
-			Game.Event.Subscribe.Update(uniqueID);
-			Mouse.Event.Subscribe.ButtonPress(uniqueID);
 		}
 
 		public override void OnMouseButtonPress(Mouse.Button button)

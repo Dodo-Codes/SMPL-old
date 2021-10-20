@@ -37,8 +37,6 @@ namespace RPG1bit
 						break;
 						void AddToList(ObjectList list)
 						{
-							if (IsOverwriting(list)) return;
-
 							var value = (Object)new LoadSingleSessionValue(name, new CreationDetails()
 							{
 								Name = name,
@@ -52,8 +50,11 @@ namespace RPG1bit
 								AppearOnTab = "save-load",
 							});
 
-							list.Objects.Add(value);
-							list.ScrollToBottom();
+							if (Contains(list.Objects, value) == false)
+							{
+								list.Objects.Add(value);
+								list.ScrollToBottom();
+							}
 						}
 					}
 				case Map.Session.Multi: break;
@@ -84,9 +85,7 @@ namespace RPG1bit
 
 						void AddToList(ObjectList list)
 						{
-							if (IsOverwriting(list)) return;
-
-							var value = (Object)new LoadMapValue(name, new CreationDetails()
+							var value = (Object)new LoadMapValue($"{name}-{Performance.FrameCount}", new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { C = new() },
@@ -100,7 +99,7 @@ namespace RPG1bit
 							});
 							if (list.Name == "load-map-list")
 							{
-								value = new StartSingleOnMap(name, new CreationDetails()
+								value = new StartSingleOnMap($"{name}-{Performance.FrameCount}-1", new CreationDetails()
 								{
 									Name = name,
 									Position = new(-10, 0) { C = new() },
@@ -113,21 +112,25 @@ namespace RPG1bit
 								});
 							}
 
-							list.Objects.Add(value);
-							list.ScrollToBottom();
+							if (Contains(list.Objects, value) == false)
+							{
+								list.Objects.Add(value);
+								list.ScrollToBottom();
+							}
 						}
-					}
-				bool IsOverwriting(ObjectList list)
-					{
-						for (int i = 0; i < list.Objects.Count; i++)
-							if (list.Objects[i].Name == name)
-								return true;
-						return false;
 					}
 			}
 			Value = "";
 			SaveLoad.UpdateTab();
 			Screen.Display();
+
+			bool Contains(List<Object> list, Object obj)
+			{
+				for (int i = 0; i < list.Count; i++)
+					if (list[i].Name == obj.Name && list[i].GetType() == obj.GetType())
+						return true;
+				return false;
+			}
 		}
 	}
 }

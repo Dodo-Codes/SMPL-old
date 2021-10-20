@@ -167,7 +167,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Center };
-				new EquipSlot("head", new Object.CreationDetails()
+				new ItemSlot("head", new Object.CreationDetails()
 				{
 					Name = "head",
 					Position = new(0, 7),
@@ -175,7 +175,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new EquipSlot("body", new Object.CreationDetails()
+				new ItemSlot("body", new Object.CreationDetails()
 				{
 					Name = "body",
 					Position = new(0, 8),
@@ -183,7 +183,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new EquipSlot("feet", new Object.CreationDetails()
+				new ItemSlot("feet", new Object.CreationDetails()
 				{
 					Name = "feet",
 					Position = new(0, 9),
@@ -192,7 +192,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 
-				new EquipSlot("hand-left", new Object.CreationDetails()
+				new ItemSlot("hand-left", new Object.CreationDetails()
 				{
 					Name = "hand-left",
 					Position = new(0, 5),
@@ -200,7 +200,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new EquipSlot("hand-right", new Object.CreationDetails()
+				new ItemSlot("hand-right", new Object.CreationDetails()
 				{
 					Name = "hand-right",
 					Position = new(0, 4),
@@ -209,7 +209,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 
-				new EquipSlot("carry-back", new Object.CreationDetails()
+				new ItemSlot("carry-back", new Object.CreationDetails()
 				{
 					Name = "carry-back",
 					Position = new(0, 11),
@@ -217,7 +217,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new EquipSlot("carry-waist", new Object.CreationDetails()
+				new ItemSlot("carry-waist", new Object.CreationDetails()
 				{
 					Name = "carry-waist",
 					Position = new(0, 12),
@@ -225,6 +225,18 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
+
+				for (int i = 0; i < 8; i++)
+				{
+					new ItemSlot($"ground-slot-{i}", new Object.CreationDetails()
+					{
+						Name = "ground-slot",
+						Position = new(10 + i, 0),
+						TileIndexes = new Point[] { new(7, 23) { C = Color.Gray } },
+						Height = 1,
+						IsUI = true
+					});
+				}
 			}
 			if (CurrentSession == Session.MapEdit)
 			{

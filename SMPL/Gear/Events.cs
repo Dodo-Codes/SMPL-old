@@ -38,16 +38,30 @@ namespace SMPL.Gear
 		internal static void Enable(Type notificationType, string thingUID, uint order)
 		{
 			if (Game.NotStartedError(3)) return;
+			if (notifications.ContainsKey(notificationType) && notifications[notificationType].ContainsKey(order) &&
+				notifications[notificationType][order].Contains(thingUID))
+			{
+				Debug.LogError(2, $"The {nameof(Thing)} '{thingUID}' is already subscribed to this event.");
+				return;
+			}
 			if (notifications.ContainsKey(notificationType) == false) notifications[notificationType] = new();
 			if (notifications[notificationType].ContainsKey(order) == false) notifications[notificationType][order] = new();
 			if (notifications[notificationType][order].Contains(thingUID) == false) notifications[notificationType][order].Add(thingUID);
 		}
 		internal static void Disable(Type notificationType, string thingUID)
 		{
-			if (Game.NotStartedError(3) || notifications.ContainsKey(notificationType) == false) return;
+			if (Game.NotStartedError(3)) return;
+
 			var orders = notifications[notificationType];
+			var error = false;
 			foreach (var kvp in orders)
-				kvp.Value.Remove(thingUID);
+				if (kvp.Value.Remove(thingUID) == false)
+					error = true;
+			if (notifications.ContainsKey(notificationType) == false || error)
+			{
+				Debug.LogError(2, $"The {nameof(Thing)} '{thingUID}' has to be subscribed in order to unsubscribe from this event.");
+				return;
+			}
 		}
 		internal static void Notify(Type notificationType, EventArgs eventArgs = default)
 		{

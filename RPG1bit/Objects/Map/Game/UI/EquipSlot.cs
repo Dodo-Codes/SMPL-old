@@ -2,9 +2,9 @@
 
 namespace RPG1bit
 {
-	public class EquipSlot : Object
+	public class ItemSlot : Object
 	{
-		public EquipSlot(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public ItemSlot(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnDroppedUpon()
 		{

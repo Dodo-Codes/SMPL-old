@@ -11,7 +11,6 @@ namespace RPG1bit
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			PreviousPosition = Position;
-			Game.Event.Subscribe.Update(uniqueID);
 		}
 		public override void OnGameUpdate()
 		{
@@ -53,8 +52,11 @@ namespace RPG1bit
 			bool IsRoof(Point mapPos)
 			{
 				for (int i = 0; i < 3; i++)
-					if (MapEditor.RoofTiles.Contains(Map.RawData[mapPos][i]))
+				{
+					var tile = Map.RawData.ContainsKey(mapPos) ? Map.RawData[mapPos][i] : new();
+					if (MapEditor.RoofTiles.Contains(tile))
 						return true;
+				}
 				return false;
 			}
 		}

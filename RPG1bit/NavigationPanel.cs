@@ -167,7 +167,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 				IsUI = true,
 			});
-			new MapEditor("map-editor", new CreationDetails()
+			new MapEditor("map-editor-button", new CreationDetails()
 			{
 				Name = "map-editor",
 				Position = new(21, 0),

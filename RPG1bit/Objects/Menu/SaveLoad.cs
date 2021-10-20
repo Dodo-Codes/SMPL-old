@@ -48,7 +48,7 @@ namespace RPG1bit
 				var maps = FileSystem.GetFileNames(false, "Maps");
 				var sessions = FileSystem.GetFileNames(false, "Sessions");
 				for (int i = 0; i < maps.Length; i++)
-					mapList.Objects.Add(new LoadMapValue(maps[i], new CreationDetails()
+					mapList.Objects.Add(new LoadMapValue($"map-{maps[i]}", new CreationDetails()
 					{
 						Name = maps[i],
 						Position = new(-10, 0) { C = new() },
@@ -61,7 +61,7 @@ namespace RPG1bit
 						AppearOnTab = "save-load",
 					}));
 				for (int i = 0; i < sessions.Length; i++)
-					mapList.Objects.Add(new LoadSingleSessionValue(sessions[i], new CreationDetails()
+					mapList.Objects.Add(new LoadSingleSessionValue($"session-{sessions[i]}", new CreationDetails()
 					{
 						Name = sessions[i],
 						Position = new(-10, 0) { C = new() },

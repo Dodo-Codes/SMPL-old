@@ -7,13 +7,14 @@ namespace RPG1bit
 {
 	public struct CompactSignData
 	{
-		public Point P { get; set; }
-		public Point I { get; set; }
-		public string T { get; set; }
+		public Point P { get; set; } // pos
+		public Point I { get; set; } // tile index values
+		public string T { get; set; } // text
 	}
 
 	public class Sign : Object
 	{
+		public const int CHAR_LIMIT = 400;
 		[JsonProperty]
 		public string Text { get; set; } = "\"Type anything while hovering me...\"";
 
@@ -37,9 +38,10 @@ namespace RPG1bit
 
 			switch (textInput.CurrentType)
 			{
-				case Keyboard.TextInput.Type.Text: Text += textInput.Value[0] < 255 ? textInput.Value : ""; break;
+				case Keyboard.TextInput.Type.Text:
+					Text += textInput.Value[0] < 255 && Text.Length < CHAR_LIMIT ? textInput.Value : ""; break;
 				case Keyboard.TextInput.Type.Backspace: Text = Text.Length > 0 ? Text.Remove(Text.Length - 1) : ""; break;
-				case Keyboard.TextInput.Type.Enter: Text += "\n"; break;
+				case Keyboard.TextInput.Type.Enter: Text += Text.Length < CHAR_LIMIT ? "\n" : ""; break;
 				case Keyboard.TextInput.Type.Tab: break;
 			}
 			OnHovered();

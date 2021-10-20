@@ -39,7 +39,14 @@ namespace SMPL.Gear
 
 		public Thing(string uniqueID)
 		{
-			if (uniqueIDs.ContainsKey(uniqueID)) { cannotCreate = true; return; }
+			if (uniqueIDs.ContainsKey(uniqueID))
+			{
+				cannotCreate = true;
+
+				Debug.LogError(-1, $"The {nameof(Thing)} with uniqueID '{uniqueID}' cannot be created because " +
+					$"another {nameof(Thing)} with the same uniqueID exists.");
+				return;
+			}
 
 			UniqueID = uniqueID;
 			objTags[this] = new();
