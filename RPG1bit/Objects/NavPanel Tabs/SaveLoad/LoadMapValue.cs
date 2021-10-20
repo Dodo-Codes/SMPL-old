@@ -12,7 +12,7 @@ namespace RPG1bit
 			Map.LoadMap(Map.Session.MapEdit, Name);
 
 			if (Map.CurrentSession == Map.Session.MapEdit)
-				NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
+				NavigationPanel.Tab.Open("map-editor", "edit brush");
 		}
 		public override void OnRightClicked()
 		{

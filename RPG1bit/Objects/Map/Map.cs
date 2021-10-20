@@ -15,6 +15,7 @@ namespace RPG1bit
 
 		public static Dictionary<Point, Point[]> RawData { get; set; } = new();
 		public static string CurrentMapName { get; private set; }
+		public static bool IsShowingRoofs { get; set; } = true;
 
 		public static Point CameraPosition { get; set; }
 		public static Session CurrentSession { get; set; }
@@ -27,14 +28,14 @@ namespace RPG1bit
 		{
 			if (Assets.ValuesAreLoaded("map-data"))
 			{
-				var cameraPos = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 				var mapData = Text.FromJSON<Dictionary<string, string>>(Assets.GetValue("map-data"));
 				var signData = new List<CompactSignData>();
 				if (Assets.ValuesAreLoaded("signs")) signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
 				if (mapData != default)
 					foreach (var kvp in mapData)
 						RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
-				CameraPosition = cameraPos;
+				if (UniqueIDsExits("player") == false)
+					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 
 				for (int i = 0; i < signData.Count; i++)
 				{
@@ -66,37 +67,52 @@ namespace RPG1bit
 						}
 						else if (RawData[pos][3] == new Point(0, 0))
 							freeTile = pos;
+
+						for (int i = 0; i < 3; i++)
+						{
+							if (MapEditor.DoorTiles.Contains(RawData[pos][i]))
+							{
+								new Door($"door-{pos}-{i}", new()
+								{
+									Position = pos,
+									Height = i,
+									Name = "Door",
+									TileIndexes = new Point[] { RawData[pos][i] }
+								});
+							}
+						}
 					}
 
 					var randPoint = playerTiles.Count > 0 ?
 						playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
 
-					if (Assets.ValuesAreLoaded("map-name") == false)
+					if (CurrentSession == Session.Single)
 					{
-						var player = new Player("player", new Object.CreationDetails()
+						var player = default(Player);
+						if (Assets.ValuesAreLoaded("player") == false)
 						{
-							Name = "player",
-							Position = randPoint,
-							Height = 3,
-							TileIndexes = new Point[] { new(25, 0) }
-						});
+							player = new Player("player", new Object.CreationDetails()
+							{
+								Name = "player",
+								Position = randPoint,
+								Height = 3,
+								TileIndexes = new Point[] { new(25, 0) }
+							});
+						}
+						else
+							player = Text.FromJSON<Player>(Assets.GetValue("player"));
 						CameraPosition = player.Position;
+						NavigationPanel.Tab.Close();
 					}
+					Assets.UnloadAllValues();
 				}
+				Screen.Display();
 			}
-			if (Assets.ValuesAreLoaded("map-name"))
-			{
-				var player = Text.FromJSON<Player>(Assets.GetValue("player"));
-				CameraPosition = player.Position;
-			}
-			Assets.UnloadAllValues();
-			Display();
-			Object.DisplayAllObjects();
 
 			if (CurrentSession == Session.MapEdit)
 			{
 				MapEditor.CreateTab();
-				NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
+				NavigationPanel.Tab.Open("map-editor", "edit brush");
 			}
 		}
 
@@ -220,6 +236,14 @@ namespace RPG1bit
 					IsUI = true,
 					IsLeftClickable = true,
 				});
+				new ShowRoofs("show-roofs", new Object.CreationDetails()
+				{
+					Name = "show-roofs",
+					Position = new(0, 8) { C = Color.Gray },
+					Height = 1,
+					IsUI = true,
+					IsLeftClickable = true,
+				});
 			}
 		}
 		public static void DestroyAllSessionObjects()
@@ -255,8 +279,12 @@ namespace RPG1bit
 					var tilesInCoord = 0;
 					for (int z = 0; z < 4; z++)
 					{
+						var color = RawData[pos][z].C;
 						if (RawData[pos][z] != new Point(0, 0)) tilesInCoord++;
-						Screen.EditCell(MapToScreenPosition(pos), RawData[pos][z], z, RawData[pos][z].C);
+						if (IsShowingRoofs == false && MapEditor.RoofTiles.Contains(RawData[pos][z]))
+							color = new();
+
+						Screen.EditCell(MapToScreenPosition(pos), RawData[pos][z], z, color);
 					}
 					if (tilesInCoord == 0)
 						RawData.Remove(pos);
@@ -267,16 +295,17 @@ namespace RPG1bit
 			for (int x = 0; x < 18; x++)
 			{
 				Screen.EditCell(new(x, 0), new(4, 22), 1, Color.Brown);
-				Screen.EditCell(new(x, 0), new(1, 22), 0, Color.Brown / 1.3);
+				Screen.EditCell(new(x, 0), new(1, 22), 0, Color.Brown / 2);
 			}
 			for (int y = 0; y < 18; y++)
 			{
 				Screen.EditCell(new(0, y), new(4, 22), 1, Color.Brown);
-				Screen.EditCell(new(0, y), new(1, 22), 0, Color.Brown / 1.3);
+				Screen.EditCell(new(0, y), new(1, 22), 0, Color.Brown / 2);
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
-				Screen.EditCell(new(0, 4), new(1, 22), 1, Color.White);
+				Screen.EditCell(new(0, 4), MapEditor.Brush, 1, MapEditor.Brush.C);
+				Screen.EditCell(new(0, 7), new(6, 23), 1, Color.Gray);
 
 				Screen.EditCell(new(9, 0), new(41, 13), 1, Color.Gray);
 				Screen.EditCell(new(10, 0), new(43, 13), 1, Color.Gray);
@@ -285,6 +314,7 @@ namespace RPG1bit
 			else if (CurrentSession == Session.Single)
 			{
 				Screen.EditCell(new(4, 0), new(4, 23), 1, Color.Gray);
+				Screen.EditCell(new(5, 0), new(5, 23), 1, Color.Gray);
 			}
 		}
 		public static void LoadMap(Session session, string name)

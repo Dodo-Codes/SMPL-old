@@ -12,6 +12,19 @@ namespace RPG1bit
 			IndexValue = size - 1;
 			AddTags("brush-color-pickers");
 		}
+		public override void OnHovered()
+		{
+			var str = "";
+			switch (Name)
+			{
+				case "r": str = "red"; break;
+				case "g": str = "green"; break;
+				case "b": str = "blue"; break;
+			}
+			NavigationPanel.Info.Textbox.Text = $"[LMB] Adjust the amount of {str}.";
+			NavigationPanel.Info.ShowClickableIndicator();
+			NavigationPanel.Info.ShowLeftClickableIndicator();
+		}
 
 		protected override void OnIndexValueChanged()
 		{
@@ -40,7 +53,8 @@ namespace RPG1bit
 			}
 			Screen.EditCell(screenPos, tile, 1, color);
 		}
-		private double GetColorValue(int index) => Number.Map(index, new(0, Size - 1), new(0, 255));
+		private double GetColorValue(int index) => Number.Round(Number.Map(index, new(0, Size - 1), new(0, 255)));
+
 		public static void UpdateBrushColorPickers()
 		{
 			var pickers = PickByTag("brush-color-pickers");

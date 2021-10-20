@@ -21,7 +21,7 @@ namespace RPG1bit
 			public bool IsConfirmingClick { get; set; }
 			public bool IsUI { get; set; }
 			public bool IsInTab { get; set; }
-			public NavigationPanel.Tab.Type AppearOnTab { get; set; }
+			public string AppearOnTab { get; set; }
 		}
 
 		public static readonly Dictionary<Point, List<Object>> objects = new();
@@ -32,7 +32,7 @@ namespace RPG1bit
 				"Music by opengameart.org/users/yubatake\n" +
 				"Music by opengameart.org/users/avgvsta\n" +
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
-			{ new(00, 00), "Void." },
+			{ new(00, 00), "The Unknown?" },
 			{ new(01, 22), "" }, // background color
 			{ new(04, 22), "Game navigation panel." }, { new(00, 23), "Game navigation panel." },
 			{ new(29, 15), "Game navigation panel." }, { new(30, 15), "Game navigation panel." },
@@ -42,16 +42,6 @@ namespace RPG1bit
 			{ new(13, 22), "Left click and type anything..." },
 
 			{ new(44, 16), "Start a new multiplayer game session.\n  (not available in this game version)" },
-
-			{ new(05, 22), "On your head:" },
-			{ new(06, 22), "On your body:" },
-			{ new(07, 22), "On your feet:" },
-			{ new(08, 22), "In your left hand:" },
-			{ new(09, 22), "In your right hand:" },
-			{ new(10, 22), "On your back:" },
-			{ new(11, 22), "On your waist:" },
-
-			{ new(04, 23), "[LMB] Move the character." },
 
 			{ new(37, 18), "Change the brush color." },
 			{ new(41, 19), "Change the brush type." },
@@ -99,10 +89,31 @@ namespace RPG1bit
 			{ new(02, 07), "Sign." },
 
 			{ new(00, 03), "Fence." }, { new(01, 03), "Fence." }, { new(02, 03), "Fence." }, { new(05, 03), "Fence." },
-			{ new(06, 03), "Fence." }, { new(03, 04), "Fence." }, { new(02, 04), "Fence." },
+			{ new(06, 03), "Fence." }, { new(03, 04), "Closed fence gate." }, { new(02, 04), "Fence." },
 			{ new(03, 03), "Closed fence gate." }, { new(05, 04), "Closed fence gate." }, { new(04, 04), "Closed fence gate." },
 			{ new(00, 04), "Closed fence gate." }, { new(04, 03), "Opened fence gate." }, { new(06, 04), "Opened fence gate." },
-			{ new(06, 05), "Opened fence gate." }, { new(01, 04), "Opened fence gate." },
+			{ new(06, 05), "Fence." }, { new(01, 04), "Opened fence gate." },
+
+			{ new(28, 22), "Roof." }, { new(29, 22), "Roof." }, { new(30, 22), "Roof." }, { new(31, 22), "Roof." },
+			{ new(32, 22), "Chimney." }, { new(37, 22), "Roof." },
+
+			{ new(33, 22), "Building." }, { new(34, 22), "Building." }, { new(35, 22), "Building." }, { new(36, 22), "Building." },
+
+			{ new(38, 22), "Closed door." }, { new(39, 22), "Opened door." }, { new(40, 22), "Closed door." },
+			{ new(41, 22), "Opened door." }, { new(42, 22), "Closed door." }, { new(43, 22), "Opened door." },
+			{ new(44, 22), "Closed door." }, { new(45, 22), "Opened door." }, { new(46, 22), "Closed door." },
+			{ new(47, 22), "Opened door." },
+
+			// single
+			{ new(05, 22), "On your head:" },
+			{ new(06, 22), "On your body:" },
+			{ new(07, 22), "On your feet:" },
+			{ new(08, 22), "In your left hand:" },
+			{ new(09, 22), "In your right hand:" },
+			{ new(10, 22), "On your back:" },
+			{ new(11, 22), "On your waist:" },
+
+			{ new(04, 23), "[LMB] Move the character." },
 
 			{ new(25, 00), "Player." },
 
@@ -111,25 +122,25 @@ namespace RPG1bit
 		public static Object HoldingObject { get; set; }
 
 		[JsonProperty]
-		public string Name { get; private set; }
+		public string Name { get; protected set; }
 		[JsonProperty]
-		public Point TileIndexes { get; private set; }
+		public Point TileIndexes { get; protected set; }
 		[JsonProperty]
-		public int Height { get; private set; }
+		public int Height { get; protected set; }
 		[JsonProperty]
-		public bool IsDragable { get; private set; }
+		public bool IsDragable { get; protected set; }
 		[JsonProperty]
-		public bool IsLeftClickable { get; private set; }
+		public bool IsLeftClickable { get; protected set; }
 		[JsonProperty]
-		public bool IsRightClickable { get; private set; }
+		public bool IsRightClickable { get; protected set; }
 		[JsonProperty]
-		public bool IsConfirmingClick { get; private set; }
+		public bool IsConfirmingClick { get; protected set; }
 		[JsonProperty]
-		public bool IsUI { get; private set; }
+		public bool IsUI { get; protected set; }
 		[JsonProperty]
-		public bool IsInTab { get; private set; }
+		public bool IsInTab { get; protected set; }
 		[JsonProperty]
-		public NavigationPanel.Tab.Type AppearOnTab { get; private set; }
+		public string AppearOnTab { get; protected set; }
 		[JsonProperty]
 
 		private bool leftClicked;
@@ -288,7 +299,15 @@ namespace RPG1bit
 				OnDisplay(IsUI ? Position : mapPos);
 			}
 		}
+		public static void AdvanceTime()
+		{
+			foreach (var kvp in objects)
+				for (int i = 0; i < kvp.Value.Count; i++)
+					objects[kvp.Key][i].OnAdvanceTime();
+			Screen.Display();
+		}
 
+		public virtual void OnAdvanceTime() { }
 		public virtual void OnLeftClicked() { }
 		public virtual void OnRightClicked() { }
 		public virtual void OnHovered() { }

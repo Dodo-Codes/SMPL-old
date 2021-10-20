@@ -11,7 +11,7 @@ namespace RPG1bit
 		public override void OnLeftClicked()
 		{
 			CreateTab();
-			NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.Single, "singleplayer");
+			NavigationPanel.Tab.Open("single", "singleplayer");
 			Screen.Display();
 		}
 		private static void CreateTab()
@@ -27,7 +27,7 @@ namespace RPG1bit
 					IsUI = true,
 					IsLeftClickable = true,
 					IsInTab = true,
-					AppearOnTab = NavigationPanel.Tab.Type.Single,
+					AppearOnTab = "single",
 				}, new Size(13, 9));
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
@@ -41,12 +41,12 @@ namespace RPG1bit
 						IsUI = true,
 						IsLeftClickable = true,
 						IsInTab = true,
-						AppearOnTab = NavigationPanel.Tab.Type.Single,
+						AppearOnTab = "single",
 					}));
 
 				var noMapsStr = ObjectList.Lists.ContainsKey("load-map-list") == false ||
 					ObjectList.Lists["load-map-list"].Objects.Count == 0 ? "No maps were found." : "";
-				NavigationPanel.Tab.Texts[NavigationPanel.Tab.Type.Single] =
+				NavigationPanel.Tab.Texts["single"] =
 					$" Choose a map to start a\nnew singleplayer session on.\n\n\n\n    {noMapsStr}";
 			}
 		}

@@ -14,10 +14,9 @@ namespace RPG1bit
 			public static Area Area { get; set; }
 			public static Effects Effects { get; set; }
 
-			public enum Type { None, Single, Multi, SaveLoad, MapEditor }
-			public static Type CurrentTabType { get; set; }
+			public static string CurrentTabType { get; set; }
 			public static string Title { get; set; }
-			public static Dictionary<Type, string> Texts { get; set; } = new();
+			public static Dictionary<string, string> Texts { get; set; } = new();
 
 			public Tab(string uniqueID) : base(uniqueID)
 			{
@@ -45,11 +44,11 @@ namespace RPG1bit
 
 			public static void Close()
 			{
-				CurrentTabType = Type.None;
+				CurrentTabType = null;
 				Title = "";
 				Textbox.Text = "";
 			}
-			public static void Open(Type type, string title)
+			public static void Open(string type, string title)
 			{
 				Close();
 				CurrentTabType = type;
@@ -223,7 +222,7 @@ namespace RPG1bit
 			for (int y = 0; y < 18; y++)
 				for (int x = 18; x < 32; x++)
 				{
-					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 1.3);
+					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 2);
 					Screen.EditCell(new Point(x, y), new Point(0, 0), 1, new());
 				}
 

@@ -14,7 +14,7 @@ namespace RPG1bit
 		public static void UpdateTab()
 		{
 			CreateTab();
-			NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.SaveLoad, "save or load");
+			NavigationPanel.Tab.Open("save-load", "save or load");
 			Screen.Display();
 		}
 
@@ -31,7 +31,7 @@ namespace RPG1bit
 					IsUI = true,
 					IsLeftClickable = true,
 					IsInTab = true,
-					AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+					AppearOnTab = "save-load",
 				});
 				var mapList = new ObjectList("load-list", new CreationDetails()
 				{
@@ -42,7 +42,7 @@ namespace RPG1bit
 					IsUI = true,
 					IsLeftClickable = true,
 					IsInTab = true,
-					AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+					AppearOnTab = "save-load",
 				}, new Size(13, 8));
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
@@ -58,7 +58,7 @@ namespace RPG1bit
 						IsLeftClickable = true,
 						IsRightClickable = true,
 						IsInTab = true,
-						AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+						AppearOnTab = "save-load",
 					}));
 				for (int i = 0; i < sessions.Length; i++)
 					mapList.Objects.Add(new LoadSingleSessionValue(sessions[i], new CreationDetails()
@@ -71,12 +71,12 @@ namespace RPG1bit
 						IsLeftClickable = true,
 						IsRightClickable = true,
 						IsInTab = true,
-						AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+						AppearOnTab = "save-load",
 					}));
 
 				var noSessionsStr = ObjectList.Lists.ContainsKey("load-list") == false ||
 					ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found." : "";
-				NavigationPanel.Tab.Texts[NavigationPanel.Tab.Type.SaveLoad] =
+				NavigationPanel.Tab.Texts["save-load"] =
 					$"Load a previously saved session.\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
 					$"    Save the current session.";
 			}

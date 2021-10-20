@@ -6,8 +6,11 @@ namespace RPG1bit
 {
 	public class Player : Unit
 	{
+		public Point PreviousPosition { get; private set; }
+
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
+			PreviousPosition = Position;
 			Game.Event.Subscribe.Update(uniqueID);
 		}
 		public override void OnGameUpdate()
@@ -37,7 +40,23 @@ namespace RPG1bit
 			else if (CellIsInUpReach(mousePosMap)) movement = new Point(0, -1);
 			else if (CellIsInDownReach(mousePosMap)) movement = new Point(0, 1);
 
+			PreviousPosition = Position;
 			Move(movement);
+
+			if (IsRoof(Position) == false && IsRoof(PreviousPosition))
+				Map.IsShowingRoofs = true;
+			else if (IsRoof(Position) && IsRoof(PreviousPosition) == false)
+				Map.IsShowingRoofs = false;
+
+			AdvanceTime();
+
+			bool IsRoof(Point mapPos)
+			{
+				for (int i = 0; i < 3; i++)
+					if (MapEditor.RoofTiles.Contains(Map.RawData[mapPos][i]))
+						return true;
+				return false;
+			}
 		}
 	}
 }

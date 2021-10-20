@@ -53,9 +53,10 @@ namespace RPG1bit
 
 		public bool IsHovered()
 		{
+			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return false;
 			var mousePos = Screen.GetCellAtCursorPosition();
-			return (IsVertical && mousePos.X == Position.X && mousePos.Y >= Position.Y && mousePos.Y <= Position.Y + Size) ||
-				(IsVertical == false && mousePos.Y == Position.Y && mousePos.X >= Position.X && mousePos.X <= Position.X + Size);
+			return (IsVertical && mousePos.X == Position.X && mousePos.Y >= Position.Y && mousePos.Y <= Position.Y + Size - 1) ||
+				(IsVertical == false && mousePos.Y == Position.Y && mousePos.X >= Position.X && mousePos.X <= Position.X + Size - 1);
 		}
 
 		private void Trigger(Point mousePos)

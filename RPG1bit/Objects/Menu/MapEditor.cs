@@ -8,18 +8,18 @@ namespace RPG1bit
 	{
 		public static readonly Point[] tiles = new Point[]
 		{
-			new(01, 22) { C = Color.White },		// background
-			new(00, 22) { C = Color.Red },			// barrier
-			new(24, 08) { C = Color.White },		// player spawn tile
+			new(01, 22) { C = Color.White },				// background
+			new(00, 22) { C = Color.Red },				// barrier
+			new(24, 08) { C = Color.White },				// player spawn tile
 			new(), new(), new(), new(), new(), new(),
-			new(05, 00) { C = Color.Grass },		// grass
-			new(00, 02) { C = Color.Grass },		// bushes
-			new(15, 03) { C = Color.Yellow },		// flowers
-			new(05, 01) { C = Color.LeafSummer }, // oak trees
-			new(01, 01) { C = Color.LeafSummer }, // pine trees
-			new(07, 02) { C = Color.Grass },		// palm
-			new(06, 02) { C = Color.Grass },		// cactus
-			new(04, 02) { C = Color.White - 50},	// rocks
+			new(05, 00) { C = Color.Grass },				// grass
+			new(00, 02) { C = Color.Grass },				// bushes
+			new(15, 03) { C = Color.Yellow },			// flowers
+			new(05, 01) { C = Color.LeafSummer },		// oak trees
+			new(01, 01) { C = Color.LeafSummer },		// pine trees
+			new(07, 02) { C = Color.Grass },				// palm
+			new(06, 02) { C = Color.Grass },				// cactus
+			new(04, 02) { C = Color.Gray + 50},		// rocks
 			new(),
 			// water
 			new(12, 3) { C = Color.Water }, new(8, 03) { C = Color.Water }, new(07, 4) { C = Color.Water },
@@ -37,20 +37,20 @@ namespace RPG1bit
 			new(13, 05) { C = Color.Wood - 30 }, new(14, 05) { C = Color.Wood - 30 },
 			new(15, 05) { C = Color.Wood - 30 }, new(), new(16, 05) { C = Color.Wood - 30 },
 			// dirt road
-			new(10, 01) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
-			new(08, 01) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
-			new(08, 01) { C = Color.Brown * 1.2 }, new(08, 01) { C = Color.Brown * 1.2 },
-			new(08, 01) { C = Color.Brown * 1.2 }, new(11, 01) { C = Color.Brown * 1.2 },
-			new(08, 00) { C = Color.Brown * 1.2 }, new(09, 00) { C = Color.Brown * 1.2 },
-			new(11, 00) { C = Color.Brown * 1.2 }, new(14, 01) { C = Color.Brown * 1.2 },
-			new(13, 00) { C = Color.Brown * 1.2 }, new(15, 00) { C = Color.Brown * 1.2 },
-			new(14, 01) { C = Color.Brown * 1.2 }, new(09, 01) { C = Color.Brown * 1.2 },
-			new(09, 00) { C = Color.Brown * 1.2 }, new(09, 00) { C = Color.Brown * 1.2 },
-			new(13, 01) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
-			new(14, 00) { C = Color.Brown * 1.2 }, new(12, 00) { C = Color.Brown * 1.2 },
-			new(14, 00) { C = Color.Brown * 1.2 }, new(14, 00) { C = Color.Brown * 1.2 },
-			new(14, 00) { C = Color.Brown * 1.2 }, new(12, 01) { C = Color.Brown * 1.2 },
-			new(10, 00) { C = Color.Brown * 1.2 },
+			new(10, 01) { C = Color.Wood - 30 }, new(12, 00) { C = Color.Wood - 30 },
+			new(08, 01) { C = Color.Wood - 30 }, new(12, 00) { C = Color.Wood - 30 },
+			new(08, 01) { C = Color.Wood - 30 }, new(08, 01) { C = Color.Wood - 30 },
+			new(08, 01) { C = Color.Wood - 30 }, new(11, 01) { C = Color.Wood - 30 },
+			new(08, 00) { C = Color.Wood - 30 }, new(09, 00) { C = Color.Wood - 30 },
+			new(11, 00) { C = Color.Wood - 30 }, new(14, 01) { C = Color.Wood - 30 },
+			new(13, 00) { C = Color.Wood - 30 }, new(15, 00) { C = Color.Wood - 30 },
+			new(14, 01) { C = Color.Wood - 30 }, new(09, 01) { C = Color.Wood - 30 },
+			new(09, 00) { C = Color.Wood - 30 }, new(09, 00) { C = Color.Wood - 30 },
+			new(13, 01) { C = Color.Wood - 30 }, new(12, 00) { C = Color.Wood - 30 },
+			new(14, 00) { C = Color.Wood - 30 }, new(12, 00) { C = Color.Wood - 30 },
+			new(14, 00) { C = Color.Wood - 30 }, new(14, 00) { C = Color.Wood - 30 },
+			new(14, 00) { C = Color.Wood - 30 }, new(12, 01) { C = Color.Wood - 30 },
+			new(10, 00) { C = Color.Wood - 30 },
 
 			// stone road
 			new(11, 02) { C = Color.Gray + 50 }, new(09, 02) { C = Color.Gray + 50 },
@@ -70,28 +70,44 @@ namespace RPG1bit
 
 			// signs
 			new(01, 07) { C = Color.Wood }, new(00, 07) { C = Color.Wood }, new(02, 07) { C = Color.Wood },
-			new(), new(), new(), new(), new(), new(),
+			new(), new(),
 
 			// fences
-			new(00, 03) { C = Color.Wood / 1.2 }, new(01, 03) { C = Color.Wood / 1.2 }, new(02, 03) { C = Color.Wood / 1.2 },
-			new(03, 03) { C = Color.Wood }, new(04, 03) { C = Color.Wood }, new(05, 04) { C = Color.Wood / 1.2 },
-			new(04, 04) { C = Color.Wood / 1.2 }, new(06, 04) { C = Color.Wood }, new(06, 05) { C = Color.Wood },
-			new(05, 03) { C = Color.Gray }, new(), new(06, 03) { C = Color.Gray }, new(00, 04) { C = Color.Gray + 50},
-			new(01, 04) { C = Color.Gray + 50}, new(03, 04) { C = Color.Gray }, new(02, 04) { C = Color.Gray },
+			new(00, 03) { C = Color.Wood - 30 }, new(01, 03) { C = Color.Wood - 30 }, new(02, 03) { C = Color.Wood - 30 },
+			new(03, 03) { C = Color.Wood },
+			new(05, 03) { C = Color.Gray }, new(06, 03) { C = Color.Gray }, new(00, 04) { C = Color.Gray + 50},
+			new(), new(), new(06, 05) { C = Color.Gray }, new(02, 04) { C = Color.Gray },
+			new(05, 04) { C = Color.Gray + 50 }, new(03, 04) { C = Color.Gray + 50 },
+
+			// roofs
+			new(28, 22) { C = new(165, 75, 75) }, new(29, 22) { C = new(165, 75, 75) }, new(30, 22) { C = new(165, 75, 75) },
+			new(31, 22) { C = new(165, 75, 75) }, new(32, 22) { C = new(165, 75, 75) },
+			new(37, 22) { C = Color.Wood - 30 },
+			new(), new(), new(),
+
+			// walls / floors
+			new(33, 22) { C = new(188, 74, 60) }, // brick
+			new(34, 22) { C = Color.Wood - 30 }, new(35, 22) { C = Color.Wood - 30 },
+			new(36, 22) { C = Color.Wood - 30 },
+			new(), new(), new(), new(), new(),
+
+			// doors
+			new(40, 22) { C = Color.Wood - 30 }, new(38, 22) { C = Color.Wood - 30 }, new(42, 22) { C = Color.Wood - 30 },
+			new(44, 22) { C = Color.Wood - 30 }, new(46, 22) { C = Color.Gray + 50 },
 		};
 		public static readonly Dictionary<Point, Point[]> randomTiles = new()
 		{
-			{ new(01, 22), new Point[] { new(01, 22) } }, // background
-			{ new(05, 00) { C = Color.Grass }, new Point[] { new(04, 00), new(5, 0), new(6, 0), new(7, 0) } }, // grass
+			{ new(05, 00), new Point[] { new(04, 00), new(5, 0), new(6, 0), new(7, 0) } }, // grass
 			{ new(00, 02), new Point[] { new(00, 02), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
 			{ new(15, 03), new Point[] { new(15, 03), new(16, 03) } }, // flowers
-			{ new(04, 02), new Point[] { new(04, 02) } }, // rocks
 			{ new(05, 01), new Point[] { new(03, 01), new(4, 1), new(5, 1), new(6, 1), new(7, 1) } }, // oak trees
 			{ new(01, 01), new Point[] { new(00, 01), new(1, 1), new(2, 1) } }, // pine trees
-			{ new(07, 02), new Point[] { new(07, 02) } }, // palm
 			{ new(06, 02), new Point[] { new(05, 02), new(6, 2) } }, // cactus
 		};
-		public static List<Point> SpecialTiles => new() { new(00, 22), new(24, 08) };																  
+		public static List<Point> SpecialTiles => new() { new(00, 22), new(24, 08) };															  
+		public static List<Point> RoofTiles => new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(32, 22), new(37, 22) };
+		public static List<Point> DoorTiles => new()
+		{ new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22) };
 		public static Point Brush { get; set; } = new(1, 22);
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
@@ -110,65 +126,73 @@ namespace RPG1bit
 
 			Map.CreateUIButtons();
 			CreateTab();
-			NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
+			NavigationPanel.Tab.Open("map-editor", "edit brush");
 		}
 
 		public static void CreateTab()
 		{
 			if (Gate.EnterOnceWhile("map-editor-brush", true))
 			{
-				NavigationPanel.Tab.Texts[NavigationPanel.Tab.Type.MapEditor] = "[MMB] Pick tile.        [LMB] Pick color.";
-
 				var list = new ObjectList("brush-tiles", new()
 				{
-					Position = new(19, 3),
+					Position = new(19, 2),
 					Height = 1,
-					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsUI = true
-				}, new(9, 10));
+				}, new(9, 11));
 				for (int i = 0; i < 20; i++)
 				{
 					list.Objects.Add(new TileRowValue($"tile-row-{i}", new()
 					{
 						Position = new(-10, 0),
 						Height = 1,
-						AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+						AppearOnTab = "map-editor",
 						IsInTab = true,
 						Name = i.ToString()
 					})); ;
 				}
 
+				new ColorSamples("brush-color-samples", new()
+				{
+					Position = new(28, 2),
+					Height = 1,
+					Name = "samples",
+					AppearOnTab = "map-editor",
+					IsInTab = true,
+					IsLeftClickable = true,
+					IsUI = true
+				}, 12, true);
 				new ColorPick("brush-r", new()
 				{
-					Position = new(29, 3) { C = Color.Red },
+					Position = new(29, 2) { C = Color.Red },
 					Height = 1,
 					Name = "r",
-					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true
-				}, 11, true);
+				}, 12, true);
 				new ColorPick("brush-g", new()
 				{
-					Position = new(30, 3) { C = Color.Green },
+					Position = new(30, 2) { C = Color.Green },
 					Height = 1,
 					Name = "g",
-					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true
-				}, 11, true);
+				}, 12, true);
 				new ColorPick("brush-b", new()
 				{
-					Position = new(31, 3) { C = Color.Blue },
+					Position = new(31, 2) { C = Color.Blue },
 					Height = 1,
 					Name = "b",
-					AppearOnTab = NavigationPanel.Tab.Type.MapEditor,
+					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true
-				}, 11, true);
+				}, 12, true);
 			}
 		}
 		public static void EditCurrentTile()
@@ -213,12 +237,12 @@ namespace RPG1bit
 							var p = new Point(x, y);
 							if (Map.RawData.ContainsKey(p) == false)
 								Map.RawData[p] = new Point[4];
-							Map.RawData[p][SwitchHeight.BrushHeight] = LMB ? Brush : new(0, 0);
+							Map.RawData[p][SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
 						}
 				}
 				if (Map.RawData.ContainsKey(pos) == false)
 					Map.RawData[pos] = new Point[4];
-				Map.RawData[pos][isSpecial ? 3 : SwitchHeight.BrushHeight] = LMB ? Brush : new(0, 0);
+				Map.RawData[pos][isSpecial ? 3 : SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
 			}
 
 			Screen.Display();
@@ -228,12 +252,15 @@ namespace RPG1bit
 		public static void PickCurrentTile()
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
-			var indexes = Screen.GetCellIndexesAtPosition(mousePos, mousePos.X < 18 ? SwitchHeight.BrushHeight : 1);
+			var brushTilesAreHovered = ObjectList.Lists["brush-tiles"].IsHovered();
+			if (brushTilesAreHovered == false && Map.IsHovered() == false) return;
+			var indexes = Screen.GetCellIndexesAtPosition(mousePos, brushTilesAreHovered ? 1 : SwitchHeight.BrushHeight);
 			if (indexes == new Point(0, 0)) return;
 
 			Brush = indexes;
 			Screen.EditCell(new Point(0, 4), Brush, 1, Brush.C);
 			ColorPick.UpdateBrushColorPickers();
+			Screen.Display();
 		}
 
 		public override void OnMouseButtonRelease(Mouse.Button button)
@@ -241,7 +268,15 @@ namespace RPG1bit
 			base.OnMouseButtonRelease(button);
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (Map.CurrentSession == Map.Session.MapEdit && mousePos.X < 18)
-				NavigationPanel.Tab.Open(NavigationPanel.Tab.Type.MapEditor, "edit brush");
+				NavigationPanel.Tab.Open("map-editor", "edit brush");
+		}
+		public static Point GetRandomBrushTile()
+		{
+			if (randomTiles.ContainsKey(Brush) == false) return Brush;
+
+			var randomTile = randomTiles[Brush][(int)Probability.Randomize(new(0, randomTiles[Brush].Length - 1))];
+			randomTile.C = Brush.C;
+			return randomTile;
 		}
 	}
 }

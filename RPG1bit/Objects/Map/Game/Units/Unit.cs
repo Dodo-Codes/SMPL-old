@@ -15,9 +15,6 @@ namespace RPG1bit
 			Position = futurePos;
 			if (UniqueID == "player" && MoveCamera.IsAnchored)
 				Map.CameraPosition += movement;
-
-			Map.Display();
-			DisplayAllObjects();
 		}
 		public bool CellIsInReach(Point cell)
 		{

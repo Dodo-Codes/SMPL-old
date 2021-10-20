@@ -47,6 +47,7 @@ namespace RPG1bit
 				}
 				if (IsHovered())
 				{
+					OnHovered();
 					var index = (int)(mousePos.Y - Position.Y + scrollIndex) - 1;
 					if (Objects.Count > index)
 					{
@@ -88,7 +89,7 @@ namespace RPG1bit
 				{
 					if (Objects.Count < y) { y = 1000; break; }
 					Screen.EditCell(Position + new Point(x, y), new Point(1, 22), 0,
-						y == 0 || y == Size.H ? Color.Brown / 1.3 : (y + scrollIndex) % 2 == 0 ? Color.Brown : Color.Brown * 1.3);
+						y == 0 || y == Size.H ? Color.Brown / 2 : (y + scrollIndex) % 2 == 0 ? Color.Brown / 1.1 : Color.Brown);
 				}
 			for (int i = 0; i < Objects.Count; i++)
 			{
@@ -130,6 +131,7 @@ namespace RPG1bit
 
 		public bool IsHovered()
 		{
+			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return false;
 			var mousePos = Screen.GetCellAtCursorPosition();
 			return mousePos.X >= Position.X && mousePos.X <= Position.X + Size.W &&
 				mousePos.Y >= Position.Y + 1 && mousePos.Y <= Position.Y + Size.H - 1;

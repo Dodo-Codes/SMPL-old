@@ -139,13 +139,13 @@ namespace SMPL.Data
 
 		public static bool operator ==(Color a, Color b) => a.R == b.R && a.G == b.G && a.B == b.B && a.A == b.A;
 		public static bool operator !=(Color a, Color b) => a.R != b.R || a.G != b.G || a.B != b.B || a.A != b.A;
-		public static Color operator -(Color a, Color b) => new(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
-		public static Color operator +(Color a, Color b) => new(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
+		public static Color operator -(Color a, Color b) => new(a.R - b.R, a.G - b.G, a.B - b.B, a.A);
+		public static Color operator +(Color a, Color b) => new(a.R + b.R, a.G + b.G, a.B + b.B, a.A);
 
-		public static Color operator -(Color a, double b) => new(a.R - b, a.G - b, a.B - b, a.A - b);
-		public static Color operator +(Color a, double b) => new(a.R + b, a.G + b, a.B + b, a.A + b);
-		public static Color operator /(Color a, double b) => new(a.R / b, a.G / b, a.B / b, a.A / b);
-		public static Color operator *(Color a, double b) => new(a.R * b, a.G * b, a.B * b, a.A * b);
+		public static Color operator -(Color a, double b) => new(a.R - b, a.G - b, a.B - b, a.A);
+		public static Color operator +(Color a, double b) => new(a.R + b, a.G + b, a.B + b, a.A);
+		public static Color operator /(Color a, double b) => new(a.R / b, a.G / b, a.B / b, a.A);
+		public static Color operator *(Color a, double b) => new(a.R * b, a.G * b, a.B * b, a.A);
 
 		public override string ToString() => $"{R} {G} {B} {A}";
 		public override bool Equals(object obj) => base.Equals(obj);

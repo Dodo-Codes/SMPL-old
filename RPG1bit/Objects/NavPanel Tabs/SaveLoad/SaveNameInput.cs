@@ -49,7 +49,7 @@ namespace RPG1bit
 								IsLeftClickable = true,
 								IsRightClickable = true,
 								IsInTab = true,
-								AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+								AppearOnTab = "save-load",
 							});
 
 							list.Objects.Add(value);
@@ -74,6 +74,7 @@ namespace RPG1bit
 						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
 						slot.SetValue("map-data", Text.ToJSON(Map.GetSavableData()));
+						slot.IsEncrypted = false;
 						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
@@ -95,7 +96,7 @@ namespace RPG1bit
 								IsLeftClickable = true,
 								IsRightClickable = true,
 								IsInTab = true,
-								AppearOnTab = NavigationPanel.Tab.Type.SaveLoad,
+								AppearOnTab = "save-load",
 							});
 							if (list.Name == "load-map-list")
 							{
@@ -108,7 +109,7 @@ namespace RPG1bit
 									IsUI = true,
 									IsLeftClickable = true,
 									IsInTab = true,
-									AppearOnTab = NavigationPanel.Tab.Type.Single,
+									AppearOnTab = "single",
 								});
 							}
 
