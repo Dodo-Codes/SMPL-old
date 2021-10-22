@@ -94,6 +94,10 @@ namespace RPG1bit
 			// doors
 			new(40, 22) { C = Color.Wood - 30 }, new(38, 22) { C = Color.Wood - 30 }, new(42, 22) { C = Color.Wood - 30 },
 			new(44, 22) { C = Color.Wood - 30 }, new(46, 22) { C = Color.Gray + 50 },
+			new(), new(), new(), new(),
+			// locked doors
+			new(40, 23) { C = Color.Wood - 30 }, new(38, 23) { C = Color.Wood - 30 }, new(42, 23) { C = Color.Wood - 30 },
+			new(44, 23) { C = Color.Wood - 30 }, new(46, 23) { C = Color.Gray + 50 },
 		};
 		public static readonly Dictionary<Point, Point[]> randomTiles = new()
 		{
@@ -107,7 +111,10 @@ namespace RPG1bit
 		public static List<Point> SpecialTiles => new() { new(00, 22), new(24, 08) };															  
 		public static List<Point> RoofTiles => new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(32, 22), new(37, 22) };
 		public static List<Point> DoorTiles => new()
-		{ new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22) };
+		{
+			new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22),
+			new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23),
+		};
 		public static Point Brush { get; set; } = new(1, 22);
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
@@ -248,6 +255,7 @@ namespace RPG1bit
 		}
 		public static void PickCurrentTile()
 		{
+			if (Map.CurrentSession != Map.Session.MapEdit) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
 			var brushTilesAreHovered = ObjectList.Lists["brush-tiles"].IsHovered();
 			if (brushTilesAreHovered == false && Map.IsHovered() == false) return;

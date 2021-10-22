@@ -8,7 +8,7 @@ namespace SMPL.Gear
 	{
 		internal enum Type
 		{
-			GameStart, GameUpdate, GameStop,
+			GameStart, GameUpdate, GameLateUpdate, GameStop,
 			ButtonDoubleClick, ButtonPress, ButtonHold, ButtonRelease, WheelScroll, CursorLeaveWindow, CursorEnterWindow,
 			LoadStart, LoadUpdate, LoadEnd, DataSlotSaveStart, DataSlotSaveUpdate, DataSlotSaveEnd,
 			KeyPress, KeyHold, KeyRelease, TextInput, LanguageChange,
@@ -75,6 +75,7 @@ namespace SMPL.Gear
 					{
 						case Type.GameStart: thing.OnGameStart(); break;
 						case Type.GameUpdate: thing.OnGameUpdate(); break;
+						case Type.GameLateUpdate: thing.OnGameLateUpdate(); break;
 						case Type.ButtonDoubleClick: thing.OnMouseButtonDoubleClick(eventArgs.Button); break;
 						case Type.ButtonPress: thing.OnMouseButtonPress(eventArgs.Button); break;
 						case Type.ButtonHold: thing.OnMouseButtonHold(eventArgs.Button); break;

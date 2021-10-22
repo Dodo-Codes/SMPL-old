@@ -69,9 +69,7 @@ namespace RPG1bit
 							freeTile = pos;
 
 						for (int i = 0; i < 3; i++)
-						{
 							if (MapEditor.DoorTiles.Contains(RawData[pos][i]))
-							{
 								new Door($"door-{pos}-{i}", new()
 								{
 									Position = pos,
@@ -79,8 +77,6 @@ namespace RPG1bit
 									Name = "Door",
 									TileIndexes = new Point[] { RawData[pos][i] }
 								});
-							}
-						}
 					}
 
 					var randPoint = playerTiles.Count > 0 ?
@@ -156,7 +152,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Right };
 
-			if (CurrentSession == Session.Single || CurrentSession == Session.Multi)
+			if (CurrentSession == Session.Single)
 			{
 				new MoveCamera("camera-center", new Object.CreationDetails()
 			{
@@ -169,7 +165,7 @@ namespace RPG1bit
 			}) { CurrentType = MoveCamera.Type.Center };
 				new ItemSlot("head", new Object.CreationDetails()
 				{
-					Name = "head",
+					Name = "On your head:",
 					Position = new(0, 7),
 					TileIndexes = new Point[] { new(5, 22) { C = Color.Gray } },
 					Height = 1,
@@ -177,7 +173,7 @@ namespace RPG1bit
 				});
 				new ItemSlot("body", new Object.CreationDetails()
 				{
-					Name = "body",
+					Name = "On your body:",
 					Position = new(0, 8),
 					TileIndexes = new Point[] { new(6, 22) { C = Color.Gray } },
 					Height = 1,
@@ -185,7 +181,7 @@ namespace RPG1bit
 				});
 				new ItemSlot("feet", new Object.CreationDetails()
 				{
-					Name = "feet",
+					Name = "On your feet:",
 					Position = new(0, 9),
 					TileIndexes = new Point[] { new(7, 22) { C = Color.Gray } },
 					Height = 1,
@@ -194,7 +190,7 @@ namespace RPG1bit
 
 				new ItemSlot("hand-left", new Object.CreationDetails()
 				{
-					Name = "hand-left",
+					Name = "In your left hand:",
 					Position = new(0, 5),
 					TileIndexes = new Point[] { new(8, 22) { C = Color.Gray } },
 					Height = 1,
@@ -202,7 +198,7 @@ namespace RPG1bit
 				});
 				new ItemSlot("hand-right", new Object.CreationDetails()
 				{
-					Name = "hand-right",
+					Name = "In your right hand:",
 					Position = new(0, 4),
 					TileIndexes = new Point[] { new(9, 22) { C = Color.Gray } },
 					Height = 1,
@@ -211,7 +207,7 @@ namespace RPG1bit
 
 				new ItemSlot("carry-back", new Object.CreationDetails()
 				{
-					Name = "carry-back",
+					Name = "On your back:",
 					Position = new(0, 11),
 					TileIndexes = new Point[] { new(10, 22) { C = Color.Gray } },
 					Height = 1,
@@ -219,23 +215,24 @@ namespace RPG1bit
 				});
 				new ItemSlot("carry-waist", new Object.CreationDetails()
 				{
-					Name = "carry-waist",
+					Name = "On your waist:",
 					Position = new(0, 12),
 					TileIndexes = new Point[] { new(11, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 
-				for (int i = 0; i < 8; i++)
+				for (int i = 0; i < ItemPile.MAX_COUNT; i++)
 				{
-					new ItemSlot($"ground-slot-{i}", new Object.CreationDetails()
+					var slot = new ItemSlot($"ground-slot-{i}", new Object.CreationDetails()
 					{
-						Name = "ground-slot",
+						Name = "On the ground:",
 						Position = new(10 + i, 0),
-						TileIndexes = new Point[] { new(7, 23) { C = Color.Gray } },
-						Height = 1,
+						TileIndexes = new Point[] { new(7, 23) { C = Color.Brown } },
+						Height = 0,
 						IsUI = true
 					});
+					Screen.EditCell(slot.Position, new(), 1, new());
 				}
 			}
 			if (CurrentSession == Session.MapEdit)
@@ -306,13 +303,17 @@ namespace RPG1bit
 		{
 			for (int x = 0; x < 18; x++)
 			{
-				Screen.EditCell(new(x, 0), new(4, 22), 1, Color.Brown);
 				Screen.EditCell(new(x, 0), new(1, 22), 0, Color.Brown / 2);
+				Screen.EditCell(new(x, 0), new(4, 22), 1, Color.Brown);
+				Screen.EditCell(new(x, 0), new(), 2, new());
+				Screen.EditCell(new(x, 0), new(), 3, new());
 			}
 			for (int y = 0; y < 18; y++)
 			{
-				Screen.EditCell(new(0, y), new(4, 22), 1, Color.Brown);
 				Screen.EditCell(new(0, y), new(1, 22), 0, Color.Brown / 2);
+				Screen.EditCell(new(0, y), new(4, 22), 1, Color.Brown);
+				Screen.EditCell(new(0, y), new(), 2, new());
+				Screen.EditCell(new(0, y), new(), 3, new());
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
@@ -327,6 +328,9 @@ namespace RPG1bit
 			{
 				Screen.EditCell(new(4, 0), new(4, 23), 1, Color.Gray);
 				Screen.EditCell(new(5, 0), new(5, 23), 1, Color.Gray);
+
+				for (int i = 0; i < 8; i++)
+					Screen.EditCell(new(10 + i, 0), new(), 1, new());
 			}
 		}
 		public static void LoadMap(Session session, string name)
@@ -362,6 +366,16 @@ namespace RPG1bit
 		public static Point ScreenToMapPosition(Point screenPos)
 		{
 			return CameraPosition + (screenPos - new Point(9, 9));
+		}
+		public static bool TileHasRoof(Point mapPos)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				var tile = Map.RawData[mapPos][i];
+				if (IsShowingRoofs && MapEditor.RoofTiles.Contains(tile))
+					return true;
+			}
+			return false;
 		}
 	}
 }

@@ -50,7 +50,6 @@ namespace RPG1bit
 					if (Objects.Count > index)
 					{
 						Objects[index].OnHovered();
-						NavigationPanel.Info.ShowClickableIndicator(Objects[index].IsLeftClickable || Objects[index].IsRightClickable);
 						NavigationPanel.Info.ShowLeftClickableIndicator(Objects[index].IsLeftClickable);
 						NavigationPanel.Info.ShowRightClickableIndicator(Objects[index].IsRightClickable);
 					}
@@ -87,7 +86,7 @@ namespace RPG1bit
 				{
 					if (Objects.Count < y) { y = 1000; break; }
 					Screen.EditCell(Position + new Point(x, y), new Point(1, 22), 0,
-						y == 0 || y == Size.H ? Color.Brown / 2 : (y + scrollIndex) % 2 == 0 ? Color.Brown / 1.1 : Color.Brown);
+						y == 0 || y == Size.H ? Color.Brown / 2 : (y + scrollIndex) % 2 == 0 ? Color.Brown / 1.3 : Color.Brown);
 				}
 			for (int i = 0; i < Objects.Count; i++)
 			{

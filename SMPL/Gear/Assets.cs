@@ -47,7 +47,7 @@ namespace SMPL.Gear
 				Hitboxes = default; Sprites = default; Textboxes = default; Timers = default; Clothes = default; Ropes = default;
 				SegmentedLines = default; ProbabilityTables = default;
 				FilePath = filePath;
-				IsEncrypted = true;
+				IsEncrypted = default;
 			}
 
 			public static class Event

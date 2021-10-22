@@ -70,25 +70,25 @@ namespace SMPL.Data
 		{
 			var x = Number.FromPercent(percent.W, new Number.Range(point.X, targetPoint.X));
 			var y = Number.FromPercent(percent.H, new Number.Range(point.Y, targetPoint.Y));
-			return new Point(x, y);
+			return new Point(x, y) { C = point.C };
 		}
 
 		internal static double Magnitude(Point p) => Number.SquareRoot(p.X * p.X + p.Y * p.Y);
 		internal static Point Normalize(Point p)
 		{
 			var m = Magnitude(p);
-			var result = new Point(p.X / m, p.Y / m);
-			return result.IsInvalid() ? new Point(0, 0) : result;
+			var result = new Point(p.X / m, p.Y / m) { C = p.C };
+			return result.IsInvalid() ? Invalid : result;
 		}
 
-		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
-		public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
-		public static Point operator *(Point a, Point b) => new(a.X * b.X, a.Y * b.Y);
-		public static Point operator /(Point a, Point b) => new(a.X / b.X, a.Y / b.Y);
+		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y) { C = a.C };
+		public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y) { C = a.C };
+		public static Point operator *(Point a, Point b) => new(a.X * b.X, a.Y * b.Y) { C = a.C };
+		public static Point operator /(Point a, Point b) => new(a.X / b.X, a.Y / b.Y) { C = a.C };
 		public static bool operator ==(Point a, Point b) => a.X == b.X && a.Y == b.Y;
 		public static bool operator !=(Point a, Point b) => a.X != b.X || a.Y != b.Y;
-		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b);
-		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b);
+		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b) { C = a.C };
+		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b) { C = a.C };
 
 		public override bool Equals(object obj) => obj.GetType() == typeof(Point) && (Point)obj == this;
 		public override int GetHashCode() => base.GetHashCode();

@@ -29,8 +29,6 @@ namespace RPG1bit
 		{
 			if (Assets.AreLoaded("Assets\\graphics.png") == false) return;
 
-			var onMainMenu = Map.CurrentSession == Map.Session.None && Screen.GetCellAtCursorPosition().X < 18;
-
 			var mousePos = Screen.GetCellAtCursorPosition() * 60;
 			var p = mousePos - new Point(Screen.Area.Size.W / 2, Screen.Area.Size.H / 2) + new Point(30, 30);
 
@@ -51,7 +49,7 @@ namespace RPG1bit
 			Sprite.SetQuad("hoverer-sprite", q);
 			Area.OriginPercent = new(50, 50);
 
-			if (onMainMenu == false) Sprite.Display(camera);
+			Sprite.Display(camera);
 
 			Area.OriginPercent = new(0, 0);
 			Area.Angle = 0;

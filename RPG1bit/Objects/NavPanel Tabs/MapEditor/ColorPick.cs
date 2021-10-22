@@ -22,7 +22,6 @@ namespace RPG1bit
 				case "b": str = "blue"; break;
 			}
 			NavigationPanel.Info.Textbox.Text = $"[LMB] Adjust the amount of {str}.";
-			NavigationPanel.Info.ShowClickableIndicator();
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 

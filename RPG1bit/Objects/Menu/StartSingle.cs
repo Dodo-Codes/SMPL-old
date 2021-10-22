@@ -14,6 +14,13 @@ namespace RPG1bit
 			NavigationPanel.Tab.Open("single", "singleplayer");
 			Screen.Display();
 		}
+
+		public override void OnMouseButtonRelease(Mouse.Button button)
+		{
+			base.OnMouseButtonRelease(button);
+			if (Map.CurrentSession != Map.Session.Single || Map.IsHovered() == false) return;
+			NavigationPanel.Tab.Close();
+		}
 		private static void CreateTab()
 		{
 			if (Gate.EnterOnceWhile("create-single-tab", true))
@@ -48,6 +55,39 @@ namespace RPG1bit
 					ObjectList.Lists["load-map-list"].Objects.Count == 0 ? "No maps were found." : "";
 				NavigationPanel.Tab.Texts["single"] =
 					$" Choose a map to start a\nnew singleplayer session on.\n\n\n\n    {noMapsStr}";
+			}
+			if (Gate.EnterOnceWhile("create-item-info-tab", true))
+			{
+				new ItemStats("strength", new()
+				{
+					Position = new(19, 9),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "positives"
+				});
+				new ItemStats("weakness", new()
+				{
+					Position = new(19, 12),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "negatives"
+				});
+				new ItemSlotInfo("able-to-carry-in", new()
+				{
+					Position = new(31, 2),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "able-to-carry"
+				});
 			}
 		}
 	}

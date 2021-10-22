@@ -43,10 +43,6 @@ namespace RPG1bit
 
 			{ new(44, 16), "Start a new multiplayer game session.\n  (not available in this game version)" },
 
-			{ new(37, 18), "Change the brush color." },
-			{ new(41, 19), "Change the brush type." },
-			{ new(42, 18), "Change the brush height." }, { new(36, 17), "Change the brush height." },
-			{ new(37, 17), "Change the brush height." }, { new(38, 17), "Change the brush height." },
 			{ new(00, 22), "      [B] Paint/Erase a barrier tile.\n  This tile prevents units from walking\n" +
 				"      over it. It is invisible ingame." },
 			{ new(24, 08), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
@@ -104,28 +100,38 @@ namespace RPG1bit
 			{ new(44, 22), "Closed door." }, { new(45, 22), "Opened door." }, { new(46, 22), "Closed door." },
 			{ new(47, 22), "Opened door." },
 
+			{ new(38, 23), "Locked door." }, { new(39, 23), "Unlocked door." }, { new(40, 23), "Locked door." },
+			{ new(41, 23), "Unlocked door." }, { new(42, 23), "Locked door." }, { new(43, 23), "Unlocked door." },
+			{ new(44, 23), "Locked door." }, { new(45, 23), "Unlocked door." }, { new(46, 23), "Locked door." },
+			{ new(47, 23), "Unlocked door." },
+
 			// single
-			{ new(7, 23), "On the ground:" },
-			{ new(05, 22), "On your head:" },
-			{ new(06, 22), "On your body:" },
-			{ new(07, 22), "On your feet:" },
-			{ new(08, 22), "In your left hand:" },
-			{ new(09, 22), "In your right hand:" },
-			{ new(10, 22), "On your back:" },
-			{ new(11, 22), "On your waist:" },
+			{ new(07, 23), "...on the ground." },
+			{ new(05, 22), "...on your head." },
+			{ new(06, 22), "...on your body." },
+			{ new(07, 22), "...on your feet." },
+			{ new(08, 22), "...in your left hand." },
+			{ new(09, 22), "...in your right hand." },
+			{ new(10, 22), "...on your back." },
+			{ new(11, 22), "...on your waist." },
+			{ new(43, 06), "...in your quiver." },
+			{ new(44, 04), "...in your bag." },
+			{ new(08, 23), "Small pile of items." }, { new(9, 23), "Pile of items." }, { new(10, 23), "Big pile of items." },
+			{ new(11, 23), "Huge pile of items." },
 
 			{ new(04, 23), "[LMB] Move the character." },
 
 			{ new(25, 00), "Player." },
 
 			{ new(32, 00), "Helmet." },
+			{ new(32, 11), "Key" }, { new(33, 11), "Key" }, { new(34, 11), "Key" },
 		};
 		public static Object HoldingObject { get; set; }
 
 		[JsonProperty]
 		public string Name { get; protected set; }
 		[JsonProperty]
-		public Point TileIndexes { get; protected set; }
+		public Point TileIndexes { get; set; }
 		[JsonProperty]
 		public int Height { get; protected set; }
 		[JsonProperty]
@@ -215,24 +221,15 @@ namespace RPG1bit
 			var cursorPos = Screen.GetCellAtCursorPosition();
 			var curPos = cursorPos;
 			if (IsUI == false) curPos = Map.ScreenToMapPosition(cursorPos);
-			if (Gate.EnterOnceWhile($"on-hover-{Position}", curPos == Position))
+			if (Gate.EnterOnceWhile($"on-hover-{UniqueID}", curPos == Position))
 			{
-				var quad = Screen.Sprite.GetQuad($"{Height} cell {cursorPos.X} {cursorPos.Y}");
-				var coord = quad.CornerA.TextureCoordinate;
-				var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
-
-				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
-				var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
-				NavigationPanel.Info.Textbox.Text = descriptions.ContainsKey(key) ? descriptions[key] : "";
-				NavigationPanel.Info.ShowClickableIndicator(IsLeftClickable);
-				NavigationPanel.Info.ShowDragableIndicator(IsDragable);
-				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable || IsDragable);
+				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable, IsDragable);
 				NavigationPanel.Info.ShowRightClickableIndicator(IsRightClickable);
 				leftClicked = false;
 				OnHovered();
 				NavigationPanel.Info.Display();
 			}
-			if (Gate.EnterOnceWhile($"on-unhover-{Position}", curPos != Position))
+			if (Gate.EnterOnceWhile($"on-unhover-{UniqueID}", curPos != Position))
 			{
 				OnUnhovered();
 
@@ -302,7 +299,8 @@ namespace RPG1bit
 		}
 		public static void AdvanceTime()
 		{
-			foreach (var kvp in objects)
+			var objs = new Dictionary<Point, List<Object>>(objects);
+			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
 					objects[kvp.Key][i].OnAdvanceTime();
 			Screen.Display();

@@ -1,6 +1,6 @@
 ﻿using SMPL.Gear;
 using SMPL.Data;
-using SMPL.Components;
+using System.Collections.Generic;
 
 namespace RPG1bit
 {
@@ -11,6 +11,28 @@ namespace RPG1bit
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			PreviousPosition = Position;
+
+			Map.IsShowingRoofs = Map.TileHasRoof(Position) == false;
+
+			var key = new Key("item-key", new()
+			{
+				Name = "Key",
+				Position = new(-10, 0),
+				Height = 2,
+				TileIndexes = new Point[] { new(32, 11), new(33, 11), new(34, 11)  },
+				IsUI = true,
+				IsDragable = true,
+				IsRightClickable = true,
+				IsLeftClickable = true,
+			});
+			var pile = new ItemPile("test", new()
+			{
+				Position = Position + new Point(0, -2),
+				Height = 3,
+				TileIndexes = new Point[] { new(8, 23) },
+				Name = "item-pile",
+			});
+			pile.AddItem(key);
 		}
 		public override void OnGameUpdate()
 		{
@@ -40,14 +62,12 @@ namespace RPG1bit
 			else if (CellIsInDownReach(mousePosMap)) movement = new Point(0, 1);
 
 			PreviousPosition = Position;
-			Move(movement);
+			if (movement != new Point() && Move(movement)) AdvanceTime();
 
 			if (IsRoof(Position) == false && IsRoof(PreviousPosition))
 				Map.IsShowingRoofs = true;
 			else if (IsRoof(Position) && IsRoof(PreviousPosition) == false)
 				Map.IsShowingRoofs = false;
-
-			AdvanceTime();
 
 			bool IsRoof(Point mapPos)
 			{

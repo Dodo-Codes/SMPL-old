@@ -42,7 +42,6 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			NavigationPanel.Info.Textbox.Text = $"[LMB] Load / [RMB] Delete\nGame session: '{Name.ToUpper()}'";
-			NavigationPanel.Info.ShowClickableIndicator();
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

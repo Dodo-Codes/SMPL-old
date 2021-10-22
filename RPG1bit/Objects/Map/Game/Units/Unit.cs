@@ -1,20 +1,24 @@
 ﻿using SMPL.Data;
 using SMPL.Gear;
+using System.Collections.Generic;
 
 namespace RPG1bit
 {
 	public class Unit : Object
 	{
+		public List<string> ItemUIDs { get; set; } = new();
+
 		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
-		public void Move(Point movement)
+		public bool Move(Point movement)
 		{
 			var futurePos = Position + movement;
-			if (CanMoveIntoCell(futurePos) == false) return;
+			if (CanMoveIntoCell(futurePos) == false) return false;
 
 			Position = futurePos;
 			if (UniqueID == "player" && MoveCamera.IsAnchored)
 				Map.CameraPosition += movement;
+			return true;
 		}
 		public bool CellIsInReach(Point cell)
 		{

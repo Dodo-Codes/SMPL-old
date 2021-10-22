@@ -47,6 +47,7 @@ namespace RPG1bit
 				CurrentTabType = null;
 				Title = "";
 				Textbox.Text = "";
+				Screen.Display();
 			}
 			public static void Open(string type, string title)
 			{
@@ -75,7 +76,7 @@ namespace RPG1bit
 			public static Area Area { get; set; }
 			public static Effects Effects { get; set; }
 
-			private static bool clickable, leftClickable, rightClickable, dragable;
+			private static bool leftClickable, rightClickable, dragable;
 
 			public Info(string uniqueID) : base(uniqueID)
 			{
@@ -103,9 +104,7 @@ namespace RPG1bit
 				for (int y = 15; y < 18; y++)
 					for (int x = 19; x < 32; x++)
 						Screen.EditCell(new Point(x, y), new Point(1, 23), 1, new Color());
-				ShowClickableIndicator(clickable);
-				ShowDragableIndicator(dragable);
-				ShowLeftClickableIndicator(leftClickable);
+				ShowLeftClickableIndicator(leftClickable, dragable);
 				ShowRightClickableIndicator(rightClickable);
 			}
 
@@ -115,27 +114,23 @@ namespace RPG1bit
 				Textbox.Display(camera);
 			}
 
-			public static void ShowClickableIndicator(bool show = true)
-			{
-				clickable = show;
-				Screen.EditCell(new Point(31, 16), new Point(2, 22), 1, show ? Color.White : new Color());
-			}
-			public static void ShowDragableIndicator(bool show = true)
-			{
-				if (clickable && show == false) return;
-				dragable = show;
-				var both = clickable && dragable ? new Point(2, 23) : new Point(3, 22);
-				Screen.EditCell(new Point(31, 16), both, 1, show ? Color.White : new Color());
-			}
-			public static void ShowLeftClickableIndicator(bool show = true)
+			public static void ShowLeftClickableIndicator(bool show = true, bool drag = false)
 			{
 				leftClickable = show;
-				Screen.EditCell(new Point(31, 15), new Point(29, 15), 1, show ? Color.White : new Color());
+				Screen.EditCell(new Point(31, 15), new Point(29, 15), 1, show || drag ? Color.White : new Color());
+				Screen.EditCell(new Point(30, 15), new Point(2, 22), 1, show ? Color.White : new Color());
+				dragable = drag;
+				if (dragable)
+				{
+					var both = leftClickable ? new Point(2, 23) : new Point(3, 22);
+					Screen.EditCell(new Point(30, 15), both, 1, Color.White);
+				}
 			}
 			public static void ShowRightClickableIndicator(bool show = true)
 			{
 				rightClickable = show;
 				Screen.EditCell(new Point(31, 17), new Point(30, 15), 1, show ? Color.White : new Color());
+				Screen.EditCell(new Point(30, 17), new Point(2, 22), 1, show ? Color.White : new Color());
 			}
 		}
 

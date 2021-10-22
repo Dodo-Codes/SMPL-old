@@ -142,6 +142,7 @@ namespace SMPL.Gear
 
 		public virtual void OnGameStart() { }
 		public virtual void OnGameUpdate() { }
+		public virtual void OnGameLateUpdate() { }
 		public virtual void OnCameraDisplay(Camera camera) { }
 
 		public virtual void OnWindowResize() { }

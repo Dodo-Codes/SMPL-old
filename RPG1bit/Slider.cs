@@ -14,6 +14,7 @@ namespace RPG1bit
 
 		public Slider(string uniqueID, CreationDetails creationDetails, int size, bool isVertical) : base(uniqueID, creationDetails)
 		{
+			Mouse.Event.Subscribe.ButtonPress(uniqueID);
 			Size = size;
 			IsVertical = isVertical;
 		}

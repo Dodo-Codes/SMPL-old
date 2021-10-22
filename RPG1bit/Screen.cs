@@ -8,10 +8,12 @@ namespace RPG1bit
 	{
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
+		private static bool display;
 
 		public Screen(string uniqueID) : base(uniqueID)
 		{
 			Camera.Event.Subscribe.Display(uniqueID);
+			Game.Event.Subscribe.LateUpdate(uniqueID);
 
 			Area = new("map-area");
 			Area.Size = Camera.WorldCamera.Size;
@@ -36,18 +38,23 @@ namespace RPG1bit
 					quad.SetColor(c, c, c, c);
 					for (int i = 0; i < 4; i++)
 					{
-						if (i > 1 && (x == 0 || y == 0 || x > 18)) break;
+						if (i > 1 && x > 18) break;
 						Sprite.SetQuad($"{i} {quadID}", quad);
 					}
 				}
 		}
 
-		public static void Display()
+		public override void OnGameLateUpdate()
 		{
+			if (display == false) return;
+
 			Map.Display();
+			Map.DisplayNavigationPanel();
 			NavigationPanel.Display();
 			Object.DisplayAllObjects();
+			display = false;
 		}
+		public static void Display() => display = true;
 
 		public static Point GetCellAtCursorPosition()
 		{

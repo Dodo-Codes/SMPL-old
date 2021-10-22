@@ -63,8 +63,6 @@ namespace RPG1bit
 
 				NavigationPanel.Info.Textbox.Text = "";
 				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
-				NavigationPanel.Info.ShowClickableIndicator(false);
-				NavigationPanel.Info.ShowDragableIndicator(false);
 				NavigationPanel.Info.ShowLeftClickableIndicator(false);
 				NavigationPanel.Info.ShowRightClickableIndicator(false);
 
@@ -78,12 +76,14 @@ namespace RPG1bit
 					var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
 					var description = Object.descriptions.ContainsKey(key) ? Object.descriptions[key] : "";
 					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
+					var isPanel = mousePos.X > 18 && key == new Point();
 
 					if (mousePos.Y > 0)
 					{
 						if (key == Map.TileBarrier) description = "Unwalkable terrain.";
 						else if (key == Map.TilePlayer) description = "Player tile.";
 					}
+					if (NavigationPanel.Info.Textbox.Text == "" && isPanel) description = "Game navigation panel.";
 
 					if (NavigationPanel.Info.Textbox.Text != "" && description == Object.descriptions[new(0, 0)]) continue;
 					NavigationPanel.Info.Textbox.Text = $"{description}{sep}{NavigationPanel.Info.Textbox.Text}";

@@ -64,8 +64,7 @@ namespace RPG1bit
 				IsAnchored = !IsAnchored;
 				Map.CameraPosition = player.Position;
 			}
-			Map.Display();
-			DisplayAllObjects();
+			Screen.Display();
 		}
 	}
 }

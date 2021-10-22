@@ -24,11 +24,14 @@ namespace SMPL.Gear
 					Events.Enable(Events.Type.GameStart, thingUID, order);
 				public static void Update(string thingUID, uint order = uint.MaxValue) =>
 					Events.Enable(Events.Type.GameUpdate, thingUID, order);
+				public static void LateUpdate(string thingUID, uint order = uint.MaxValue) =>
+					Events.Enable(Events.Type.GameLateUpdate, thingUID, order);
 			}
 			public static class Unsubscribe
 			{
 				public static void Start(string thingUID) => Events.Disable(Events.Type.GameStart, thingUID);
 				public static void Update(string thingUID) => Events.Disable(Events.Type.GameUpdate, thingUID);
+				public static void LateUpdate(string thingUID) => Events.Disable(Events.Type.GameLateUpdate, thingUID);
 			}
 		}
 
@@ -77,6 +80,7 @@ namespace SMPL.Gear
 				Application.DoEvents();
 				Window.window.DispatchEvents();
 				Events.Notify(Events.Type.GameUpdate);
+				Events.Notify(Events.Type.GameLateUpdate);
 				Window.Draw();
 
 				Components.Timer.Update();

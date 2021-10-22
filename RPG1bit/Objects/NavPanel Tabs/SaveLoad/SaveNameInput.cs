@@ -11,7 +11,6 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			NavigationPanel.Info.ShowLeftClickableIndicator();
-			NavigationPanel.Info.ShowClickableIndicator();
 			var mousePos = Screen.GetCellAtCursorPosition();
 			var result = mousePos == Position ? "[ENTER] Save the current session." : "Type anything...";
 			if (Map.CurrentSession == Map.Session.None) result = "There is no currently ongoing\n   session that can be saved.";
@@ -37,7 +36,7 @@ namespace RPG1bit
 						break;
 						void AddToList(ObjectList list)
 						{
-							var value = (Object)new LoadSingleSessionValue(name, new CreationDetails()
+							var value = (Object)new LoadSingleSessionValue($"{name}-{Performance.FrameCount}-2", new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { C = new() },
@@ -75,7 +74,6 @@ namespace RPG1bit
 						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
 						slot.SetValue("map-data", Text.ToJSON(Map.GetSavableData()));
-						slot.IsEncrypted = false;
 						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
@@ -85,7 +83,7 @@ namespace RPG1bit
 
 						void AddToList(ObjectList list)
 						{
-							var value = (Object)new LoadMapValue($"{name}-{Performance.FrameCount}", new CreationDetails()
+							var value = (Object)new LoadMapValue($"{name}-{list.UniqueID}", new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { C = new() },
@@ -99,7 +97,7 @@ namespace RPG1bit
 							});
 							if (list.Name == "load-map-list")
 							{
-								value = new StartSingleOnMap($"{name}-{Performance.FrameCount}-1", new CreationDetails()
+								value = new StartSingleOnMap($"{name}-{list.UniqueID}-1", new CreationDetails()
 								{
 									Name = name,
 									Position = new(-10, 0) { C = new() },
