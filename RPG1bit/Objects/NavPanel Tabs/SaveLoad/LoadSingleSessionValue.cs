@@ -24,7 +24,7 @@ namespace RPG1bit
 		}
 		public override void OnRightClicked()
 		{
-			FileSystem.DeleteFiles($"Sessions\\{Name}.session");
+			FileSystem.MoveFiles($"Deleted", $"Sessions\\{Name}.session");
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 
@@ -32,7 +32,7 @@ namespace RPG1bit
 			{
 				for (int i = 0; i < list.Objects.Count; i++)
 				{
-					if (list.Objects[i].Name != Name) continue;
+					if (list.Objects[i].Name != Name || list.Objects[i] is not LoadSingleSessionValue) continue;
 					list.Objects.Remove(list.Objects[i]);
 					list.ScrollToTop();
 					return;

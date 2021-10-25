@@ -36,7 +36,10 @@ namespace RPG1bit
 						break;
 						void AddToList(ObjectList list)
 						{
-							var value = (Object)new LoadSingleSessionValue($"{name}-{Performance.FrameCount}-2", new CreationDetails()
+							var uid = $"{name}-{Performance.FrameCount}-2";
+							if (UniqueIDsExits(uid))
+								return;
+							var value = (Object)new LoadSingleSessionValue(uid, new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { C = new() },
@@ -83,7 +86,10 @@ namespace RPG1bit
 
 						void AddToList(ObjectList list)
 						{
-							var value = (Object)new LoadMapValue($"{name}-{list.UniqueID}", new CreationDetails()
+							var uid = $"{name}-{list.UniqueID}";
+							if (UniqueIDsExits(uid))
+								return;
+							var value = (Object)new LoadMapValue(uid, new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { C = new() },
@@ -97,7 +103,10 @@ namespace RPG1bit
 							});
 							if (list.Name == "load-map-list")
 							{
-								value = new StartSingleOnMap($"{name}-{list.UniqueID}-1", new CreationDetails()
+								var uid2 = $"{name}-{list.UniqueID}-1";
+								if (UniqueIDsExits(uid2))
+									return;
+								value = new StartSingleOnMap(uid2, new CreationDetails()
 								{
 									Name = name,
 									Position = new(-10, 0) { C = new() },

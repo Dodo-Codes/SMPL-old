@@ -44,7 +44,8 @@ namespace RPG1bit
 						Position = signData[i].P,
 						TileIndexes = new Point[] { signData[i].I },
 						Height = (int)signData[i].P.C.R,
-					});
+					})
+					{ Text = signData[i].T };
 				}
 
 				if (CurrentSession == Session.Single && mapData != default)
@@ -163,7 +164,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Center };
-				new ItemSlot("head", new Object.CreationDetails()
+				new ItemSlot("slot-head", new Object.CreationDetails()
 				{
 					Name = "On your head:",
 					Position = new(0, 7),
@@ -171,7 +172,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new ItemSlot("body", new Object.CreationDetails()
+				new ItemSlot("slot-body", new Object.CreationDetails()
 				{
 					Name = "On your body:",
 					Position = new(0, 8),
@@ -179,7 +180,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new ItemSlot("feet", new Object.CreationDetails()
+				new ItemSlot("slot-feet", new Object.CreationDetails()
 				{
 					Name = "On your feet:",
 					Position = new(0, 9),
@@ -369,10 +370,12 @@ namespace RPG1bit
 		}
 		public static bool TileHasRoof(Point mapPos)
 		{
+			if (RawData.ContainsKey(mapPos) == false)
+				return false;
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = Map.RawData[mapPos][i];
-				if (IsShowingRoofs && MapEditor.RoofTiles.Contains(tile))
+				var tile = RawData[mapPos][i];
+				if (MapEditor.RoofTiles.Contains(tile))
 					return true;
 			}
 			return false;

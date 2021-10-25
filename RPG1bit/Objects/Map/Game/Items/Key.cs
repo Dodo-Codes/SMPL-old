@@ -6,7 +6,6 @@ namespace RPG1bit
 	{
 		public Key(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			CanHold = true;
 			CanCarryOnWaist = true;
 			CanCarryInBag = true;
 			CanCarryInQuiver = true;
@@ -14,7 +13,7 @@ namespace RPG1bit
 
 		public override void OnItemInfoDisplay()
 		{
-			NavigationPanel.Tab.Texts["item-info"] = "A strange key.";
+			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t\t Key\n\nGreat for unlocking locked things.";
 		}
 	}
 }

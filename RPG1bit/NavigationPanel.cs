@@ -107,7 +107,37 @@ namespace RPG1bit
 				ShowLeftClickableIndicator(leftClickable, dragable);
 				ShowRightClickableIndicator(rightClickable);
 			}
+			public static void Update()
+			{
+				Textbox.Text = "";
+				Textbox.Scale = new(0.35, 0.35);
+				ShowLeftClickableIndicator(false);
+				ShowRightClickableIndicator(false);
 
+				var mousePos = Screen.GetCellAtCursorPosition();
+				for (int i = 0; i < 4; i++)
+				{
+					var quadID = $"{i} cell {mousePos.X} {mousePos.Y}";
+					if (Screen.Sprite.HasQuad(quadID) == false) continue;
+					var quad = Screen.Sprite.GetQuad(quadID);
+					var coord = quad.CornerA.TextureCoordinate;
+					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
+					var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
+					var description = descriptions.ContainsKey(key) ? descriptions[key] : "";
+					var sep = i != 0 && description != "" && Textbox.Text != "" ? "\n" : "";
+					var isPanel = mousePos.X > 18 && key == new Point();
+
+					if (mousePos.Y > 0)
+					{
+						if (key == Map.TileBarrier) description = "Unwalkable terrain.";
+						else if (key == Map.TilePlayer) description = "Player tile.";
+					}
+					if (Textbox.Text == "" && isPanel) description = "Game navigation panel.";
+
+					if (Textbox.Text != "" && description == descriptions[new(0, 0)]) continue;
+					Textbox.Text = $"{description}{sep}{Textbox.Text}";
+				}
+			}
 			public override void OnCameraDisplay(Camera camera)
 			{
 				if (Textbox == null) return;

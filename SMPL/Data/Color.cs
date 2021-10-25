@@ -31,6 +31,8 @@ namespace SMPL.Data
 		public static Color Grass			=> new(52,	140,	50);
 		public static Color LeafSummer	=> new(45,	90,	40);
 		public static Color LeafAutumn	=> new(152,	72,	43);
+		public static Color Gold			=> new(255, 215,	0);
+		public static Color Bronze			=> new(80,	50,	20);
 
 		public Color(double red, double green, double blue, double alpha = 255)
 		{

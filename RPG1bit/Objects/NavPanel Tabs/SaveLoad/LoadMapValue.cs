@@ -16,7 +16,7 @@ namespace RPG1bit
 		}
 		public override void OnRightClicked()
 		{
-			FileSystem.DeleteFiles($"Maps\\{Name}.mapdata");
+			FileSystem.MoveFiles($"Deleted", $"Maps\\{Name}.mapdata");
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 			if (ObjectList.Lists.ContainsKey("load-map-list")) RemoveFromList(ObjectList.Lists["load-map-list"]);
@@ -25,7 +25,7 @@ namespace RPG1bit
 			{
 				for (int i = 0; i < list.Objects.Count; i++)
 				{
-					if (list.Objects[i].Name != Name) continue;
+					if (list.Objects[i].Name != Name || list.Objects[i] is not LoadMapValue) continue;
 					list.Objects.Remove(list.Objects[i]);
 					list.ScrollToTop();
 					return;

@@ -56,21 +56,10 @@ namespace RPG1bit
 
 		public static void UpdateBrushColorPickers()
 		{
-			var pickers = PickByTag("brush-color-pickers");
-			var pickerR = default(ColorPick);
-			var pickerG = default(ColorPick);
-			var pickerB = default(ColorPick);
+			var pickerR = (ColorPick)PickByUniqueID("brush-r");
+			var pickerG = (ColorPick)PickByUniqueID("brush-g");
+			var pickerB = (ColorPick)PickByUniqueID("brush-b");
 
-			for (int i = 0; i < pickers.Length; i++)
-			{
-				var picker = (ColorPick)pickers[i];
-				switch (picker.Name)
-				{
-					case "r": pickerR = picker; break;
-					case "g": pickerG = picker; break;
-					case "b": pickerB = picker; break;
-				}
-			}
 			var color = MapEditor.Brush.C;
 			pickerR.IndexValue = (int)Number.Map(color.R, new(0, 255), new(0, pickerR.Size - 1));
 			pickerG.IndexValue = (int)Number.Map(color.G, new(0, 255), new(0, pickerG.Size - 1));

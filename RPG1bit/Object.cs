@@ -115,7 +115,7 @@ namespace RPG1bit
 			{ new(10, 22), "...on your back." },
 			{ new(11, 22), "...on your waist." },
 			{ new(43, 06), "...in your quiver." },
-			{ new(44, 04), "...in your bag." },
+			{ new(45, 04), "...in your bag." },
 			{ new(08, 23), "Small pile of items." }, { new(9, 23), "Pile of items." }, { new(10, 23), "Big pile of items." },
 			{ new(11, 23), "Huge pile of items." },
 
@@ -125,6 +125,8 @@ namespace RPG1bit
 
 			{ new(32, 00), "Helmet." },
 			{ new(32, 11), "Key" }, { new(33, 11), "Key" }, { new(34, 11), "Key" },
+			{ new(42, 06), "Quiver" },
+			{ new(44, 04), "Bag" },
 		};
 		public static Object HoldingObject { get; set; }
 
@@ -237,7 +239,7 @@ namespace RPG1bit
 				{
 					HoldingObject = this;
 					Hoverer.CursorTileIndexes = TileIndexes;
-					Hoverer.CursorColor = Position.C;
+					Hoverer.CursorColor = Position.C == Color.White ? TileIndexes.C : Position.C;
 					OnDragStart();
 				}
 			}
@@ -273,9 +275,7 @@ namespace RPG1bit
 					if (objects.ContainsKey(mousePos))
 						for (int i = 0; i < objects[mousePos].Count; i++)
 							objects[mousePos][i].OnDroppedUpon();
-					HoldingObject.OnDragEnd();
-					HoldingObject = null;
-					Hoverer.CursorTileIndexes = new(36, 10);
+					Drop();
 				}
 			}
 			if (button == Mouse.Button.Right && IsRightClickable && pos == mousePos && pos == Base.RightClickPosition)
@@ -304,6 +304,15 @@ namespace RPG1bit
 				for (int i = 0; i < kvp.Value.Count; i++)
 					objects[kvp.Key][i].OnAdvanceTime();
 			Screen.Display();
+		}
+		public static void Drop()
+		{
+			if (HoldingObject == null) return;
+
+			HoldingObject.OnDragEnd();
+			HoldingObject = null;
+			Hoverer.CursorTileIndexes = new(36, 10);
+			Hoverer.CursorColor = Color.White;
 		}
 
 		public virtual void OnAdvanceTime() { }

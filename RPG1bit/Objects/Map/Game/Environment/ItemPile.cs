@@ -35,8 +35,16 @@ namespace RPG1bit
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			var isBeneathRoof = Map.TileHasRoof(Map.ScreenToMapPosition(screenPos));
-			Screen.EditCell(screenPos, isBeneathRoof? new() : new(8 + ItemUIDs.Count / 2, 23), 3, isBeneathRoof ? new() : Color.White);
+			var hide = Map.TileHasRoof(Map.ScreenToMapPosition(screenPos)) && Map.IsShowingRoofs;
+			var xOffset = 0;
+			switch (ItemUIDs.Count)
+			{
+				case 3: case 4: xOffset = 1; break;
+				case 5: case 6: xOffset = 2; break;
+				case 7: case 8: xOffset = 3; break;
+			}
+			var tile = new Point(8 + xOffset, 23.0);
+			Screen.EditCell(screenPos, hide ? new() : tile, 3, hide ? new() : Color.White);
 		}
 	}
 }

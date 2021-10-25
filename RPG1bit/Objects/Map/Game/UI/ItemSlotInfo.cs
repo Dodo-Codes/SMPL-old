@@ -9,8 +9,8 @@ namespace RPG1bit
 		public override void OnDisplay(Point screenPos)
 		{
 			var item = (Item)PickByUniqueID(ItemStats.DisplayedItemUID);
-			Screen.EditCell(new(30, 9), new(08, 22), 1, item.CanHold ? Color.Green : Color.Red);
-			Screen.EditCell(new(31, 9), new(09, 22), 1, item.CanHold ? Color.Green : Color.Red);
+			Screen.EditCell(new(30, 9), new(08, 22), 1, Color.Green);
+			Screen.EditCell(new(31, 9), new(09, 22), 1, Color.Green);
 
 			Screen.EditCell(new(28, 10), new(05, 22), 1, item.CanWearOnHead ? Color.Green : Color.Red);
 			Screen.EditCell(new(28, 11), new(06, 22), 1, item.CanWearOnBody ? Color.Green : Color.Red);

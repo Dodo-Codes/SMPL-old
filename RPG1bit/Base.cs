@@ -5,7 +5,7 @@ namespace RPG1bit
 {
 	class Base : Game
 	{
-		private static Point prevCursorPos = new(-1, 0);
+		public static Point prevCursorPos = new(-1, 0);
 		public static Point LeftClickPosition { get; private set; }
 		public static Point RightClickPosition { get; private set; }
 
@@ -60,34 +60,7 @@ namespace RPG1bit
 					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right))
 						MapEditor.EditCurrentTile();
 				}
-
-				NavigationPanel.Info.Textbox.Text = "";
-				NavigationPanel.Info.Textbox.Scale = new(0.35, 0.35);
-				NavigationPanel.Info.ShowLeftClickableIndicator(false);
-				NavigationPanel.Info.ShowRightClickableIndicator(false);
-
-				for (int i = 0; i < 4; i++)
-				{
-					var quadID = $"{i} cell {mousePos.X} {mousePos.Y}";
-					if (Screen.Sprite.HasQuad(quadID) == false) continue;
-					var quad = Screen.Sprite.GetQuad(quadID);
-					var coord = quad.CornerA.TextureCoordinate;
-					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
-					var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
-					var description = Object.descriptions.ContainsKey(key) ? Object.descriptions[key] : "";
-					var sep = i != 0 && description != "" && NavigationPanel.Info.Textbox.Text != "" ? "\n" : "";
-					var isPanel = mousePos.X > 18 && key == new Point();
-
-					if (mousePos.Y > 0)
-					{
-						if (key == Map.TileBarrier) description = "Unwalkable terrain.";
-						else if (key == Map.TilePlayer) description = "Player tile.";
-					}
-					if (NavigationPanel.Info.Textbox.Text == "" && isPanel) description = "Game navigation panel.";
-
-					if (NavigationPanel.Info.Textbox.Text != "" && description == Object.descriptions[new(0, 0)]) continue;
-					NavigationPanel.Info.Textbox.Text = $"{description}{sep}{NavigationPanel.Info.Textbox.Text}";
-				}
+				NavigationPanel.Info.Update();
 			}
 			prevCursorPos = mousePos;
 		}

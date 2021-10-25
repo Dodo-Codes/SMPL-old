@@ -488,11 +488,36 @@ void main()
 		public static void DeleteFiles(params string[] paths)
 		{
 			for (int i = 0; i < paths.Length; i++)
-				if (Exists(paths[i])) System.IO.File.Delete(paths[i]);
+				if (Exists(paths[i]))
+					File.Delete(paths[i]);
 
 			bool Exists(string path)
 			{
-				if (System.IO.File.Exists(path) == false)
+				if (File.Exists(path) == false)
+				{
+					Debug.LogError(1, $"No file was found on path '{path}'.");
+					return false;
+				}
+				return true;
+			}
+		}
+		public static void MoveFiles(string targetDirectory, params string[] paths)
+		{
+			for (int i = 0; i < paths.Length; i++)
+				if (Exists(paths[i]))
+					try { File.Move(paths[i], $"{targetDirectory}\\{Path.GetFileName(paths[i])}"); }
+					catch (Exception)
+					{
+						Debug.LogError(1, $"Could not move files to directory '{targetDirectory}'.");
+						return;
+					}
+
+			bool Exists(string path)
+			{
+				var file = $"{targetDirectory}\\{Path.GetFileName(path)}";
+				if (File.Exists(file))
+					File.Delete(file);
+				if (File.Exists(path) == false)
 				{
 					Debug.LogError(1, $"No file was found on path '{path}'.");
 					return false;
@@ -514,7 +539,8 @@ void main()
 		}
 		public static void CreateDirectories(params string[] paths)
 		{
-			for (int i = 0; i < paths.Length; i++) Directory.CreateDirectory(paths[i]);
+			for (int i = 0; i < paths.Length; i++)
+				Directory.CreateDirectory(paths[i]);
 		}
 		/// <summary>
 		/// Creates or overwrites a file at <paramref name="filePath"/> and fills it with <paramref name="text"/>. Any <paramref name="text"/> can be retrieved from a file with <see cref="LoadText"/>.<br></br><br></br>

@@ -9,14 +9,19 @@ namespace RPG1bit
 
 		public override void OnDroppedUpon()
 		{
+			if (HasItem()) return;
+
 			var item = (Item)HoldingObject;
-			if (UniqueID == "head" && item.CanWearOnHead) Equip(item);
-			else if (UniqueID == "body" && item.CanWearOnBody) Equip(item);
-			else if (UniqueID == "feet" && item.CanWearOnFeet) Equip(item);
-			else if (UniqueID == "hand-left" && item.CanHold) Equip(item);
-			else if (UniqueID == "hand-right" && item.CanHold) Equip(item);
+			if (UniqueID == "slot-head" && item.CanWearOnHead) Equip(item);
+			else if (UniqueID == "slot-body" && item.CanWearOnBody) Equip(item);
+			else if (UniqueID == "slot-feet" && item.CanWearOnFeet) Equip(item);
+			else if (UniqueID == "hand-left" || UniqueID == "hand-right") Equip(item);
 			else if (UniqueID == "carry-back" && item.CanCarryOnBack) Equip(item);
 			else if (UniqueID == "carry-waist" && item.CanCarryOnWaist) Equip(item);
+			else if (UniqueID == "extra-slot-0" && item.CanCarryInBag) Equip(item);
+			else if (UniqueID == "extra-slot-1" && item.CanCarryInBag) Equip(item);
+			else if (UniqueID == "extra-slot-2" && item.CanCarryInQuiver) Equip(item);
+			else if (UniqueID == "extra-slot-3" && item.CanCarryInQuiver) Equip(item);
 			else if (UniqueID.Contains("ground")) Equip(item);
 		}
 		public void Equip(Item item)
@@ -30,11 +35,15 @@ namespace RPG1bit
 			var player = (Player)PickByUniqueID("player");
 			if (UniqueID.Contains("ground"))
 			{
+				if (player.ItemUIDs.Contains(item.UniqueID))
+					player.ItemUIDs.Remove(item.UniqueID);
+
 				var objs = objects[player.Position];
 				for (int i = 0; i < objs.Count; i++)
 					if (objs[i] is ItemPile existingPile)
 					{
 						existingPile.AddItem(item);
+						item.OnDrop();
 						return;
 					}
 
@@ -46,15 +55,18 @@ namespace RPG1bit
 					Name = "item-pile",
 				});
 				newPile.AddItem(item);
-				if (player.ItemUIDs.Contains(item.UniqueID))
-					player.ItemUIDs.Remove(item.UniqueID);
 
 				// the new pile renders on top of the player otherwise
 				objects[newPile.Position].Remove(player);
 				objects[newPile.Position].Add(player);
+				item.OnDrop();
 			}
 			else if (player.ItemUIDs.Contains(item.UniqueID) == false)
+			{
 				player.ItemUIDs.Add(item.UniqueID);
+				item.OnPickup();
+			}
 		}
+		public bool HasItem() => objects[Position].Count > 1 && objects[Position][1] is Item;
 	}
 }

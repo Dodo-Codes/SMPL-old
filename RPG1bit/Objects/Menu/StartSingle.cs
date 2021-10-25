@@ -39,7 +39,7 @@ namespace RPG1bit
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
 				for (int i = 0; i < maps.Length; i++)
-					mapList.Objects.Add(new StartSingleOnMap(maps[i], new CreationDetails()
+					mapList.Objects.Add(new StartSingleOnMap($"mapp-{maps[i]}", new CreationDetails()
 					{
 						Name = maps[i],
 						Position = new(-10, 0) { C = new() },

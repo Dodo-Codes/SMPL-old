@@ -5,7 +5,11 @@ namespace RPG1bit
 {
 	public class ShowRoofs : Tick
 	{
-		public ShowRoofs(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { Value = true; }
+		public ShowRoofs(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		{
+			Value = true;
+			OnValueChanged();
+		}
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Toggle roofs visibility.";
 		public override void OnValueChanged()
 		{
