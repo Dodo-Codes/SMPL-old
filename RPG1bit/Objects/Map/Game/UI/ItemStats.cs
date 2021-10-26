@@ -12,6 +12,8 @@ namespace RPG1bit
 		{
 			var isPositive = Name == "positives";
 			var item = (Item)PickByUniqueID(DisplayedItemUID);
+			if (item == null)
+				return;
 			var prime = isPositive ? item.Positives[0] : item.Negatives[0];
 			var minor = isPositive ? item.Positives[1] : item.Negatives[1];
 			var color = isPositive ? Color.Green : Color.Red;

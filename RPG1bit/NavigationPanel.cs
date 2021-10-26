@@ -115,6 +115,12 @@ namespace RPG1bit
 				ShowRightClickableIndicator(false);
 
 				var mousePos = Screen.GetCellAtCursorPosition();
+				var objName = "";
+				var objs = objects.ContainsKey(mousePos) ? objects[mousePos] : new List<Object>();
+
+				for (int j = 0; j < objs.Count; j++)
+						objName = objs[j].HoveredInfo + (string.IsNullOrEmpty(objs[j].HoveredInfo) ? "" : "\n");
+
 				for (int i = 0; i < 4; i++)
 				{
 					var quadID = $"{i} cell {mousePos.X} {mousePos.Y}";
@@ -137,6 +143,7 @@ namespace RPG1bit
 					if (Textbox.Text != "" && description == descriptions[new(0, 0)]) continue;
 					Textbox.Text = $"{description}{sep}{Textbox.Text}";
 				}
+				Textbox.Text = $"{objName}{Textbox.Text}";
 			}
 			public override void OnCameraDisplay(Camera camera)
 			{

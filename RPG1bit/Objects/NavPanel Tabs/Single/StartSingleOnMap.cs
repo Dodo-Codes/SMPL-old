@@ -13,7 +13,7 @@ namespace RPG1bit
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"[LMB] Load\nMap: '{Name.ToUpper()}'";
+			NavigationPanel.Info.Textbox.Text = $"Map: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

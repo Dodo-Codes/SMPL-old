@@ -20,12 +20,15 @@ namespace RPG1bit
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 			if (ObjectList.Lists.ContainsKey("load-map-list")) RemoveFromList(ObjectList.Lists["load-map-list"]);
+			StartSingle.UpdateTab();
+			SaveLoad.UpdateTab();
 
 			void RemoveFromList(ObjectList list)
 			{
 				for (int i = 0; i < list.Objects.Count; i++)
 				{
-					if (list.Objects[i].Name != Name || list.Objects[i] is not LoadMapValue) continue;
+					if (list.Objects[i].Name != Name) continue;
+					if (list.UniqueID == "load-list" && list.Objects[i] is not LoadMapValue) continue;
 					list.Objects.Remove(list.Objects[i]);
 					list.ScrollToTop();
 					return;
@@ -34,7 +37,7 @@ namespace RPG1bit
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"[LMB] Load / [RMB] Delete\nMap Edit session: '{Name.ToUpper()}'";
+			NavigationPanel.Info.Textbox.Text = $"Map Edit session: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load\n[RIGHT CLICK] Delete";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

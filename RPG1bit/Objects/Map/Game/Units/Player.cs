@@ -25,7 +25,7 @@ namespace RPG1bit
 				IsDragable = true,
 				IsRightClickable = true,
 				IsLeftClickable = true,
-			});
+			}) { Quantity = 3 };
 			var quiver = new Quiver("quiver", new()
 			{
 				Name = "Quiver",

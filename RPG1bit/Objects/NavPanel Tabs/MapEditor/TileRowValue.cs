@@ -13,7 +13,7 @@ namespace RPG1bit
 			var descr = NavigationPanel.Info.Textbox.Text;
 			if (descr == "Void.") return;
 			else if (descr == "") descr = "Background color.";
-			NavigationPanel.Info.Textbox.Text = $"[MMB] Pick a brush from tile:\n{descr}";
+			NavigationPanel.Info.Textbox.Text = $"[MIDDLE CLICK] Pick a brush from tile:\n{descr}";
 		}
 		public override void OnDisplay(Point screenPos)
 		{

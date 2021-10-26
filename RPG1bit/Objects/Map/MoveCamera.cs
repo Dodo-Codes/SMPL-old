@@ -31,8 +31,15 @@ namespace RPG1bit
 		public MoveCamera(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Keyboard.Event.Subscribe.TextInput(uniqueID);
+			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 		}
 
+		public override void OnKeyboardKeyPress(Keyboard.Key key)
+		{
+			if (TextInputField.Typing || Map.CurrentSession != Map.Session.Single ||
+				key != Keyboard.Key.Space) return;
+			Execute();
+		}
 		public override void OnKeyboardTextInput(Keyboard.TextInput textInput)
 		{
 			if (TextInputField.Typing || Map.CurrentSession == Map.Session.None ||
@@ -46,7 +53,7 @@ namespace RPG1bit
 			if (CurrentType == Type.Center)
 			{
 				var anchorStr = IsAnchored ? "detach it from" : "attach it to";
-				NavigationPanel.Info.Textbox.Text = $" [{Key}] Center the view and\n  {anchorStr} the character.";
+				NavigationPanel.Info.Textbox.Text = $" [{Key.ToString().ToUpper()}] Center the view and\n  {anchorStr} the character.";
 			}
 		}
 		public override void OnLeftClicked()

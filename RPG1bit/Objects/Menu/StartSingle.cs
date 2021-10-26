@@ -7,10 +7,16 @@ namespace RPG1bit
 	public class StartSingle : Object
 	{
 		public StartSingle(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new singleplayer game session.  ";
-		public override void OnLeftClicked()
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\nsingleplayer game session.";
+		public override void OnLeftClicked() => UpdateTab();
+		public static void UpdateTab()
 		{
 			CreateTab();
+
+			var noMapsStr = ObjectList.Lists.ContainsKey("load-map-list") == false ||
+			ObjectList.Lists["load-map-list"].Objects.Count == 0 ? "No maps were found." : "";
+			NavigationPanel.Tab.Texts["single"] =
+				$" Choose a map to start a\nnew singleplayer session on.\n\n\n\n    {noMapsStr}";
 			NavigationPanel.Tab.Open("single", "singleplayer");
 			Screen.Display();
 		}
@@ -50,11 +56,6 @@ namespace RPG1bit
 						IsInTab = true,
 						AppearOnTab = "single",
 					}));
-
-				var noMapsStr = ObjectList.Lists.ContainsKey("load-map-list") == false ||
-					ObjectList.Lists["load-map-list"].Objects.Count == 0 ? "No maps were found." : "";
-				NavigationPanel.Tab.Texts["single"] =
-					$" Choose a map to start a\nnew singleplayer session on.\n\n\n\n    {noMapsStr}";
 			}
 			if (Gate.EnterOnceWhile("create-item-info-tab", true))
 			{

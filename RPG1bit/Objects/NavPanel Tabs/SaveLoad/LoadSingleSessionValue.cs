@@ -27,12 +27,15 @@ namespace RPG1bit
 			FileSystem.MoveFiles($"Deleted", $"Sessions\\{Name}.session");
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
+			StartSingle.UpdateTab();
+			SaveLoad.UpdateTab();
 
 			void RemoveFromList(ObjectList list)
 			{
 				for (int i = 0; i < list.Objects.Count; i++)
 				{
-					if (list.Objects[i].Name != Name || list.Objects[i] is not LoadSingleSessionValue) continue;
+					if (list.Objects[i].Name != Name) continue;
+					if (list.UniqueID == "load-list" && list.Objects[i] is not LoadSingleSessionValue) continue;
 					list.Objects.Remove(list.Objects[i]);
 					list.ScrollToTop();
 					return;
@@ -41,7 +44,7 @@ namespace RPG1bit
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"[LMB] Load / [RMB] Delete\nGame session: '{Name.ToUpper()}'";
+			NavigationPanel.Info.Textbox.Text = $"Game session: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load\n[RIGHT CLICK] Delete";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

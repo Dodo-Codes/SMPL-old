@@ -20,16 +20,18 @@ namespace RPG1bit
 			ItemUIDs.Remove(item.UniqueID);
 			item.OwnerUID = null;
 		}
-		public override void OnAdvanceTime()
+		public override void OnAdvanceTime() => UpdateItems();
+
+		public void UpdateItems()
 		{
 			var player = (Player)PickByUniqueID("player");
 
 			if (ItemUIDs.Count == 0)
 				Destroy();
-
 			for (int i = 0; i < ItemUIDs.Count; i++)
 			{
-				var item = (Item)PickByUniqueID(ItemUIDs[i]);
+				var thing = PickByUniqueID(ItemUIDs[i]);
+				var item = (Item)thing;
 				item.Position = new Point(Position == player.Position ? 10 + i : -10, 0);
 			}
 		}

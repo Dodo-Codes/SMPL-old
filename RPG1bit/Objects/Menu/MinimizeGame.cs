@@ -6,6 +6,6 @@ namespace RPG1bit
 	{
 		public MinimizeGame(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnLeftClicked() => Window.CurrentState = Window.State.Minimized;
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Minimize the game.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Minimize the game.";
 	}
 }

@@ -7,7 +7,7 @@ namespace RPG1bit
 		public int Percent { get; set; } = 50;
 
 		public AdjustVolume(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = $"Adjust the {Name.ToLower()} volume.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = $"[LEFT CLICK] Adjust the\n{Name.ToLower()} volume.";
 		public override void OnLeftClicked()
 		{
 			Percent += 10;

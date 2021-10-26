@@ -39,7 +39,7 @@ namespace RPG1bit
 			{ new(02, 22), "Game navigation panel." }, { new(03, 22), "Game navigation panel." },
 			{ new(01, 23), "Information box." },
 
-			{ new(13, 22), "Left click and type anything..." },
+			{ new(13, 22), "[LEFT CLICK] Type anything..." },
 
 			{ new(44, 16), "Start a new multiplayer game session.\n  (not available in this game version)" },
 
@@ -47,9 +47,9 @@ namespace RPG1bit
 				"      over it. It is invisible ingame." },
 			{ new(24, 08), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
 				"   of those tiles or anywhere on the map\n           if no player tile is present." },
-			{ new(41, 13), "           [LMB] Paint a tile.\n[Shift + LMB] Paint a square of tiles." },
-			{ new(42, 13), "           [RMB] Erase a tile.\n[Shift + RMB] Erase a square of tiles." },
-			{ new(43, 13), "[MMB] Pick a brush from the tile\n    at that particular height." },
+			{ new(41, 13), "           [LEFT DRAG] Paint a tile.\n[SHIFT + LEFT DRAG] Paint multiple tiles." },
+			{ new(42, 13), "           [RIGHT DRAG] Erase a tile.\n[SHIFT + RIGHT DRAG] Erase multiple tiles." },
+			{ new(43, 13), "[MIDDLE CLICK] Pick a brush from the tile\n\t\tat that particular height." },
 
 			{ new(04, 00), "Grass." }, { new(05, 00), "Grass." }, { new(06, 00), "Grass." }, { new(07, 00), "Grass." },
 			{ new(00, 01), "Tree." }, { new(1, 1), "Tree." }, { new(2, 1), "Trees." }, { new(3, 1), "Trees." }, { new(4, 1), "Tree." },
@@ -119,14 +119,11 @@ namespace RPG1bit
 			{ new(08, 23), "Small pile of items." }, { new(9, 23), "Pile of items." }, { new(10, 23), "Big pile of items." },
 			{ new(11, 23), "Huge pile of items." },
 
-			{ new(04, 23), "[LMB] Move the character." },
+			{ new(04, 23), "[LEFT CLICK] Move the character." },
+			{ new(05, 23), "\t\tOn items...\n\n[LEFT CLICK] Info.\n[LEFT DRAG] Pickup/Drop.\n" +
+				"[RIGHT CLICK] Split." },
 
 			{ new(25, 00), "Player." },
-
-			{ new(32, 00), "Helmet." },
-			{ new(32, 11), "Key" }, { new(33, 11), "Key" }, { new(34, 11), "Key" },
-			{ new(42, 06), "Quiver" },
-			{ new(44, 04), "Bag" },
 		};
 		public static Object HoldingObject { get; set; }
 
@@ -152,8 +149,6 @@ namespace RPG1bit
 		public string AppearOnTab { get; protected set; }
 		[JsonProperty]
 
-		private bool leftClicked;
-
 		private Point position;
 		[JsonProperty]
 		public Point Position
@@ -173,6 +168,22 @@ namespace RPG1bit
 					return;
 				}
 				objects[value].Add(this);
+			}
+		}
+
+		private bool leftClicked;
+		private static uint updateFrame;
+		private static bool leftClickable, rightClickable, dragable;
+		private string hoveredInfo;
+		public string HoveredInfo
+		{
+			get { return hoveredInfo; }
+			protected set
+			{
+				hoveredInfo = value;
+				NavigationPanel.Info.Update();
+				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable, IsDragable);
+				NavigationPanel.Info.ShowRightClickableIndicator(IsRightClickable);
 			}
 		}
 
@@ -217,6 +228,13 @@ namespace RPG1bit
 
 		public override void OnGameUpdate()
 		{
+			if (updateFrame == Performance.FrameCount)
+			{
+				NavigationPanel.Info.Update();
+				NavigationPanel.Info.ShowLeftClickableIndicator(leftClickable, dragable);
+				NavigationPanel.Info.ShowRightClickableIndicator(rightClickable);
+			}
+
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
@@ -261,7 +279,7 @@ namespace RPG1bit
 						leftClicked = true;
 						NavigationPanel.Info.Textbox.Text = "A session is currently ongoing.\n" +
 							"Any unsaved progress will be lost.\n" +
-							"Left click again to continue.";
+							"[LEFT CLICK] Continue.";
 					}
 					else
 					{
@@ -274,7 +292,8 @@ namespace RPG1bit
 				{
 					if (objects.ContainsKey(mousePos))
 						for (int i = 0; i < objects[mousePos].Count; i++)
-							objects[mousePos][i].OnDroppedUpon();
+							if (HoldingObject != objects[mousePos][i])
+								objects[mousePos][i].OnDroppedUpon();
 					Drop();
 				}
 			}
@@ -310,9 +329,15 @@ namespace RPG1bit
 			if (HoldingObject == null) return;
 
 			HoldingObject.OnDragEnd();
+
+			leftClickable = HoldingObject.IsLeftClickable;
+			rightClickable = HoldingObject.IsRightClickable;
+			dragable = HoldingObject.IsDragable;
+
 			HoldingObject = null;
 			Hoverer.CursorTileIndexes = new(36, 10);
 			Hoverer.CursorColor = Color.White;
+			updateFrame = Performance.FrameCount + 1;
 		}
 
 		public virtual void OnAdvanceTime() { }

@@ -119,7 +119,7 @@ namespace RPG1bit
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "Start a new map edit session.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t map edit session.";
 		public override void OnLeftClicked()
 		{
 			Map.DestroyAllSessionObjects();

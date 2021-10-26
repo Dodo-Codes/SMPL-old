@@ -128,6 +128,7 @@ namespace RPG1bit
 					}
 			}
 			Value = "";
+			StartSingle.UpdateTab();
 			SaveLoad.UpdateTab();
 			Screen.Display();
 

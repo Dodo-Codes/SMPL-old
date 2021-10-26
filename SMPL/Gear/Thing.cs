@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using SMPL.Components;
+using SMPL.Data;
 using SMPL.Gear;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SMPL.Gear
@@ -10,6 +12,8 @@ namespace SMPL.Gear
 	[JsonObject(MemberSerialization.OptIn)]
 	public class Thing
 	{
+		private static bool isClone;
+
 		internal static readonly Dictionary<string, Thing> uniqueIDs = new();
 		internal static readonly Dictionary<string, List<Thing>> tagObjs = new();
 		internal static readonly Dictionary<Thing, List<string>> objTags = new();
@@ -30,16 +34,17 @@ namespace SMPL.Gear
 			{
 				var old = uniqueID;
 				uniqueID = value;
-				if (old != null) uniqueIDs.Remove(old);
+				if (old != null && isClone == false) uniqueIDs.Remove(old);
 				uniqueIDs[value] = this;
 			}
 		}
 		[JsonProperty]
-		public string[] Tags => ErrorIfDestroyed() ? Array.Empty<string>() : objTags[this].ToArray();
+		public string[] Tags => ErrorIfDestroyed() || objTags.ContainsKey(this) == false ?
+			Array.Empty<string>() : objTags[this].ToArray();
 
 		public Thing(string uniqueID)
 		{
-			if (uniqueIDs.ContainsKey(uniqueID))
+			if (uniqueIDs.ContainsKey(uniqueID) && isClone == false)
 			{
 				cannotCreate = true;
 
@@ -51,17 +56,23 @@ namespace SMPL.Gear
 			UniqueID = uniqueID;
 			objTags[this] = new();
 		}
-		public Thing Clone(string uniqueID)
+		public static T CloneObject<T>(T obj, string newUniqueID = default)
 		{
-			if (uniqueIDs.ContainsKey(uniqueID))
+			isClone = true;
+			var oldUID = "";
+			if (obj is Thing thing)
 			{
-				Debug.LogError(1, $"Cannot clone because a {nameof(Thing)} with uniqueID '{uniqueID}' already exists.");
-				return default;
+				oldUID = thing.UniqueID;
+				thing.UniqueID = newUniqueID;
 			}
-
-			var clone = (Thing)MemberwiseClone();
-			clone.UniqueID = uniqueID;
-			objTags[clone] = new(objTags[this]);
+			var clone = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(obj));
+			if (clone is Thing clonedThing && obj is Thing thing2)
+			{
+				clonedThing.UniqueID = newUniqueID;
+				thing2.UniqueID = oldUID;
+				objTags[clonedThing] = new(objTags[clonedThing]);
+			}
+			isClone = false;
 			return clone;
 		}
 		public virtual void Destroy()

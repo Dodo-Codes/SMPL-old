@@ -1,11 +1,12 @@
 ﻿using SMPL.Data;
+using SMPL.Gear;
 
 namespace RPG1bit
 {
 	public class Item : Object
 	{
 		public string OwnerUID { get; set; }
-		public int Quantity { get; set; }
+		public uint Quantity { get; set; } = 1;
 
 		public double[] Positives { get; set; } = new double[2];
 		public double[] Negatives { get; set; } = new double[2];
@@ -19,6 +20,23 @@ namespace RPG1bit
 		public bool CanCarryInQuiver { get; set; }
 
 		public Item(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+
+		public override void OnDroppedUpon()
+		{
+			var type = GetType();
+			var holdingType = HoldingObject.GetType();
+			if (HoldingObject is Item item && (holdingType == type ||
+				type.IsSubclassOf(holdingType) || holdingType.IsSubclassOf(holdingType)))
+			{
+				Quantity += item.Quantity;
+				Drop();
+				var owner = PickByUniqueID(item.OwnerUID);
+				if (owner is ItemPile pile)
+					pile.RemoveItem(item);
+				item.Destroy();
+				ShowInfo();
+			}
+		}
 
 		public override void OnDragStart()
 		{
@@ -37,11 +55,38 @@ namespace RPG1bit
 		}
 		public override void OnDragEnd() => UpdateSlotsColor(false);
 
-		public override void OnRightClicked() => ShowInfo();
+		public override void OnRightClicked()
+		{
+			if (PickByUniqueID(OwnerUID) is not ItemPile || Quantity < 2) return;
+
+			for (int i = 0; i < 8; i++)
+			{
+				var groundSlot = (ItemSlot)PickByUniqueID($"ground-slot-{i}");
+				if (groundSlot.HasItem() == false)
+				{
+					groundSlot.Equip(OnSplit(groundSlot, Quantity));
+					var player = (Player)PickByUniqueID("player");
+					var objs = objects[player.Position];
+					for (int j = 0; j < objs.Count; j++)
+						if (objs[j] is ItemPile pile)
+							pile.UpdateItems();
+					break;
+				}
+			}
+			NavigationPanel.Tab.Close();
+			Screen.Display();
+		}
 		public override void OnLeftClicked() => ShowInfo();
+
+		public override void OnHovered()
+		{
+			HoveredInfo = Quantity > 1 ? $"{Name} x{Quantity}" : Name;
+		}
 
 		private void ShowInfo()
 		{
+			if (IsDestroyed)
+				return;
 			ItemStats.DisplayedItemUID = UniqueID;
 			OnItemInfoDisplay();
 			NavigationPanel.Tab.Open("item-info", "item info");
@@ -73,9 +118,18 @@ namespace RPG1bit
 
 		public override void OnDisplay(Point screenPos)
 		{
-			Screen.EditCell(screenPos, new(0, 26), 3, Color.White);
+			Screen.EditCell(screenPos, new(Quantity, 26), 3, Color.White);
 		}
 
+		public Item Split(Item item, ItemSlot slot, uint quantity)
+		{
+			item.Position = slot.Position;
+			item.Quantity = (uint)Number.Round((double)quantity / 2, toward: Number.RoundToward.Down);
+			Quantity = (uint)Number.Round((double)quantity / 2, toward: Number.RoundToward.Up);
+			return item;
+		}
+
+		public virtual Item OnSplit(ItemSlot groundSlot, uint quantity) => default;
 		public virtual void OnItemInfoDisplay() { }
 		public virtual void OnPickup() { }
 		public virtual void OnDrop() { }

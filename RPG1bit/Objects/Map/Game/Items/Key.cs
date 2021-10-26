@@ -1,4 +1,5 @@
 ﻿using SMPL.Data;
+using SMPL.Gear;
 
 namespace RPG1bit
 {
@@ -11,9 +12,10 @@ namespace RPG1bit
 			CanCarryInQuiver = true;
 		}
 
+		public override Item OnSplit(ItemSlot s, uint q) => Split(CloneObject(this, $"{UniqueID}-{Performance.FrameCount}"), s, q);
 		public override void OnItemInfoDisplay()
 		{
-			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t\t Key\n\nGreat for unlocking locked things.";
+			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t\tKey x{Quantity}\n\nGreat for unlocking locked things.";
 		}
 	}
 }

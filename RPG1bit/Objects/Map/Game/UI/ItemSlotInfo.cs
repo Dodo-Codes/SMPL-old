@@ -9,6 +9,8 @@ namespace RPG1bit
 		public override void OnDisplay(Point screenPos)
 		{
 			var item = (Item)PickByUniqueID(ItemStats.DisplayedItemUID);
+			if (item == null)
+				return;
 			Screen.EditCell(new(30, 9), new(08, 22), 1, Color.Green);
 			Screen.EditCell(new(31, 9), new(09, 22), 1, Color.Green);
 

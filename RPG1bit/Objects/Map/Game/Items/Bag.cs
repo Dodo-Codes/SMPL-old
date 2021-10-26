@@ -12,7 +12,7 @@ namespace RPG1bit
 
 		public override void OnItemInfoDisplay()
 		{
-			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t Bag\n\n\tA small bag, great for\n\t  carrying essentials.\n" +
+			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t  Bag\n\n\tA small bag, great for\n\t  carrying essentials.\n" +
 				$"Can fit up to [+PRIME] items.";
 		}
 	}
