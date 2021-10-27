@@ -64,7 +64,7 @@ namespace RPG1bit
 				var groundSlot = (ItemSlot)PickByUniqueID($"ground-slot-{i}");
 				if (groundSlot.HasItem() == false)
 				{
-					groundSlot.Equip(OnSplit(groundSlot, Quantity));
+					groundSlot.Equip(Split(OnSplit(), groundSlot, Quantity));
 					var player = (Player)PickByUniqueID("player");
 					var objs = objects[player.Position];
 					for (int j = 0; j < objs.Count; j++)
@@ -129,7 +129,7 @@ namespace RPG1bit
 			return item;
 		}
 
-		public virtual Item OnSplit(ItemSlot groundSlot, uint quantity) => default;
+		public virtual Item OnSplit() => default;
 		public virtual void OnItemInfoDisplay() { }
 		public virtual void OnPickup() { }
 		public virtual void OnDrop() { }

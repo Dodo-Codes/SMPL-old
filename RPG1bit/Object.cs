@@ -124,6 +124,7 @@ namespace RPG1bit
 				"[RIGHT CLICK] Split." },
 
 			{ new(25, 00), "Player." },
+			{ new(09, 19), "Boat." }, { new(10, 19), "Boat." }, { new(11, 19), "Boat." },
 		};
 		public static Object HoldingObject { get; set; }
 

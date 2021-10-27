@@ -70,6 +70,7 @@ namespace RPG1bit
 							freeTile = pos;
 
 						for (int i = 0; i < 3; i++)
+						{
 							if (MapEditor.DoorTiles.Contains(RawData[pos][i]))
 								new Door($"door-{pos}-{i}", new()
 								{
@@ -78,6 +79,18 @@ namespace RPG1bit
 									Name = "Door",
 									TileIndexes = new Point[] { RawData[pos][i] }
 								});
+							else if (MapEditor.BoatTiles.Contains(RawData[pos][i]))
+							{
+								new Boat($"boat-{pos}-{i}", new()
+								{
+									Position = pos,
+									Height = i,
+									Name = "Boat",
+									TileIndexes = new Point[] { RawData[pos][i] }
+								});
+								RawData[pos][i] = new();
+							}
+						}
 					}
 
 					var randPoint = playerTiles.Count > 0 ?

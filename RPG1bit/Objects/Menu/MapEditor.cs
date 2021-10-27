@@ -19,7 +19,7 @@ namespace RPG1bit
 			new(01, 01) { C = Color.LeafSummer },		// pine trees
 			new(07, 02) { C = Color.Grass },				// palm
 			new(06, 02) { C = Color.Grass },				// cactus
-			new(04, 02) { C = Color.Gray + 50},		// rocks
+			new(04, 02) { C = Color.Gray + 50},			// rocks
 			new(),
 			// water
 			new(12, 3) { C = Color.Water }, new(8, 03) { C = Color.Water }, new(07, 4) { C = Color.Water },
@@ -98,6 +98,10 @@ namespace RPG1bit
 			// locked doors
 			new(40, 23) { C = Color.Wood - 30 }, new(38, 23) { C = Color.Wood - 30 }, new(42, 23) { C = Color.Wood - 30 },
 			new(44, 23) { C = Color.Wood - 30 }, new(46, 23) { C = Color.Gray + 50 },
+			new(), new(), new(), new(),
+
+			// boats
+			new(09, 19) { C = Color.Wood - 30 }, new(10, 19) { C = Color.Wood - 30 }, new(11, 19) { C = Color.Wood - 30 },
 		};
 		public static readonly Dictionary<Point, Point[]> randomTiles = new()
 		{
@@ -115,6 +119,7 @@ namespace RPG1bit
 			new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22),
 			new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23),
 		};
+		public static List<Point> BoatTiles => new() { new(09, 19), new(10, 19), new(11, 19), };
 		public static Point Brush { get; set; } = new(1, 22);
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
