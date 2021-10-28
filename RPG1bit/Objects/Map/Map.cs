@@ -67,7 +67,7 @@ namespace RPG1bit
 		public static void CreateUIButtons()
 		{
 			// these are not creating multiple times cuz they are destroyed beforehand
-			new MoveCamera("camera-move-up", new Object.CreationDetails()
+			new MoveCamera("camera-move-up", new()
 			{
 				Name = "camera-move-up",
 				Position = new(0, 1),
@@ -76,7 +76,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Up };
-			new MoveCamera("camera-move-down", new Object.CreationDetails()
+			new MoveCamera("camera-move-down", new()
 			{
 				Name = "camera-move-down",
 				Position = new(0, 2),
@@ -85,7 +85,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Down };
-			new MoveCamera("camera-move-left", new Object.CreationDetails()
+			new MoveCamera("camera-move-left", new()
 			{
 				Name = "camera-move-left",
 				Position = new(1, 0),
@@ -94,7 +94,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Left };
-			new MoveCamera("camera-move-right", new Object.CreationDetails()
+			new MoveCamera("camera-move-right", new()
 			{
 				Name = "camera-move-right",
 				Position = new(2, 0),
@@ -106,7 +106,7 @@ namespace RPG1bit
 
 			if (CurrentSession == Session.Single)
 			{
-				new MoveCamera("camera-center", new Object.CreationDetails()
+				new MoveCamera("camera-center", new()
 			{
 				Name = "camera-center",
 				Position = new(0, 0),
@@ -115,7 +115,7 @@ namespace RPG1bit
 				IsUI = true,
 				IsLeftClickable = true,
 			}) { CurrentType = MoveCamera.Type.Center };
-				new ItemSlot("slot-head", new Object.CreationDetails()
+				new ItemSlot("slot-head", new()
 				{
 					Name = "On your head:",
 					Position = new(0, 7),
@@ -123,7 +123,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new ItemSlot("slot-body", new Object.CreationDetails()
+				new ItemSlot("slot-body", new()
 				{
 					Name = "On your body:",
 					Position = new(0, 8),
@@ -131,7 +131,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new ItemSlot("slot-feet", new Object.CreationDetails()
+				new ItemSlot("slot-feet", new()
 				{
 					Name = "On your feet:",
 					Position = new(0, 9),
@@ -140,7 +140,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 
-				new ItemSlot("hand-left", new Object.CreationDetails()
+				new ItemSlot("hand-left", new()
 				{
 					Name = "In your left hand:",
 					Position = new(0, 5),
@@ -148,7 +148,7 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new ItemSlot("hand-right", new Object.CreationDetails()
+				new ItemSlot("hand-right", new()
 				{
 					Name = "In your right hand:",
 					Position = new(0, 4),
@@ -157,7 +157,7 @@ namespace RPG1bit
 					IsUI = true
 				});
 
-				new ItemSlot("carry-back", new Object.CreationDetails()
+				new ItemSlot("carry-back", new()
 				{
 					Name = "On your back:",
 					Position = new(0, 11),
@@ -165,13 +165,23 @@ namespace RPG1bit
 					Height = 1,
 					IsUI = true
 				});
-				new ItemSlot("carry-waist", new Object.CreationDetails()
+				new ItemSlot("carry-waist", new()
 				{
 					Name = "On your waist:",
 					Position = new(0, 12),
 					TileIndexes = new Point[] { new(11, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
+				});
+
+				new Wait("wait", new()
+				{
+					Position = new(6, 0),
+					Height = 1,
+					TileIndexes = new Point[] { new(42, 12) { C = Color.Gray } },
+					IsLeftClickable = true,
+					IsUI = true,
+					Name = "wait",
 				});
 
 				for (int i = 0; i < ItemPile.MAX_COUNT; i++)
@@ -189,7 +199,7 @@ namespace RPG1bit
 			}
 			if (CurrentSession == Session.MapEdit)
 			{
-				new SwitchHeight("brush-height", new Object.CreationDetails()
+				new SwitchHeight("brush-height", new()
 				{
 					Name = "height-up",
 					Position = new(0, 5),
@@ -197,7 +207,7 @@ namespace RPG1bit
 					IsUI = true,
 					IsLeftClickable = true,
 				});
-				new ShowRoofs("show-roofs", new Object.CreationDetails()
+				new ShowRoofs("show-roofs", new()
 				{
 					Name = "show-roofs",
 					Position = new(0, 8) { C = Color.Gray },

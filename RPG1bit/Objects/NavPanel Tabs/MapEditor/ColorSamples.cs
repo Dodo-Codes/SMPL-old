@@ -13,7 +13,6 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			NavigationPanel.Info.Textbox.Text = $"[LEFT HOLD] Pick a color sample.";
-			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		protected override void OnIndexValueChanged()
 		{

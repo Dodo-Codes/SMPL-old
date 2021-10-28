@@ -10,12 +10,12 @@ namespace RPG1bit
 		public SaveNameInput(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.ShowLeftClickableIndicator();
 			var mousePos = Screen.GetCellAtCursorPosition();
 			var result = mousePos == Position ? "[ENTER] Save the current session." : "Type anything...";
 			if (Map.CurrentSession == Map.Session.None) result = "There is no currently ongoing\n   session that can be saved.";
 			else if (Value.Trim() == "") result = "Type a name before saving.";
 			NavigationPanel.Info.Textbox.Text = result;
+			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		protected override void OnSubmit()
 		{

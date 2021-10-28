@@ -77,6 +77,9 @@ namespace RPG1bit
 				}
 			}
 
+			if (player.PreviousPosition == player.Position)
+				return;
+
 			for (int i = 0; i < prevPosObjs.Count; i++)
 			{
 				if (prevPosObjs[i] is Door || prevPosObjs[i] is Boat)

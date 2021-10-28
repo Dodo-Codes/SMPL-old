@@ -30,6 +30,7 @@ namespace RPG1bit
 			if (mousePos != lastMousePos && IsHovered())
 			{
 				OnHovered();
+				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable);
 				if (Mouse.ButtonIsPressed(Mouse.Button.Left))
 					Trigger(mousePos);
 			}

@@ -19,7 +19,6 @@ namespace RPG1bit
 				$"    Save the current session.";
 
 			NavigationPanel.Tab.Open("save-load", "save or load");
-			Screen.Display();
 		}
 
 		private static void CreateTab()

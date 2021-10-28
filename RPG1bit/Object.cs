@@ -39,6 +39,7 @@ namespace RPG1bit
 			{ new(02, 22), "Game navigation panel." }, { new(03, 22), "Game navigation panel." },
 			{ new(01, 23), "Information box." },
 
+			{ new(42, 12), "[LEFT CLICK] Wait..." },
 			{ new(13, 22), "[LEFT CLICK] Type anything..." },
 
 			{ new(44, 16), "Start a new multiplayer game session.\n  (not available in this game version)" },
@@ -123,7 +124,8 @@ namespace RPG1bit
 			{ new(05, 23), "\t\tOn items...\n\n[LEFT CLICK] Info.\n[LEFT DRAG] Pickup/Drop.\n" +
 				"[RIGHT CLICK] Split." },
 
-			{ new(25, 00), "Player." },
+			{ new(25, 00), "Player." }, { new(16, 23), "Player." }, { new(17, 23), "Player." }, { new(18, 23), "Player." },
+			{ new(19, 23), "Player." }, { new(20, 23), "Player." },
 
 			{ new(08, 19), "Boat." }, { new(09, 19), "Boat." }, { new(10, 19), "Boat." }, { new(11, 19), "Boat." },
 			{ new(12, 23), "Boat." }, { new(13, 23), "Boat." }, { new(14, 23), "Boat." }, { new(15, 23), "Boat." },
@@ -183,8 +185,6 @@ namespace RPG1bit
 			{
 				hoveredInfo = value;
 				NavigationPanel.Info.Update();
-				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable, IsDragable);
-				NavigationPanel.Info.ShowRightClickableIndicator(IsRightClickable);
 			}
 		}
 
@@ -237,11 +237,9 @@ namespace RPG1bit
 			if (IsUI == false) curPos = Map.ScreenToMapPosition(cursorPos);
 			if (Gate.EnterOnceWhile($"on-hover-{UniqueID}", curPos == Position))
 			{
-				NavigationPanel.Info.ShowLeftClickableIndicator(IsLeftClickable, IsDragable);
-				NavigationPanel.Info.ShowRightClickableIndicator(IsRightClickable);
 				leftClicked = false;
-				OnHovered();
-				NavigationPanel.Info.Display();
+				if (this is not ObjectList)
+					OnHovered();
 			}
 			if (Gate.EnterOnceWhile($"on-unhover-{UniqueID}", curPos != Position))
 			{

@@ -38,21 +38,23 @@ namespace RPG1bit
 				if (Objects.Count >= Size.H)
 				{
 					if (mousePos == new Point(Position.X + (int)Size.W / 2, Position.Y) && scrollIndex > 0)
-						NavigationPanel.Info.Textbox.Text = "Scroll up the list.";
+					{
+						NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Scroll up the list.";
+						NavigationPanel.Info.ShowLeftClickableIndicator();
+					}
 					else if (mousePos == new Point(Position.X + (int)Size.W / 2, Position.Y + Size.H) &&
 						scrollIndex < Objects.Count - (int)Size.H + 1)
-						NavigationPanel.Info.Textbox.Text = "Scroll down the list.";
+					{
+						NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Scroll down the list.";
+						NavigationPanel.Info.ShowLeftClickableIndicator();
+					}
 				}
 				if (IsHovered())
 				{
 					OnHovered();
 					var index = (int)(mousePos.Y - Position.Y + scrollIndex) - 1;
 					if (Objects.Count > index)
-					{
 						Objects[index].OnHovered();
-						NavigationPanel.Info.ShowLeftClickableIndicator(Objects[index].IsLeftClickable);
-						NavigationPanel.Info.ShowRightClickableIndicator(Objects[index].IsRightClickable);
-					}
 				}
 			}
 			lastMousePos = mousePos;

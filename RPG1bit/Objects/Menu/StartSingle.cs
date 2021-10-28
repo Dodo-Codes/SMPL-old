@@ -18,7 +18,6 @@ namespace RPG1bit
 			NavigationPanel.Tab.Texts["single"] =
 				$" Choose a map to start a\nnew singleplayer session on.\n\n\n\n    {noMapsStr}";
 			NavigationPanel.Tab.Open("single", "singleplayer");
-			Screen.Display();
 		}
 
 		public override void OnMouseButtonRelease(Mouse.Button button)

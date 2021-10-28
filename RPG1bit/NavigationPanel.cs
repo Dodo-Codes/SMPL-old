@@ -76,7 +76,6 @@ namespace RPG1bit
 			public static Area Area { get; set; }
 			public static Effects Effects { get; set; }
 
-			private static bool leftClickable, rightClickable, dragable;
 			private static uint updateFrame;
 
 			public Info(string uniqueID) : base(uniqueID)
@@ -100,23 +99,15 @@ namespace RPG1bit
 				Textbox.Spacing = new(4, -6);
 				Textbox.Scale = new(0.35, 0.35);
 				Textbox.Text = "";
+
+				for (int y = 15; y < 18; y++)
+					for (int x = 18; x < 32; x++)
+						Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 2);
 			}
 			public override void OnGameUpdate()
 			{
 				if (updateFrame == Performance.FrameCount)
-				{
 					Update();
-					ShowLeftClickableIndicator(leftClickable, dragable);
-					ShowRightClickableIndicator(rightClickable);
-				}
-			}
-			public static void Display()
-			{
-				for (int y = 15; y < 18; y++)
-					for (int x = 19; x < 32; x++)
-						Screen.EditCell(new Point(x, y), new Point(1, 23), 1, new Color());
-				ShowLeftClickableIndicator(leftClickable, dragable);
-				ShowRightClickableIndicator(rightClickable);
 			}
 			public static void Update()
 			{
@@ -127,10 +118,24 @@ namespace RPG1bit
 
 				var mousePos = Screen.GetCellAtCursorPosition();
 				var objName = "";
-				var objs = objects.ContainsKey(mousePos) ? objects[mousePos] : new List<Object>();
 
-				for (int j = 0; j < objs.Count; j++)
-						objName = objs[j].HoveredInfo + (string.IsNullOrEmpty(objs[j].HoveredInfo) ? "" : "\n");
+				var mousePosObjs = objects.ContainsKey(mousePos) ? objects[mousePos] : new();
+				for (int i = 0; i < mousePosObjs.Count; i++)
+					if (mousePosObjs[i] is not ObjectList)
+					{
+						if (mousePosObjs[i].IsUI == false)
+							continue;
+						ShowInfoIndicators(mousePosObjs[i]);
+					}
+				var mapPos = Map.ScreenToMapPosition(mousePos);
+				var mapObjs = objects.ContainsKey(mapPos) ? objects[mapPos] : new();
+				for (int i = 0; i < mapObjs.Count; i++)
+				{
+					if (mapObjs[i].IsUI)
+						continue;
+					ShowInfoIndicators(mapObjs[i]);
+				}
+
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -155,6 +160,15 @@ namespace RPG1bit
 					Textbox.Text = $"{description}{sep}{Textbox.Text}";
 				}
 				Textbox.Text = $"{objName}{Textbox.Text}";
+
+				void ShowInfoIndicators(Object obj)
+				{
+					if (obj.IsLeftClickable || obj.IsDragable)
+						ShowLeftClickableIndicator(obj.IsLeftClickable, obj.IsDragable);
+					if (obj.IsRightClickable)
+						ShowRightClickableIndicator(obj.IsRightClickable);
+					objName += obj.HoveredInfo + (string.IsNullOrEmpty(obj.HoveredInfo) ? "" : "\n");
+				}
 			}
 			public static void ScheduleUpdate()
 			{
@@ -168,19 +182,16 @@ namespace RPG1bit
 
 			public static void ShowLeftClickableIndicator(bool show = true, bool drag = false)
 			{
-				leftClickable = show;
 				Screen.EditCell(new Point(31, 15), new Point(29, 15), 1, show || drag ? Color.White : new Color());
 				Screen.EditCell(new Point(30, 15), new Point(2, 22), 1, show ? Color.White : new Color());
-				dragable = drag;
-				if (dragable)
+				if (drag)
 				{
-					var both = leftClickable ? new Point(2, 23) : new Point(3, 22);
+					var both = show ? new Point(2, 23) : new Point(3, 22);
 					Screen.EditCell(new Point(30, 15), both, 1, Color.White);
 				}
 			}
 			public static void ShowRightClickableIndicator(bool show = true)
 			{
-				rightClickable = show;
 				Screen.EditCell(new Point(31, 17), new Point(30, 15), 1, show ? Color.White : new Color());
 				Screen.EditCell(new Point(30, 17), new Point(2, 22), 1, show ? Color.White : new Color());
 			}
@@ -266,7 +277,7 @@ namespace RPG1bit
 		}
 		public static void Display()
 		{
-			for (int y = 0; y < 18; y++)
+			for (int y = 0; y < 14; y++)
 				for (int x = 18; x < 32; x++)
 				{
 					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 2);
@@ -285,8 +296,6 @@ namespace RPG1bit
 			Screen.EditCell(new Point(28, 0), new Point(33, 15), 1, Color.Gray);
 			Screen.EditCell(new Point(22, 0), new Point(4, 22), 0, Color.Brown);
 			Screen.EditCell(new Point(29, 0), new Point(4, 22), 0, Color.Brown);
-
-			Info.Display();
 		}
 	}
 }

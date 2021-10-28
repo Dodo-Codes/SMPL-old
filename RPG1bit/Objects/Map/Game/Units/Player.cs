@@ -61,6 +61,8 @@ namespace RPG1bit
 		}
 		public override void OnGameUpdate()
 		{
+			base.OnGameUpdate();
+
 			var mousePosMap = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
 			Hoverer.TileIndexes = Map.IsHovered()
 					 ? CanMoveIntoCell(mousePosMap) ? new(4, 23) : Hoverer.DefaultTileIndexes

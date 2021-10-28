@@ -9,11 +9,13 @@ namespace RPG1bit
 		public static Sprite Sprite { get; set; }
 		public static Area Area { get; set; }
 		private static bool display;
+		private bool displayDebug;
 
 		public Screen(string uniqueID) : base(uniqueID)
 		{
 			Camera.Event.Subscribe.Display(uniqueID);
 			Game.Event.Subscribe.LateUpdate(uniqueID);
+			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 
 			Area = new("map-area");
 			Area.Size = Camera.WorldCamera.Size;
@@ -106,11 +108,19 @@ namespace RPG1bit
 			return cell.X >= 0 && cell.Y >= 0 && cell.X <= 31 && cell.Y <= 18;
 		}
 
+		public override void OnKeyboardKeyPress(Keyboard.Key key)
+		{
+			if (key != Keyboard.Key.Tab)
+				return;
+
+			displayDebug = !displayDebug;
+		}
 		public override void OnCameraDisplay(Camera camera)
 		{
 			if (Sprite == null) return;
 			Sprite.Display(camera);
-			Debug.Display();
+			if (displayDebug)
+				Debug.Display();
 		}
 	}
 }

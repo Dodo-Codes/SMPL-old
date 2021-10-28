@@ -89,7 +89,7 @@ namespace RPG1bit
 		{
 			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return false;
 			var mousePos = Screen.GetCellAtCursorPosition();
-			return mousePos.X > Position.X - MAX_SYMBOLS - 1 && mousePos.X < Position.X && mousePos.Y == Position.Y;
+			return mousePos.X > Position.X - MAX_SYMBOLS - 1 && mousePos.X <= Position.X && mousePos.Y == Position.Y;
 		}
 		protected virtual void OnSubmit() { }
 	}

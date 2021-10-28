@@ -5,7 +5,7 @@ namespace RPG1bit
 	public class Boat : Object
 	{
 		public Boat(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
-
+		public override void OnHovered() => HoveredInfo = "Boat.";
 		public override void OnAdvanceTime()
 		{
 			var player = (Player)PickByUniqueID("player");

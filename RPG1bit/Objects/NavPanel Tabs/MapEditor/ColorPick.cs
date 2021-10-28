@@ -22,7 +22,6 @@ namespace RPG1bit
 				case "b": str = "blue"; break;
 			}
 			NavigationPanel.Info.Textbox.Text = $"[LEFT HOLD] Adjust the amount of {str}.";
-			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 
 		protected override void OnIndexValueChanged()
