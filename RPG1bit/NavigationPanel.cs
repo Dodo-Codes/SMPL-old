@@ -77,10 +77,12 @@ namespace RPG1bit
 			public static Effects Effects { get; set; }
 
 			private static bool leftClickable, rightClickable, dragable;
+			private static uint updateFrame;
 
 			public Info(string uniqueID) : base(uniqueID)
 			{
 				Camera.Event.Subscribe.Display(uniqueID);
+				Game.Event.Subscribe.Update(uniqueID);
 
 				Area = new("info-area");
 				Effects = new("info-effects");
@@ -98,6 +100,15 @@ namespace RPG1bit
 				Textbox.Spacing = new(4, -6);
 				Textbox.Scale = new(0.35, 0.35);
 				Textbox.Text = "";
+			}
+			public override void OnGameUpdate()
+			{
+				if (updateFrame == Performance.FrameCount)
+				{
+					Update();
+					ShowLeftClickableIndicator(leftClickable, dragable);
+					ShowRightClickableIndicator(rightClickable);
+				}
 			}
 			public static void Display()
 			{
@@ -144,6 +155,10 @@ namespace RPG1bit
 					Textbox.Text = $"{description}{sep}{Textbox.Text}";
 				}
 				Textbox.Text = $"{objName}{Textbox.Text}";
+			}
+			public static void ScheduleUpdate()
+			{
+				updateFrame = Performance.FrameCount + 1;
 			}
 			public override void OnCameraDisplay(Camera camera)
 			{

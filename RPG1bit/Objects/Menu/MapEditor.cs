@@ -119,7 +119,7 @@ namespace RPG1bit
 			new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22),
 			new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23),
 		};
-		public static List<Point> BoatTiles => new() { new(09, 19), new(10, 19), new(11, 19), };
+		public static List<Point> BoatTiles => new() { new(8, 19), new(9, 19), new(10, 19), new(11, 19), };
 		public static List<Point> WaterTiles => new()
 		{
 			new(07, 03), new(08, 03), new(09, 03), new(10, 03), new(11, 03), new(12, 03), new(07, 04), new(08, 04), new(09, 04),

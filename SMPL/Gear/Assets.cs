@@ -23,7 +23,7 @@ namespace SMPL.Gear
 			[JsonProperty]
 			internal Dictionary<string, string> values;
 			public string FilePath { get; set; }
-			public bool IsEncrypted { get; set; }
+			public bool IsCompressed { get; set; }
 
 			public Area[] Areas { get; set; }
 			public Audio[] Audios { get; set; }
@@ -47,7 +47,7 @@ namespace SMPL.Gear
 				Hitboxes = default; Sprites = default; Textboxes = default; Timers = default; Clothes = default; Ropes = default;
 				SegmentedLines = default; ProbabilityTables = default;
 				FilePath = filePath;
-				IsEncrypted = default;
+				IsCompressed = default;
 			}
 
 			public static class Event
@@ -245,7 +245,7 @@ namespace SMPL.Gear
 
 		private static void CreateAndStartLoadingThread()
 		{
-			loadingThread = new(new ThreadStart(LoadQueuedResources));
+			loadingThread = new(new ThreadStart(WorkOnQueuedResources));
 			loadingThread.Name = "ResourcesLoading";
 			loadingThread.IsBackground = true;
 			loadingThread.Start();
@@ -266,7 +266,7 @@ namespace SMPL.Gear
 			slotSaveUpdate = false;
 			slotSaveEnd = false;
 		}
-		private static void LoadQueuedResources()
+		private static void WorkOnQueuedResources()
 		{
 			while (Window.window.IsOpen)
 			{
@@ -301,7 +301,7 @@ namespace SMPL.Gear
 										{
 											str = File.ReadAllText(path);
 											if (str[0] != '{')
-												str = Data.Text.Decrypt(str, 'H');
+												str = Data.Text.Decompress(str);
 											var slot = JsonConvert.DeserializeObject<DataSlot>(str);
 
 											if (slot.values == null) continue;
@@ -340,8 +340,8 @@ namespace SMPL.Gear
 						{
 							Directory.CreateDirectory(Path.GetDirectoryName(path));
 							var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i], Formatting.Indented);
-							if (curQueuedSaveSlots[i].IsEncrypted)
-								str = Data.Text.Encrypt(str, 'H');
+							if (curQueuedSaveSlots[i].IsCompressed)
+								str = Data.Text.Compress(str);
 							File.WriteAllText(path, str);
 						}
 						catch (Exception)

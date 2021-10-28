@@ -29,6 +29,7 @@ namespace RPG1bit
 						var slot = new Assets.DataSlot($"Sessions\\{name}.session");
 						slot.SetValue("player", Text.ToJSON((Player)PickByUniqueID("player")));
 						slot.SetValue("map-name", Map.CurrentMapName);
+						slot.IsCompressed = true;
 						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
@@ -77,6 +78,7 @@ namespace RPG1bit
 						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
 						slot.SetValue("map-data", Text.ToJSON(Map.GetSavableData()));
+						slot.IsCompressed = true;
 						slot.Save();
 
 						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);

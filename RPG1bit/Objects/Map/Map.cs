@@ -50,70 +50,8 @@ namespace RPG1bit
 
 				if (CurrentSession == Session.Single && mapData != default)
 				{
-					var freeTile = new Point(0, 0);
-					var playerTiles = new List<Point>();
-					foreach (var kvp in RawData)
-					{
-						var pos = new Point(kvp.Key.X, kvp.Key.Y);
-						if (RawData[pos][3] == TilePlayer)
-						{
-							playerTiles.Add(pos);
-							RawData[pos][3] = default;
-						}
-						else if (RawData[pos][3] == TileBarrier)
-						{
-							var tile = TileBarrier;
-							tile.C = new Color();
-							RawData[pos][3] = tile;
-						}
-						else if (RawData[pos][3] == new Point(0, 0))
-							freeTile = pos;
-
-						for (int i = 0; i < 3; i++)
-						{
-							if (MapEditor.DoorTiles.Contains(RawData[pos][i]))
-								new Door($"door-{pos}-{i}", new()
-								{
-									Position = pos,
-									Height = i,
-									Name = "Door",
-									TileIndexes = new Point[] { RawData[pos][i] }
-								});
-							else if (MapEditor.BoatTiles.Contains(RawData[pos][i]))
-							{
-								new Boat($"boat-{pos}-{i}", new()
-								{
-									Position = pos,
-									Height = i,
-									Name = "Boat",
-									TileIndexes = new Point[] { RawData[pos][i] }
-								});
-								RawData[pos][i] = new();
-							}
-						}
-					}
-
-					var randPoint = playerTiles.Count > 0 ?
-						playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
-
-					if (CurrentSession == Session.Single)
-					{
-						var player = default(Player);
-						if (Assets.ValuesAreLoaded("player") == false)
-						{
-							player = new Player("player", new Object.CreationDetails()
-							{
-								Name = "player",
-								Position = randPoint,
-								Height = 3,
-								TileIndexes = new Point[] { new(25, 0) }
-							});
-						}
-						else
-							player = Text.FromJSON<Player>(Assets.GetValue("player"));
-						CameraPosition = player.Position;
-						NavigationPanel.Tab.Close();
-					}
+					MapObjectManager.InitializeObjects();
+					NavigationPanel.Tab.Close();
 					Assets.UnloadAllValues();
 				}
 				Screen.Display();

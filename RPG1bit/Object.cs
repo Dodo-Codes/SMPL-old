@@ -124,7 +124,9 @@ namespace RPG1bit
 				"[RIGHT CLICK] Split." },
 
 			{ new(25, 00), "Player." },
-			{ new(09, 19), "Boat." }, { new(10, 19), "Boat." }, { new(11, 19), "Boat." },
+
+			{ new(08, 19), "Boat." }, { new(09, 19), "Boat." }, { new(10, 19), "Boat." }, { new(11, 19), "Boat." },
+			{ new(12, 23), "Boat." }, { new(13, 23), "Boat." }, { new(14, 23), "Boat." }, { new(15, 23), "Boat." },
 		};
 		public static Object HoldingObject { get; set; }
 
@@ -173,8 +175,6 @@ namespace RPG1bit
 		}
 
 		private bool leftClicked;
-		private static uint updateFrame;
-		private static bool leftClickable, rightClickable, dragable;
 		private string hoveredInfo;
 		public string HoveredInfo
 		{
@@ -229,13 +229,6 @@ namespace RPG1bit
 
 		public override void OnGameUpdate()
 		{
-			if (updateFrame == Performance.FrameCount)
-			{
-				NavigationPanel.Info.Update();
-				NavigationPanel.Info.ShowLeftClickableIndicator(leftClickable, dragable);
-				NavigationPanel.Info.ShowRightClickableIndicator(rightClickable);
-			}
-
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
@@ -323,7 +316,9 @@ namespace RPG1bit
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
 					objects[kvp.Key][i].OnAdvanceTime();
+			MapObjectManager.OnAdvanceTime();
 			Screen.Display();
+			NavigationPanel.Info.ScheduleUpdate();
 		}
 		public static void Drop()
 		{
@@ -331,14 +326,10 @@ namespace RPG1bit
 
 			HoldingObject.OnDragEnd();
 
-			leftClickable = HoldingObject.IsLeftClickable;
-			rightClickable = HoldingObject.IsRightClickable;
-			dragable = HoldingObject.IsDragable;
-
 			HoldingObject = null;
 			Hoverer.CursorTileIndexes = new(36, 10);
 			Hoverer.CursorColor = Color.White;
-			updateFrame = Performance.FrameCount + 1;
+			NavigationPanel.Info.ScheduleUpdate();
 		}
 
 		public virtual void OnAdvanceTime() { }
