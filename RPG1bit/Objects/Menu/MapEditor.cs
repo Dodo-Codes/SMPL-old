@@ -120,6 +120,12 @@ namespace RPG1bit
 			new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23),
 		};
 		public static List<Point> BoatTiles => new() { new(09, 19), new(10, 19), new(11, 19), };
+		public static List<Point> WaterTiles => new()
+		{
+			new(07, 03), new(08, 03), new(09, 03), new(10, 03), new(11, 03), new(12, 03), new(07, 04), new(08, 04), new(09, 04),
+			new(10, 04), new(11, 04), new(12, 04), new(13, 04), new(14, 04), new(07, 05), new(08, 05), new(09, 05), new(10, 05),
+			new(11, 05),
+		};
 		public static Point Brush { get; set; } = new(1, 22);
 
 		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }

@@ -87,7 +87,11 @@ namespace RPG1bit
 			else if (CellIsInDownReach(mousePosMap)) movement = new Point(0, 1);
 
 			PreviousPosition = Position;
-			if (movement != new Point() && Move(movement)) AdvanceTime();
+			if (movement != new Point() && Move(movement))
+			{
+				TileIndexes = Map.PositionHasWaterAsHighest(Position) ? new(20, 23) : new(25, 0);
+				AdvanceTime();
+			}
 
 			if (IsRoof(Position) == false && IsRoof(PreviousPosition))
 				Map.IsShowingRoofs = true;

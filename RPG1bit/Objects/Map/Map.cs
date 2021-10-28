@@ -393,5 +393,15 @@ namespace RPG1bit
 			}
 			return false;
 		}
+		public static bool PositionHasWaterAsHighest(Point mapPos)
+		{
+			var highest = new Point();
+			for (int i = 0; i < 3; i++)
+			{
+				if (RawData[mapPos][i] != new Point())
+					highest = RawData[mapPos][i];
+			}
+			return MapEditor.WaterTiles.Contains(highest);
+		}
 	}
 }
