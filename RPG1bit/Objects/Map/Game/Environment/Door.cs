@@ -2,7 +2,7 @@
 
 namespace RPG1bit
 {
-	public class Door : Object
+	public class Door : DeletableWhenFar
 	{
 		public bool Locked { get; set; }
 		private bool close;
@@ -36,6 +36,8 @@ namespace RPG1bit
 			if (player.Position == Position && justClosed == false && Locked && playerHasKey == false)
 			{
 				player.Position = player.PreviousPosition;
+				if (MoveCamera.IsAnchored)
+					Map.CameraPosition = player.PreviousPosition;
 				TileIndexes -= new Point(1, 0);
 				NavigationPanel.Tab.Textbox.Text = "This door is locked.";
 			}

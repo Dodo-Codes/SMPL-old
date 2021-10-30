@@ -47,12 +47,10 @@ namespace RPG1bit
 		{
 			var player = (Player)Object.PickByUniqueID("player");
 			var pos = player.Position;
-			var prevPos = player.PreviousPosition;
-			var prevPosObjs = Object.objects.ContainsKey(prevPos) ? Object.objects[prevPos] : new();
 
 			for (int i = 0; i < 3; i++)
 			{
-				if (MapEditor.DoorTiles.Contains(Map.RawData[pos][i]))
+				if (MapEditor.Tiles["door"].Contains(Map.RawData[pos][i]) && Object.UniqueIDsExits($"door-{pos}-{i}") == false)
 				{
 					var door = new Door($"door-{pos}-{i}", new()
 					{
@@ -63,7 +61,7 @@ namespace RPG1bit
 					});
 					door.OnAdvanceTime();
 				}
-				else if (MapEditor.BoatTiles.Contains(Map.RawData[pos][i]))
+				else if (MapEditor.Tiles["boat"].Contains(Map.RawData[pos][i]) && Object.UniqueIDsExits($"boat-{pos}-{i}") == false)
 				{
 					var boat = new Boat($"boat-{pos}-{i}", new()
 					{
@@ -75,18 +73,29 @@ namespace RPG1bit
 					Map.RawData[pos][i] = new();
 					boat.OnAdvanceTime();
 				}
+				else if (MapEditor.Tiles["chest"].Contains(Map.RawData[pos][i]) && Object.UniqueIDsExits($"chest-{pos}-{i}") == false)
+				{
+					var chest = new Chest($"chest-{pos}-{i}", new()
+					{
+						Position = pos,
+						Height = i,
+						Name = "Chest",
+						TileIndexes = new Point[] { Map.RawData[pos][i] }
+					});
+					Map.RawData[pos][i] = new();
+					chest.OnAdvanceTime();
+				}
 			}
 
-			if (player.PreviousPosition == player.Position)
-				return;
-
-			for (int i = 0; i < prevPosObjs.Count; i++)
+			var objsToDestroy = new List<Object>();
+			foreach (var kvp in Object.objects)
+				for (int i = 0; i < kvp.Value.Count; i++)
+					if (kvp.Value[i] is DeletableWhenFar && Point.Distance(player.Position, kvp.Value[i].Position) > 5)
+						objsToDestroy.Add(kvp.Value[i]);
+			for (int i = 0; i < objsToDestroy.Count; i++)
 			{
-				if (prevPosObjs[i] is Door || prevPosObjs[i] is Boat)
-				{
-					Map.RawData[prevPosObjs[i].Position][prevPosObjs[i].Height] = prevPosObjs[i].TileIndexes;
-					prevPosObjs[i].Destroy();
-				}
+				Map.RawData[objsToDestroy[i].Position][objsToDestroy[i].Height] = objsToDestroy[i].TileIndexes;
+				objsToDestroy[i].Destroy();
 			}
 		}
 	}

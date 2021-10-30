@@ -81,9 +81,7 @@ namespace RPG1bit
 			{ new(13, 02), "Stone road." }, { new(14, 2), "Stone road." }, { new(15, 2), "Stone road." }, { new(16, 2), "Stone road." },
 			{ new(17, 02), "Stone road." }, { new(13, 3), "Stone road." }, { new(14, 3), "Stone road." },
 
-			{ new(01, 07), "Sign." },
-			{ new(00, 07),	"Sign." },
-			{ new(02, 07), "Sign." },
+			{ new(01, 07), "Sign." }, { new(00, 07),	"Sign." }, { new(02, 07), "Sign." },
 
 			{ new(00, 03), "Fence." }, { new(01, 03), "Fence." }, { new(02, 03), "Fence." }, { new(05, 03), "Fence." },
 			{ new(06, 03), "Fence." }, { new(03, 04), "Closed fence gate." }, { new(02, 04), "Fence." },
@@ -94,7 +92,7 @@ namespace RPG1bit
 			{ new(28, 22), "Roof." }, { new(29, 22), "Roof." }, { new(30, 22), "Roof." }, { new(31, 22), "Roof." },
 			{ new(32, 22), "Chimney." }, { new(37, 22), "Roof." },
 
-			{ new(33, 22), "Building." }, { new(34, 22), "Building." }, { new(35, 22), "Building." }, { new(36, 22), "Building." },
+			{ new(33, 22), "Structure." }, { new(34, 22), "Structure." }, { new(35, 22), "Structure." }, { new(36, 22), "Structure." },
 
 			{ new(38, 22), "Closed door." }, { new(39, 22), "Opened door." }, { new(40, 22), "Closed door." },
 			{ new(41, 22), "Opened door." }, { new(42, 22), "Closed door." }, { new(43, 22), "Opened door." },
@@ -107,16 +105,11 @@ namespace RPG1bit
 			{ new(47, 23), "Unlocked door." },
 
 			// single
-			{ new(07, 23), "...on the ground." },
-			{ new(05, 22), "...on your head." },
-			{ new(06, 22), "...on your body." },
-			{ new(07, 22), "...on your feet." },
-			{ new(08, 22), "...in your left hand." },
-			{ new(09, 22), "...in your right hand." },
-			{ new(10, 22), "...on your back." },
-			{ new(11, 22), "...on your waist." },
-			{ new(43, 06), "...in your quiver." },
+			{ new(07, 23), "...on the ground." }, { new(05, 22), "...on your head." }, { new(06, 22), "...on your body." },
+			{ new(07, 22), "...on your feet." }, { new(08, 22), "...in your left hand." }, { new(09, 22), "...in your right hand." },
+			{ new(10, 22), "...on your back." }, { new(11, 22), "...on your waist." }, { new(43, 06), "...in your quiver." },
 			{ new(45, 04), "...in your bag." },
+
 			{ new(08, 23), "Small pile of items." }, { new(9, 23), "Pile of items." }, { new(10, 23), "Big pile of items." },
 			{ new(11, 23), "Huge pile of items." },
 
@@ -129,6 +122,9 @@ namespace RPG1bit
 
 			{ new(08, 19), "Boat." }, { new(09, 19), "Boat." }, { new(10, 19), "Boat." }, { new(11, 19), "Boat." },
 			{ new(12, 23), "Boat." }, { new(13, 23), "Boat." }, { new(14, 23), "Boat." }, { new(15, 23), "Boat." },
+
+			{ new(21, 23), "Locked chest." }, { new(22, 23), "Unlocked chest." },
+			{ new(21, 24), "Closed chest." }, { new(22, 24), "Opened chest." },
 		};
 		public static Object HoldingObject { get; set; }
 

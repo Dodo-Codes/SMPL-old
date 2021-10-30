@@ -252,7 +252,7 @@ namespace RPG1bit
 					{
 						var color = RawData[pos][z].C;
 						if (RawData[pos][z] != new Point(0, 0)) tilesInCoord++;
-						if (IsShowingRoofs == false && MapEditor.RoofTiles.Contains(RawData[pos][z]))
+						if (IsShowingRoofs == false && MapEditor.Tiles["roof"].Contains(RawData[pos][z]))
 							color = new();
 
 						Screen.EditCell(MapToScreenPosition(pos), RawData[pos][z], z, color);
@@ -336,7 +336,7 @@ namespace RPG1bit
 			for (int i = 0; i < 3; i++)
 			{
 				var tile = RawData[mapPos][i];
-				if (MapEditor.RoofTiles.Contains(tile))
+				if (MapEditor.Tiles["roof"].Contains(tile))
 					return true;
 			}
 			return false;
@@ -349,7 +349,7 @@ namespace RPG1bit
 				if (RawData[mapPos][i] != new Point())
 					highest = RawData[mapPos][i];
 			}
-			return MapEditor.WaterTiles.Contains(highest);
+			return MapEditor.Tiles["water"].Contains(highest);
 		}
 	}
 }

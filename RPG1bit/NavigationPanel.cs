@@ -117,25 +117,9 @@ namespace RPG1bit
 				ShowRightClickableIndicator(false);
 
 				var mousePos = Screen.GetCellAtCursorPosition();
-				var objName = "";
-
 				var mousePosObjs = objects.ContainsKey(mousePos) ? objects[mousePos] : new();
-				for (int i = 0; i < mousePosObjs.Count; i++)
-					if (mousePosObjs[i] is not ObjectList)
-					{
-						if (mousePosObjs[i].IsUI == false)
-							continue;
-						ShowInfoIndicators(mousePosObjs[i]);
-					}
 				var mapPos = Map.ScreenToMapPosition(mousePos);
 				var mapObjs = objects.ContainsKey(mapPos) ? objects[mapPos] : new();
-				for (int i = 0; i < mapObjs.Count; i++)
-				{
-					if (mapObjs[i].IsUI)
-						continue;
-					ShowInfoIndicators(mapObjs[i]);
-				}
-
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -157,17 +141,32 @@ namespace RPG1bit
 					if (Textbox.Text == "" && isPanel) description = "Game navigation panel.";
 
 					if (Textbox.Text != "" && description == descriptions[new(0, 0)]) continue;
-					Textbox.Text = $"{description}{sep}{Textbox.Text}";
-				}
-				Textbox.Text = $"{objName}{Textbox.Text}";
 
-				void ShowInfoIndicators(Object obj)
-				{
-					if (obj.IsLeftClickable || obj.IsDragable)
-						ShowLeftClickableIndicator(obj.IsLeftClickable, obj.IsDragable);
-					if (obj.IsRightClickable)
-						ShowRightClickableIndicator(obj.IsRightClickable);
-					objName += obj.HoveredInfo + (string.IsNullOrEmpty(obj.HoveredInfo) ? "" : "\n");
+					for (int j = 0; j < mousePosObjs.Count; j++)
+						if (mousePosObjs[j] is not ObjectList)
+						{
+							if (mousePosObjs[j].IsUI == false || mousePosObjs[j].Height != i)
+								continue;
+							ShowInfoIndicators(mousePosObjs[j]);
+						}
+					for (int j = 0; j < mapObjs.Count; j++)
+					{
+						if (mapObjs[j].IsUI || mapObjs[j].Height != i)
+							continue;
+						ShowInfoIndicators(mapObjs[j]);
+					}
+
+					Textbox.Text = $"{description}{sep}{Textbox.Text}";
+
+					void ShowInfoIndicators(Object obj)
+					{
+						if (obj.IsLeftClickable || obj.IsDragable)
+							ShowLeftClickableIndicator(obj.IsLeftClickable, obj.IsDragable);
+						if (obj.IsRightClickable)
+							ShowRightClickableIndicator(obj.IsRightClickable);
+						if (obj.HoveredInfo != null && obj.HoveredInfo != "")
+							description = obj.HoveredInfo + (string.IsNullOrEmpty(obj.HoveredInfo) ? "" : "\n");
+					}
 				}
 			}
 			public static void ScheduleUpdate()

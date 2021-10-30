@@ -77,7 +77,7 @@ namespace SMPL.Gear
 		}
 		public virtual void Destroy()
 		{
-			if (ErrorIfDestroyed()) return;
+			if (ErrorIfDestroyed() || uniqueID == null) return;
 			uniqueIDs.Remove(uniqueID);
 			if (objTags.ContainsKey(this))
 			{

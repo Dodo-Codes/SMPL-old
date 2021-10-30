@@ -11,14 +11,18 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			var descr = NavigationPanel.Info.Textbox.Text;
-			if (descr == "Void.") return;
-			else if (descr == "") descr = "Background color.";
+			if (descr == "Void.")
+				return;
+			else if (descr == "")
+				descr = "Background color.";
+			else if (descr == "Game navigation panel.")
+				return;
 			NavigationPanel.Info.Textbox.Text = $"[MIDDLE CLICK] Pick a brush from tile:\n{descr}";
 		}
 		public override void OnDisplay(Point screenPos)
 		{
 			var listSize = ObjectList.Lists["brush-tiles"].Size;
-			var mapEditorTiles = MapEditor.tiles;
+			var mapEditorTiles = MapEditor.TileList;
 			var scrollIndex = ObjectList.Lists["brush-tiles"].scrollIndex;
 			var y = (int)((screenPos.Y - 3 + scrollIndex) * listSize.W);
 			for (int i = 0; i < listSize.W; i++)

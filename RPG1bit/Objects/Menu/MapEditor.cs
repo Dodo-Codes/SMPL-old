@@ -6,7 +6,7 @@ namespace RPG1bit
 {
 	public class MapEditor : Object
 	{
-		public static readonly Point[] tiles = new Point[]
+		public static readonly Point[] TileList = new Point[]
 		{
 			new(01, 22) { C = Color.White },				// background
 			new(00, 22) { C = Color.Red },				// barrier
@@ -94,16 +94,17 @@ namespace RPG1bit
 			// doors
 			new(40, 22) { C = Color.Wood - 30 }, new(38, 22) { C = Color.Wood - 30 }, new(42, 22) { C = Color.Wood - 30 },
 			new(44, 22) { C = Color.Wood - 30 }, new(46, 22) { C = Color.Gray + 50 },
-			new(), new(), new(), new(),
+			new(), new(21, 24) { C = Color.Wood - 30 }, new(), new(), // chest
 			// locked doors
 			new(40, 23) { C = Color.Wood - 30 }, new(38, 23) { C = Color.Wood - 30 }, new(42, 23) { C = Color.Wood - 30 },
 			new(44, 23) { C = Color.Wood - 30 }, new(46, 23) { C = Color.Gray + 50 },
-			new(), new(), new(), new(),
+			new(), new(21, 23) { C = Color.Wood - 30 }, new(), new(), // chest
 
 			// boats
-			new(09, 19) { C = Color.Wood - 30 }, new(10, 19) { C = Color.Wood - 30 }, new(11, 19) { C = Color.Wood - 30 },
+			new(08, 19) { C = Color.Wood - 30 }, new(09, 19) { C = Color.Wood - 30 }, new(10, 19) { C = Color.Wood - 30 },
+			new(11, 19) { C = Color.Wood - 30 },
 		};
-		public static readonly Dictionary<Point, Point[]> randomTiles = new()
+		public static readonly Dictionary<Point, Point[]> RandomTiles = new()
 		{
 			{ new(05, 00), new Point[] { new(04, 00), new(5, 0), new(6, 0), new(7, 0) } }, // grass
 			{ new(00, 02), new Point[] { new(00, 02), new(1, 2), new(2, 2), new(3, 2) } }, // bushes
@@ -112,19 +113,22 @@ namespace RPG1bit
 			{ new(01, 01), new Point[] { new(00, 01), new(1, 1), new(2, 1) } }, // pine trees
 			{ new(06, 02), new Point[] { new(05, 02), new(6, 2) } }, // cactus
 		};
-		public static List<Point> SpecialTiles => new() { new(00, 22), new(24, 08) };															  
-		public static List<Point> RoofTiles => new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(32, 22), new(37, 22) };
-		public static List<Point> DoorTiles => new()
+		public static readonly Dictionary<string, List<Point>> Tiles = new()
 		{
-			new(05, 04), new(03, 04), new(00, 04), new(03, 03), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22),
-			new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23),
-		};
-		public static List<Point> BoatTiles => new() { new(8, 19), new(9, 19), new(10, 19), new(11, 19), };
-		public static List<Point> WaterTiles => new()
-		{
-			new(07, 03), new(08, 03), new(09, 03), new(10, 03), new(11, 03), new(12, 03), new(07, 04), new(08, 04), new(09, 04),
-			new(10, 04), new(11, 04), new(12, 04), new(13, 04), new(14, 04), new(07, 05), new(08, 05), new(09, 05), new(10, 05),
-			new(11, 05),
+			{ "special", new() { new(00, 22), new(24, 08) } },
+			{ "roof", new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(32, 22), new(37, 22) } },
+			{ "door", new()
+			{
+				new(05, 04), new(3, 4), new(0, 4), new(3, 3), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22), new(40, 23),
+				new(38, 23), new(42, 23), new(44, 23), new(46, 23)
+			} },
+			{ "boat", new() { new(8, 19), new(9, 19), new(10, 19), new(11, 19), new(12, 23), new(13, 23), new(14, 23), new(15, 23) } },
+			{ "water", new()
+			{
+				new(7, 3), new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(7, 4), new(8, 4), new(9, 4), new(10, 4),
+				new(11, 4), new(12, 4), new(13, 4), new(14, 4), new(7, 5), new(8, 5), new(9, 5), new(10, 5), new(11, 5)
+			} },
+			{ "chest", new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24) } },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 
@@ -241,7 +245,7 @@ namespace RPG1bit
 
 			if (TileIsSign(Brush) == false)
 			{
-				var isSpecial = SpecialTiles.Contains(Brush);
+				var isSpecial = Tiles["special"].Contains(Brush);
 				if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos && isSpecial == false)
 				{
 					var dirY = pos.Y > clickPos.Y ? 1 : -1;
@@ -288,9 +292,9 @@ namespace RPG1bit
 		}
 		public static Point GetRandomBrushTile()
 		{
-			if (randomTiles.ContainsKey(Brush) == false) return Brush;
+			if (RandomTiles.ContainsKey(Brush) == false) return Brush;
 
-			var randomTile = randomTiles[Brush][(int)Probability.Randomize(new(0, randomTiles[Brush].Length - 1))];
+			var randomTile = RandomTiles[Brush][(int)Probability.Randomize(new(0, RandomTiles[Brush].Length - 1))];
 			randomTile.C = Brush.C;
 			return randomTile;
 		}

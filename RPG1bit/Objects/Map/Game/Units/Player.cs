@@ -105,7 +105,7 @@ namespace RPG1bit
 				for (int i = 0; i < 3; i++)
 				{
 					var tile = Map.RawData.ContainsKey(mapPos) ? Map.RawData[mapPos][i] : new();
-					if (MapEditor.RoofTiles.Contains(tile))
+					if (MapEditor.Tiles["roof"].Contains(tile))
 						return true;
 				}
 				return false;
