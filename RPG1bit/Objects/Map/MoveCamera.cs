@@ -65,7 +65,7 @@ namespace RPG1bit
 		private void Execute()
 		{
 			Map.CameraPosition += directions[(int)CurrentType];
-			var player = ((Object)PickByUniqueID("player"));
+			var player = ((Object)PickByUniqueID(nameof(Player)));
 			if (CurrentType == Type.Center && player != null)
 			{
 				IsAnchored = !IsAnchored;

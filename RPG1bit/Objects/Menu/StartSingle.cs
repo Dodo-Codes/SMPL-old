@@ -40,6 +40,7 @@ namespace RPG1bit
 					IsLeftClickable = true,
 					IsInTab = true,
 					AppearOnTab = "single",
+					IsKeptBetweenSessions = true,
 				}, new Size(13, 9));
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
@@ -54,40 +55,8 @@ namespace RPG1bit
 						IsLeftClickable = true,
 						IsInTab = true,
 						AppearOnTab = "single",
+						IsKeptBetweenSessions = true,
 					}));
-			}
-			if (Gate.EnterOnceWhile("create-item-info-tab", true))
-			{
-				new ItemStats("strength", new()
-				{
-					Position = new(19, 9),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "item-info",
-					IsUI = true,
-					Name = "positives"
-				});
-				new ItemStats("weakness", new()
-				{
-					Position = new(19, 12),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "item-info",
-					IsUI = true,
-					Name = "negatives"
-				});
-				new ItemSlotInfo("able-to-carry-in", new()
-				{
-					Position = new(31, 2),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "item-info",
-					IsUI = true,
-					Name = "able-to-carry"
-				});
 			}
 		}
 	}

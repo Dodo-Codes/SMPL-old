@@ -70,6 +70,57 @@ namespace RPG1bit
 			if (button == Mouse.Button.Left) LeftClickPosition = mousePos;
 			if (button == Mouse.Button.Right) RightClickPosition = mousePos;
 
+			if (button == Mouse.Button.ExtraButton1)
+			{
+				var key = new Key("item-key", new()
+				{
+					Name = "Key",
+					Position = new(-10, 0),
+					Height = 2,
+					TileIndexes = new Point[]
+				{ new(32, 11) { C = Color.Gray }, new(33, 11) { C = Color.Gray }, new(34, 11) { C = Color.Gray } },
+					IsUI = true,
+					IsDragable = true,
+					IsRightClickable = true,
+					IsLeftClickable = true,
+				})
+				{ Quantity = 3 };
+				var quiver = new Quiver("quiver", new()
+				{
+					Name = "Quiver",
+					Position = new(-10, 0),
+					Height = 2,
+					TileIndexes = new Point[] { new(42, 6) { C = Color.Brown + 30 } },
+					IsUI = true,
+					IsDragable = true,
+					IsRightClickable = true,
+					IsLeftClickable = true,
+				})
+				{ Positives = new double[] { 1, 0 } };
+				var bag = new Bag("bag", new()
+				{
+					Name = "Bag",
+					Position = new(-10, 0),
+					Height = 2,
+					TileIndexes = new Point[] { new(44, 4) { C = Color.Brown + 30 } },
+					IsUI = true,
+					IsDragable = true,
+					IsRightClickable = true,
+					IsLeftClickable = true,
+				})
+				{ Positives = new double[] { 2, 0 } };
+				var pile = new ItemPile("item-pile", new()
+				{
+					Position = new Point(7, -2),
+					Height = 3,
+					TileIndexes = new Point[] { new(8, 23) },
+					Name = "item-pile",
+				});
+				pile.AddItem(key);
+				pile.AddItem(quiver);
+				pile.AddItem(bag);
+			}
+
 			if ((Map.IsHovered() || NavigationPanel.Tab.IsHovered()) && button == Mouse.Button.Middle)
 				MapEditor.PickCurrentTile();
 			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false)

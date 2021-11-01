@@ -1,11 +1,13 @@
 ﻿using SMPL.Gear;
 using SMPL.Data;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RPG1bit
 {
 	public class Player : Unit
 	{
+		[JsonProperty]
 		public Point PreviousPosition { get; private set; }
 
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
@@ -13,66 +15,34 @@ namespace RPG1bit
 			PreviousPosition = Position;
 
 			Map.IsShowingRoofs = Map.TileHasRoof(Position) == false;
-
-			var key = new Key("item-key", new()
-			{
-				Name = "Key",
-				Position = new(-10, 0),
-				Height = 2,
-				TileIndexes = new Point[]
-				{ new(32, 11) { C = Color.Gray }, new(33, 11) { C = Color.Gray }, new(34, 11) { C = Color.Gray } },
-				IsUI = true,
-				IsDragable = true,
-				IsRightClickable = true,
-				IsLeftClickable = true,
-			}) { Quantity = 3 };
-			var quiver = new Quiver("quiver", new()
-			{
-				Name = "Quiver",
-				Position = new(-10, 0),
-				Height = 2,
-				TileIndexes = new Point[] { new(42, 6) { C = Color.Brown + 30 } },
-				IsUI = true,
-				IsDragable = true,
-				IsRightClickable = true,
-				IsLeftClickable = true,
-			}) { Positives = new double[] { 1, 0 } };
-			var bag = new Bag("bag", new()
-			{
-				Name = "Bag",
-				Position = new(-10, 0),
-				Height = 2,
-				TileIndexes = new Point[] { new(44, 4) { C = Color.Brown + 30 } },
-				IsUI = true,
-				IsDragable = true,
-				IsRightClickable = true,
-				IsLeftClickable = true,
-			}) { Positives = new double[] { 2, 0 } };
-			var pile = new ItemPile("item-pile", new()
-			{
-				Position = Position + new Point(0, -2),
-				Height = 3,
-				TileIndexes = new Point[] { new(8, 23) },
-				Name = "item-pile",
-			});
-			pile.AddItem(key);
-			pile.AddItem(quiver);
-			pile.AddItem(bag);
 		}
 		public override void OnGameUpdate()
 		{
 			base.OnGameUpdate();
 
 			var mousePosMap = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
-			Hoverer.TileIndexes = Map.IsHovered()
-					 ? CanMoveIntoCell(mousePosMap) ? new(4, 23) : Hoverer.DefaultTileIndexes
-					 : Hoverer.DefaultTileIndexes;
+			Hoverer.TileIndexes = Hoverer.DefaultTileIndexes;
 
-			Hoverer.Area.Angle = 0;
-			if (CellIsInLeftReach(mousePosMap)) Hoverer.Area.Angle = 270;
-			if (CellIsInRightReach(mousePosMap)) Hoverer.Area.Angle = 90;
-			if (CellIsInUpReach(mousePosMap)) Hoverer.Area.Angle = 0;
-			if (CellIsInDownReach(mousePosMap)) Hoverer.Area.Angle = 180;
+			if (Map.IsHovered() && CellIsInReach(mousePosMap))
+			{
+				if (CanMoveIntoCell(mousePosMap))
+				{
+					Hoverer.TileIndexes = new(4, 23);
+					Hoverer.Area.Angle = 0;
+					if (CellIsInLeftReach(mousePosMap)) Hoverer.Area.Angle = 270;
+					if (CellIsInRightReach(mousePosMap)) Hoverer.Area.Angle = 90;
+					if (CellIsInUpReach(mousePosMap)) Hoverer.Area.Angle = 0;
+					if (CellIsInDownReach(mousePosMap)) Hoverer.Area.Angle = 180;
+				}
+
+				var objs = objects.ContainsKey(mousePosMap) ? objects[mousePosMap] : new();
+				for (int i = 0; i < objs.Count; i++)
+					if (objs[i] is IInteractable)
+					{
+						Hoverer.TileIndexes = new(27, 14);
+						return;
+					}
+			}
 		}
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{

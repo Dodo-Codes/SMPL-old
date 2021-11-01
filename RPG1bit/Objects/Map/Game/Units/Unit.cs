@@ -1,4 +1,5 @@
-﻿using SMPL.Data;
+﻿using Newtonsoft.Json;
+using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
 
@@ -6,6 +7,7 @@ namespace RPG1bit
 {
 	public class Unit : Object
 	{
+		[JsonProperty]
 		public List<string> ItemUIDs { get; set; } = new();
 
 		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
@@ -16,7 +18,7 @@ namespace RPG1bit
 			if (CanMoveIntoCell(futurePos) == false) return false;
 
 			Position = futurePos;
-			if (UniqueID == "player" && MoveCamera.IsAnchored)
+			if (UniqueID == nameof(Player) && MoveCamera.IsAnchored)
 				Map.CameraPosition += movement;
 			return true;
 		}

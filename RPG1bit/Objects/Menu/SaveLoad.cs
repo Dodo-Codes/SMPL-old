@@ -35,6 +35,7 @@ namespace RPG1bit
 					IsLeftClickable = true,
 					IsInTab = true,
 					AppearOnTab = "save-load",
+					IsKeptBetweenSessions = true,
 				});
 				var mapList = new ObjectList("load-list", new CreationDetails()
 				{
@@ -46,6 +47,7 @@ namespace RPG1bit
 					IsLeftClickable = true,
 					IsInTab = true,
 					AppearOnTab = "save-load",
+					IsKeptBetweenSessions = true,
 				}, new Size(13, 8));
 
 				var maps = FileSystem.GetFileNames(false, "Maps");
@@ -62,6 +64,7 @@ namespace RPG1bit
 						IsRightClickable = true,
 						IsInTab = true,
 						AppearOnTab = "save-load",
+						IsKeptBetweenSessions = true,
 					}));
 				for (int i = 0; i < sessions.Length; i++)
 					mapList.Objects.Add(new LoadSingleSessionValue($"session-{sessions[i]}", new CreationDetails()
@@ -75,6 +78,7 @@ namespace RPG1bit
 						IsRightClickable = true,
 						IsInTab = true,
 						AppearOnTab = "save-load",
+						IsKeptBetweenSessions = true,
 					}));
 			}
 		}

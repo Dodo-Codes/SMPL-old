@@ -34,7 +34,7 @@ namespace RPG1bit
 				if (mapData != default)
 					foreach (var kvp in mapData)
 						RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
-				if (UniqueIDsExits("player") == false)
+				if (UniqueIDsExits(nameof(Player)) == false)
 					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 
 				for (int i = 0; i < signData.Count; i++)
@@ -53,6 +53,43 @@ namespace RPG1bit
 					MapObjectManager.InitializeObjects();
 					NavigationPanel.Tab.Close();
 					Assets.UnloadAllValues();
+
+					if (Gate.EnterOnceWhile("create-item-info-tab", true))
+					{
+						new ItemStats("strength", new()
+						{
+							Position = new(19, 9),
+							Height = 1,
+							TileIndexes = new Point[] { new() },
+							IsInTab = true,
+							AppearOnTab = "item-info",
+							IsUI = true,
+							Name = "positives",
+							IsKeptBetweenSessions = true,
+						});
+						new ItemStats("weakness", new()
+						{
+							Position = new(19, 12),
+							Height = 1,
+							TileIndexes = new Point[] { new() },
+							IsInTab = true,
+							AppearOnTab = "item-info",
+							IsUI = true,
+							Name = "negatives",
+							IsKeptBetweenSessions = true,
+						});
+						new ItemSlotInfo("able-to-carry-in", new()
+						{
+							Position = new(31, 2),
+							Height = 1,
+							TileIndexes = new Point[] { new() },
+							IsInTab = true,
+							AppearOnTab = "item-info",
+							IsUI = true,
+							Name = "able-to-carry",
+							IsKeptBetweenSessions = true,
+						});
+					}
 				}
 				Screen.Display();
 			}
@@ -217,21 +254,6 @@ namespace RPG1bit
 				});
 			}
 		}
-		public static void DestroyAllSessionObjects()
-		{
-			if (CurrentSession == Session.None) return;
-
-			var objsToDestroy = new List<Object>();
-			foreach (var kvp in Object.objects)
-				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					if ((kvp.Value[i].IsUI && kvp.Value[i].Position.X > 18) || kvp.Value[i].IsInTab) continue;
-					objsToDestroy.Add(kvp.Value[i]);
-				}
-
-			for (int i = 0; i < objsToDestroy.Count; i++)
-				objsToDestroy[i].Destroy();
-		}
 		
 		public static void Display()
 		{
@@ -301,7 +323,7 @@ namespace RPG1bit
 			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
 
-			DestroyAllSessionObjects();
+			Object.DestroyAllSessionObjects();
 			CurrentSession = session;
 			CurrentMapName = name;
 

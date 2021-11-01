@@ -1,11 +1,13 @@
-﻿using SMPL.Data;
+﻿using Newtonsoft.Json;
+using SMPL.Data;
 using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class ItemPile : Object
+	public class ItemPile : Object, ITypeTaggable
 	{
 		public const int MAX_COUNT = 8;
+		[JsonProperty]
 		private List<string> ItemUIDs { get; set; } = new();
 
 		public ItemPile(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
@@ -24,7 +26,7 @@ namespace RPG1bit
 
 		public void UpdateItems()
 		{
-			var player = (Player)PickByUniqueID("player");
+			var player = (Player)PickByUniqueID(nameof(Player));
 
 			if (ItemUIDs.Count == 0)
 				Destroy();

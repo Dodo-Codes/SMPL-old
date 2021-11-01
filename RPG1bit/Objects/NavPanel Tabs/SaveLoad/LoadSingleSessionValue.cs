@@ -15,7 +15,7 @@ namespace RPG1bit
 		{
 			if (Assets.ValuesAreLoaded("map-name") == false) return;
 
-			Map.DestroyAllSessionObjects();
+			DestroyAllSessionObjects();
 			Map.LoadMap(Map.Session.Single, Assets.GetValue("map-name"));
 		}
 		public override void OnLeftClicked()

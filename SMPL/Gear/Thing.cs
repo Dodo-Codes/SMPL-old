@@ -115,7 +115,10 @@ namespace SMPL.Gear
 
 		public void AddTags(params string[] tags)
 		{
-			if (ErrorIfDestroyed()) return;
+			if (ErrorIfDestroyed())
+				return;
+			if (objTags.ContainsKey(this) == false)
+				return;
 			for (int j = 0; j < tags.Length; j++)
 			{
 				if (objTags[this].Contains(tags[j])) continue;

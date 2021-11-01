@@ -27,8 +27,16 @@ namespace RPG1bit
 				case Map.Session.Single:
 					{
 						var slot = new Assets.DataSlot($"Sessions\\{name}.session");
-						slot.SetValue("player", Text.ToJSON((Player)PickByUniqueID("player")));
+						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
+						SaveAll<Chest>();
+						SaveAll<ItemPile>();
+						SaveAll<Bag>();
+						SaveAll<Key>();
+						SaveAll<Quiver>();
 						slot.SetValue("map-name", Map.CurrentMapName);
+
+						void SaveAll<T>() => slot.SetValue(typeof(T).Name, Text.ToJSON(PickByTag(typeof(T).Name)));
+
 						slot.IsCompressed = true;
 						slot.Save();
 

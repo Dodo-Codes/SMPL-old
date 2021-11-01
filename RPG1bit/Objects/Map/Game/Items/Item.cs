@@ -1,22 +1,32 @@
-﻿using SMPL.Data;
+﻿using Newtonsoft.Json;
+using SMPL.Data;
 using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class Item : Object
+	public class Item : Object, ITypeTaggable
 	{
+		[JsonProperty]
 		public string OwnerUID { get; set; }
+		[JsonProperty]
 		public uint Quantity { get; set; } = 1;
-
+		[JsonProperty]
 		public double[] Positives { get; set; } = new double[2];
+		[JsonProperty]
 		public double[] Negatives { get; set; } = new double[2];
-
+		[JsonProperty]
 		public bool CanWearOnHead { get; set; }
+		[JsonProperty]
 		public bool CanWearOnBody { get; set; }
+		[JsonProperty]
 		public bool CanWearOnFeet { get; set; }
+		[JsonProperty]
 		public bool CanCarryOnBack { get; set; }
+		[JsonProperty]
 		public bool CanCarryOnWaist { get; set; }
+		[JsonProperty]
 		public bool CanCarryInBag { get; set; }
+		[JsonProperty]
 		public bool CanCarryInQuiver { get; set; }
 
 		public Item(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
@@ -43,7 +53,8 @@ namespace RPG1bit
 			if (this is SlotsExtender se && (OwnerUID.Contains("carry") || OwnerUID.Contains("hand")))
 				for (int i = 0; i < se.Positives[0]; i++)
 				{
-					var objs = objects[se.SlotsPosition + new Point(0, i)];
+					var pos = se.SlotsPosition + new Point(0, i);
+					var objs = objects.ContainsKey(pos) ? objects[pos] : new();
 					for (int j = 0; j < objs.Count; j++)
 						if (objs[j] is Item)
 						{
@@ -57,22 +68,23 @@ namespace RPG1bit
 
 		public override void OnRightClicked()
 		{
-			if (PickByUniqueID(OwnerUID) is not ItemPile || Quantity < 2) return;
+			if (Quantity < 2) return;
 
-			for (int i = 0; i < 8; i++)
-			{
-				var groundSlot = (ItemSlot)PickByUniqueID($"ground-slot-{i}");
-				if (groundSlot.HasItem() == false)
+			if (PickByUniqueID(OwnerUID) is ItemPile)
+				for (int i = 0; i < 8; i++)
 				{
-					groundSlot.Equip(Split(OnSplit(), groundSlot, Quantity));
-					var player = (Player)PickByUniqueID("player");
-					var objs = objects[player.Position];
-					for (int j = 0; j < objs.Count; j++)
-						if (objs[j] is ItemPile pile)
-							pile.UpdateItems();
-					break;
+					var groundSlot = (ItemSlot)PickByUniqueID($"ground-slot-{i}");
+					if (groundSlot.HasItem() == false)
+					{
+						groundSlot.Equip(Split(OnSplit(), groundSlot, Quantity));
+						var player = (Player)PickByUniqueID(nameof(Player));
+						var objs = objects[player.Position];
+						for (int j = 0; j < objs.Count; j++)
+							if (objs[j] is ItemPile pile)
+								pile.UpdateItems();
+						break;
+					}
 				}
-			}
 			NavigationPanel.Tab.Close();
 			Screen.Display();
 		}
@@ -133,5 +145,6 @@ namespace RPG1bit
 		public virtual void OnItemInfoDisplay() { }
 		public virtual void OnPickup() { }
 		public virtual void OnDrop() { }
+		public virtual void OnStore() { }
 	}
 }

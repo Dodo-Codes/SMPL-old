@@ -21,6 +21,7 @@ namespace RPG1bit
 			public bool IsConfirmingClick { get; set; }
 			public bool IsUI { get; set; }
 			public bool IsInTab { get; set; }
+			public bool IsKeptBetweenSessions { get; set; }
 			public string AppearOnTab { get; set; }
 		}
 
@@ -129,26 +130,27 @@ namespace RPG1bit
 		public static Object HoldingObject { get; set; }
 
 		[JsonProperty]
-		public string Name { get; protected set; }
+		public string Name { get; set; }
 		[JsonProperty]
 		public Point TileIndexes { get; set; }
 		[JsonProperty]
-		public int Height { get; protected set; }
+		public int Height { get; set; }
 		[JsonProperty]
-		public bool IsDragable { get; protected set; }
+		public bool IsDragable { get; set; }
 		[JsonProperty]
-		public bool IsLeftClickable { get; protected set; }
+		public bool IsLeftClickable { get; set; }
 		[JsonProperty]
-		public bool IsRightClickable { get; protected set; }
+		public bool IsRightClickable { get; set; }
 		[JsonProperty]
-		public bool IsConfirmingClick { get; protected set; }
+		public bool IsConfirmingClick { get; set; }
 		[JsonProperty]
-		public bool IsUI { get; protected set; }
+		public bool IsUI { get; set; }
 		[JsonProperty]
-		public bool IsInTab { get; protected set; }
+		public bool IsInTab { get; set; }
 		[JsonProperty]
-		public string AppearOnTab { get; protected set; }
+		public bool IsKeptBetweenSessions { get; set; }
 		[JsonProperty]
+		public string AppearOnTab { get; set; }
 
 		private Point position;
 		[JsonProperty]
@@ -189,7 +191,11 @@ namespace RPG1bit
 			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
 			Game.Event.Subscribe.Update(uniqueID);
 
-			if (creationDetails.TileIndexes == null && creationDetails.Name == null && creationDetails.Height == 0) return;
+			if (this is ITypeTaggable)
+				AddTags(GetType().Name);
+
+			if (creationDetails.TileIndexes == null && creationDetails.Name == null && creationDetails.Height == 0)
+				return;
 
 			Name = creationDetails.Name;
 			if (creationDetails.TileIndexes != null)
@@ -202,14 +208,19 @@ namespace RPG1bit
 			IsRightClickable = creationDetails.IsRightClickable;
 			IsConfirmingClick = creationDetails.IsConfirmingClick;
 			IsUI = creationDetails.IsUI;
+			IsKeptBetweenSessions = creationDetails.IsKeptBetweenSessions;
 			AppearOnTab = creationDetails.AppearOnTab;
 			IsInTab = creationDetails.IsInTab;
 		}
 		public override void Destroy()
 		{
+			if (IsDestroyed)
+				return;
 			objects[Position].Remove(this);
-			if (objects[Position].Count == 0) objects.Remove(Position);
-			if (HoldingObject == this) HoldingObject = null;
+			if (objects[Position].Count == 0)
+				objects.Remove(Position);
+			if (HoldingObject == this)
+				HoldingObject = null;
 			base.Destroy();
 		}
 		public static void DisplayAllObjects()
@@ -218,6 +229,23 @@ namespace RPG1bit
 				for (int i = 0; i < kvp.Value.Count; i++)
 					kvp.Value[i].Display();
 		}
+		public static void DestroyAllSessionObjects()
+		{
+			if (Map.CurrentSession == Map.Session.None)
+				return;
+
+			var objsToDestroy = new List<Object>();
+			foreach (var kvp in objects)
+				for (int i = 0; i < kvp.Value.Count; i++)
+				{
+					if (kvp.Value[i].IsKeptBetweenSessions)
+						continue;
+					objsToDestroy.Add(kvp.Value[i]);
+				}
+
+			for (int i = 0; i < objsToDestroy.Count; i++)
+				objsToDestroy[i].Destroy();
+		}
 		public static List<Object> PickByPosition(Point position)
 		{
 			return objects.ContainsKey(position) ? objects[position] : new List<Object>();
@@ -225,12 +253,15 @@ namespace RPG1bit
 
 		public override void OnGameUpdate()
 		{
-			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized) return;
-			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized)
+				return;
+			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType)
+				return;
 
 			var cursorPos = Screen.GetCellAtCursorPosition();
 			var curPos = cursorPos;
-			if (IsUI == false) curPos = Map.ScreenToMapPosition(cursorPos);
+			if (IsUI == false)
+				curPos = Map.ScreenToMapPosition(cursorPos);
 			if (Gate.EnterOnceWhile($"on-hover-{UniqueID}", curPos == Position))
 			{
 				leftClicked = false;

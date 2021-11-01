@@ -1,9 +1,11 @@
-﻿using SMPL.Data;
+﻿using Newtonsoft.Json;
+using SMPL.Data;
 
 namespace RPG1bit
 {
 	public class SlotsExtender : Item
 	{
+		[JsonProperty]
 		public Point SlotsPosition { get; set; } = new Point(0, 14);
 
 		public SlotsExtender(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
@@ -21,6 +23,7 @@ namespace RPG1bit
 				});
 		}
 		public override void OnDrop() => DestroySlots();
+		public override void OnStore() => DestroySlots();
 		public override void Destroy()
 		{
 			base.Destroy();
@@ -30,9 +33,11 @@ namespace RPG1bit
 		{
 			for (int i = 0; i < Positives[0]; i++)
 			{
-				var slot = (ItemSlot)PickByUniqueID($"extra-slot-{SlotsPosition.Y - 14 + i}");
-				if (slot != null)
-					slot.Destroy();
+				var id = $"extra-slot-{SlotsPosition.Y - 14 + i}";
+				if (UniqueIDsExits(id) == false)
+					continue;
+				var slot = (ItemSlot)PickByUniqueID(id);
+				slot.Destroy();
 			}
 		}
 	}

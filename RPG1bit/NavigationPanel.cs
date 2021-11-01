@@ -206,6 +206,7 @@ namespace RPG1bit
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,
+				IsKeptBetweenSessions = true,
 			});
 			new StartMulti("start-multiplayer", new CreationDetails()
 			{
@@ -214,6 +215,7 @@ namespace RPG1bit
 				TileIndexes = new Point[] { new(44, 16) { C = Color.Gray / 1.2 } },
 				Height = 1,
 				IsUI = true,
+				IsKeptBetweenSessions = true,
 			});
 			new SaveLoad("save-load", new CreationDetails()
 			{
@@ -223,6 +225,7 @@ namespace RPG1bit
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,
+				IsKeptBetweenSessions = true,
 			});
 			new MapEditor("map-editor-button", new CreationDetails()
 			{
@@ -232,7 +235,8 @@ namespace RPG1bit
 				Height = 1,
 				IsUI = true,
 				IsConfirmingClick = true,
-				IsLeftClickable = true
+				IsLeftClickable = true,
+				IsKeptBetweenSessions = true,
 			});
 
 			new AdjustVolume("adjust-sound-volume", new CreationDetails()
@@ -243,6 +247,7 @@ namespace RPG1bit
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
+				IsKeptBetweenSessions = true,
 			});
 			new AdjustVolume("adjust-music-volume", new CreationDetails()
 			{
@@ -252,6 +257,7 @@ namespace RPG1bit
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
+				IsKeptBetweenSessions = true,
 			});
 
 			new MinimizeGame("-", new CreationDetails()
@@ -262,6 +268,7 @@ namespace RPG1bit
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
+				IsKeptBetweenSessions = true,
 			});
 			new ExitGame("x", new CreationDetails()
 			{
@@ -272,6 +279,7 @@ namespace RPG1bit
 				IsLeftClickable = true,
 				IsUI = true,
 				IsConfirmingClick = true,
+				IsKeptBetweenSessions = true,
 			});
 		}
 		public static void Display()
@@ -281,6 +289,8 @@ namespace RPG1bit
 				{
 					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 2);
 					Screen.EditCell(new Point(x, y), new Point(0, 0), 1, new());
+					Screen.EditCell(new Point(x, y), new Point(0, 0), 2, new());
+					Screen.EditCell(new Point(x, y), new Point(0, 0), 3, new());
 				}
 
 			for (int x = 18; x < 32; x++)

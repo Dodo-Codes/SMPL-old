@@ -117,18 +117,19 @@ namespace RPG1bit
 		{
 			{ "special", new() { new(00, 22), new(24, 08) } },
 			{ "roof", new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(32, 22), new(37, 22) } },
-			{ "door", new()
+			{ nameof(Door).ToLower(), new()
 			{
 				new(05, 04), new(3, 4), new(0, 4), new(3, 3), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22), new(40, 23),
 				new(38, 23), new(42, 23), new(44, 23), new(46, 23)
 			} },
-			{ "boat", new() { new(8, 19), new(9, 19), new(10, 19), new(11, 19), new(12, 23), new(13, 23), new(14, 23), new(15, 23) } },
+			{ nameof(Boat).ToLower(), new()
+			{ new(8, 19), new(9, 19), new(10, 19), new(11, 19), new(12, 23), new(13, 23), new(14, 23), new(15, 23) } },
 			{ "water", new()
 			{
 				new(7, 3), new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(7, 4), new(8, 4), new(9, 4), new(10, 4),
 				new(11, 4), new(12, 4), new(13, 4), new(14, 4), new(7, 5), new(8, 5), new(9, 5), new(10, 5), new(11, 5)
 			} },
-			{ "chest", new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24) } },
+			{ nameof(Chest).ToLower(), new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24) } },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 
@@ -137,7 +138,7 @@ namespace RPG1bit
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t map edit session.";
 		public override void OnLeftClicked()
 		{
-			Map.DestroyAllSessionObjects();
+			DestroyAllSessionObjects();
 			Map.CurrentSession = Map.Session.MapEdit;
 			Map.DisplayNavigationPanel();
 
@@ -158,7 +159,8 @@ namespace RPG1bit
 					Height = 1,
 					AppearOnTab = "map-editor",
 					IsInTab = true,
-					IsUI = true
+					IsUI = true,
+					IsKeptBetweenSessions = true,
 				}, new(9, 11));
 				for (int i = 0; i < 20; i++)
 				{
@@ -168,7 +170,8 @@ namespace RPG1bit
 						Height = 1,
 						AppearOnTab = "map-editor",
 						IsInTab = true,
-						Name = i.ToString()
+						Name = i.ToString(),
+						IsKeptBetweenSessions = true,
 					})); ;
 				}
 
@@ -180,7 +183,8 @@ namespace RPG1bit
 					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
-					IsUI = true
+					IsUI = true,
+					IsKeptBetweenSessions = true,
 				}, 12, true);
 				new ColorPick("brush-r", new()
 				{
@@ -190,7 +194,8 @@ namespace RPG1bit
 					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
-					IsUI = true
+					IsUI = true,
+					IsKeptBetweenSessions = true,
 				}, 12, true);
 				new ColorPick("brush-g", new()
 				{
@@ -200,7 +205,8 @@ namespace RPG1bit
 					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
-					IsUI = true
+					IsUI = true,
+					IsKeptBetweenSessions = true,
 				}, 12, true);
 				new ColorPick("brush-b", new()
 				{
@@ -210,7 +216,8 @@ namespace RPG1bit
 					AppearOnTab = "map-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
-					IsUI = true
+					IsUI = true,
+					IsKeptBetweenSessions = true,
 				}, 12, true);
 			}
 		}

@@ -39,10 +39,7 @@ namespace RPG1bit
 					quad.SetTextureCropTile(new(0, 0));
 					quad.SetColor(c, c, c, c);
 					for (int i = 0; i < 4; i++)
-					{
-						if (i > 1 && x > 18) break;
 						Sprite.SetQuad($"{i} {quadID}", quad);
-					}
 				}
 		}
 

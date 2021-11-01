@@ -16,7 +16,7 @@ namespace RPG1bit
 				if (Map.RawData[pos][3] == Map.TilePlayer)
 				{
 					playerTiles.Add(pos);
-					Map.RawData[pos][3] = default;
+					Map.RawData[pos][3] = new();
 				}
 				else if (Map.RawData[pos][3] == Map.TileBarrier)
 				{
@@ -31,66 +31,41 @@ namespace RPG1bit
 			var randPoint = playerTiles.Count > 0 ?
 				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
 
-			var player = Assets.ValuesAreLoaded("player") == false
-						? new Player("player", new Object.CreationDetails()
+			var player = Assets.ValuesAreLoaded(nameof(Player)) == false
+						? new Player(nameof(Player), new Object.CreationDetails()
 						{
-							Name = "player",
+							Name = nameof(Player),
 							Position = randPoint,
 							Height = 3,
 							TileIndexes = new Point[] { new(25, 0) }
 						})
-						: Text.FromJSON<Player>(Assets.GetValue("player"));
+						: Text.FromJSON<Player>(Assets.GetValue(nameof(Player)));
 			Map.CameraPosition = player.Position;
+
+			LoadAll<Chest>();
+			LoadAll<ItemPile>();
+			LoadAll<Bag>();
+			LoadAll<Quiver>();
+			LoadAll<Key>();
+
+			void LoadAll<T>()
+			{
+				if (Assets.ValuesAreLoaded(typeof(T).Name))
+					Text.FromJSON<T[]>(Assets.GetValue(typeof(T).Name));
+			}
 		}
 
 		public static void OnAdvanceTime()
 		{
-			var player = (Player)Object.PickByUniqueID("player");
-			var pos = player.Position;
+			Door.TryToCreate();
+			Boat.TryToCreate();
+			Chest.TryToCreate();
 
-			for (int i = 0; i < 3; i++)
-			{
-				if (MapEditor.Tiles["door"].Contains(Map.RawData[pos][i]) && Object.UniqueIDsExits($"door-{pos}-{i}") == false)
-				{
-					var door = new Door($"door-{pos}-{i}", new()
-					{
-						Position = pos,
-						Height = i,
-						Name = "Door",
-						TileIndexes = new Point[] { Map.RawData[pos][i] }
-					});
-					door.OnAdvanceTime();
-				}
-				else if (MapEditor.Tiles["boat"].Contains(Map.RawData[pos][i]) && Object.UniqueIDsExits($"boat-{pos}-{i}") == false)
-				{
-					var boat = new Boat($"boat-{pos}-{i}", new()
-					{
-						Position = pos,
-						Height = i,
-						Name = "Boat",
-						TileIndexes = new Point[] { Map.RawData[pos][i] }
-					});
-					Map.RawData[pos][i] = new();
-					boat.OnAdvanceTime();
-				}
-				else if (MapEditor.Tiles["chest"].Contains(Map.RawData[pos][i]) && Object.UniqueIDsExits($"chest-{pos}-{i}") == false)
-				{
-					var chest = new Chest($"chest-{pos}-{i}", new()
-					{
-						Position = pos,
-						Height = i,
-						Name = "Chest",
-						TileIndexes = new Point[] { Map.RawData[pos][i] }
-					});
-					Map.RawData[pos][i] = new();
-					chest.OnAdvanceTime();
-				}
-			}
-
+			var player = (Player)Object.PickByUniqueID(nameof(Player));
 			var objsToDestroy = new List<Object>();
 			foreach (var kvp in Object.objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					if (kvp.Value[i] is DeletableWhenFar && Point.Distance(player.Position, kvp.Value[i].Position) > 5)
+					if (kvp.Value[i] is IDeletableWhenFar && Point.Distance(player.Position, kvp.Value[i].Position) > 5)
 						objsToDestroy.Add(kvp.Value[i]);
 			for (int i = 0; i < objsToDestroy.Count; i++)
 			{
