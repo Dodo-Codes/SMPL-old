@@ -22,13 +22,13 @@ namespace RPG1bit
 		public override void OnDisplay(Point screenPos)
 		{
 			var listSize = ObjectList.Lists["brush-tiles"].Size;
-			var mapEditorTiles = MapEditor.TileList;
+			var worldEditorTiles = WorldEditor.TileList;
 			var scrollIndex = ObjectList.Lists["brush-tiles"].scrollIndex;
 			var y = (int)((screenPos.Y - 3 + scrollIndex) * listSize.W);
 			for (int i = 0; i < listSize.W; i++)
 			{
-				if (y + i >= mapEditorTiles.Length) return;
-				Screen.EditCell(screenPos + new Point(i, 0), mapEditorTiles[y + i], 1, mapEditorTiles[y + i].C);
+				if (y + i >= worldEditorTiles.Length) return;
+				Screen.EditCell(screenPos + new Point(i, 0), worldEditorTiles[y + i], 1, worldEditorTiles[y + i].C);
 			}
 		}
 	}

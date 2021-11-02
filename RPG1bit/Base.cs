@@ -32,12 +32,12 @@ namespace RPG1bit
 			if (Gate.EnterOnceWhile("graphics-and-font-loaded", Assets.AreLoaded("Assets\\graphics.png", "Assets\\font.ttf")))
 			{
 				new Screen("screen");
-				new NavigationPanel("nav-panel");
 				new NavigationPanel.Tab("tab");
 				new NavigationPanel.Info("info");
+				new NavigationPanel("nav-panel");
 				new Hoverer("hoverer");
-				new Map("map");
-				Screen.Display();
+				new World("world");
+				Screen.ScheduleDisplay();
 			}
 		}
 
@@ -47,7 +47,7 @@ namespace RPG1bit
 			var mousePos = Screen.GetCellAtCursorPosition();
 			if (Screen.CellIsOnScreen(mousePos, true) == false) return;
 
-			if (Map.CurrentSession == Map.Session.None && mousePos.X < 18)
+			if (World.CurrentSession == World.Session.None && mousePos.X < 18)
 			{
 				NavigationPanel.Info.Textbox.Scale = new(0.6, 0.6);
 				NavigationPanel.Info.Textbox.Text = $"{Window.Title} {NavigationPanel.Info.GameVersion}";
@@ -55,10 +55,10 @@ namespace RPG1bit
 			}
 			if (mousePos != prevCursorPos)
 			{
-				if (Map.CurrentSession == Map.Session.MapEdit && Map.IsHovered())
+				if (World.CurrentSession == World.Session.WorldEdit && World.IsHovered())
 				{
 					if (Mouse.ButtonIsPressed(Mouse.Button.Left) || Mouse.ButtonIsPressed(Mouse.Button.Right))
-						MapEditor.EditCurrentTile();
+						WorldEditor.EditCurrentTile();
 				}
 				NavigationPanel.Info.Update();
 			}
@@ -72,7 +72,18 @@ namespace RPG1bit
 
 			if (button == Mouse.Button.ExtraButton1)
 			{
-				var map = new ItemMap("item-map", new()
+				var map = new Map("item-map", new()
+				{
+					Name = "Map",
+					Position = new(-10, 0),
+					Height = 2,
+					TileIndexes = new Point[] { new(32, 15) { C = Color.Wood + 60 } },
+					IsUI = true,
+					IsDragable = true,
+					IsRightClickable = true,
+					IsLeftClickable = true,
+				});
+				var map2 = new Map("item-map2", new()
 				{
 					Name = "Map",
 					Position = new(-10, 0),
@@ -95,7 +106,7 @@ namespace RPG1bit
 					IsRightClickable = true,
 					IsLeftClickable = true,
 				})
-				{ Quantity = 3 };
+				{ Quantity = 8 };
 				var quiver = new Quiver("quiver", new()
 				{
 					Name = "Quiver",
@@ -131,14 +142,15 @@ namespace RPG1bit
 				pile.AddItem(quiver);
 				pile.AddItem(bag);
 				pile.AddItem(map);
+				pile.AddItem(map2);
 			}
 
-			if ((Map.IsHovered() || NavigationPanel.Tab.IsHovered()) && button == Mouse.Button.Middle)
-				MapEditor.PickCurrentTile();
-			if (Map.CurrentSession != Map.Session.MapEdit || Map.IsHovered() == false)
+			if ((World.IsHovered() || NavigationPanel.Tab.IsHovered()) && button == Mouse.Button.Middle)
+				WorldEditor.PickCurrentTile();
+			if (World.CurrentSession != World.Session.WorldEdit || World.IsHovered() == false)
 				return;
 			if (button == Mouse.Button.Left || button == Mouse.Button.Right)
-				MapEditor.EditCurrentTile();
+				WorldEditor.EditCurrentTile();
 		}
 	}
 }

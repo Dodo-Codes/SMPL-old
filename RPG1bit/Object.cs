@@ -45,10 +45,6 @@ namespace RPG1bit
 
 			{ new(44, 16), "Start a new multiplayer game session.\n  (not available in this game version)" },
 
-			{ new(00, 22), "      [B] Paint/Erase a barrier tile.\n  This tile prevents units from walking\n" +
-				"      over it. It is invisible ingame." },
-			{ new(24, 08), "          [P] Paint/Erase a player tile.\n The player is summoned randomly on one\n" +
-				"   of those tiles or anywhere on the map\n           if no player tile is present." },
 			{ new(41, 13), "           [LEFT DRAG] Paint a tile.\n[SHIFT + LEFT DRAG] Paint multiple tiles." },
 			{ new(42, 13), "           [RIGHT DRAG] Erase a tile.\n[SHIFT + RIGHT DRAG] Erase multiple tiles." },
 			{ new(43, 13), "[MIDDLE CLICK] Pick a brush from the tile\n\t\tat that particular height." },
@@ -231,7 +227,7 @@ namespace RPG1bit
 		}
 		public static void DestroyAllSessionObjects()
 		{
-			if (Map.CurrentSession == Map.Session.None)
+			if (World.CurrentSession == World.Session.None)
 				return;
 
 			var objsToDestroy = new List<Object>();
@@ -261,7 +257,7 @@ namespace RPG1bit
 			var cursorPos = Screen.GetCellAtCursorPosition();
 			var curPos = cursorPos;
 			if (IsUI == false)
-				curPos = Map.ScreenToMapPosition(cursorPos);
+				curPos = World.ScreenToWorldPosition(cursorPos);
 			if (Gate.EnterOnceWhile($"on-hover-{UniqueID}", curPos == Position))
 			{
 				leftClicked = false;
@@ -287,13 +283,13 @@ namespace RPG1bit
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
 			var mousePos = Screen.GetCellAtCursorPosition();
-			var pos = IsUI ? Position : Map.MapToScreenPosition(Position);
+			var pos = IsUI ? Position : World.WorldToScreenPosition(Position);
 
 			if (button == Mouse.Button.Left)
 			{
 				if (IsLeftClickable && pos == mousePos && pos == Base.LeftClickPosition)
 				{
-					if (IsConfirmingClick && Map.CurrentSession != Map.Session.None && leftClicked == false)
+					if (IsConfirmingClick && World.CurrentSession != World.Session.None && leftClicked == false)
 					{
 						leftClicked = true;
 						NavigationPanel.Info.Textbox.Text = "A session is currently ongoing.\n" +
@@ -326,13 +322,13 @@ namespace RPG1bit
 		{
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
 
-			var mapPos = Map.MapToScreenPosition(Position);
+			var worldPos = World.WorldToScreenPosition(Position);
 			if (Screen.CellIsOnScreen(Position, IsUI) == false) return;
 
 			if (Position != new Point(-10, 0))
 			{
-				Screen.EditCell(IsUI ? Position : mapPos, TileIndexes, Height, TileIndexes.C);
-				OnDisplay(IsUI ? Position : mapPos);
+				Screen.EditCell(IsUI ? Position : worldPos, TileIndexes, Height, TileIndexes.C);
+				OnDisplay(IsUI ? Position : worldPos);
 			}
 		}
 		public static void AdvanceTime()
@@ -341,8 +337,8 @@ namespace RPG1bit
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
 					objects[kvp.Key][i].OnAdvanceTime();
-			MapObjectManager.OnAdvanceTime();
-			Screen.Display();
+			WorldObjectManager.OnAdvanceTime();
+			Screen.ScheduleDisplay();
 			NavigationPanel.Info.ScheduleUpdate();
 		}
 		public static void Drop()

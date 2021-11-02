@@ -17,14 +17,14 @@ namespace RPG1bit
 			Game.Event.Subscribe.LateUpdate(uniqueID);
 			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 
-			Area = new("map-area");
+			Area = new("world-area");
 			Area.Size = Camera.WorldCamera.Size;
 
-			Sprite = new("map-sprite");
+			Sprite = new("world-sprite");
 			Sprite.AreaUniqueID = Area.UniqueID;
 			Sprite.TexturePath = "Assets\\graphics.png";
 			Sprite.SetQuadGrid("cell", new(32, 18), new(16, 16));
-			Sprite.RemoveQuad("map-sprite");
+			Sprite.RemoveQuad("world-sprite");
 
 			for (int y = 0; y < 18; y++)
 				for (int x = 0; x < 32; x++)
@@ -47,13 +47,13 @@ namespace RPG1bit
 		{
 			if (display == false) return;
 
-			Map.Display();
-			Map.DisplayNavigationPanel();
+			World.Display();
+			World.DisplayNavigationPanel();
 			NavigationPanel.Display();
 			Object.DisplayAllObjects();
 			display = false;
 		}
-		public static void Display() => display = true;
+		public static void ScheduleDisplay() => display = true;
 
 		public static Point GetCellAtCursorPosition()
 		{
@@ -99,7 +99,7 @@ namespace RPG1bit
 		{
 			if (isUI == false)
 			{
-				var camPos = Map.CameraPosition;
+				var camPos = World.CameraPosition;
 				return cell.X >= camPos.X - 8 && cell.X <= camPos.X + 8 && cell.Y >= camPos.Y - 8 && cell.Y <= camPos.Y + 8;
 			}
 			return cell.X >= 0 && cell.Y >= 0 && cell.X <= 31 && cell.Y <= 18;

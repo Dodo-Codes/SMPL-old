@@ -33,8 +33,8 @@ namespace RPG1bit
 		}
 		public override void OnKeyboardTextInput(Keyboard.TextInput textInput)
 		{
-			var mousePos = Map.ScreenToMapPosition(Screen.GetCellAtCursorPosition());
-			if (Map.CurrentSession != Map.Session.MapEdit || mousePos != Position) return;
+			var mousePos = World.ScreenToWorldPosition(Screen.GetCellAtCursorPosition());
+			if (World.CurrentSession != World.Session.WorldEdit || mousePos != Position) return;
 
 			switch (textInput.CurrentType)
 			{

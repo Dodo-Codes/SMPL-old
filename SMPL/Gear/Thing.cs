@@ -14,9 +14,9 @@ namespace SMPL.Gear
 	{
 		private static bool isClone;
 
-		internal static readonly Dictionary<string, Thing> uniqueIDs = new();
-		internal static readonly Dictionary<string, List<Thing>> tagObjs = new();
-		internal static readonly Dictionary<Thing, List<string>> objTags = new();
+		internal static Dictionary<string, Thing> uniqueIDs = new();
+		internal static Dictionary<string, List<Thing>> tagObjs = new();
+		internal static Dictionary<Thing, List<string>> objTags = new();
 
 		public static string[] AllUniqueIDs => uniqueIDs.Keys.ToArray();
 		public static Thing[] AllInstances => uniqueIDs.Values.ToArray();
@@ -141,8 +141,9 @@ namespace SMPL.Gear
 		public void RemoveAllTags()
 		{
 			if (ErrorIfDestroyed()) return;
-			tagObjs.Clear();
-			objTags.Clear();
+			for (int i = 0; i < objTags[this].Count; i++)
+				tagObjs[objTags[this][i]].Remove(this);
+			objTags.Remove(this);
 		}
 		public bool HasTags(params string[] tags)
 		{

@@ -12,7 +12,7 @@ namespace RPG1bit
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
 			var result = mousePos == Position ? "[ENTER] Save the current session." : "Type anything...";
-			if (Map.CurrentSession == Map.Session.None) result = "There is no currently ongoing\n   session that can be saved.";
+			if (World.CurrentSession == World.Session.None) result = "There is no currently ongoing\n   session that can be saved.";
 			else if (Value.Trim() == "") result = "Type a name before saving.";
 			NavigationPanel.Info.Textbox.Text = result;
 			NavigationPanel.Info.ShowLeftClickableIndicator();
@@ -21,19 +21,17 @@ namespace RPG1bit
 		{
 			var name = Value.Trim();
 			if (name == "") return;
-			switch (Map.CurrentSession)
+			switch (World.CurrentSession)
 			{
-				case Map.Session.None: return;
-				case Map.Session.Single:
+				case World.Session.None: return;
+				case World.Session.Single:
 					{
 						var slot = new Assets.DataSlot($"Sessions\\{name}.session");
 						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
-						SaveAll<Chest>();
-						SaveAll<ItemPile>();
-						SaveAll<Bag>();
-						SaveAll<Key>();
-						SaveAll<Quiver>();
-						slot.SetValue("map-name", Map.CurrentMapName);
+
+						SaveAll<Chest>(); SaveAll<ItemPile>(); SaveAll<Bag>(); SaveAll<Key>(); SaveAll<Quiver>(); SaveAll<Map>();
+
+						slot.SetValue("world-name", World.CurrentWorldName);
 
 						void SaveAll<T>() => slot.SetValue(typeof(T).Name, Text.ToJSON(PickByTag(typeof(T).Name)));
 
@@ -68,10 +66,10 @@ namespace RPG1bit
 							}
 						}
 					}
-				case Map.Session.Multi: break;
-				case Map.Session.MapEdit:
+				case World.Session.Multi: break;
+				case World.Session.WorldEdit:
 					{
-						var slot = new Assets.DataSlot($"Maps\\{name}.mapdata");
+						var slot = new Assets.DataSlot($"Worlds\\{name}.worlddata");
 						var signs = new List<CompactSignData>();
 						foreach (var kvp in objects)
 							for (int i = 0; i < objects[kvp.Key].Count; i++)
@@ -84,12 +82,12 @@ namespace RPG1bit
 									});
 
 						slot.SetValue("signs", Text.ToJSON(signs));
-						slot.SetValue("camera-position", Text.ToJSON(Map.CameraPosition));
-						slot.SetValue("map-data", Text.ToJSON(Map.GetSavableData()));
+						slot.SetValue("camera-position", Text.ToJSON(World.CameraPosition));
+						slot.SetValue("world-data", Text.ToJSON(World.GetSavableData()));
 						slot.IsCompressed = true;
 						slot.Save();
 
-						if (ObjectList.Lists.ContainsKey("load-map-list")) AddToList(ObjectList.Lists["load-map-list"]);
+						if (ObjectList.Lists.ContainsKey("load-world-list")) AddToList(ObjectList.Lists["load-world-list"]);
 						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
 
 						break;
@@ -99,7 +97,7 @@ namespace RPG1bit
 							var uid = $"{name}-{list.UniqueID}";
 							if (UniqueIDsExits(uid))
 								return;
-							var value = (Object)new LoadMapValue(uid, new CreationDetails()
+							var value = (Object)new LoadWorldValue(uid, new CreationDetails()
 							{
 								Name = name,
 								Position = new(-10, 0) { C = new() },
@@ -111,12 +109,12 @@ namespace RPG1bit
 								IsInTab = true,
 								AppearOnTab = "save-load",
 							});
-							if (list.Name == "load-map-list")
+							if (list.Name == "load-world-list")
 							{
 								var uid2 = $"{name}-{list.UniqueID}-1";
 								if (UniqueIDsExits(uid2))
 									return;
-								value = new StartSingleOnMap(uid2, new CreationDetails()
+								value = new StartSingleOnWorld(uid2, new CreationDetails()
 								{
 									Name = name,
 									Position = new(-10, 0) { C = new() },
@@ -140,7 +138,7 @@ namespace RPG1bit
 			Value = "";
 			StartSingle.UpdateTab();
 			SaveLoad.UpdateTab();
-			Screen.Display();
+			Screen.ScheduleDisplay();
 
 			bool Contains(List<Object> list, Object obj)
 			{

@@ -7,6 +7,7 @@ namespace RPG1bit
 	{
 		public Key(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
+			MaxQuantity = 6;
 			CanCarryOnWaist = true;
 			CanCarryInBag = true;
 			CanCarryInQuiver = true;
@@ -15,7 +16,7 @@ namespace RPG1bit
 		public override Item OnSplit() => CloneObject(this, $"{UniqueID}-{Performance.FrameCount}");
 		public override void OnItemInfoDisplay()
 		{
-			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t\tKey x{Quantity}\n\nGreat for unlocking locked things.";
+			NavigationPanel.Tab.Texts["item-info"] = $"\t\t\t\tKey x{Quantity}/{MaxQuantity}\n\nGreat for unlocking locked things.";
 		}
 	}
 }

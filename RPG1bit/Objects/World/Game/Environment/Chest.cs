@@ -20,19 +20,19 @@ namespace RPG1bit
 			for (int j = 0; j < positions.Length; j++)
 				for (int i = 0; i < 3; i++)
 				{
-					var tile = Map.RawData.ContainsKey(positions[j]) ? Map.RawData[positions[j]][i] : new();
+					var tile = World.RawData.ContainsKey(positions[j]) ? World.RawData[positions[j]][i] : new();
 					var id = $"{type}-{positions[j]}-{i}";
-					if (MapEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
+					if (WorldEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
 					{
 						var obj = new Chest(id, new()
 						{
 							Position = positions[j],
 							Height = i,
 							Name = "-",
-							TileIndexes = new Point[] { Map.RawData[positions[j]][i] }
+							TileIndexes = new Point[] { World.RawData[positions[j]][i] }
 						});
 						obj.OnAdvanceTime();
-						Map.RawData[positions[j]][i] = new();
+						World.RawData[positions[j]][i] = new();
 					}
 				}
 		}
@@ -71,7 +71,7 @@ namespace RPG1bit
 			{
 				player.Position = player.PreviousPosition;
 				if (MoveCamera.IsAnchored)
-					Map.CameraPosition = player.Position;
+					World.CameraPosition = player.Position;
 
 				if (Locked)
 				{
@@ -91,7 +91,7 @@ namespace RPG1bit
 					}
 				}
 				NavigationPanel.Tab.Open(UniqueID, "chest");
-				Screen.Display();
+				Screen.ScheduleDisplay();
 
 				if (opened)
 					return;

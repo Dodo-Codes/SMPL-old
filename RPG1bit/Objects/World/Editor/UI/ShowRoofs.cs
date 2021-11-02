@@ -13,8 +13,8 @@ namespace RPG1bit
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Toggle roofs visibility.";
 		public override void OnValueChanged()
 		{
-			Map.IsShowingRoofs = Value;
-			Screen.Display();
+			World.IsShowingRoofs = Value;
+			Screen.ScheduleDisplay();
 		}
 	}
 }

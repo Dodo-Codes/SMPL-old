@@ -4,27 +4,27 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class MapObjectManager
+	public class WorldObjectManager
 	{
 		public static void InitializeObjects()
 		{
 			var freeTile = new Point(0, 0);
 			var playerTiles = new List<Point>();
-			foreach (var kvp in Map.RawData)
+			foreach (var kvp in World.RawData)
 			{
 				var pos = new Point(kvp.Key.X, kvp.Key.Y);
-				if (Map.RawData[pos][3] == Map.TilePlayer)
+				if (World.RawData[pos][3] == World.TilePlayer)
 				{
 					playerTiles.Add(pos);
-					Map.RawData[pos][3] = new();
+					World.RawData[pos][3] = new();
 				}
-				else if (Map.RawData[pos][3] == Map.TileBarrier)
+				else if (World.RawData[pos][3] == World.TileBarrier)
 				{
-					var tile = Map.TileBarrier;
+					var tile = World.TileBarrier;
 					tile.C = new Color();
-					Map.RawData[pos][3] = tile;
+					World.RawData[pos][3] = tile;
 				}
-				else if (Map.RawData[pos][3] == new Point(0, 0))
+				else if (World.RawData[pos][3] == new Point(0, 0))
 					freeTile = pos;
 			}
 
@@ -40,13 +40,11 @@ namespace RPG1bit
 							TileIndexes = new Point[] { new(25, 0) }
 						})
 						: Text.FromJSON<Player>(Assets.GetValue(nameof(Player)));
-			Map.CameraPosition = player.Position;
+			World.CameraPosition = player.Position;
+			player.PreviousPosition = player.Position;
+			World.IsShowingRoofs = World.TileHasRoof(player.Position) == false;
 
-			LoadAll<Chest>();
-			LoadAll<ItemPile>();
-			LoadAll<Bag>();
-			LoadAll<Quiver>();
-			LoadAll<Key>();
+			LoadAll<Chest>(); LoadAll<ItemPile>(); LoadAll<Bag>(); LoadAll<Quiver>(); LoadAll<Key>(); LoadAll<Map>();
 
 			void LoadAll<T>()
 			{
@@ -69,7 +67,7 @@ namespace RPG1bit
 						objsToDestroy.Add(kvp.Value[i]);
 			for (int i = 0; i < objsToDestroy.Count; i++)
 			{
-				Map.RawData[objsToDestroy[i].Position][objsToDestroy[i].Height] = objsToDestroy[i].TileIndexes;
+				World.RawData[objsToDestroy[i].Position][objsToDestroy[i].Height] = objsToDestroy[i].TileIndexes;
 				objsToDestroy[i].Destroy();
 			}
 		}

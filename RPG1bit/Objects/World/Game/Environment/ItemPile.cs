@@ -39,7 +39,7 @@ namespace RPG1bit
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			var hide = Map.TileHasRoof(Map.ScreenToMapPosition(screenPos)) && Map.IsShowingRoofs;
+			var hide = World.TileHasRoof(World.ScreenToWorldPosition(screenPos)) && World.IsShowingRoofs;
 			var xOffset = 0;
 			switch (ItemUIDs.Count)
 			{

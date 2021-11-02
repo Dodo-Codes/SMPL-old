@@ -17,9 +17,9 @@ namespace RPG1bit
 		protected override void OnIndexValueChanged()
 		{
 			if (Colors.Length <= IndexValue) return;
-			MapEditor.Brush = new Point(MapEditor.Brush.X, MapEditor.Brush.Y) { C = Colors[IndexValue] };
+			WorldEditor.Brush = new Point(WorldEditor.Brush.X, WorldEditor.Brush.Y) { C = Colors[IndexValue] };
 			IndexValue = -1;
-			Screen.EditCell(new(0, 4), MapEditor.Brush, 1, MapEditor.Brush.C);
+			Screen.EditCell(new(0, 4), WorldEditor.Brush, 1, WorldEditor.Brush.C);
 			ColorPick.UpdateBrushColorPickers();
 		}
 		protected override void OnDisplayStep(Point screenPos, int step)

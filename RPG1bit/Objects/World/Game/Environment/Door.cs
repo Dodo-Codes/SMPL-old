@@ -1,12 +1,12 @@
 ﻿using SMPL.Data;
-using System;
+using SMPL.Gear;
 
 namespace RPG1bit
 {
 	public class Door : Object, IDeletableWhenFar
 	{
 		public bool Locked { get; set; }
-		private bool close;
+		private bool update;
 
 		public static void TryToCreate()
 		{
@@ -16,40 +16,41 @@ namespace RPG1bit
 
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = Map.RawData.ContainsKey(pos) ? Map.RawData[pos][i] : new();
+				var tile = World.RawData.ContainsKey(pos) ? World.RawData[pos][i] : new();
 				var id = $"{type}-{pos}-{i}";
-				if (MapEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
+				if (WorldEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
 				{
 					var obj = new Door(id, new()
 					{
 						Position = pos,
 						Height = i,
 						Name = "-",
-						TileIndexes = new Point[] { Map.RawData[pos][i] }
+						TileIndexes = new Point[] { World.RawData[pos][i] }
 					});
 					obj.OnAdvanceTime();
-					Map.RawData[pos][i] = new();
+					World.RawData[pos][i] = new();
 				}
 			}
 		}
 		public Door(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Locked = TileIndexes.Y == 23;
+			Game.Event.Subscribe.LateUpdate(uniqueID);
 		}
-
-		public override void OnAdvanceTime()
+		public override void OnGameLateUpdate()
 		{
-			var justClosed = false;
-			if (close)
-			{
-				TileIndexes += new Point(-1, 0);
-				close = false;
-				justClosed = true;
-			}
+			if (update == false)
+				return;
 
+			update = false;
 			var player = (Player)PickByUniqueID(nameof(Player));
-			if (player.Position == Position) TileIndexes += new Point(1, 0);
-			else if (player.PreviousPosition == Position) close = true;
+			if (player.Position == player.PreviousPosition)
+				return;
+
+			if (player.Position == Position)
+				TileIndexes += new Point(1, 0);
+			else if (player.PreviousPosition == Position)
+				TileIndexes += new Point(-1, 0);
 
 			var playerHasKey = false;
 			for (int i = 0; i < player.ItemUIDs.Count; i++)
@@ -58,14 +59,15 @@ namespace RPG1bit
 					playerHasKey = true;
 					break;
 				}
-			if (player.Position == Position && justClosed == false && Locked && playerHasKey == false)
+			if (player.Position == Position && Locked && playerHasKey == false)
 			{
 				player.Position = player.PreviousPosition;
 				if (MoveCamera.IsAnchored)
-					Map.CameraPosition = player.PreviousPosition;
+					World.CameraPosition = player.PreviousPosition;
 				TileIndexes -= new Point(1, 0);
 				NavigationPanel.Tab.Textbox.Text = "This door is locked.";
 			}
 		}
+		public override void OnAdvanceTime() => update = true;
 	}
 }

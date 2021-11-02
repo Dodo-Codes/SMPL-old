@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class MapEditor : Object
+	public class WorldEditor : Object
 	{
 		public static readonly Point[] TileList = new Point[]
 		{
@@ -133,31 +133,31 @@ namespace RPG1bit
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 
-		public MapEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public WorldEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t map edit session.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t world edit session.";
 		public override void OnLeftClicked()
 		{
 			DestroyAllSessionObjects();
-			Map.CurrentSession = Map.Session.MapEdit;
-			Map.DisplayNavigationPanel();
+			World.CurrentSession = World.Session.WorldEdit;
+			World.DisplayNavigationPanel();
 
-			Map.RawData.Clear();
+			World.RawData.Clear();
 
-			Map.CreateUIButtons();
+			World.CreateUIButtons();
 			CreateTab();
-			NavigationPanel.Tab.Open("map-editor", "edit brush");
+			NavigationPanel.Tab.Open("world-editor", "edit brush");
 		}
 
 		public static void CreateTab()
 		{
-			if (Gate.EnterOnceWhile("map-editor-brush", true))
+			if (Gate.EnterOnceWhile("world-editor-brush", true))
 			{
 				var list = new ObjectList("brush-tiles", new()
 				{
 					Position = new(19, 2),
 					Height = 1,
-					AppearOnTab = "map-editor",
+					AppearOnTab = "world-editor",
 					IsInTab = true,
 					IsUI = true,
 					IsKeptBetweenSessions = true,
@@ -168,7 +168,7 @@ namespace RPG1bit
 					{
 						Position = new(-10, 0),
 						Height = 1,
-						AppearOnTab = "map-editor",
+						AppearOnTab = "world-editor",
 						IsInTab = true,
 						Name = i.ToString(),
 						IsKeptBetweenSessions = true,
@@ -180,7 +180,7 @@ namespace RPG1bit
 					Position = new(28, 2),
 					Height = 1,
 					Name = "samples",
-					AppearOnTab = "map-editor",
+					AppearOnTab = "world-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true,
@@ -191,7 +191,7 @@ namespace RPG1bit
 					Position = new(29, 2) { C = Color.Red },
 					Height = 1,
 					Name = "r",
-					AppearOnTab = "map-editor",
+					AppearOnTab = "world-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true,
@@ -202,7 +202,7 @@ namespace RPG1bit
 					Position = new(30, 2) { C = Color.Green },
 					Height = 1,
 					Name = "g",
-					AppearOnTab = "map-editor",
+					AppearOnTab = "world-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true,
@@ -213,7 +213,7 @@ namespace RPG1bit
 					Position = new(31, 2) { C = Color.Blue },
 					Height = 1,
 					Name = "b",
-					AppearOnTab = "map-editor",
+					AppearOnTab = "world-editor",
 					IsInTab = true,
 					IsLeftClickable = true,
 					IsUI = true,
@@ -224,9 +224,9 @@ namespace RPG1bit
 		public static void EditCurrentTile()
 		{
 			var LMB = Mouse.ButtonIsPressed(Mouse.Button.Left);
-			var clickPos = Map.ScreenToMapPosition(LMB ? Base.LeftClickPosition : Base.RightClickPosition);
+			var clickPos = World.ScreenToWorldPosition(LMB ? Base.LeftClickPosition : Base.RightClickPosition);
 			var mousePos = Screen.GetCellAtCursorPosition();
-			var pos = Map.ScreenToMapPosition(mousePos);
+			var pos = World.ScreenToWorldPosition(mousePos);
 			var hoveredTile = Screen.GetCellIndexesAtPosition(mousePos, SwitchHeight.BrushHeight);
 
 			// sign hardcoding
@@ -261,41 +261,41 @@ namespace RPG1bit
 						for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
 						{
 							var p = new Point(x, y);
-							if (Map.RawData.ContainsKey(p) == false)
-								Map.RawData[p] = new Point[4];
-							Map.RawData[p][SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
+							if (World.RawData.ContainsKey(p) == false)
+								World.RawData[p] = new Point[4];
+							World.RawData[p][SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
 						}
 				}
-				if (Map.RawData.ContainsKey(pos) == false)
-					Map.RawData[pos] = new Point[4];
-				Map.RawData[pos][isSpecial ? 3 : SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
+				if (World.RawData.ContainsKey(pos) == false)
+					World.RawData[pos] = new Point[4];
+				World.RawData[pos][isSpecial ? 3 : SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
 			}
 
-			Screen.Display();
+			Screen.ScheduleDisplay();
 
 			bool TileIsSign(Point p) => p.Y == 7 && (p.X == 0 || p.X == 1 || p.X == 2);
 		}
 		public static void PickCurrentTile()
 		{
-			if (Map.CurrentSession != Map.Session.MapEdit) return;
+			if (World.CurrentSession != World.Session.WorldEdit) return;
 			var mousePos = Screen.GetCellAtCursorPosition();
 			var brushTilesAreHovered = ObjectList.Lists["brush-tiles"].IsHovered();
-			if (brushTilesAreHovered == false && Map.IsHovered() == false) return;
+			if (brushTilesAreHovered == false && World.IsHovered() == false) return;
 			var indexes = Screen.GetCellIndexesAtPosition(mousePos, brushTilesAreHovered ? 1 : SwitchHeight.BrushHeight);
 			if (indexes == new Point(0, 0)) return;
 
 			Brush = indexes;
 			Screen.EditCell(new Point(0, 4), Brush, 1, Brush.C);
 			ColorPick.UpdateBrushColorPickers();
-			Screen.Display();
+			Screen.ScheduleDisplay();
 		}
 
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			base.OnMouseButtonRelease(button);
 			var mousePos = Screen.GetCellAtCursorPosition();
-			if (Map.CurrentSession == Map.Session.MapEdit && mousePos.X < 18)
-				NavigationPanel.Tab.Open("map-editor", "edit brush");
+			if (World.CurrentSession == World.Session.WorldEdit && mousePos.X < 18)
+				NavigationPanel.Tab.Open("world-editor", "edit brush");
 		}
 		public static Point GetRandomBrushTile()
 		{

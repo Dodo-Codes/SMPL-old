@@ -13,10 +13,10 @@ namespace RPG1bit
 
 		public override void OnAssetsLoadEnd()
 		{
-			if (Assets.ValuesAreLoaded("map-name") == false) return;
+			if (Assets.ValuesAreLoaded("world-name") == false) return;
 
 			DestroyAllSessionObjects();
-			Map.LoadMap(Map.Session.Single, Assets.GetValue("map-name"));
+			World.LoadWorld(World.Session.Single, Assets.GetValue("world-name"));
 		}
 		public override void OnLeftClicked()
 		{

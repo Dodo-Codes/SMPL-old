@@ -531,6 +531,8 @@ void main()
 			if (directoriesPaths == null) return result.ToArray();
 			for (int i = 0; i < directoriesPaths.Length; i++)
 			{
+				if (Directory.Exists(directoriesPaths[i]) == false)
+					continue;
 				var files = Directory.GetFiles(directoriesPaths[i]);
 				for (int j = 0; j < files.Length; j++)
 					result.Add(includeExtensions ? Path.GetFileName(files[j]) : Path.GetFileNameWithoutExtension(files[j]));

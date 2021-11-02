@@ -6,33 +6,33 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Map : Thing
+	public class World : Thing
 	{
-		public enum Session { None, Single, Multi, MapEdit }
+		public enum Session { None, Single, Multi, WorldEdit }
 
 		public static Point TileBarrier => new(0, 22);
 		public static Point TilePlayer => new(24, 8);
 
 		public static Dictionary<Point, Point[]> RawData { get; set; } = new();
-		public static string CurrentMapName { get; private set; }
+		public static string CurrentWorldName { get; private set; }
 		public static bool IsShowingRoofs { get; set; } = true;
 
 		public static Point CameraPosition { get; set; }
 		public static Session CurrentSession { get; set; }
 
-		public Map(string uniqueID) : base(uniqueID)
+		public World(string uniqueID) : base(uniqueID)
 		{
 			Assets.Event.Subscribe.LoadEnd(uniqueID);
 		}
 		public override void OnAssetsLoadEnd()
 		{
-			if (Assets.ValuesAreLoaded("map-data"))
+			if (Assets.ValuesAreLoaded("world-data"))
 			{
-				var mapData = Text.FromJSON<Dictionary<string, string>>(Assets.GetValue("map-data"));
+				var worldData = Text.FromJSON<Dictionary<string, string>>(Assets.GetValue("world-data"));
 				var signData = new List<CompactSignData>();
 				if (Assets.ValuesAreLoaded("signs")) signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
-				if (mapData != default)
-					foreach (var kvp in mapData)
+				if (worldData != default)
+					foreach (var kvp in worldData)
 						RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
 				if (UniqueIDsExits(nameof(Player)) == false)
 					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
@@ -48,9 +48,9 @@ namespace RPG1bit
 					{ Text = signData[i].T };
 				}
 
-				if (CurrentSession == Session.Single && mapData != default)
+				if (CurrentSession == Session.Single && worldData != default)
 				{
-					MapObjectManager.InitializeObjects();
+					WorldObjectManager.InitializeObjects();
 					NavigationPanel.Tab.Close();
 					Assets.UnloadAllValues();
 
@@ -91,13 +91,13 @@ namespace RPG1bit
 						});
 					}
 				}
-				Screen.Display();
+				Screen.ScheduleDisplay();
 			}
 
-			if (CurrentSession == Session.MapEdit)
+			if (CurrentSession == Session.WorldEdit)
 			{
-				MapEditor.CreateTab();
-				NavigationPanel.Tab.Open("map-editor", "edit brush");
+				WorldEditor.CreateTab();
+				NavigationPanel.Tab.Open("world-editor", "edit brush");
 			}
 		}
 
@@ -234,7 +234,7 @@ namespace RPG1bit
 					Screen.EditCell(slot.Position, new(), 1, new());
 				}
 			}
-			if (CurrentSession == Session.MapEdit)
+			if (CurrentSession == Session.WorldEdit)
 			{
 				new SwitchHeight("brush-height", new()
 				{
@@ -265,7 +265,7 @@ namespace RPG1bit
 					if (RawData.ContainsKey(pos) == false)
 					{
 						for (int z = 0; z < 4; z++)
-							Screen.EditCell(MapToScreenPosition(pos), new(), z, new());
+							Screen.EditCell(WorldToScreenPosition(pos), new(), z, new());
 						continue;
 					}
 
@@ -274,10 +274,10 @@ namespace RPG1bit
 					{
 						var color = RawData[pos][z].C;
 						if (RawData[pos][z] != new Point(0, 0)) tilesInCoord++;
-						if (IsShowingRoofs == false && MapEditor.Tiles["roof"].Contains(RawData[pos][z]))
+						if (IsShowingRoofs == false && WorldEditor.Tiles["roof"].Contains(RawData[pos][z]))
 							color = new();
 
-						Screen.EditCell(MapToScreenPosition(pos), RawData[pos][z], z, color);
+						Screen.EditCell(WorldToScreenPosition(pos), RawData[pos][z], z, color);
 					}
 					if (tilesInCoord == 0)
 						RawData.Remove(pos);
@@ -299,9 +299,9 @@ namespace RPG1bit
 				Screen.EditCell(new(0, y), new(), 2, new());
 				Screen.EditCell(new(0, y), new(), 3, new());
 			}
-			if (CurrentSession == Session.MapEdit)
+			if (CurrentSession == Session.WorldEdit)
 			{
-				Screen.EditCell(new(0, 4), MapEditor.Brush, 1, MapEditor.Brush.C);
+				Screen.EditCell(new(0, 4), WorldEditor.Brush, 1, WorldEditor.Brush.C);
 				Screen.EditCell(new(0, 7), new(6, 23), 1, Color.Gray);
 
 				Screen.EditCell(new(9, 0), new(41, 13), 1, Color.Gray);
@@ -317,15 +317,15 @@ namespace RPG1bit
 					Screen.EditCell(new(10 + i, 0), new(), 1, new());
 			}
 		}
-		public static void LoadMap(Session session, string name)
+		public static void LoadWorld(Session session, string name)
 		{
-			Assets.Load(Assets.Type.DataSlot, $"Maps\\{name}.mapdata");
+			Assets.Load(Assets.Type.DataSlot, $"Worlds\\{name}.worlddata");
 			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
 
 			Object.DestroyAllSessionObjects();
 			CurrentSession = session;
-			CurrentMapName = name;
+			CurrentWorldName = name;
 
 			DisplayNavigationPanel();
 			CreateUIButtons();
@@ -343,35 +343,35 @@ namespace RPG1bit
 			var mousePos = Screen.GetCellAtCursorPosition();
 			return mousePos.X > 0 && mousePos.Y > 0 && mousePos.X < 18 && mousePos.Y < 18;
 		}
-		public static Point MapToScreenPosition(Point mapPos)
+		public static Point WorldToScreenPosition(Point worldPos)
 		{
-			return mapPos - CameraPosition + new Point(9, 9);
+			return worldPos - CameraPosition + new Point(9, 9);
 		}
-		public static Point ScreenToMapPosition(Point screenPos)
+		public static Point ScreenToWorldPosition(Point screenPos)
 		{
 			return CameraPosition + (screenPos - new Point(9, 9));
 		}
-		public static bool TileHasRoof(Point mapPos)
+		public static bool TileHasRoof(Point worldPos)
 		{
-			if (RawData.ContainsKey(mapPos) == false)
+			if (RawData.ContainsKey(worldPos) == false)
 				return false;
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = RawData[mapPos][i];
-				if (MapEditor.Tiles["roof"].Contains(tile))
+				var tile = RawData[worldPos][i];
+				if (WorldEditor.Tiles["roof"].Contains(tile))
 					return true;
 			}
 			return false;
 		}
-		public static bool PositionHasWaterAsHighest(Point mapPos)
+		public static bool PositionHasWaterAsHighest(Point worldPos)
 		{
 			var highest = new Point();
 			for (int i = 0; i < 3; i++)
 			{
-				if (RawData[mapPos][i] != new Point())
-					highest = RawData[mapPos][i];
+				if (RawData[worldPos][i] != new Point())
+					highest = RawData[worldPos][i];
 			}
-			return MapEditor.Tiles["water"].Contains(highest);
+			return WorldEditor.Tiles["water"].Contains(highest);
 		}
 	}
 }

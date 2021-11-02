@@ -3,17 +3,17 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class StartSingleOnMap : Object
+	public class StartSingleOnWorld : Object
 	{
-		public StartSingleOnMap(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public StartSingleOnWorld(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnLeftClicked()
 		{
-			Map.LoadMap(Map.Session.Single, Name);
+			World.LoadWorld(World.Session.Single, Name);
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"Map: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load";
+			NavigationPanel.Info.Textbox.Text = $"World: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

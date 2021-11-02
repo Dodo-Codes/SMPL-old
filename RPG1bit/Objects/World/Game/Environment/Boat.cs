@@ -4,6 +4,8 @@ namespace RPG1bit
 {
 	public class Boat : Object, IDeletableWhenFar
 	{
+		private int index;
+
 		public static void TryToCreate()
 		{
 			var player = (Player)Object.PickByUniqueID(nameof(Player));
@@ -12,19 +14,19 @@ namespace RPG1bit
 
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = Map.RawData.ContainsKey(pos) ? Map.RawData[pos][i] : new();
+				var tile = World.RawData.ContainsKey(pos) ? World.RawData[pos][i] : new();
 				var id = $"{type}-{pos}-{i}";
-				if (MapEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
+				if (WorldEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
 				{
 					var obj = new Boat(id, new()
 					{
 						Position = pos,
 						Height = i,
 						Name = "-",
-						TileIndexes = new Point[] { Map.RawData[pos][i] }
+						TileIndexes = new Point[] { World.RawData[pos][i] }
 					});
 					obj.OnAdvanceTime();
-					Map.RawData[pos][i] = new();
+					World.RawData[pos][i] = new();
 				}
 			}
 		}
@@ -33,13 +35,14 @@ namespace RPG1bit
 		public override void OnAdvanceTime()
 		{
 			var player = (Player)PickByUniqueID(nameof(Player));
+
 			if (player.PreviousPosition != Position && player.Position != Position)
 				return;
 
-			var prevIsWater = Map.PositionHasWaterAsHighest(player.PreviousPosition);
-			var currIsWater = Map.PositionHasWaterAsHighest(player.Position);
+			var prevIsWater = World.PositionHasWaterAsHighest(player.PreviousPosition);
+			var currIsWater = World.PositionHasWaterAsHighest(player.Position);
 
-			var index = 0;
+			index = 0;
 			if (player.Position.Y > player.PreviousPosition.Y) index = 1;
 			else if (player.Position.X < player.PreviousPosition.X) index = 2;
 			else if (player.Position.X > player.PreviousPosition.X) index = 3;
@@ -50,8 +53,8 @@ namespace RPG1bit
 				return;
 			}
 			Position = player.Position;
-			player.TileIndexes = new(16 + index, 23) { C = player.TileIndexes.C };
 			TileIndexes = new(12 + index, 23) { C = TileIndexes.C };
 		}
+		public Point GetPlayerTile() => new(16 + index, 23);
 	}
 }

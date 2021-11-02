@@ -26,7 +26,7 @@ namespace RPG1bit
 			if (delta == 1) ScrollUp();
 			else if (delta == -1) ScrollDown();
 
-			Screen.Display();
+			Screen.ScheduleDisplay();
 		}
 		public override void OnGameUpdate()
 		{
@@ -78,7 +78,7 @@ namespace RPG1bit
 				else if (button == Mouse.Button.Right && Base.RightClickPosition.Y == mousePos.Y && Objects[index].IsLeftClickable)
 					Objects[index].OnRightClicked();
 			}
-			Screen.Display();
+			Screen.ScheduleDisplay();
 		}
 		public override void OnDisplay(Point screenPos)
 		{

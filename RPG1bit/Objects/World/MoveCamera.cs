@@ -36,13 +36,13 @@ namespace RPG1bit
 
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
-			if (TextInputField.Typing || Map.CurrentSession != Map.Session.Single ||
+			if (TextInputField.Typing || World.CurrentSession != World.Session.Single ||
 				key != Keyboard.Key.Space) return;
 			Execute();
 		}
 		public override void OnKeyboardTextInput(Keyboard.TextInput textInput)
 		{
-			if (TextInputField.Typing || Map.CurrentSession == Map.Session.None ||
+			if (TextInputField.Typing || World.CurrentSession == World.Session.None ||
 				textInput.Value.ToLower() != Key.ToString().ToLower()) return;
 			Execute();
 		}
@@ -64,14 +64,14 @@ namespace RPG1bit
 
 		private void Execute()
 		{
-			Map.CameraPosition += directions[(int)CurrentType];
+			World.CameraPosition += directions[(int)CurrentType];
 			var player = ((Object)PickByUniqueID(nameof(Player)));
 			if (CurrentType == Type.Center && player != null)
 			{
 				IsAnchored = !IsAnchored;
-				Map.CameraPosition = player.Position;
+				World.CameraPosition = player.Position;
 			}
-			Screen.Display();
+			Screen.ScheduleDisplay();
 		}
 	}
 }

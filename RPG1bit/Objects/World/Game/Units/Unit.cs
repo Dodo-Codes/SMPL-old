@@ -19,7 +19,7 @@ namespace RPG1bit
 
 			Position = futurePos;
 			if (UniqueID == nameof(Player) && MoveCamera.IsAnchored)
-				Map.CameraPosition += movement;
+				World.CameraPosition += movement;
 			return true;
 		}
 		public bool CellIsInReach(Point cell)
@@ -37,7 +37,7 @@ namespace RPG1bit
 
 		public bool CanMoveIntoCell(Point cell)
 		{
-			return Map.RawData.ContainsKey(cell) && CellIsInReach(cell) && Map.RawData[cell][3] != Map.TileBarrier;
+			return World.RawData.ContainsKey(cell) && CellIsInReach(cell) && World.RawData[cell][3] != World.TileBarrier;
 		}
 	}
 }

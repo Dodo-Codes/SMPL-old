@@ -37,7 +37,7 @@ namespace RPG1bit
 					AppearOnTab = "save-load",
 					IsKeptBetweenSessions = true,
 				});
-				var mapList = new ObjectList("load-list", new CreationDetails()
+				var worldList = new ObjectList("load-list", new CreationDetails()
 				{
 					Name = "load-list",
 					Position = new(19, 3),
@@ -50,12 +50,12 @@ namespace RPG1bit
 					IsKeptBetweenSessions = true,
 				}, new Size(13, 8));
 
-				var maps = FileSystem.GetFileNames(false, "Maps");
+				var worlds = FileSystem.GetFileNames(false, "Worlds");
 				var sessions = FileSystem.GetFileNames(false, "Sessions");
-				for (int i = 0; i < maps.Length; i++)
-					mapList.Objects.Add(new LoadMapValue($"map-{maps[i]}", new CreationDetails()
+				for (int i = 0; i < worlds.Length; i++)
+					worldList.Objects.Add(new LoadWorldValue($"world-{worlds[i]}", new CreationDetails()
 					{
-						Name = maps[i],
+						Name = worlds[i],
 						Position = new(-10, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(47, 06) },
 						Height = 1,
@@ -67,7 +67,7 @@ namespace RPG1bit
 						IsKeptBetweenSessions = true,
 					}));
 				for (int i = 0; i < sessions.Length; i++)
-					mapList.Objects.Add(new LoadSingleSessionValue($"session-{sessions[i]}", new CreationDetails()
+					worldList.Objects.Add(new LoadSingleSessionValue($"session-{sessions[i]}", new CreationDetails()
 					{
 						Name = sessions[i],
 						Position = new(-10, 0) { C = new() },

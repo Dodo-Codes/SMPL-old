@@ -40,7 +40,7 @@ namespace RPG1bit
 			item.OwnerUID = UniqueID;
 			item.AppearOnTab = AppearOnTab;
 			item.IsInTab = IsInTab;
-			Screen.Display();
+			Screen.ScheduleDisplay();
 
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (UniqueID.Contains("ground"))

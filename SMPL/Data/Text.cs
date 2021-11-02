@@ -78,54 +78,6 @@ namespace SMPL.Data
 		{
 			return JsonConvert.SerializeObject(data);
 		}
-		/// <summary>
-		/// Encrypts a <paramref name="text"/> with a <paramref name="key"/>. Can be <paramref name="performedTwice"/>.
-		/// The encryption is 33% longer than the <paramref name="text"/>.<br></br> The
-		/// <paramref name="text"/> can be decrypred later with <see cref="Decrypt"/>.
-		/// </summary>
-		public static string Encrypt(string text, char key, bool performedTwice = false)
-		{
-			var result = text;
-			var times = performedTwice ? 2 : 1;
-			for (int i = 0; i < times; i++)
-			{
-				result = Encrypt(result, key);
-			}
-			return result;
-		}
-		private static string Encrypt(string text, char key)
-		{
-			var amplifier = Convert.ToByte(key);
-			byte[] data = Encoding.UTF8.GetBytes(text);
-			for (int i = 0; i < data.Length; i++)
-			{
-				data[i] = (byte)(data[i] ^ amplifier);
-			}
-			return Convert.ToBase64String(data);
-		}
-		/// <summary>
-		/// Decrypts an <paramref name="encryptedText"/> with a <paramref name="key"/> that could have been <paramref name="performedTwice"/> with <see cref="Encrypt"/>.‪‪
-		/// </summary>
-		public static string Decrypt(string encryptedText, char key, bool performedTwice = false)
-		{
-			var result = encryptedText;
-			var times = performedTwice ? 2 : 1;
-			for (int i = 0; i < times; i++)
-			{
-				result = Decrypt(result, key);
-			}
-			return result;
-		}
-		private static string Decrypt(string encryptedText, char key)
-		{
-			var amplifier = Convert.ToByte(key);
-			byte[] data = Convert.FromBase64String(encryptedText);
-			for (int i = 0; i < data.Length; i++)
-			{
-				data[i] = (byte)(data[i] ^ amplifier);
-			}
-			return Encoding.UTF8.GetString(data);
-		}
 		public static string Compress(string text)
 		{
 			var buffer = Encoding.UTF8.GetBytes(text);
@@ -147,7 +99,7 @@ namespace SMPL.Data
 		{
 			var gZipBuffer = Convert.FromBase64String(compressedText);
 			using var memoryStream = new MemoryStream();
-			int dataLength = BitConverter.ToInt32(gZipBuffer, 0);
+			var dataLength = BitConverter.ToInt32(gZipBuffer, 0);
 			memoryStream.Write(gZipBuffer, 4, gZipBuffer.Length - 4);
 
 			var buffer = new byte[dataLength];
@@ -177,5 +129,47 @@ namespace SMPL.Data
 			camera.rendTexture.Draw(Text.text);
 			Performance.DrawCallsPerFrame++;
 		}
+
+		/*private static string Encrypt(string text, char key, bool performedTwice = false)
+		{
+			var result = text;
+			var times = performedTwice ? 2 : 1;
+			for (int i = 0; i < times; i++)
+			{
+				result = Encrypt(result, key);
+			}
+			return result;
+		}
+		private static string Encrypt(string text, char key)
+		{
+			var amplifier = Convert.ToByte(key);
+			byte[] data = Encoding.UTF8.GetBytes(text);
+			for (int i = 0; i < data.Length; i++)
+			{
+				data[i] = (byte)(data[i] ^ amplifier);
+			}
+			return Convert.ToBase64String(data);
+		}
+		private static string Decrypt(string encryptedText, char key, bool performedTwice = false)
+		{
+			var result = encryptedText;
+			var times = performedTwice ? 2 : 1;
+			for (int i = 0; i < times; i++)
+			{
+				result = Decrypt(result, key);
+			}
+			return result;
+		}
+		private static string Decrypt(string encryptedText, char key)
+		{
+			var amplifier = Convert.ToByte(key);
+			byte[] data = Convert.FromBase64String(encryptedText);
+			for (int i = 0; i < data.Length; i++)
+			{
+				data[i] = (byte)(data[i] ^ amplifier);
+			}
+			return Encoding.UTF8.GetString(data);
+		}
+		*/
 	}
 }

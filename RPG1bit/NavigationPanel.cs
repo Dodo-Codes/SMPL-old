@@ -47,7 +47,7 @@ namespace RPG1bit
 				CurrentTabType = null;
 				Title = "";
 				Textbox.Text = "";
-				Screen.Display();
+				Screen.ScheduleDisplay();
 			}
 			public static void Open(string type, string title)
 			{
@@ -55,7 +55,7 @@ namespace RPG1bit
 				CurrentTabType = type;
 				Title = title;
 				Textbox.Text = Texts.ContainsKey(type) ? Texts[type] : "";
-				Screen.Display();
+				Screen.ScheduleDisplay();
 			}
 			public static bool IsHovered()
 			{
@@ -118,8 +118,8 @@ namespace RPG1bit
 
 				var mousePos = Screen.GetCellAtCursorPosition();
 				var mousePosObjs = objects.ContainsKey(mousePos) ? objects[mousePos] : new();
-				var mapPos = Map.ScreenToMapPosition(mousePos);
-				var mapObjs = objects.ContainsKey(mapPos) ? objects[mapPos] : new();
+				var worldPos = World.ScreenToWorldPosition(mousePos);
+				var worldObjs = objects.ContainsKey(worldPos) ? objects[worldPos] : new();
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -135,8 +135,8 @@ namespace RPG1bit
 
 					if (mousePos.Y > 0)
 					{
-						if (key == Map.TileBarrier) description = "Unwalkable terrain.";
-						else if (key == Map.TilePlayer) description = "Player tile.";
+						if (key == World.TileBarrier) description = "Unwalkable terrain.";
+						else if (key == World.TilePlayer) description = "Player tile.";
 					}
 					if (Textbox.Text == "" && isPanel) description = "Game navigation panel.";
 
@@ -149,11 +149,11 @@ namespace RPG1bit
 								continue;
 							ShowInfoIndicators(mousePosObjs[j]);
 						}
-					for (int j = 0; j < mapObjs.Count; j++)
+					for (int j = 0; j < worldObjs.Count; j++)
 					{
-						if (mapObjs[j].IsUI || mapObjs[j].Height != i)
+						if (worldObjs[j].IsUI || worldObjs[j].Height != i)
 							continue;
-						ShowInfoIndicators(mapObjs[j]);
+						ShowInfoIndicators(worldObjs[j]);
 					}
 
 					Textbox.Text = $"{description}{sep}{Textbox.Text}";
@@ -227,9 +227,9 @@ namespace RPG1bit
 				IsUI = true,
 				IsKeptBetweenSessions = true,
 			});
-			new MapEditor("map-editor-button", new CreationDetails()
+			new WorldEditor("world-editor-button", new CreationDetails()
 			{
-				Name = "map-editor",
+				Name = "world-editor",
 				Position = new(21, 0),
 				TileIndexes = new Point[] { new(47, 06) { C = Color.Gray } },
 				Height = 1,

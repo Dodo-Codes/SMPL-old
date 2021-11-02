@@ -3,23 +3,23 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class LoadMapValue : Object
+	public class LoadWorldValue : Object
 	{
-		public LoadMapValue(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public LoadWorldValue(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnLeftClicked()
 		{
-			Map.LoadMap(Map.Session.MapEdit, Name);
+			World.LoadWorld(World.Session.WorldEdit, Name);
 
-			if (Map.CurrentSession == Map.Session.MapEdit)
-				NavigationPanel.Tab.Open("map-editor", "edit brush");
+			if (World.CurrentSession == World.Session.WorldEdit)
+				NavigationPanel.Tab.Open("world-editor", "edit brush");
 		}
 		public override void OnRightClicked()
 		{
-			FileSystem.MoveFiles($"Deleted", $"Maps\\{Name}.mapdata");
+			FileSystem.MoveFiles($"Deleted", $"Worlds\\{Name}.worlddata");
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
-			if (ObjectList.Lists.ContainsKey("load-map-list")) RemoveFromList(ObjectList.Lists["load-map-list"]);
+			if (ObjectList.Lists.ContainsKey("load-world-list")) RemoveFromList(ObjectList.Lists["load-world-list"]);
 			StartSingle.UpdateTab();
 			SaveLoad.UpdateTab();
 
@@ -28,7 +28,7 @@ namespace RPG1bit
 				for (int i = 0; i < list.Objects.Count; i++)
 				{
 					if (list.Objects[i].Name != Name) continue;
-					if (list.UniqueID == "load-list" && list.Objects[i] is not LoadMapValue) continue;
+					if (list.UniqueID == "load-list" && list.Objects[i] is not LoadWorldValue) continue;
 					list.Objects.Remove(list.Objects[i]);
 					list.ScrollToTop();
 					return;
@@ -37,7 +37,7 @@ namespace RPG1bit
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"Map Edit session: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load\n[RIGHT CLICK] Delete";
+			NavigationPanel.Info.Textbox.Text = $"World Edit session: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load\n[RIGHT CLICK] Delete";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

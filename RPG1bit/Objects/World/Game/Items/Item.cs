@@ -11,6 +11,8 @@ namespace RPG1bit
 		[JsonProperty]
 		public uint Quantity { get; set; } = 1;
 		[JsonProperty]
+		public uint MaxQuantity { get; set; } = 1;
+		[JsonProperty]
 		public double[] Positives { get; set; } = new double[2];
 		[JsonProperty]
 		public double[] Negatives { get; set; } = new double[2];
@@ -31,6 +33,10 @@ namespace RPG1bit
 
 		public Item(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
+		public override void OnDisplay(Point screenPos)
+		{
+			Screen.EditCell(screenPos, new(Quantity, 26), 3, Color.White);
+		}
 		public override void OnDroppedUpon()
 		{
 			var type = GetType();
@@ -38,16 +44,24 @@ namespace RPG1bit
 			if (HoldingObject is Item item && (holdingType == type ||
 				type.IsSubclassOf(holdingType) || holdingType.IsSubclassOf(holdingType)))
 			{
-				Quantity += item.Quantity;
 				Drop();
-				var owner = PickByUniqueID(item.OwnerUID);
-				if (owner is ItemPile pile)
-					pile.RemoveItem(item);
-				item.Destroy();
+				if (Quantity + item.Quantity <= MaxQuantity)
+				{
+					Quantity += item.Quantity;
+					var owner = PickByUniqueID(item.OwnerUID);
+					if (owner is ItemPile pile)
+						pile.RemoveItem(item);
+					item.Destroy();
+				}
+				else if (MaxQuantity != Quantity)
+				{
+					var amountTaken = MaxQuantity - Quantity;
+					Quantity = MaxQuantity;
+					item.Quantity -= amountTaken;
+				}
 				ShowInfo();
 			}
 		}
-
 		public override void OnDragStart()
 		{
 			if (this is SlotsExtender se && (OwnerUID.Contains("carry") || OwnerUID.Contains("hand")))
@@ -65,7 +79,6 @@ namespace RPG1bit
 			UpdateSlotsColor(true);
 		}
 		public override void OnDragEnd() => UpdateSlotsColor(false);
-
 		public override void OnRightClicked()
 		{
 			if (Quantity < 2) return;
@@ -85,11 +98,10 @@ namespace RPG1bit
 						break;
 					}
 				}
-			NavigationPanel.Tab.Close();
-			Screen.Display();
+			ShowInfo();
+			Screen.ScheduleDisplay();
 		}
 		public override void OnLeftClicked() => ShowInfo();
-
 		public override void OnHovered()
 		{
 			HoveredInfo = Quantity > 1 ? $"{Name} x{Quantity}" : Name;
@@ -118,7 +130,7 @@ namespace RPG1bit
 			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-1"), item.CanCarryInBag);
 			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-2"), item.CanCarryInQuiver);
 			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-3"), item.CanCarryInQuiver);
-			Screen.Display();
+			Screen.ScheduleDisplay();
 
 			void SetTileIndex(ItemSlot itemSlot, bool canCarry)
 			{
@@ -127,12 +139,6 @@ namespace RPG1bit
 					{ C = holding ? (canCarry && itemSlot.HasItem() == false ? Color.Green : Color.Red) : Color.Gray };
 			}
 		}
-
-		public override void OnDisplay(Point screenPos)
-		{
-			Screen.EditCell(screenPos, new(Quantity, 26), 3, Color.White);
-		}
-
 		public Item Split(Item item, ItemSlot slot, uint quantity)
 		{
 			item.Position = slot.Position;

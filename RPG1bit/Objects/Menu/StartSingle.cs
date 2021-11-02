@@ -6,33 +6,36 @@ namespace RPG1bit
 {
 	public class StartSingle : Object
 	{
-		public StartSingle(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public StartSingle(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		{
+			UpdateTab();
+		}
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\nsingleplayer game session.";
 		public override void OnLeftClicked() => UpdateTab();
 		public static void UpdateTab()
 		{
 			CreateTab();
 
-			var noMapsStr = ObjectList.Lists.ContainsKey("load-map-list") == false ||
-			ObjectList.Lists["load-map-list"].Objects.Count == 0 ? "No maps were found." : "";
+			var noWorldsStr = ObjectList.Lists.ContainsKey("load-world-list") == false ||
+			ObjectList.Lists["load-world-list"].Objects.Count == 0 ? "No worlds were found." : "";
 			NavigationPanel.Tab.Texts["single"] =
-				$" Choose a map to start a\nnew singleplayer session on.\n\n\n\n    {noMapsStr}";
+				$" Choose a world to start a\nnew singleplayer session on.\n\n\n\n    {noWorldsStr}";
 			NavigationPanel.Tab.Open("single", "singleplayer");
 		}
 
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			base.OnMouseButtonRelease(button);
-			if (Map.CurrentSession != Map.Session.Single || Map.IsHovered() == false) return;
+			if (World.CurrentSession != World.Session.Single || World.IsHovered() == false) return;
 			NavigationPanel.Tab.Close();
 		}
 		private static void CreateTab()
 		{
 			if (Gate.EnterOnceWhile("create-single-tab", true))
 			{
-				var mapList = new ObjectList("load-map-list", new CreationDetails()
+				var worldList = new ObjectList("load-world-list", new CreationDetails()
 				{
-					Name = "load-map-list",
+					Name = "load-world-list",
 					Position = new(19, 4),
 					TileIndexes = new Point[] { new Point(0, 0) },
 					Height = 1,
@@ -43,11 +46,11 @@ namespace RPG1bit
 					IsKeptBetweenSessions = true,
 				}, new Size(13, 9));
 
-				var maps = FileSystem.GetFileNames(false, "Maps");
-				for (int i = 0; i < maps.Length; i++)
-					mapList.Objects.Add(new StartSingleOnMap($"mapp-{maps[i]}", new CreationDetails()
+				var worlds = FileSystem.GetFileNames(false, "Worlds");
+				for (int i = 0; i < worlds.Length; i++)
+					worldList.Objects.Add(new StartSingleOnWorld($"worldp-{worlds[i]}", new CreationDetails()
 					{
-						Name = maps[i],
+						Name = worlds[i],
 						Position = new(-10, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(32, 15) },
 						Height = 1,
