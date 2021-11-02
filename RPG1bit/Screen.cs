@@ -13,7 +13,7 @@ namespace RPG1bit
 
 		public Screen(string uniqueID) : base(uniqueID)
 		{
-			Camera.Event.Subscribe.Display(uniqueID);
+			Camera.Event.Subscribe.Display(uniqueID, 0);
 			Game.Event.Subscribe.LateUpdate(uniqueID);
 			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 

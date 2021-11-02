@@ -72,6 +72,17 @@ namespace RPG1bit
 
 			if (button == Mouse.Button.ExtraButton1)
 			{
+				var map = new ItemMap("item-map", new()
+				{
+					Name = "Map",
+					Position = new(-10, 0),
+					Height = 2,
+					TileIndexes = new Point[] { new(32, 15) { C = Color.Wood + 60 } },
+					IsUI = true,
+					IsDragable = true,
+					IsRightClickable = true,
+					IsLeftClickable = true,
+				});
 				var key = new Key("item-key", new()
 				{
 					Name = "Key",
@@ -111,7 +122,7 @@ namespace RPG1bit
 				{ Positives = new double[] { 2, 0 } };
 				var pile = new ItemPile("item-pile", new()
 				{
-					Position = new Point(7, -2),
+					Position = new Point(7, 0),
 					Height = 3,
 					TileIndexes = new Point[] { new(8, 23) },
 					Name = "item-pile",
@@ -119,6 +130,7 @@ namespace RPG1bit
 				pile.AddItem(key);
 				pile.AddItem(quiver);
 				pile.AddItem(bag);
+				pile.AddItem(map);
 			}
 
 			if ((Map.IsHovered() || NavigationPanel.Tab.IsHovered()) && button == Mouse.Button.Middle)

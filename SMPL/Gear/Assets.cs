@@ -243,6 +243,24 @@ namespace SMPL.Gear
 			return result;
 		}
 
+		public static void CreateTexture(Data.Color[,] pixels, string id)
+		{
+			if (textures.ContainsKey(id))
+			{
+				Debug.LogError(1, $"Cannot create texture with id '{id}' because a texture is loaded on such path.");
+				return;
+			}
+
+			var px = new SFML.Graphics.Color[pixels.GetLength(0), pixels.GetLength(1)];
+			for (int y = 0; y < pixels.GetLength(1); y++)
+				for (int x = 0; x < pixels.GetLength(0); x++)
+					px[x, y] = Data.Color.From(pixels[x, y]);
+			var img = new Image(px);
+			var texture = new Texture(img);
+			textures[id] = texture;
+			img.Dispose();
+		}
+
 		private static void CreateAndStartLoadingThread()
 		{
 			loadingThread = new(new ThreadStart(WorkOnQueuedResources));
