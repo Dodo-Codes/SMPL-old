@@ -57,18 +57,17 @@ namespace RPG1bit
 					{
 						var px = (int)x + (int)size.W / 2 - (int)MapPosition.X;
 						var py = (int)y + (int)size.H / 2 - (int)MapPosition.Y;
-						if (World.RawData.ContainsKey(new(x, y)))
-							for (int i = 2; i >= 0; i--)
+						for (int i = 2; i >= 0; i--)
+						{
+							var tile = ChunkManager.GetTile(new(x, y), i);
+							if (tile != default && IsNot("boat"))
 							{
-								var tile = World.RawData[new(x, y)][i];
-								if (tile != default && IsNot("boat"))
-								{
-									pixels[px, py] = tile.C;
-									break;
-								}
-
-								bool IsNot(string type) => WorldEditor.Tiles[type].Contains(tile) == false;
+								pixels[px, py] = tile.C;
+								break;
 							}
+
+							bool IsNot(string type) => WorldEditor.Tiles[type].Contains(tile) == false;
+						}
 					}
 
 				Assets.CreateTexture(pixels, id);

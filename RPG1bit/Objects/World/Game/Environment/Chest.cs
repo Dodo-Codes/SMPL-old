@@ -12,7 +12,7 @@ namespace RPG1bit
 
 		public static void TryToCreate()
 		{
-			var player = (Player)Object.PickByUniqueID(nameof(Player));
+			var player = (Player)PickByUniqueID(nameof(Player));
 			var pos = player.Position;
 			var positions = new Point[] { pos + new Point(0, 1), pos + new Point(0, -1), pos + new Point(1, 0), pos + new Point(-1, 0) };
 			var type = nameof(Chest).ToLower();
@@ -20,19 +20,19 @@ namespace RPG1bit
 			for (int j = 0; j < positions.Length; j++)
 				for (int i = 0; i < 3; i++)
 				{
-					var tile = World.RawData.ContainsKey(positions[j]) ? World.RawData[positions[j]][i] : new();
+					var tile = ChunkManager.GetTile(positions[j], i);
 					var id = $"{type}-{positions[j]}-{i}";
-					if (WorldEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
+					if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExits(id) == false)
 					{
 						var obj = new Chest(id, new()
 						{
 							Position = positions[j],
 							Height = i,
 							Name = "-",
-							TileIndexes = new Point[] { World.RawData[positions[j]][i] }
+							TileIndexes = new Point[] { tile }
 						});
 						obj.OnAdvanceTime();
-						World.RawData[positions[j]][i] = new();
+						ChunkManager.SetTile(positions[j], i, new());
 					}
 				}
 		}

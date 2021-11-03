@@ -142,7 +142,7 @@ namespace RPG1bit
 			World.CurrentSession = World.Session.WorldEdit;
 			World.DisplayNavigationPanel();
 
-			World.RawData.Clear();
+			World.CameraPosition = new();
 
 			World.CreateUIButtons();
 			CreateTab();

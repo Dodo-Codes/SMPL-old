@@ -469,6 +469,18 @@ void main()
 
 		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
+		public static void DeleteAllFiles(params string[] directoriesPaths)
+		{
+			for (int i = 0; i < directoriesPaths.Length; i++)
+			{
+				if (Directory.Exists(directoriesPaths[i]) == false)
+				{
+					Debug.LogError(1, $"No directory was found on path '{directoriesPaths[i]}'.");
+					continue;
+				}
+				DeleteFiles(Directory.GetFiles(directoriesPaths[i]));
+			}
+		}
 		public static bool FilesExist(params string[] paths)
 		{
 			if (paths == null)
@@ -533,7 +545,10 @@ void main()
 			for (int i = 0; i < directoriesPaths.Length; i++)
 			{
 				if (Directory.Exists(directoriesPaths[i]) == false)
+				{
+					Debug.LogError(1, $"No directory was found on path '{directoriesPaths[i]}'.");
 					continue;
+				}
 				var files = Directory.GetFiles(directoriesPaths[i]);
 				for (int j = 0; j < files.Length; j++)
 					result.Add(includeExtensions ? Path.GetFileName(files[j]) : Path.GetFileNameWithoutExtension(files[j]));

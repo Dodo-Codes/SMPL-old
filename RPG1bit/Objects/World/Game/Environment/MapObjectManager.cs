@@ -10,23 +10,25 @@ namespace RPG1bit
 		{
 			var freeTile = new Point(0, 0);
 			var playerTiles = new List<Point>();
-			foreach (var kvp in World.RawData)
-			{
-				var pos = new Point(kvp.Key.X, kvp.Key.Y);
-				if (World.RawData[pos][3] == World.TilePlayer)
+			var chunks = Thing.PickByTag(nameof(Chunk));
+			foreach (Chunk chunk in chunks)
+				foreach (var kvp in chunk.Data)
 				{
-					playerTiles.Add(pos);
-					World.RawData[pos][3] = new();
+					var pos = new Point(kvp.Key.X, kvp.Key.Y);
+					if (chunk.Data[pos][3] == World.TilePlayer)
+					{
+						playerTiles.Add(pos);
+						chunk.Data[pos][3] = new();
+					}
+					else if (chunk.Data[pos][3] == World.TileBarrier)
+					{
+						var tile = World.TileBarrier;
+						tile.C = new Color();
+						chunk.Data[pos][3] = tile;
+					}
+					else if (chunk.Data[pos][3] == new Point(0, 0))
+						freeTile = pos;
 				}
-				else if (World.RawData[pos][3] == World.TileBarrier)
-				{
-					var tile = World.TileBarrier;
-					tile.C = new Color();
-					World.RawData[pos][3] = tile;
-				}
-				else if (World.RawData[pos][3] == new Point(0, 0))
-					freeTile = pos;
-			}
 
 			var randPoint = playerTiles.Count > 0 ?
 				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
@@ -59,15 +61,16 @@ namespace RPG1bit
 			Boat.TryToCreate();
 			Chest.TryToCreate();
 
-			var player = (Player)Object.PickByUniqueID(nameof(Player));
+			var player = (Player)Thing.PickByUniqueID(nameof(Player));
 			var objsToDestroy = new List<Object>();
 			foreach (var kvp in Object.objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
 					if (kvp.Value[i] is IDeletableWhenFar && Point.Distance(player.Position, kvp.Value[i].Position) > 5)
 						objsToDestroy.Add(kvp.Value[i]);
+
 			for (int i = 0; i < objsToDestroy.Count; i++)
 			{
-				World.RawData[objsToDestroy[i].Position][objsToDestroy[i].Height] = objsToDestroy[i].TileIndexes;
+				ChunkManager.SetTile(objsToDestroy[i].Position, objsToDestroy[i].Height, objsToDestroy[i].TileIndexes);
 				objsToDestroy[i].Destroy();
 			}
 		}

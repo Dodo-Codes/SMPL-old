@@ -10,25 +10,25 @@ namespace RPG1bit
 
 		public static void TryToCreate()
 		{
-			var player = (Player)Object.PickByUniqueID(nameof(Player));
+			var player = (Player)PickByUniqueID(nameof(Player));
 			var pos = player.Position;
 			var type = nameof(Door).ToLower();
 
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = World.RawData.ContainsKey(pos) ? World.RawData[pos][i] : new();
+				var tile = ChunkManager.GetTile(pos, i);
 				var id = $"{type}-{pos}-{i}";
-				if (WorldEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
+				if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExits(id) == false)
 				{
 					var obj = new Door(id, new()
 					{
 						Position = pos,
 						Height = i,
 						Name = "-",
-						TileIndexes = new Point[] { World.RawData[pos][i] }
+						TileIndexes = new Point[] { tile }
 					});
 					obj.OnAdvanceTime();
-					World.RawData[pos][i] = new();
+					ChunkManager.SetTile(pos, i, new());
 				}
 			}
 		}

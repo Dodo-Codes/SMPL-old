@@ -13,7 +13,6 @@ namespace RPG1bit
 		public static Point TileBarrier => new(0, 22);
 		public static Point TilePlayer => new(24, 8);
 
-		public static Dictionary<Point, Point[]> RawData { get; set; } = new();
 		public static string CurrentWorldName { get; private set; }
 		public static bool IsShowingRoofs { get; set; } = true;
 
@@ -31,9 +30,9 @@ namespace RPG1bit
 				var worldData = Text.FromJSON<Dictionary<string, string>>(Assets.GetValue("world-data"));
 				var signData = new List<CompactSignData>();
 				if (Assets.ValuesAreLoaded("signs")) signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
-				if (worldData != default)
-					foreach (var kvp in worldData)
-						RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
+				//if (worldData != default)
+				//	foreach (var kvp in worldData)
+				//		RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
 				if (UniqueIDsExits(nameof(Player)) == false)
 					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
 
@@ -335,13 +334,6 @@ namespace RPG1bit
 			CreateUIButtons();
 		}
 
-		public static Dictionary<string, string> GetSavableData()
-		{
-			var result = new Dictionary<string, string>();
-			foreach (var kvp in RawData)
-				result[Text.ToJSON(kvp.Key)] = Text.ToJSON(kvp.Value);
-			return result;
-		}
 		public static bool IsHovered()
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
@@ -357,11 +349,9 @@ namespace RPG1bit
 		}
 		public static bool TileHasRoof(Point worldPos)
 		{
-			if (RawData.ContainsKey(worldPos) == false)
-				return false;
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = RawData[worldPos][i];
+				var tile = ChunkManager.GetTile(worldPos, i);
 				if (WorldEditor.Tiles["roof"].Contains(tile))
 					return true;
 			}
@@ -372,8 +362,9 @@ namespace RPG1bit
 			var highest = new Point();
 			for (int i = 0; i < 3; i++)
 			{
-				if (RawData[worldPos][i] != new Point())
-					highest = RawData[worldPos][i];
+				var tile = ChunkManager.GetTile(worldPos, i);
+				if (tile != new Point())
+					highest = tile;
 			}
 			return WorldEditor.Tiles["water"].Contains(highest);
 		}

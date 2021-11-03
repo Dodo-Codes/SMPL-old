@@ -348,9 +348,9 @@ namespace SMPL.Gear
 							continue;
 						}
 						UpdateCounter();
+						queuedAssets.Remove(curQueuedAssets[i]);
 						Thread.Sleep(1);
 					}
-					queuedAssets.Clear(); // done loading, clear queue
 					assetLoadBegin = false;
 					assetLoadUpdate = false;
 					assetLoadEnd = true;
@@ -375,9 +375,9 @@ namespace SMPL.Gear
 							continue;
 						}
 						UpdateCounter();
+						queuedSaveSlots.Remove(curQueuedSaveSlots[i]);
 						Thread.Sleep(1);
 					}
-					queuedSaveSlots.Clear(); // done loading, clear queue
 					slotSaveEnd = true;
 				}
 

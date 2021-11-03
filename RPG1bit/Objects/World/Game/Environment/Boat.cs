@@ -14,19 +14,19 @@ namespace RPG1bit
 
 			for (int i = 0; i < 3; i++)
 			{
-				var tile = World.RawData.ContainsKey(pos) ? World.RawData[pos][i] : new();
+				var tile = ChunkManager.GetTile(pos, i);
 				var id = $"{type}-{pos}-{i}";
-				if (WorldEditor.Tiles[type].Contains(tile) && Object.UniqueIDsExits(id) == false)
+				if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExits(id) == false)
 				{
 					var obj = new Boat(id, new()
 					{
 						Position = pos,
 						Height = i,
 						Name = "-",
-						TileIndexes = new Point[] { World.RawData[pos][i] }
+						TileIndexes = new Point[] { tile }
 					});
 					obj.OnAdvanceTime();
-					World.RawData[pos][i] = new();
+					ChunkManager.SetTile(pos, i, new());
 				}
 			}
 		}

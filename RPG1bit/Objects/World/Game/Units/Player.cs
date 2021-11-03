@@ -78,7 +78,7 @@ namespace RPG1bit
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					var tile = World.RawData.ContainsKey(worldPos) ? World.RawData[worldPos][i] : new();
+					var tile = ChunkManager.GetTile(worldPos, i);
 					if (WorldEditor.Tiles["roof"].Contains(tile))
 						return true;
 				}

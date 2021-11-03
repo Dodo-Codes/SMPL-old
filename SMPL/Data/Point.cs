@@ -19,6 +19,11 @@ namespace SMPL.Data
 		public Point(double x, double y)
 		{
 			C = Color.White;
+			if (x == -0)
+				x = 0;
+			if (y == -0)
+				y = 0;
+
 			X = x;
 			Y = y;
 		}

@@ -83,7 +83,7 @@ namespace RPG1bit
 
 						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(World.CameraPosition));
-						slot.SetValue("world-data", Text.ToJSON(World.GetSavableData()));
+						//slot.SetValue("world-data", Text.ToJSON(World.GetSavableData()));
 						slot.IsCompressed = true;
 						slot.Save();
 
