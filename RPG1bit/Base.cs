@@ -37,6 +37,7 @@ namespace RPG1bit
 				new NavigationPanel("nav-panel");
 				new Hoverer("hoverer");
 				new World("world");
+				new ChunkManager("chunk-manager");
 				Screen.ScheduleDisplay();
 			}
 		}

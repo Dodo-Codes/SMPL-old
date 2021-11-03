@@ -170,6 +170,7 @@ namespace RPG1bit
 						Height = 1,
 						AppearOnTab = "world-editor",
 						IsInTab = true,
+						IsUI = true,
 						Name = i.ToString(),
 						IsKeptBetweenSessions = true,
 					})); ;
@@ -259,16 +260,9 @@ namespace RPG1bit
 					var dirX = pos.X > clickPos.X ? 1 : -1;
 					for (double y = clickPos.Y; y != pos.Y + dirY; y += dirY)
 						for (double x = clickPos.X; x != pos.X + dirX; x += dirX)
-						{
-							var p = new Point(x, y);
-							if (World.RawData.ContainsKey(p) == false)
-								World.RawData[p] = new Point[4];
-							World.RawData[p][SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
-						}
+							ChunkManager.SetTile(new Point(x, y), SwitchHeight.BrushHeight, LMB ? GetRandomBrushTile() : new(0, 0));
 				}
-				if (World.RawData.ContainsKey(pos) == false)
-					World.RawData[pos] = new Point[4];
-				World.RawData[pos][isSpecial ? 3 : SwitchHeight.BrushHeight] = LMB ? GetRandomBrushTile() : new(0, 0);
+				ChunkManager.SetTile(pos, isSpecial ? 3 : SwitchHeight.BrushHeight, LMB ? GetRandomBrushTile() : new(0, 0));
 			}
 
 			Screen.ScheduleDisplay();

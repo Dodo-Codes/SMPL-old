@@ -91,6 +91,7 @@ namespace RPG1bit
 						});
 					}
 				}
+				ChunkManager.UpdateChunks();
 				Screen.ScheduleDisplay();
 			}
 
@@ -257,12 +258,15 @@ namespace RPG1bit
 		
 		public static void Display()
 		{
-			if (RawData == null) return;
 			for (double y = CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
 				for (double x = CameraPosition.X - 8; x < CameraPosition.X + 9; x++)
 				{
 					var pos = new Point(x, y);
-					if (RawData.ContainsKey(pos) == false)
+					var chunkId = $"chunk-{ChunkManager.GetChunkCenterFromPosition(pos)}";
+					var chunkExists = UniqueIDsExits(chunkId);
+					var chunk = chunkExists ? (Chunk)PickByUniqueID(chunkId) : default;
+
+					if (chunkExists == false || chunk.Data.ContainsKey(pos) == false)
 					{
 						for (int z = 0; z < 4; z++)
 							Screen.EditCell(WorldToScreenPosition(pos), new(), z, new());
@@ -272,15 +276,15 @@ namespace RPG1bit
 					var tilesInCoord = 0;
 					for (int z = 0; z < 4; z++)
 					{
-						var color = RawData[pos][z].C;
-						if (RawData[pos][z] != new Point(0, 0)) tilesInCoord++;
-						if (IsShowingRoofs == false && WorldEditor.Tiles["roof"].Contains(RawData[pos][z]))
+						var color = chunk.Data[pos][z].C;
+						if (chunk.Data[pos][z] != new Point(0, 0)) tilesInCoord++;
+						if (IsShowingRoofs == false && WorldEditor.Tiles["roof"].Contains(chunk.Data[pos][z]))
 							color = new();
 
-						Screen.EditCell(WorldToScreenPosition(pos), RawData[pos][z], z, color);
+						Screen.EditCell(WorldToScreenPosition(pos), chunk.Data[pos][z], z, color);
 					}
 					if (tilesInCoord == 0)
-						RawData.Remove(pos);
+						chunk.Data.Remove(pos);
 				}
 		}
 		public static void DisplayNavigationPanel()

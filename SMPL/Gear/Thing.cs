@@ -44,12 +44,17 @@ namespace SMPL.Gear
 
 		public Thing(string uniqueID)
 		{
+			if (uniqueID == null)
+			{
+				cannotCreate = true;
+				Debug.LogError(-1, $"The {GetType().Name} cannot be created because its uniqueID is 'null'.");
+				return;
+			}
 			if (uniqueIDs.ContainsKey(uniqueID) && isClone == false)
 			{
 				cannotCreate = true;
-
 				Debug.LogError(-1, $"The {nameof(Thing)} with uniqueID '{uniqueID}' cannot be created because " +
-					$"another {nameof(Thing)} with the same uniqueID exists.");
+					$"another {GetType().Name} with the same uniqueID exists.");
 				return;
 			}
 

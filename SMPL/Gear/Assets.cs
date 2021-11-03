@@ -208,6 +208,13 @@ namespace SMPL.Gear
 					case Type.Sound: { if (AlreadyLoaded(sounds, filePaths[i], "Sound")) return; break; }
 					case Type.DataSlot: break;
 				}
+
+				// File.Exists does not accept file extensions, just names so that's a workaround
+				if (Directory.GetFiles(Path.GetDirectoryName(filePaths[i])).ToList().Contains(filePaths[i]) == false)
+				{
+					Debug.LogError(1, $"No file was found on path '{filePaths[i]}'.");
+					return;
+				}
 				queuedAssets.Add(new QueuedAsset()
 				{
 					asset = asset,

@@ -71,6 +71,7 @@ namespace RPG1bit
 				IsAnchored = !IsAnchored;
 				World.CameraPosition = player.Position;
 			}
+			ChunkManager.UpdateChunks();
 			Screen.ScheduleDisplay();
 		}
 	}

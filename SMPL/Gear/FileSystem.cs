@@ -471,9 +471,10 @@ void main()
 
 		public static bool FilesExist(params string[] paths)
 		{
-			if (paths == null) return false;
+			if (paths == null)
+				return false;
 			for (int i = 0; i < paths.Length; i++)
-				if (System.IO.File.Exists(paths[i]))
+				if (File.Exists(paths[i]) == false)
 					return false;
 			return true;
 		}
