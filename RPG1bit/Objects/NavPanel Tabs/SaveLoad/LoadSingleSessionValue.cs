@@ -1,6 +1,7 @@
 ﻿using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -13,18 +14,17 @@ namespace RPG1bit
 
 		public override void OnAssetsLoadEnd()
 		{
-			if (Assets.ValuesAreLoaded("world-name") == false) return;
-
-			DestroyAllSessionObjects();
-			World.LoadWorld(World.Session.Single, Assets.GetValue("world-name"));
+			if (Assets.ValuesAreLoaded("world-name", nameof(Player)))
+				World.LoadWorld(World.Session.Single, Assets.GetValue("world-name"));
 		}
 		public override void OnLeftClicked()
 		{
-			Assets.Load(Assets.Type.DataSlot, $"Sessions\\{Name}.session");
+			DestroyAllSessionObjects();
+			Assets.Load(Assets.Type.DataSlot, $"sessions\\{Name}.session");
 		}
 		public override void OnRightClicked()
 		{
-			FileSystem.MoveFiles($"Deleted", $"Sessions\\{Name}.session");
+			File.Move($"sessions\\{Name}.session", $"deleted\\{Name}.session");
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 			StartSingle.UpdateTab();

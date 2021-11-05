@@ -3,6 +3,7 @@ using SMPL.Components;
 using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -19,22 +20,51 @@ namespace RPG1bit
 		public static Point CameraPosition { get; set; }
 		public static Session CurrentSession { get; set; }
 
+		private static bool startingSingle;
+
 		public World(string uniqueID) : base(uniqueID)
 		{
 			Assets.Event.Subscribe.LoadEnd(uniqueID);
+			Game.Event.Subscribe.Update(uniqueID);
+		}
+		public override void OnGameUpdate()
+		{
+			if (startingSingle == false || ChunkManager.HasQueuedLoad())
+				return;
+
+			startingSingle = false;
+			WorldObjectManager.InitializeObjects();
 		}
 		public override void OnAssetsLoadEnd()
 		{
-			if (Assets.ValuesAreLoaded("world-data"))
+			if (Assets.ValuesAreLoaded("world-name") && startingSingle == false && Assets.ValuesAreLoaded("chunk") == false)
 			{
-				var worldData = Text.FromJSON<Dictionary<string, string>>(Assets.GetValue("world-data"));
-				var signData = new List<CompactSignData>();
-				if (Assets.ValuesAreLoaded("signs")) signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
-				//if (worldData != default)
-				//	foreach (var kvp in worldData)
-				//		RawData[Text.FromJSON<Point>(kvp.Key)] = Text.FromJSON<Point[]>(kvp.Value);
-				if (UniqueIDsExits(nameof(Player)) == false)
-					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
+				Assets.UnloadValues("world-name");
+
+				ChunkManager.DestroyAllChunks(true, true);
+
+				var chunks = Directory.GetFiles($"worlds\\{CurrentWorldName}");
+				for (int i = 0; i < chunks.Length; i++)
+					if (chunks[i].Contains("worlddata") == false)
+						File.Copy(chunks[i], $"chunks\\{Path.GetFileName(chunks[i])}");
+
+				ChunkManager.ScheduleLoadVisibleChunks();
+				ChunkManager.UpdateChunks();
+
+				if (CurrentSession == Session.Single)
+					startingSingle = true;
+
+				Screen.ScheduleDisplay();
+			}
+			if (Assets.ValuesAreLoaded(nameof(Player)))
+			{
+				Text.FromJSON<Player>(Assets.GetValue(nameof(Player)));
+				Assets.UnloadValues(nameof(Player));
+			}
+			if (Assets.ValuesAreLoaded("signs"))
+			{
+				var signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
+				Assets.UnloadValues("signs");
 
 				for (int i = 0; i < signData.Count; i++)
 				{
@@ -46,56 +76,15 @@ namespace RPG1bit
 					})
 					{ Text = signData[i].T };
 				}
-
-				if (CurrentSession == Session.Single && worldData != default)
-				{
-					WorldObjectManager.InitializeObjects();
-					NavigationPanel.Tab.Close();
-					Assets.UnloadAllValues();
-
-					if (Gate.EnterOnceWhile("create-item-info-tab", true))
-					{
-						new ItemStats("strength", new()
-						{
-							Position = new(19, 9),
-							Height = 1,
-							TileIndexes = new Point[] { new() },
-							IsInTab = true,
-							AppearOnTab = "item-info",
-							IsUI = true,
-							Name = "positives",
-							IsKeptBetweenSessions = true,
-						});
-						new ItemStats("weakness", new()
-						{
-							Position = new(19, 12),
-							Height = 1,
-							TileIndexes = new Point[] { new() },
-							IsInTab = true,
-							AppearOnTab = "item-info",
-							IsUI = true,
-							Name = "negatives",
-							IsKeptBetweenSessions = true,
-						});
-						new ItemSlotInfo("able-to-carry-in", new()
-						{
-							Position = new(31, 2),
-							Height = 1,
-							TileIndexes = new Point[] { new() },
-							IsInTab = true,
-							AppearOnTab = "item-info",
-							IsUI = true,
-							Name = "able-to-carry",
-							IsKeptBetweenSessions = true,
-						});
-					}
-				}
-				ChunkManager.UpdateChunks();
-				Screen.ScheduleDisplay();
 			}
 
 			if (CurrentSession == Session.WorldEdit)
 			{
+				if (Assets.ValuesAreLoaded("camera-position"))
+				{
+					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
+					Assets.UnloadValues("camera-position");
+				}
 				WorldEditor.CreateTab();
 				NavigationPanel.Tab.Open("world-editor", "edit brush");
 			}
@@ -262,7 +251,7 @@ namespace RPG1bit
 				{
 					var pos = new Point(x, y);
 					var chunkId = $"chunk-{ChunkManager.GetChunkCenterFromPosition(pos)}";
-					var chunkExists = UniqueIDsExits(chunkId);
+					var chunkExists = UniqueIDsExists(chunkId);
 					var chunk = chunkExists ? (Chunk)PickByUniqueID(chunkId) : default;
 
 					if (chunkExists == false || chunk.Data.ContainsKey(pos) == false)
@@ -322,16 +311,18 @@ namespace RPG1bit
 		}
 		public static void LoadWorld(Session session, string name)
 		{
-			Assets.Load(Assets.Type.DataSlot, $"Worlds\\{name}.worlddata");
+			Object.DestroyAllSessionObjects();
+			ChunkManager.DestroyAllChunks(true, true);
 			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
 
-			Object.DestroyAllSessionObjects();
 			CurrentSession = session;
 			CurrentWorldName = name;
 
 			DisplayNavigationPanel();
 			CreateUIButtons();
+
+			Assets.Load(Assets.Type.DataSlot, $"worlds\\{name}\\{name}.worlddata");
 		}
 
 		public static bool IsHovered()

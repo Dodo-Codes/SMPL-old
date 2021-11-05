@@ -22,7 +22,7 @@ namespace RPG1bit
 				{
 					var tile = ChunkManager.GetTile(positions[j], i);
 					var id = $"{type}-{positions[j]}-{i}";
-					if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExits(id) == false)
+					if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExists(id) == false)
 					{
 						var obj = new Chest(id, new()
 						{
@@ -43,7 +43,7 @@ namespace RPG1bit
 
 			NavigationPanel.Tab.Texts[uniqueID] = "\nThe dusty chest cracks open\nto reveal all of its contents...";
 
-			if (UniqueIDsExits($"{uniqueID}-item-slot-info"))
+			if (UniqueIDsExists($"{uniqueID}-item-slot-info"))
 				return;
 
 			for (int y = 0; y < 7; y++)

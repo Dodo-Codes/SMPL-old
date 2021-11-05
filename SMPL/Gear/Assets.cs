@@ -371,7 +371,7 @@ namespace SMPL.Gear
 						}
 						catch (Exception)
 						{
-							Debug.LogError(-1, $"Failed to save {nameof(DataSlot)} asset from file '{path}'.");
+							Debug.LogError(-1, $"Failed to save {nameof(DataSlot)} asset in file '{path}'.");
 							continue;
 						}
 						UpdateCounter();

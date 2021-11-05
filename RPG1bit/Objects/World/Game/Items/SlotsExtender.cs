@@ -34,7 +34,7 @@ namespace RPG1bit
 			for (int i = 0; i < Positives[0]; i++)
 			{
 				var id = $"extra-slot-{SlotsPosition.Y - 14 + i}";
-				if (UniqueIDsExits(id) == false)
+				if (UniqueIDsExists(id) == false)
 					continue;
 				var slot = (ItemSlot)PickByUniqueID(id);
 				slot.Destroy();

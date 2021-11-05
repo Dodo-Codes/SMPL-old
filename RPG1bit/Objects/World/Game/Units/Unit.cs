@@ -37,7 +37,12 @@ namespace RPG1bit
 
 		public bool CanMoveIntoCell(Point cell)
 		{
-			return ChunkManager.GetTile(cell, 3) != World.TileBarrier && CellIsInReach(cell);
+			var isVoid = true;
+			for (int i = 0; i < 3; i++)
+				if (ChunkManager.GetTile(cell, i) != new Point())
+					isVoid = false;
+				
+			return isVoid == false && ChunkManager.GetTile(cell, 3) != World.TileBarrier && CellIsInReach(cell);
 		}
 	}
 }

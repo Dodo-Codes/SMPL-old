@@ -143,6 +143,7 @@ namespace RPG1bit
 			World.DisplayNavigationPanel();
 
 			World.CameraPosition = new();
+			ChunkManager.DestroyAllChunks(true, true);
 
 			World.CreateUIButtons();
 			CreateTab();

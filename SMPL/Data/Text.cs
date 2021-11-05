@@ -52,7 +52,7 @@ namespace SMPL.Data
 		}
 		/// <summary>
 		/// Tries to convert a <paramref name="JSON"/> <see cref="string"/> into <typeparamref name="T"/> 
-		/// <paramref name="data"/> and returns it if successful. Otherwise returns 
+		/// <paramref name="instance"/> and returns it if successful. Otherwise returns 
 		/// <paramref name="default"/>(<typeparamref name="T"/>).<br></br>
 		/// A <paramref name="JSON"/> <see cref="string"/> can be created with <see cref="ToJSON(object)"/>.
 		/// </summary>
@@ -68,15 +68,15 @@ namespace SMPL.Data
 			}
 		}
 		/// <summary>
-		/// Tries to convert <typeparamref name="T"/> <paramref name="data"/> into a <paramref name="JSON"/> <see cref="string"/> 
+		/// Tries to convert <typeparamref name="T"/> <paramref name="instance"/> into a <paramref name="JSON"/> <see cref="string"/> 
 		/// and returns it if successful. Returns <paramref name="null"/> otherwise.<br></br>
 		/// The <paramref name="JSON"/> <see cref="string"/> can be converted back to 
-		/// <typeparamref name="T"/> <paramref name="data"/> later with 
+		/// <typeparamref name="T"/> <paramref name="instance"/> later with 
 		/// <see cref="FromJSON"/>.‪‪
 		/// </summary>
-		public static string ToJSON(object data)
+		public static string ToJSON(object instance)
 		{
-			return JsonConvert.SerializeObject(data);
+			return JsonConvert.SerializeObject(instance);
 		}
 		public static string Compress(string text)
 		{

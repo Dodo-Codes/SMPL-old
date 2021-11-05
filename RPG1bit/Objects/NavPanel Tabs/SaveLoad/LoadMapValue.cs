@@ -1,5 +1,6 @@
 ﻿using SMPL.Data;
 using SMPL.Gear;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -16,7 +17,7 @@ namespace RPG1bit
 		}
 		public override void OnRightClicked()
 		{
-			FileSystem.MoveFiles($"Deleted", $"Worlds\\{Name}.worlddata");
+			Directory.Move($"worlds\\{Name}", $"deleted\\{Name}");
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 			if (ObjectList.Lists.ContainsKey("load-world-list")) RemoveFromList(ObjectList.Lists["load-world-list"]);

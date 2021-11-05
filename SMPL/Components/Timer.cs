@@ -7,6 +7,28 @@ namespace SMPL.Components
 {
 	public class Timer : Thing
    {
+      public static class Event
+      {
+         public static class Subscribe
+         {
+            public static void End(string thingUID, uint order = uint.MaxValue) =>
+               Events.Enable(Events.Type.TimerEnd, thingUID, order);
+            public static void CreateAndStart(string thingUID, uint order = uint.MaxValue) =>
+               Events.Enable(Events.Type.TimerCreateAndStart, thingUID, order);
+            public static void Update(string thingUID, uint order = uint.MaxValue) =>
+               Events.Enable(Events.Type.TimerUpdate, thingUID, order);
+         }
+         public static class Unsubscribe
+         {
+            public static void End(string thingUID) =>
+               Events.Disable(Events.Type.TimerEnd, thingUID);
+            public static void CreateAndStart(string thingUID) =>
+               Events.Disable(Events.Type.TimerCreateAndStart, thingUID);
+            public static void Update(string thingUID) =>
+               Events.Disable(Events.Type.TimerUpdate, thingUID);
+         }
+      }
+
       private static readonly List<Timer> timers = new();
       private double progress, countdown, endCount, duration;
       private bool isPaused;

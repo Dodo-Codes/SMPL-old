@@ -60,6 +60,7 @@ namespace RPG1bit
 						Typing = false;
 						AcceptingInput = false;
 						OnDisplay(Position);
+						Screen.ScheduleDisplay();
 						return;
 					}
 				case Keyboard.TextInput.Type.Tab: return;

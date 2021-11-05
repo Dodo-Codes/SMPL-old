@@ -1,6 +1,7 @@
 ﻿using SMPL.Data;
 using SMPL.Gear;
 using System;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -46,11 +47,11 @@ namespace RPG1bit
 					IsKeptBetweenSessions = true,
 				}, new Size(13, 9));
 
-				var worlds = FileSystem.GetFileNames(false, "Worlds");
+				var worlds = Directory.GetDirectories("worlds");
 				for (int i = 0; i < worlds.Length; i++)
-					worldList.Objects.Add(new StartSingleOnWorld($"worldp-{worlds[i]}", new CreationDetails()
+					worldList.Objects.Add(new StartSingleOnWorld($"worldp--{worlds[i]}", new CreationDetails()
 					{
-						Name = worlds[i],
+						Name = worlds[i].Replace("worlds\\", ""),
 						Position = new(-10, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(32, 15) },
 						Height = 1,

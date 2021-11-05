@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using SMPL.Data;
 using SMPL.Gear;
 using SMPL.Prefabs;
+using System.IO;
 
 namespace SMPL.Components
 {
@@ -155,12 +156,15 @@ namespace SMPL.Components
 
 		public void Snap(string filePath = "folder/picture.png")
 		{
-			if (ErrorIfDestroyed()) return;
+			if (ErrorIfDestroyed())
+				return;
 			var img = rendTexture.Texture.CopyToImage();
-			var full = FileSystem.CreateDirectoryForFile(filePath);
+			Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-			if (img.SaveToFile(filePath)) img.Dispose();
-			else { Debug.LogError(1, $"Could not save picture '{full}'."); return; }
+			if (img.SaveToFile(filePath))
+				img.Dispose();
+			else
+				Debug.LogError(1, $"Could not save picture '{filePath}'.");
 		}
 		public bool Captures(Thing thing)
 		{

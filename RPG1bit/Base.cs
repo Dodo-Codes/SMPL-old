@@ -1,5 +1,6 @@
 ﻿using SMPL.Gear;
 using SMPL.Data;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -20,6 +21,11 @@ namespace RPG1bit
 			Window.Title = "Violint";
 			Window.CurrentState = Window.State.Fullscreen;
 			Mouse.Cursor.IsHidden = true;
+
+			Directory.CreateDirectory("chunks");
+			Directory.CreateDirectory("deleted");
+			Directory.CreateDirectory("sessions");
+			Directory.CreateDirectory("worlds");
 
 			Event.Subscribe.Update(UniqueID, 0);
 			Mouse.Event.Subscribe.ButtonPress(UniqueID);

@@ -1,5 +1,6 @@
 ﻿using SMPL.Gear;
 using SMPL.Data;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -7,7 +8,17 @@ namespace RPG1bit
 	{
 		public SaveLoad(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Save/Load a session.";
-		public override void OnLeftClicked() => UpdateTab();
+		public override void OnLeftClicked()
+		{
+			UpdateTab();
+
+			if (World.CurrentSession == World.Session.WorldEdit)
+			{
+				var chunks = PickByTag(nameof(Chunk));
+				foreach (Chunk chunk in chunks)
+					ChunkManager.SaveChunk(chunk, false);
+			}
+		}
 		public static void UpdateTab()
 		{
 			CreateTab();
@@ -50,12 +61,12 @@ namespace RPG1bit
 					IsKeptBetweenSessions = true,
 				}, new Size(13, 8));
 
-				var worlds = FileSystem.GetFileNames(false, "Worlds");
-				var sessions = FileSystem.GetFileNames(false, "Sessions");
+				var worlds = Directory.GetDirectories("worlds");
+				var sessions = Directory.GetFiles("sessions");
 				for (int i = 0; i < worlds.Length; i++)
-					worldList.Objects.Add(new LoadWorldValue($"world-{worlds[i]}", new CreationDetails()
+					worldList.Objects.Add(new LoadWorldValue($"world--{worlds[i]}", new CreationDetails()
 					{
-						Name = worlds[i],
+						Name = worlds[i].Replace("worlds\\", ""),
 						Position = new(-10, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(47, 06) },
 						Height = 1,
@@ -67,9 +78,9 @@ namespace RPG1bit
 						IsKeptBetweenSessions = true,
 					}));
 				for (int i = 0; i < sessions.Length; i++)
-					worldList.Objects.Add(new LoadSingleSessionValue($"session-{sessions[i]}", new CreationDetails()
+					worldList.Objects.Add(new LoadSingleSessionValue($"session--{sessions[i]}", new CreationDetails()
 					{
-						Name = sessions[i],
+						Name = sessions[i].Replace("sessions\\", "").Replace(".session", ""),
 						Position = new(-10, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(14, 10) },
 						Height = 1,

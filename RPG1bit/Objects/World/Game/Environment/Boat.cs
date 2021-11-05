@@ -16,7 +16,7 @@ namespace RPG1bit
 			{
 				var tile = ChunkManager.GetTile(pos, i);
 				var id = $"{type}-{pos}-{i}";
-				if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExits(id) == false)
+				if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExists(id) == false)
 				{
 					var obj = new Boat(id, new()
 					{

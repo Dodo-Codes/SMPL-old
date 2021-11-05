@@ -8,14 +8,54 @@ namespace RPG1bit
 	{
 		public static void InitializeObjects()
 		{
+			NavigationPanel.Tab.Close();
+
+			if (Gate.EnterOnceWhile("create-item-info-tab", true))
+			{
+				new ItemStats("strength", new()
+				{
+					Position = new(19, 9),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "positives",
+					IsKeptBetweenSessions = true,
+				});
+				new ItemStats("weakness", new()
+				{
+					Position = new(19, 12),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "negatives",
+					IsKeptBetweenSessions = true,
+				});
+				new ItemSlotInfo("able-to-carry-in", new()
+				{
+					Position = new(31, 2),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "able-to-carry",
+					IsKeptBetweenSessions = true,
+				});
+			}
+
 			var freeTile = new Point(0, 0);
 			var playerTiles = new List<Point>();
+			var playerWasLoaded = Thing.UniqueIDsExists(nameof(Player));
 			var chunks = Thing.PickByTag(nameof(Chunk));
 			foreach (Chunk chunk in chunks)
 				foreach (var kvp in chunk.Data)
 				{
 					var pos = new Point(kvp.Key.X, kvp.Key.Y);
-					if (chunk.Data[pos][3] == World.TilePlayer)
+					if (playerWasLoaded == false && chunk.Data[pos][3] == World.TilePlayer)
 					{
 						playerTiles.Add(pos);
 						chunk.Data[pos][3] = new();
@@ -33,15 +73,15 @@ namespace RPG1bit
 			var randPoint = playerTiles.Count > 0 ?
 				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
 
-			var player = Assets.ValuesAreLoaded(nameof(Player)) == false
-						? new Player(nameof(Player), new Object.CreationDetails()
-						{
-							Name = nameof(Player),
-							Position = randPoint,
-							Height = 3,
-							TileIndexes = new Point[] { new(25, 0) }
-						})
-						: Text.FromJSON<Player>(Assets.GetValue(nameof(Player)));
+			var player = playerWasLoaded ? (Player)Thing.PickByUniqueID(nameof(Player)) :
+				new Player(nameof(Player), new Object.CreationDetails()
+				{
+					Name = nameof(Player),
+					Position = randPoint,
+					Height = 3,
+					TileIndexes = new Point[] { new(25, 0) }
+				});
+
 			World.CameraPosition = player.Position;
 			player.PreviousPosition = player.Position;
 			World.IsShowingRoofs = World.TileHasRoof(player.Position) == false;
@@ -51,7 +91,10 @@ namespace RPG1bit
 			void LoadAll<T>()
 			{
 				if (Assets.ValuesAreLoaded(typeof(T).Name))
+				{
 					Text.FromJSON<T[]>(Assets.GetValue(typeof(T).Name));
+					Assets.UnloadValues(typeof(T).Name);
+				}
 			}
 		}
 

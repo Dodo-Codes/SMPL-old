@@ -2,6 +2,7 @@
 using SMPL.Gear;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace RPG1bit
 {
@@ -26,7 +27,7 @@ namespace RPG1bit
 				case World.Session.None: return;
 				case World.Session.Single:
 					{
-						var slot = new Assets.DataSlot($"Sessions\\{name}.session");
+						var slot = new Assets.DataSlot($"sessions\\{name}.session");
 						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
 
 						SaveAll<Chest>(); SaveAll<ItemPile>(); SaveAll<Bag>(); SaveAll<Key>(); SaveAll<Quiver>(); SaveAll<Map>();
@@ -44,7 +45,7 @@ namespace RPG1bit
 						void AddToList(ObjectList list)
 						{
 							var uid = $"{name}-{Performance.FrameCount}-2";
-							if (UniqueIDsExits(uid))
+							if (UniqueIDsExists(uid))
 								return;
 							var value = (Object)new LoadSingleSessionValue(uid, new CreationDetails()
 							{
@@ -69,7 +70,19 @@ namespace RPG1bit
 				case World.Session.Multi: break;
 				case World.Session.WorldEdit:
 					{
-						var slot = new Assets.DataSlot($"Worlds\\{name}.worlddata");
+						if (Directory.Exists($"worlds\\{name}"))
+						{
+							var worlds = Directory.GetFiles($"worlds\\{name}");
+							for (int i = 0; i < worlds.Length; i++)
+								File.Delete(worlds[i]);
+						}
+
+						Directory.CreateDirectory($"worlds\\{name}");
+						var chunkNames = Directory.GetFiles("chunks");
+						for (int i = 0; i < chunkNames.Length; i++)
+							File.Copy(chunkNames[i], $"worlds\\{name}\\{Path.GetFileName(chunkNames[i])}");
+
+						var slot = new Assets.DataSlot($"worlds\\{name}\\{name}.worlddata");
 						var signs = new List<CompactSignData>();
 						foreach (var kvp in objects)
 							for (int i = 0; i < objects[kvp.Key].Count; i++)
@@ -81,9 +94,9 @@ namespace RPG1bit
 										T = sign.Text
 									});
 
+						slot.SetValue("world-name", name);
 						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(World.CameraPosition));
-						//slot.SetValue("world-data", Text.ToJSON(World.GetSavableData()));
 						slot.IsCompressed = true;
 						slot.Save();
 
@@ -95,7 +108,7 @@ namespace RPG1bit
 						void AddToList(ObjectList list)
 						{
 							var uid = $"{name}-{list.UniqueID}";
-							if (UniqueIDsExits(uid))
+							if (UniqueIDsExists(uid))
 								return;
 							var value = (Object)new LoadWorldValue(uid, new CreationDetails()
 							{
@@ -112,7 +125,7 @@ namespace RPG1bit
 							if (list.Name == "load-world-list")
 							{
 								var uid2 = $"{name}-{list.UniqueID}-1";
-								if (UniqueIDsExits(uid2))
+								if (UniqueIDsExists(uid2))
 									return;
 								value = new StartSingleOnWorld(uid2, new CreationDetails()
 								{
