@@ -61,22 +61,6 @@ namespace RPG1bit
 				Text.FromJSON<Player>(Assets.GetValue(nameof(Player)));
 				Assets.UnloadValues(nameof(Player));
 			}
-			if (Assets.ValuesAreLoaded("signs"))
-			{
-				var signData = Text.FromJSON<List<CompactSignData>>(Assets.GetValue("signs"));
-				Assets.UnloadValues("signs");
-
-				for (int i = 0; i < signData.Count; i++)
-				{
-					new Sign($"{signData[i].P}-{i}-{signData[i].P.C.R}", new()
-					{
-						Position = signData[i].P,
-						TileIndexes = new Point[] { signData[i].I },
-						Height = (int)signData[i].P.C.R,
-					})
-					{ Text = signData[i].T };
-				}
-			}
 
 			if (CurrentSession == Session.WorldEdit)
 			{
@@ -266,7 +250,8 @@ namespace RPG1bit
 					{
 						var color = chunk.Data[pos][z].C;
 						if (chunk.Data[pos][z] != new Point(0, 0)) tilesInCoord++;
-						if (IsShowingRoofs == false && WorldEditor.Tiles["roof"].Contains(chunk.Data[pos][z]))
+						if ((IsShowingRoofs == false && WorldEditor.Tiles["roof"].Contains(chunk.Data[pos][z])) ||
+							((chunk.Data[pos][z] == TilePlayer || chunk.Data[pos][z] == TileBarrier) && CurrentSession == Session.Single))
 							color = new();
 
 						Screen.EditCell(WorldToScreenPosition(pos), chunk.Data[pos][z], z, color);
@@ -313,7 +298,6 @@ namespace RPG1bit
 		{
 			Object.DestroyAllSessionObjects();
 			ChunkManager.DestroyAllChunks(true, true);
-			NavigationPanel.Tab.Close();
 			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
 
 			CurrentSession = session;

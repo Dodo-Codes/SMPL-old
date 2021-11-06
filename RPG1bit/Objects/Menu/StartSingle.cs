@@ -27,8 +27,8 @@ namespace RPG1bit
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			base.OnMouseButtonRelease(button);
-			if (World.CurrentSession != World.Session.Single || World.IsHovered() == false) return;
-			NavigationPanel.Tab.Close();
+			if (World.CurrentSession == World.Session.Single && World.IsHovered())
+				PlayerStats.Open();
 		}
 		private static void CreateTab()
 		{

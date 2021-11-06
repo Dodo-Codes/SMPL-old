@@ -65,8 +65,9 @@ namespace RPG1bit
 				if (MoveCamera.IsAnchored)
 					World.CameraPosition = player.PreviousPosition;
 				TileIndexes -= new Point(1, 0);
-				NavigationPanel.Tab.Textbox.Text = "This door is locked.";
+				PlayerStats.Open("This door is locked.");
 			}
+			Screen.ScheduleDisplay();
 		}
 		public override void OnAdvanceTime() => update = true;
 	}

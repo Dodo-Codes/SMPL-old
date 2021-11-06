@@ -23,28 +23,40 @@ namespace RPG1bit
 			DestroyAllChunks(false, true);
 		}
 
+		public static void SetSignJSON(Point position, string uniqueID, string json)
+		{
+			var chunk = GetOrCreateChunk(position);
+			chunk.SignsJSON[uniqueID] = json;
+		}
+		public static void RemoveSignJSON(Point position, string uniqueID)
+		{
+			var chunk = GetOrCreateChunk(position);
+			chunk.SignsJSON.Remove(uniqueID);
+		}
 		public static void SetTile(Point position, int height, Point tile)
 		{
-			var chunkCenter = GetChunkCenterFromPosition(position);
-			var id = $"chunk-{chunkCenter}";
-			if (UniqueIDsExists(id) == false)
-				new Chunk(id) { Center = chunkCenter };
-			var chunk = (Chunk)PickByUniqueID(id);
-
+			var chunk = GetOrCreateChunk(position);
 			if (chunk.Data.ContainsKey(position) == false)
 				chunk.Data[position] = new Point[4];
 			chunk.Data[position][height] = tile;
 		}
 		public static Point GetTile(Point position, int height)
 		{
-			var chunkCenter = GetChunkCenterFromPosition(position);
-			var id = $"chunk-{chunkCenter}";
+			var id = $"chunk-{GetChunkCenterFromPosition(position)}";
 			var chunk = (Chunk)PickByUniqueID(id);
 			return UniqueIDsExists(id) == false || chunk.Data.ContainsKey(position) == false ? default : chunk.Data[position][height];
 		}
 		public static Point GetChunkCenterFromPosition(Point position)
 		{
 			return new Point(Number.Round(position.X / SIZE) * SIZE, Number.Round(position.Y / SIZE) * SIZE);
+		}
+		private static Chunk GetOrCreateChunk(Point position)
+		{
+			var chunkCenter = GetChunkCenterFromPosition(position);
+			var id = $"chunk-{chunkCenter}";
+			if (UniqueIDsExists(id) == false)
+				new Chunk(id) { Center = chunkCenter };
+			return (Chunk)PickByUniqueID(id);
 		}
 
 		public static void ScheduleLoadVisibleChunks()
@@ -139,9 +151,18 @@ namespace RPG1bit
 				queueSave.RemoveAt(0);
 				return;
 			}
+			var signs = chunk.SignsJSON;
+			foreach (var kvp in signs)
+			{
+				var sign = (Sign)PickByUniqueID(kvp.Key);
+				chunk.SignsJSON[sign.UniqueID] = Text.ToJSON(sign.GetSavableData());
+				if (destroy)
+					sign.Destroy();
+			}
+
 			var slot = new Assets.DataSlot($"chunks\\{chunk.Center}.chunkdata");
-			slot.SetValue($"chunk-data", Text.ToJSON(chunk.GetSavableData()));
-			slot.SetValue($"chunk", Text.ToJSON(chunk));
+			slot.SetValue("chunk-data", Text.ToJSON(chunk.GetSavableData()));
+			slot.SetValue("chunk", Text.ToJSON(chunk));
 			slot.IsCompressed = true;
 			slot.Save();
 			if (destroy)
@@ -193,6 +214,18 @@ namespace RPG1bit
 				var key = Text.FromJSON<Point>(kvp.Key);
 				var value = Text.FromJSON<Point[]>(kvp.Value);
 				chunk.Data[key] = value;
+			}
+
+			foreach (var kvp in chunk.SignsJSON)
+			{
+				var signData = Text.FromJSON<CompactSignData>(kvp.Value);
+				new Sign(kvp.Key, new()
+				{
+					Position = signData.P,
+					TileIndexes = new Point[] { signData.I },
+					Height = (int)signData.P.C.R,
+				})
+				{ Text = signData.T };
 			}
 
 			Assets.UnloadValues("chunk", "chunk-data");

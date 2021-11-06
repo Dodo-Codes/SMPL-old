@@ -9,6 +9,7 @@ namespace RPG1bit
 		public override void OnLeftClicked()
 		{
 			AdvanceTime();
+
 			NavigationPanel.Tab.Textbox.Text = "Some time passes...";
 		}
 	}

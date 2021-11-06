@@ -8,11 +8,11 @@ namespace RPG1bit
 	public struct CompactSignData
 	{
 		public Point P { get; set; } // pos
-		public Point I { get; set; } // tile index values
+		public Point I { get; set; } // tile indexes
 		public string T { get; set; } // text
 	}
 
-	public class Sign : Object
+	public class Sign : Object, ITypeTaggable
 	{
 		public const int CHAR_LIMIT = 400;
 		[JsonProperty]
@@ -45,6 +45,15 @@ namespace RPG1bit
 				case Keyboard.TextInput.Type.Tab: break;
 			}
 			OnHovered();
+		}
+		public CompactSignData GetSavableData()
+		{
+			return new CompactSignData()
+			{
+				P = new(Position.X, Position.Y) { C = new(Height, 0, 0, 0) },
+				I = TileIndexes,
+				T = Text
+			};
 		}
 	}
 }

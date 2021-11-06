@@ -17,7 +17,14 @@ namespace RPG1bit
 		}
 		public override void OnRightClicked()
 		{
-			Directory.Move($"worlds\\{Name}", $"deleted\\{Name}");
+			var name = $"deleted\\{Name}";
+			while (Directory.Exists(name))
+				name += "0";
+			var files = Directory.GetFiles($"worlds\\{Name}");
+			for (int i = 0; i < files.Length; i++)
+				if (files[i] == $"worlds\\{Name}\\{Name}.worlddata")
+					File.Move($"worlds\\{Name}\\{Name}.worlddata", $"worlds\\{Name}\\{Path.GetFileName(name)}.worlddata");
+			Directory.Move($"worlds\\{Name}", name);
 
 			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
 			if (ObjectList.Lists.ContainsKey("load-world-list")) RemoveFromList(ObjectList.Lists["load-world-list"]);
@@ -40,10 +47,11 @@ namespace RPG1bit
 		{
 			NavigationPanel.Info.Textbox.Text = $"World Edit session: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load\n[RIGHT CLICK] Delete";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
+			NavigationPanel.Info.ShowRightClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			Screen.EditCell(screenPos, TileIndexes, 1, Color.White);
+			Screen.EditCell(screenPos, TileIndexes, 1, Color.Brown + 100);
 			Screen.DisplayText(screenPos + new Point(1, 0), 1, Color.White, Name);
 		}
 	}

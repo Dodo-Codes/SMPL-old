@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using SMPL.Data;
-using SMPL.Gear;
 
 namespace RPG1bit
 {
@@ -86,7 +85,7 @@ namespace RPG1bit
 						Close();
 					if (playerHasKey == false)
 					{
-						NavigationPanel.Tab.Textbox.Text = "This chest is locked.";
+						PlayerStats.Open("This chest is locked.");
 						return;
 					}
 				}
@@ -111,7 +110,7 @@ namespace RPG1bit
 			{
 				TileIndexes -= new Point(1, 0);
 				opened = false;
-				NavigationPanel.Tab.Close();
+				PlayerStats.Open();
 			}
 		}
 	}

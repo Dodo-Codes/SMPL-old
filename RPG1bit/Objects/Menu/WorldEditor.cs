@@ -88,8 +88,8 @@ namespace RPG1bit
 			// walls / floors
 			new(33, 22) { C = new(188, 74, 60) }, // brick
 			new(34, 22) { C = Color.Wood - 30 }, new(35, 22) { C = Color.Wood - 30 },
-			new(36, 22) { C = Color.Wood - 30 },
-			new(), new(), new(), new(), new(),
+			new(36, 22) { C = Color.Wood - 30 }, new(37, 23) { C = Color.Wood - 30 },
+			new(), new(), new(), new(),
 
 			// doors
 			new(40, 22) { C = Color.Wood - 30 }, new(38, 22) { C = Color.Wood - 30 }, new(42, 22) { C = Color.Wood - 30 },
@@ -235,10 +235,15 @@ namespace RPG1bit
 			if (TileIsSign(hoveredTile))
 			{
 				// overwrite / delete
-				var heights = objects.ContainsKey(pos) ? objects[pos] : new();
-				for (int i = 0; i < heights.Count; i++)
-					if (heights[i].IsUI == false && (heights[i].Height == SwitchHeight.BrushHeight || heights[i] is Sign))
-						heights[i].Destroy();
+				var signs = PickByTag(nameof(Sign));
+				for (int i = 0; i < signs.Length; i++)
+				{
+					var sign = (Sign)signs[i];
+					if (sign.Position != pos || sign.Height != SwitchHeight.BrushHeight)
+						continue;
+					ChunkManager.RemoveSignJSON(pos, sign.UniqueID);
+					sign.Destroy();
+				}
 			}
 			if (TileIsSign(Brush) && LMB)
 			{
@@ -250,6 +255,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { Brush },
 				});
 				sign.OnHovered();
+				ChunkManager.SetSignJSON(pos, sign.UniqueID, "");
 			}
 
 			if (TileIsSign(Brush) == false)

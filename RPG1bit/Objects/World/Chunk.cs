@@ -9,7 +9,11 @@ namespace RPG1bit
 	{
 		[JsonProperty]
 		public Point Center { get; set; }
-		public Dictionary<Point, Point[]> Data { get; set; } = new();
+		// this is saved separately as chunk-data dict<point json, point[] json> and reconstructed upon load
+		// since the json is confused with the point struct and casts it ToString() rather than to a json format :D
+		public Dictionary<Point, Point[]> Data { get; } = new();
+		[JsonProperty]
+		public Dictionary<string, string> SignsJSON { get; } = new();
 
 		public Chunk(string uniqueID) : base(uniqueID)
 		{

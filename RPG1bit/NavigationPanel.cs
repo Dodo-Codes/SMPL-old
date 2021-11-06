@@ -36,9 +36,6 @@ namespace RPG1bit
 				Textbox.EffectsUniqueID = "tab-effects";
 				Textbox.FontPath = "Assets\\font.ttf";
 				Textbox.CharacterSize = 128;
-				Textbox.Spacing = new(4, 0.5);
-				Textbox.Scale = new(0.4, 0.4);
-				Textbox.OriginPercent = new(50, 0);
 				Textbox.Text = "";
 			}
 
@@ -46,6 +43,9 @@ namespace RPG1bit
 			{
 				CurrentTabType = null;
 				Title = "";
+				Textbox.Spacing = new(4, 0.5);
+				Textbox.Scale = new(0.4, 0.4);
+				Textbox.OriginPercent = new(50, 0);
 				Textbox.Text = "";
 				Screen.ScheduleDisplay();
 			}

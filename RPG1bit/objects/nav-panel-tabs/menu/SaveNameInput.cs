@@ -83,19 +83,7 @@ namespace RPG1bit
 							File.Copy(chunkNames[i], $"worlds\\{name}\\{Path.GetFileName(chunkNames[i])}");
 
 						var slot = new Assets.DataSlot($"worlds\\{name}\\{name}.worlddata");
-						var signs = new List<CompactSignData>();
-						foreach (var kvp in objects)
-							for (int i = 0; i < objects[kvp.Key].Count; i++)
-								if (objects[kvp.Key][i] is Sign sign)
-									signs.Add(new()
-									{
-										P = new(sign.Position.X, sign.Position.Y) { C = new(sign.Height, 0, 0, 0)},
-										I = sign.TileIndexes,
-										T = sign.Text
-									});
-
 						slot.SetValue("world-name", name);
-						slot.SetValue("signs", Text.ToJSON(signs));
 						slot.SetValue("camera-position", Text.ToJSON(World.CameraPosition));
 						slot.IsCompressed = true;
 						slot.Save();
@@ -113,7 +101,7 @@ namespace RPG1bit
 							var value = (Object)new LoadWorldValue(uid, new CreationDetails()
 							{
 								Name = name,
-								Position = new(-10, 0) { C = new() },
+								Position = new(-10, 0),
 								TileIndexes = new Point[] { new Point(47, 06) },
 								Height = 1,
 								IsUI = true,
@@ -130,7 +118,7 @@ namespace RPG1bit
 								value = new StartSingleOnWorld(uid2, new CreationDetails()
 								{
 									Name = name,
-									Position = new(-10, 0) { C = new() },
+									Position = new(-10, 0),
 									TileIndexes = new Point[] { new Point(32, 15) },
 									Height = 1,
 									IsUI = true,

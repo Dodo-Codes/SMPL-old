@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Unit : Object
+	public class Unit : Object, IInteractable
 	{
 		[JsonProperty]
 		public List<string> ItemUIDs { get; set; } = new();
@@ -38,7 +38,7 @@ namespace RPG1bit
 		public bool CanMoveIntoCell(Point cell)
 		{
 			var isVoid = true;
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 4; i++)
 				if (ChunkManager.GetTile(cell, i) != new Point())
 					isVoid = false;
 				

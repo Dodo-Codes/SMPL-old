@@ -18,7 +18,7 @@ namespace RPG1bit
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			Screen.EditCell(screenPos, TileIndexes, 1, Color.White);
+			Screen.EditCell(screenPos, TileIndexes, 1, Color.Brown + 100);
 			Screen.DisplayText(screenPos + new Point(1, 0), 1, Color.White, Name);
 		}
 	}

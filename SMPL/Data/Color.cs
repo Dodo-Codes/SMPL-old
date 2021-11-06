@@ -26,6 +26,7 @@ namespace SMPL.Data
 		public static Color Brown			=> new(125, 75,	25);
 
 		public static Color Water			=> new(0,	100,	150);
+		public static Color Fire			=> new(235,	130,	90);
 		public static Color Sky				=> new(135, 206,	235);
 		public static Color Wood			=> new(186, 140,	100);
 		public static Color Grass			=> new(52,	140,	50);

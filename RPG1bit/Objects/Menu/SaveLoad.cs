@@ -67,7 +67,7 @@ namespace RPG1bit
 					worldList.Objects.Add(new LoadWorldValue($"world--{worlds[i]}", new CreationDetails()
 					{
 						Name = worlds[i].Replace("worlds\\", ""),
-						Position = new(-10, 0) { C = new() },
+						Position = new(-10, 0),
 						TileIndexes = new Point[] { new Point(47, 06) },
 						Height = 1,
 						IsUI = true,
@@ -81,7 +81,7 @@ namespace RPG1bit
 					worldList.Objects.Add(new LoadSingleSessionValue($"session--{sessions[i]}", new CreationDetails()
 					{
 						Name = sessions[i].Replace("sessions\\", "").Replace(".session", ""),
-						Position = new(-10, 0) { C = new() },
+						Position = new(-10, 0),
 						TileIndexes = new Point[] { new Point(14, 10) },
 						Height = 1,
 						IsUI = true,

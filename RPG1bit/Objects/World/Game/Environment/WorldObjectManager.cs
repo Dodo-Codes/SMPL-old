@@ -8,8 +8,6 @@ namespace RPG1bit
 	{
 		public static void InitializeObjects()
 		{
-			NavigationPanel.Tab.Close();
-
 			if (Gate.EnterOnceWhile("create-item-info-tab", true))
 			{
 				new ItemStats("strength", new()
@@ -46,6 +44,21 @@ namespace RPG1bit
 					IsKeptBetweenSessions = true,
 				});
 			}
+			if (Gate.EnterOnceWhile("create-player-tab", true))
+			{
+				new PlayerStats("player-stats", new()
+				{
+					Position = new(19, 12),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "player-stats",
+					IsUI = true,
+					Name = "self",
+					IsKeptBetweenSessions = true,
+				});
+			}
+			PlayerStats.Open();
 
 			var freeTile = new Point(0, 0);
 			var playerTiles = new List<Point>();
@@ -56,16 +69,7 @@ namespace RPG1bit
 				{
 					var pos = new Point(kvp.Key.X, kvp.Key.Y);
 					if (playerWasLoaded == false && chunk.Data[pos][3] == World.TilePlayer)
-					{
 						playerTiles.Add(pos);
-						chunk.Data[pos][3] = new();
-					}
-					else if (chunk.Data[pos][3] == World.TileBarrier)
-					{
-						var tile = World.TileBarrier;
-						tile.C = new Color();
-						chunk.Data[pos][3] = tile;
-					}
 					else if (chunk.Data[pos][3] == new Point(0, 0))
 						freeTile = pos;
 				}
