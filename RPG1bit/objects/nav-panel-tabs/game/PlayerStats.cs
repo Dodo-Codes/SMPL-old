@@ -5,7 +5,7 @@ namespace RPG1bit
 {
 	public class PlayerStats : Object
 	{
-		private static string[] thoughts = new string[]
+		private static readonly string[] thoughts = new string[]
 		{
 			"Words are just that...", "We miss the true number one, three and\ntwo too...",
 			"\"An idiot admires complexity, a genius admires\nsimplicity.\" We miss you, Terry...", "MMMMMMagot...",
@@ -23,15 +23,21 @@ namespace RPG1bit
 		public static void Open(string say = null)
 		{
 			NavigationPanel.Tab.Open("player-stats", "self");
-			NavigationPanel.Tab.Textbox.Scale = new(0.3, 0.3);
-			NavigationPanel.Tab.Textbox.OriginPercent = new(5, 0);
-			NavigationPanel.Tab.Textbox.Text = say == null ?
-				$"\n*{thoughts[(int)Probability.Randomize(new(0, thoughts.Length - 1))]}*" : $"\"{say}\"";
+			NavigationPanel.Tab.Textbox.Scale = new(0.35, 0.35);
+			NavigationPanel.Tab.Textbox.Text = say == null ? "" : $"\n\"{say}\"";
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			Screen.DisplayText(new(19, 2), 1, Color.White, "thought");
-			Screen.DisplayText(new(19, 10), 1, Color.White, "condition");
+			var player = (Player)PickByUniqueID(nameof(Player));
+
+			Screen.DisplayText(new(19, 5), 1, Color.White, $"state {player.Health[0]} {player.Health[1]}");
+			Screen.EditCell(new(19 + $"state {player.Health[0]}".Length, 5), new(39, 20), 1, Color.White);
+
+			for (int i = 0; i < player.EffectUIDs.Count; i++)
+			{
+				var effect = (Effect)PickByUniqueID(player.EffectUIDs[i]);
+				effect.OnDisplay(new(19, 6 + i));
+			}
 		}
 	}
 }

@@ -151,6 +151,25 @@ namespace RPG1bit
 				pile.AddItem(map);
 				pile.AddItem(map2);
 			}
+			else if (button == Mouse.Button.ExtraButton2)
+			{
+				var bleed = new Bleed("bleed", new()
+				{
+					Position = new(-10, 0),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					Name = "bleed",
+					AppearOnTab = "player-stats",
+					IsUI = true,
+					IsInTab = true,
+				})
+				{
+					Value = 1,
+					Length = new int[2] { 0, 10 },
+				};
+				var player = (Player)PickByUniqueID(nameof(Player));
+				player.ApplyEffect(bleed);
+			}
 
 			if ((World.IsHovered() || NavigationPanel.Tab.IsHovered()) && button == Mouse.Button.Middle)
 				WorldEditor.PickCurrentTile();

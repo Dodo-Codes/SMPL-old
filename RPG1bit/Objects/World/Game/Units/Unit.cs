@@ -9,8 +9,18 @@ namespace RPG1bit
 	{
 		[JsonProperty]
 		public List<string> ItemUIDs { get; set; } = new();
+		[JsonProperty]
+		public List<string> EffectUIDs { get; set; } = new();
+		[JsonProperty]
+		public int[] Health { get; set; } = new int[2] { 30, 30 };
 
 		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+
+		public void ApplyEffect(Effect effect)
+		{
+			EffectUIDs.Add(effect.UniqueID);
+			effect.OwnerUID = UniqueID;
+		}
 
 		public bool Move(Point movement)
 		{
