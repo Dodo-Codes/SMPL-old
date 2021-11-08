@@ -10,12 +10,15 @@ using System;
 
 namespace SMPL.Prefabs
 {
-	public class ShapePseudo3D : Visual
+	public class Shape3D : Visual
 	{
 		public enum Side { Far, Near, Left, Right, Up, Down }
 
-		private readonly Dictionary<Side, Point[]> texCoords = new();
-		private readonly Dictionary<Side, Data.Color> colors = new();
+		[JsonProperty]
+		private Dictionary<Side, Point[]> texCoords = new();
+		[JsonProperty]
+		private Dictionary<Side, Data.Color> colors = new();
+		[JsonProperty]
 		private readonly List<Side> skippedSides = new();
 		private string texturePath;
 		private double lightAngle, lightDepth, percentZ;
@@ -53,7 +56,7 @@ namespace SMPL.Prefabs
 		[JsonProperty]
 		public Size TileSize { get; set; } = new Size(32, 32);
 
-		public ShapePseudo3D(string uniqueID) : base(uniqueID)
+		public Shape3D(string uniqueID) : base(uniqueID)
 		{
 			for (int i = 0; i < 6; i++)
 				texCoords[(Side)i] = new Point[] { new Point(0, 0), new Point(100, 100) };
@@ -76,8 +79,8 @@ namespace SMPL.Prefabs
 			if (Area == null || Area.IsDestroyed || Area.sprite == null)
 			{
 				Debug.LogError(1,
-					$"Cannot display the {nameof(ShapePseudo3D)} instance '{UniqueID}' because it has no {nameof(Components.Area)}.\n" +
-					$"Make sure the {nameof(ShapePseudo3D)} instance has an {nameof(Components.Area)} before displaying it.");
+					$"Cannot display the {nameof(Shape3D)} instance '{UniqueID}' because it has no {nameof(Components.Area)}.\n" +
+					$"Make sure the {nameof(Shape3D)} instance has an {nameof(Components.Area)} before displaying it.");
 				return;
 			}
 			if (camera.Captures(this) == false || PercentZ < -10_000) return;
@@ -211,8 +214,8 @@ namespace SMPL.Prefabs
 			if (Area == null || Area.IsDestroyed || Area.sprite == null)
 			{
 				Debug.LogError(1,
-					$"Cannot tint the {nameof(ShapePseudo3D)} instance '{UniqueID}' because it has no {nameof(Components.Area)}.\n" +
-					$"Make sure the {nameof(ShapePseudo3D)} instance has an " +
+					$"Cannot tint the {nameof(Shape3D)} instance '{UniqueID}' because it has no {nameof(Components.Area)}.\n" +
+					$"Make sure the {nameof(Shape3D)} instance has an " +
 					$"{nameof(Components.Area)} before tinting it according to a light.");
 				return;
 			}
@@ -273,7 +276,6 @@ namespace SMPL.Prefabs
 			var Area = (Area)PickByUniqueID(AreaUniqueID);
 			if (Area == null) return;
 
-			var mid = P(Area.sprite.Position + Point.From(new Point(Area.Size.W / 2, Area.Size.H / 2)));
 			var topL = P(Area.sprite.Position);
 			var topR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, 0)));
 			var botR = P(Area.sprite.Position + Point.From(new Point(Area.Size.W, Area.Size.H)));

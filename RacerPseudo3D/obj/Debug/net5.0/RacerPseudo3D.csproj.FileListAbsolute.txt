@@ -92,15 +92,14 @@ D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\Accessibility.dll
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\System.Deployment.dll
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\System.Runtime.Serialization.Formatters.Soap.dll
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\SMPL.pdb
-D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.csprojAssemblyReference.cache
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.GeneratedMSBuildEditorConfig.editorconfig
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.AssemblyInfoInputs.cache
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.AssemblyInfo.cs
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.csproj.CoreCompileInputs.cache
-D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.csproj.CopyComplete
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.dll
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\ref\RacerPseudo3D.dll
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.pdb
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.genruntimeconfig.cache
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\road.jpg
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\border.png
+D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.csproj.AssemblyReference.cache

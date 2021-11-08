@@ -52,23 +52,31 @@ namespace RPG1bit
 			else if (player.PreviousPosition == Position)
 				TileIndexes += new Point(-1, 0);
 
-			var playerHasKey = false;
-			for (int i = 0; i < player.ItemUIDs.Count; i++)
-				if (PickByUniqueID(player.ItemUIDs[i]) is Key)
-				{
-					playerHasKey = true;
-					break;
-				}
-			if (player.Position == Position && Locked && playerHasKey == false)
+			if (player.Position == Position && Locked && PlayerHasKey(player) == false)
+				TileIndexes -= new Point(1, 0);
+			Screen.ScheduleDisplay();
+		}
+		public override void OnAdvanceTime()
+		{
+			var player = (Player)PickByUniqueID(nameof(Player));
+
+			// can't peak inside for a single frame when door is locked
+			if (player.Position == Position && Locked && PlayerHasKey(player) == false)
 			{
 				player.Position = player.PreviousPosition;
 				if (MoveCamera.IsAnchored)
 					World.CameraPosition = player.PreviousPosition;
-				TileIndexes -= new Point(1, 0);
 				PlayerStats.Open("This door is locked.");
 			}
-			Screen.ScheduleDisplay();
+
+			update = true;
 		}
-		public override void OnAdvanceTime() => update = true;
+		private static bool PlayerHasKey(Player player)
+		{
+			for (int i = 0; i < player.ItemUIDs.Count; i++)
+				if (PickByUniqueID(player.ItemUIDs[i]) is Key)
+					return true;
+			return false;
+		}
 	}
 }

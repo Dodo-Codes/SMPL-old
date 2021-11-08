@@ -69,21 +69,14 @@ namespace RPG1bit
 					}
 			}
 
-			if (IsRoof(Position) == false && IsRoof(PreviousPosition))
+			UpdateRoofs();
+		}
+		public void UpdateRoofs()
+		{
+			if (World.TileHasRoof(Position) == false && World.TileHasRoof(PreviousPosition))
 				World.IsShowingRoofs = true;
-			else if (IsRoof(Position) && IsRoof(PreviousPosition) == false)
+			else if (World.TileHasRoof(Position) && World.TileHasRoof(PreviousPosition) == false)
 				World.IsShowingRoofs = false;
-
-			bool IsRoof(Point worldPos)
-			{
-				for (int i = 0; i < 3; i++)
-				{
-					var tile = ChunkManager.GetTile(worldPos, i);
-					if (WorldEditor.Tiles["roof"].Contains(tile))
-						return true;
-				}
-				return false;
-			}
 		}
 	}
 }

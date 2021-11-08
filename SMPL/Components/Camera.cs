@@ -169,30 +169,36 @@ namespace SMPL.Components
 		public bool Captures(Thing thing)
 		{
 			UpdateSprite();
-			var type = thing.GetType();
-			if (type == typeof(Cloth)) return RopeCheck(((Cloth)thing).RopesUniqueID);
-			else if (type == typeof(Ropes)) return RopeCheck(thing.UniqueID);
-			else if (type == typeof(SegmentedLine))
+			if (thing is Cloth cloth) return RopeCheck(cloth.RopesUniqueID);
+			else if (thing is Ropes) return RopeCheck(thing.UniqueID);
+			else if (thing is SegmentedLine sl)
 			{
-				var sl = (SegmentedLine)thing;
 				for (int i = 0; i < sl.Points.Length; i++)
 					if (ContainsPoint(sl.Points[i]))
 						return true;
 			}
-			else if (type == typeof(ShapePseudo3D))
+			else if (thing is Shape3D shape)
 			{
-				var shape = (ShapePseudo3D)thing;
 				shape.UpdateLines(this);
 				for (int i = 0; i < shape.lines.Length; i++)
 					if (ContainsPoint(shape.lines[i].StartPosition) || ContainsPoint(shape.lines[i].EndPosition))
 						return true;
 			}
-			else if (type == typeof(Area)) return AreaCheck(thing.UniqueID);
-			else if (type == typeof(Sprite))
+			else if (thing is LayeredShape3D ls3d)
 			{
-				var spr = (Sprite)thing;
-				return AreaCheck(spr.AreaUniqueID);
+				if (ls3d.AreaUniqueID == null || UniqueIDsExists(ls3d.AreaUniqueID) == false)
+					return false;
+				var area = (Area)PickByUniqueID(ls3d.AreaUniqueID);
+				var first = AreaCheck(area.UniqueID);
+				var prevPos = area.Position;
+				area.Position = Point.MoveAtAngle(area.Position, ls3d.LayerStackAngle, ls3d.LayerStackCount * ls3d.LayerStackSpacing,
+					Gear.Time.Unit.Tick);
+				var second = AreaCheck(area.UniqueID);
+				area.Position = prevPos;
+				return first || second;
 			}
+			else if (thing is Area) return AreaCheck(thing.UniqueID);
+			else if (thing is Sprite spr) return AreaCheck(spr.AreaUniqueID);
 			return false;
 
 			bool RopeCheck(string uniqueID)

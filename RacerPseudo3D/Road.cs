@@ -11,9 +11,9 @@ namespace RacerPseudo3D
 		public static Area BorderLeftArea { get; set; }
 		public static Area BorderRightArea { get; set; }
 
-		public static ShapePseudo3D Pavement { get; set; }
-		public static ShapePseudo3D BorderLeft { get; set; }
-		public static ShapePseudo3D BorderRight { get; set; }
+		public static Shape3D Pavement { get; set; }
+		public static Shape3D BorderLeft { get; set; }
+		public static Shape3D BorderRight { get; set; }
 
 		public Road(string uniqueID) : base(uniqueID)
 		{
@@ -30,13 +30,13 @@ namespace RacerPseudo3D
 			BorderLeftArea.Position = new(-50, 170);
 			BorderRightArea.Position = new(50, 170);
 
-			Pavement = new ShapePseudo3D("pavement");
-			BorderLeft = new ShapePseudo3D("border-left");
-			BorderRight = new ShapePseudo3D("border-right");
+			Pavement = new Shape3D("pavement");
+			BorderLeft = new Shape3D("border-left");
+			BorderRight = new Shape3D("border-right");
 
 			BorderLeft.TexturePath = "border.png";
 			BorderLeft.SetSidesTextureCropDefault();
-			BorderLeft.SetSideTextureCropPercent(ShapePseudo3D.Side.Near, new(100, 100), new(0, 0));
+			BorderLeft.SetSideTextureCropPercent(Shape3D.Side.Near, new(100, 100), new(0, 0));
 			BorderRight.TexturePath = "border.png";
 			BorderRight.SetSidesTextureCropDefault();
 

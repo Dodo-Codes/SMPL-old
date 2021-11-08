@@ -96,12 +96,10 @@ D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.GeneratedMSBuildEditorCon
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.AssemblyInfoInputs.cache
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.AssemblyInfo.cs
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csproj.CoreCompileInputs.cache
-D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csproj.CopyComplete
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\ref\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.pdb
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.genruntimeconfig.cache
-D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csprojAssemblyReference.cache
 G:\SFML\Test Game\bin\Debug\net5.0\SMPL.exe
 G:\SFML\Test Game\bin\Debug\net5.0\Test Game.exe
 G:\SFML\Test Game\bin\Debug\net5.0\Test Game.deps.json
@@ -207,3 +205,4 @@ G:\SFML\Test Game\obj\Debug\net5.0\Test Game.dll
 G:\SFML\Test Game\obj\Debug\net5.0\ref\Test Game.dll
 G:\SFML\Test Game\obj\Debug\net5.0\Test Game.pdb
 G:\SFML\Test Game\obj\Debug\net5.0\Test Game.genruntimeconfig.cache
+D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csproj.AssemblyReference.cache

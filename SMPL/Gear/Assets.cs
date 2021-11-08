@@ -210,7 +210,8 @@ namespace SMPL.Gear
 				}
 
 				// File.Exists does not accept file extensions, just names so that's a workaround
-				if (Directory.GetFiles(Path.GetDirectoryName(filePaths[i])).ToList().Contains(filePaths[i]) == false)
+				if (filePaths[i].Contains('\\') &&
+					Directory.GetFiles(Path.GetDirectoryName(filePaths[i])).ToList().Contains(filePaths[i]) == false)
 				{
 					Debug.LogError(1, $"No file was found on path '{filePaths[i]}'.");
 					return;
@@ -310,7 +311,6 @@ namespace SMPL.Gear
 					{
 						var asset = curQueuedAssets[i].asset;
 						var path = curQueuedAssets[i].path;
-						path = path.Replace('/', '\\');
 						try
 						{
 							switch (asset)
