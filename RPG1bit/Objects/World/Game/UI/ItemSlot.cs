@@ -65,10 +65,6 @@ namespace RPG1bit
 					Name = "item-pile",
 				});
 				newPile.AddItem(item);
-
-				// the new pile renders on top of the player otherwise
-				objects[newPile.Position].Remove(player);
-				objects[newPile.Position].Add(player);
 				item.OnDrop();
 			}
 			else if (UniqueID.Contains("chest"))

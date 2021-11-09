@@ -11,13 +11,11 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			var descr = NavigationPanel.Info.Textbox.Text;
-			if (descr == "Void.")
-				return;
-			else if (descr == "")
+			if (Screen.GetCellIndexesAtPosition(Screen.GetCellAtCursorPosition(), 1) == new Point(1, 22))
 				descr = "Background color.";
-			else if (descr == "Game navigation panel.")
-				return;
-			NavigationPanel.Info.Textbox.Text = $"[MIDDLE CLICK] Pick a brush from tile:\n{descr}";
+
+			if (descr != "Game navigation panel.")
+				NavigationPanel.Info.Textbox.Text = $"[MIDDLE CLICK] Pick a brush from tile:\n{descr}";
 		}
 		public override void OnDisplay(Point screenPos)
 		{

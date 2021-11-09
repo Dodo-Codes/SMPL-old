@@ -24,19 +24,32 @@ namespace RPG1bit
 		{
 			NavigationPanel.Tab.Open("player-stats", "self");
 			NavigationPanel.Tab.Textbox.Scale = new(0.35, 0.35);
-			NavigationPanel.Tab.Textbox.Text = say == null ? "" : $"\n\"{say}\"";
+			NavigationPanel.Tab.Textbox.Text = say == null ? "\n. . ." : $"\n\"{say}\"";
+			var player = (Player)PickByUniqueID(nameof(Player));
+			if (player != null && player.Health[0] <= 0)
+				NavigationPanel.Tab.Textbox.Text = "All your senses weakened as\nyou took your final breath...";
 		}
 		public override void OnDisplay(Point screenPos)
 		{
 			var player = (Player)PickByUniqueID(nameof(Player));
+			var hp = Number.Limit(player.Health[0], new(0, player.Health[1]));
 
-			Screen.DisplayText(new(19, 5), 1, Color.White, $"state {player.Health[0]} {player.Health[1]}");
-			Screen.EditCell(new(19 + $"state {player.Health[0]}".Length, 5), new(39, 20), 1, Color.White);
+			Screen.DisplayText(new(20, 5), 1, Color.White, $"state {hp} {player.Health[1]}");
+			Screen.EditCell(new(20 + $"state {hp}".Length, 5), new(39, 20), 1, Color.White);
 
-			for (int i = 0; i < player.EffectUIDs.Count; i++)
+			var pos = new Point();
+			for (int i = 1; i < player.EffectUIDs.Count + 1; i++)
 			{
-				var effect = (Effect)PickByUniqueID(player.EffectUIDs[i]);
-				effect.OnDisplay(new(19, 6 + i));
+				if (i == 19)
+					return;
+				var effect = (Effect)PickByUniqueID(player.EffectUIDs[i - 1]);
+				effect.Position = new(20 + pos.X, 7 + pos.Y);
+				pos.X += 2 + $"{effect.Duration[1] - effect.Duration[0]}".Length;
+				if (pos.X >= 10)
+				{
+					pos.X = 0;
+					pos.Y++;
+				}
 			}
 		}
 	}

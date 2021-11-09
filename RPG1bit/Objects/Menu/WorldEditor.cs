@@ -10,7 +10,7 @@ namespace RPG1bit
 		{
 			new(01, 22) { C = Color.White },				// background
 			new(00, 22) { C = Color.Red },				// barrier
-			new(24, 08) { C = Color.White },				// player spawn tile
+			new(25, 00) { C = Color.White },				// player spawn tile
 			new(), new(), new(), new(), new(), new(),
 			new(05, 00) { C = Color.Grass },				// grass
 			new(00, 02) { C = Color.Grass },				// bushes

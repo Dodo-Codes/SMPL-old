@@ -14,14 +14,14 @@ namespace RPG1bit
 		[JsonProperty]
 		public int[] Health { get; set; } = new int[2] { 30, 30 };
 
-		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { AddTags(nameof(Unit)); }
 
 		public void ApplyEffect(Effect effect)
 		{
 			EffectUIDs.Add(effect.UniqueID);
 			effect.OwnerUID = UniqueID;
+			Screen.ScheduleDisplay();
 		}
-
 		public bool Move(Point movement)
 		{
 			var futurePos = Position + movement;
@@ -47,6 +47,9 @@ namespace RPG1bit
 
 		public bool CanMoveIntoCell(Point cell)
 		{
+			if (Health[0] <= 0)
+				return false;
+
 			var isVoid = true;
 			for (int i = 0; i < 4; i++)
 				if (ChunkManager.GetTile(cell, i) != new Point())

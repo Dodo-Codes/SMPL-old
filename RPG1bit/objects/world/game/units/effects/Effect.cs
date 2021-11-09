@@ -8,7 +8,7 @@ namespace RPG1bit
 		[JsonProperty]
 		public string OwnerUID { get; set; }
 		[JsonProperty]
-		public int[] Length { get; set; } = new int[2];
+		public int[] Duration { get; set; } = new int[2];
 		[JsonProperty]
 		public int Value { get; set; }
 
@@ -16,16 +16,16 @@ namespace RPG1bit
 
 		public override void OnDisplay(Point screenPos)
 		{
-			var name = GetType().Name;
-			Screen.DisplayText(screenPos + new Point(1, 0), 1, TileIndexes.C, name);
+			Screen.DisplayText(screenPos + new Point(1, 0), 1, Value < 0 ? Color.Red : Color.Green, $"{Duration[1] - Duration[0]}");
 			Screen.EditCell(screenPos, new(37, 21), 1, Color.Gray);
 			Screen.EditCell(screenPos, TileIndexes, 2, TileIndexes.C);
 		}
 		public override void OnAdvanceTime()
 		{
 			OnTrigger();
-			Length[0]++;
-			if (Length[0] >= Length[1])
+			Duration[0]++;
+			PlayerStats.Open();
+			if (Duration[0] >= Duration[1])
 			{
 				var owner = (Unit)PickByUniqueID(OwnerUID);
 				owner.EffectUIDs.Remove(UniqueID);

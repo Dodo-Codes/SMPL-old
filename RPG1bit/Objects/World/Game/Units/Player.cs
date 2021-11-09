@@ -44,8 +44,12 @@ namespace RPG1bit
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			base.OnMouseButtonRelease(button);
+			if (Health[0] <= 0)
+				return;
+
 			var mousePos = Screen.GetCellAtCursorPosition();
-			if (Base.LeftClickPosition != mousePos) return;
+			if (Base.LeftClickPosition != mousePos)
+				return;
 
 			var mousePosWorld = World.ScreenToWorldPosition(mousePos);
 			var movement = new Point(0, 0);

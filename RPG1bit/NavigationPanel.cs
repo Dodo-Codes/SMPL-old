@@ -121,26 +121,29 @@ namespace RPG1bit
 				var worldPos = World.ScreenToWorldPosition(mousePos);
 				var worldObjs = objects.ContainsKey(worldPos) ? objects[worldPos] : new();
 
+				if (World.TileHasRoof(worldPos) && World.IsShowingRoofs)
+				{
+					Textbox.Text = "Roof.";
+					return;
+				}
 				for (int i = 0; i < 4; i++)
 				{
-					var quadID = $"{i} cell {mousePos.X} {mousePos.Y}";
-					if (Screen.Sprite.HasQuad(quadID) == false) continue;
-					var quad = Screen.Sprite.GetQuad(quadID);
-					var coord = quad.CornerA.TextureCoordinate;
-					var tileIndex = coord / new Point(quad.TileSize.W + quad.TileGridWidth.W, quad.TileSize.H + quad.TileGridWidth.H);
-					var key = tileIndex.IsInvalid() ? new(0, 0) : tileIndex;
+					var key = Screen.GetCellIndexesAtPosition(mousePos, i);
 					var description = descriptions.ContainsKey(key) ? descriptions[key] : "";
 					var sep = i != 0 && description != "" && Textbox.Text != "" ? "\n" : "";
 					var isPanel = mousePos.X > 18 && key == new Point();
+					var isWorldEdit = World.CurrentSession == World.Session.WorldEdit;
 
-					if (mousePos.Y > 0)
-					{
-						if (key == World.TileBarrier) description = "Unwalkable terrain.";
-						else if (key == World.TilePlayer) description = "Player tile.";
-					}
-					if (Textbox.Text == "" && isPanel) description = "Game navigation panel.";
+					if (Textbox.Text == "" && isPanel)
+						description = "Game navigation panel.";
 
-					if (Textbox.Text != "" && description == descriptions[new(0, 0)]) continue;
+					if (key == World.TileBarrier)
+						description = isWorldEdit ? "Unwalkable terrain." : "(Unwalkable terrain)\n";
+					else if (key == World.TilePlayer)
+						description = isWorldEdit ? "Player tile." : "Self.";
+
+					if (Textbox.Text != "" && description == descriptions[new(0, 0)])
+						continue;
 
 					for (int j = 0; j < mousePosObjs.Count; j++)
 						if (mousePosObjs[j] is not ObjectList)

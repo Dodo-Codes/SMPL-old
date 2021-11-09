@@ -108,7 +108,7 @@ namespace SMPL.Gear
 		public static bool UniqueIDsExists(params string[] uniqueIDs)
 		{
 			for (int i = 0; i < uniqueIDs.Length; i++)
-				if (Thing.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
+				if (uniqueIDs[i] == null || Thing.uniqueIDs.ContainsKey(uniqueIDs[i]) == false)
 					return false;
 			return true;
 		}

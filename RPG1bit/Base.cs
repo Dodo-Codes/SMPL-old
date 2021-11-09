@@ -153,7 +153,7 @@ namespace RPG1bit
 			}
 			else if (button == Mouse.Button.ExtraButton2)
 			{
-				var bleed = new Bleed("bleed", new()
+				var bleed = new Bleed($"bleed-{Performance.FrameCount}", new()
 				{
 					Position = new(-10, 0),
 					Height = 1,
@@ -164,8 +164,8 @@ namespace RPG1bit
 					IsInTab = true,
 				})
 				{
-					Value = 1,
-					Length = new int[2] { 0, 10 },
+					Value = -1,
+					Duration = new int[2] { 0, 10 },
 				};
 				var player = (Player)PickByUniqueID(nameof(Player));
 				player.ApplyEffect(bleed);

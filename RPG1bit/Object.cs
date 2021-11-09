@@ -90,6 +90,7 @@ namespace RPG1bit
 			{ new(32, 22), "Chimney." }, { new(37, 22), "Roof." },
 
 			{ new(33, 22), "Structure." }, { new(34, 22), "Structure." }, { new(35, 22), "Structure." }, { new(36, 22), "Structure." },
+			{ new(37, 23), "Structure." },
 
 			{ new(38, 22), "Closed door." }, { new(39, 22), "Opened door." }, { new(40, 22), "Closed door." },
 			{ new(41, 22), "Opened door." }, { new(42, 22), "Closed door." }, { new(43, 22), "Opened door." },
@@ -221,7 +222,8 @@ namespace RPG1bit
 		}
 		public static void DisplayAllObjects()
 		{
-			foreach (var kvp in objects)
+			var objs = GetObjectList();
+			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
 					kvp.Value[i].Display();
 		}
@@ -333,10 +335,12 @@ namespace RPG1bit
 		}
 		public static void AdvanceTime()
 		{
-			var objs = new Dictionary<Point, List<Object>>(objects);
+			var objs = GetObjectList();
+
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					objects[kvp.Key][i].OnAdvanceTime();
+					objs[kvp.Key][i].OnAdvanceTime();
+
 			WorldObjectManager.OnAdvanceTime();
 			Screen.ScheduleDisplay();
 			NavigationPanel.Info.ScheduleUpdate();
@@ -351,6 +355,13 @@ namespace RPG1bit
 			Hoverer.CursorTileIndexes = new(36, 10);
 			Hoverer.CursorColor = Color.White;
 			NavigationPanel.Info.ScheduleUpdate();
+		}
+		public static Dictionary<Point, List<Object>> GetObjectList()
+		{
+			var objs = new Dictionary<Point, List<Object>>();
+			foreach (var kvp in objects)
+				objs[kvp.Key] = new(kvp.Value);
+			return objs;
 		}
 
 		public virtual void OnAdvanceTime() { }

@@ -12,7 +12,7 @@ namespace RPG1bit
 		public enum Session { None, Single, Multi, WorldEdit }
 
 		public static Point TileBarrier => new(0, 22);
-		public static Point TilePlayer => new(24, 8);
+		public static Point TilePlayer => new(25, 0);
 
 		public static string CurrentWorldName { get; private set; }
 		public static bool IsShowingRoofs { get; set; } = true;
