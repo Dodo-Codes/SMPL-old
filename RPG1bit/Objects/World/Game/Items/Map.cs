@@ -60,7 +60,7 @@ namespace RPG1bit
 						for (int i = 2; i >= 0; i--)
 						{
 							var tile = ChunkManager.GetTile(new(x, y), i);
-							if (tile != default && IsNot("boat"))
+							if (tile != default && IsNot(nameof(Boat)))
 							{
 								pixels[px, py] = tile.C;
 								break;

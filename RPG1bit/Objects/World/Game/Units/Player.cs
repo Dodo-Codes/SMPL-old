@@ -6,12 +6,21 @@ namespace RPG1bit
 {
 	public class Player : Unit
 	{
-		public Point PreviousPosition { get; set; }
-
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			PreviousPosition = Position;
+			Keyboard.Event.Subscribe.KeyPress(uniqueID);
+
 			World.IsShowingRoofs = World.TileHasRoof(Position) == false;
+		}
+		public override void OnKeyboardKeyPress(Keyboard.Key key)
+		{
+			var dir = new Point();
+			if (key == Keyboard.Key.LeftArrow) dir = new(-1, 0);
+			else if (key == Keyboard.Key.RightArrow) dir = new(1, 0);
+			else if (key == Keyboard.Key.UpArrow) dir = new(0, -1);
+			else if (key == Keyboard.Key.DownArrow) dir = new(0, 1);
+
+			TryMove(dir);
 		}
 		public override void OnGameUpdate()
 		{
@@ -44,7 +53,7 @@ namespace RPG1bit
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			base.OnMouseButtonRelease(button);
-			if (Health[0] <= 0)
+			if (Health[0] <= 0 || button != Mouse.Button.Left)
 				return;
 
 			var mousePos = Screen.GetCellAtCursorPosition();
@@ -59,7 +68,10 @@ namespace RPG1bit
 			else if (CellIsInUpReach(mousePosWorld)) movement = new Point(0, -1);
 			else if (CellIsInDownReach(mousePosWorld)) movement = new Point(0, 1);
 
-			PreviousPosition = Position;
+			TryMove(movement);
+		}
+		private void TryMove(Point movement)
+		{
 			if (movement != new Point() && Move(movement))
 			{
 				AdvanceTime();
@@ -72,7 +84,6 @@ namespace RPG1bit
 						TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
 					}
 			}
-
 			UpdateRoofs();
 		}
 		public void UpdateRoofs()

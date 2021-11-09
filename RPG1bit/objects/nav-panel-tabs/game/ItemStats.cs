@@ -10,18 +10,27 @@ namespace RPG1bit
 
 		public override void OnDisplay(Point screenPos)
 		{
-			var isPositive = Name == "positives";
 			var item = (Item)PickByUniqueID(DisplayedItemUID);
 			if (item == null)
 				return;
-			var prime = isPositive ? item.Positives[0] : item.Negatives[0];
-			var minor = isPositive ? item.Positives[1] : item.Negatives[1];
-			var color = isPositive ? Color.Green : Color.Red;
 
-			Screen.DisplayText(screenPos, 1, color, $" prime {prime}");
-			Screen.DisplayText(screenPos + new Point(0, 1), 1, color - 100, $" minor {minor}");
-			Screen.EditCell(screenPos, isPositive ? new(36, 20) : new(37, 20), 1, color);
-			Screen.EditCell(screenPos + new Point(0, 1), isPositive ? new(36, 20) : new(37, 20), 1, color - 100);
+			foreach (var kvp in item.Stats)
+				Screen.DisplayText(screenPos, 1, Color.White, $"{kvp.Value} {Item.GetStatName(kvp.Key, kvp.Value)}");
+
+			var x = item.Stats.Count == 0 ? 24 : 28;
+			var off = x == 24 ? 1 : 0;
+			Screen.EditCell(new(x + 2, 9), new(08, 22), 1, Color.Green);
+			Screen.EditCell(new(x + 3, 9), new(09, 22), 1, Color.Green);
+
+			Screen.EditCell(new(x - off, 10), new(05, 22), 1, item.CanWearOnHead ? Color.Green : Color.Red);
+			Screen.EditCell(new(x - off, 11), new(06, 22), 1, item.CanWearOnBody ? Color.Green : Color.Red);
+			Screen.EditCell(new(x - off, 12), new(07, 22), 1, item.CanWearOnFeet ? Color.Green : Color.Red);
+
+			Screen.EditCell(new(x + 2, 11), new(10, 22), 1, item.CanCarryOnBack ? Color.Green : Color.Red);
+			Screen.EditCell(new(x + 2, 12), new(11, 22), 1, item.CanCarryOnWaist ? Color.Green : Color.Red);
+
+			Screen.EditCell(new(x + 3, 11), new(44, 04), 1, item.CanCarryInBag ? Color.Green : Color.Red);
+			Screen.EditCell(new(x + 3, 12), new(43, 06), 1, item.CanCarryInQuiver ? Color.Green : Color.Red);
 		}
 	}
 }

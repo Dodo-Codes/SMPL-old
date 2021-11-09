@@ -102,7 +102,7 @@ namespace RPG1bit
 
 				for (int y = 15; y < 18; y++)
 					for (int x = 18; x < 32; x++)
-						Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 2);
+						Screen.EditCell(new Point(x, y), new Point(12, 22), 0, Color.Brown / 2);
 			}
 			public override void OnGameUpdate()
 			{
@@ -290,7 +290,7 @@ namespace RPG1bit
 			for (int y = 0; y < 14; y++)
 				for (int x = 18; x < 32; x++)
 				{
-					Screen.EditCell(new Point(x, y), new Point(1, 22), 0, Color.Brown / 2);
+					Screen.EditCell(new Point(x, y), new Point(12, 22), 0, Color.Brown / 2);
 					Screen.EditCell(new Point(x, y), new Point(0, 0), 1, new());
 					Screen.EditCell(new Point(x, y), new Point(0, 0), 2, new());
 					Screen.EditCell(new Point(x, y), new Point(0, 0), 3, new());

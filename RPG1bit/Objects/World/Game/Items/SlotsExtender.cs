@@ -12,7 +12,7 @@ namespace RPG1bit
 
 		public override void OnPickup()
 		{
-			for (int i = 0; i < Positives[0]; i++)
+			for (int i = 0; i < Stats["slots"]; i++)
 				new ItemSlot($"extra-slot-{SlotsPosition.Y - 14 + i}", new()
 				{
 					Position = SlotsPosition + new Point(0, i),
@@ -31,7 +31,7 @@ namespace RPG1bit
 		}
 		public void DestroySlots()
 		{
-			for (int i = 0; i < Positives[0]; i++)
+			for (int i = 0; i < Stats["slots"]; i++)
 			{
 				var id = $"extra-slot-{SlotsPosition.Y - 14 + i}";
 				if (UniqueIDsExists(id) == false)

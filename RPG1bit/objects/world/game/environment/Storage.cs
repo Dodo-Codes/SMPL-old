@@ -1,12 +1,19 @@
 ﻿using Newtonsoft.Json;
 using SMPL.Data;
+using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Chest : Object, IInteractable, ITypeTaggable
+	public class Storage : Object, IInteractable, ITypeTaggable
 	{
+		private static readonly Dictionary<string, int> sizes = new()
+		{
+			{ "chest", 7 }
+		};
+
 		[JsonProperty]
 		public bool Locked { get; set; }
+
 		private bool opened;
 
 		public static void TryToCreate()
@@ -14,51 +21,59 @@ namespace RPG1bit
 			var player = (Player)PickByUniqueID(nameof(Player));
 			var pos = player.Position;
 			var positions = new Point[] { pos + new Point(0, 1), pos + new Point(0, -1), pos + new Point(1, 0), pos + new Point(-1, 0) };
-			var type = nameof(Chest).ToLower();
 
-			for (int j = 0; j < positions.Length; j++)
-				for (int i = 0; i < 3; i++)
-				{
-					var tile = ChunkManager.GetTile(positions[j], i);
-					var id = $"{type}-{positions[j]}-{i}";
-					if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExists(id) == false)
+			Try("chest");
+
+			void Try(string type)
+			{
+				for (int j = 0; j < positions.Length; j++)
+					for (int i = 0; i < 3; i++)
 					{
-						var obj = new Chest(id, new()
+						var tile = ChunkManager.GetTile(positions[j], i);
+						var id = $"{type}-{positions[j]}-{i}";
+						if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExists(id) == false)
 						{
-							Position = positions[j],
-							Height = i,
-							Name = "-",
-							TileIndexes = new Point[] { tile }
-						});
-						obj.OnAdvanceTime();
-						ChunkManager.SetTile(positions[j], i, new());
+							var obj = new Storage(id, new()
+							{
+								Position = positions[j],
+								Height = i,
+								Name = type,
+								TileIndexes = new Point[] { tile }
+							});
+
+
+							obj.OnAdvanceTime();
+							ChunkManager.SetTile(positions[j], i, new());
+						}
 					}
-				}
+			}
 		}
-		public Chest(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		public Storage(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			AddTags("chest");
 			Locked = TileIndexes.Y == 23;
 
-			NavigationPanel.Tab.Texts[uniqueID] = "\nThe dusty chest cracks open\nto reveal all of its contents...";
+			NavigationPanel.Tab.Texts[uniqueID] = $"\nThe dusty {Name.ToLower()} cracks open\nto reveal all of its contents...";
 
 			if (UniqueIDsExists($"{uniqueID}-item-slot-info"))
 				return;
 
-			for (int y = 0; y < 7; y++)
+			var sz = sizes[Name];
+			for (int y = 0; y < sz; y++)
 				for (int x = 0; x < 7; x++)
 				{
 					if ((x + y) % 2 == 0)
 						continue;
+
+					var off = (7 - sz) / 2;
 					new ItemSlot($"{uniqueID}-{x}-{y}", new()
 					{
-						Position = new(22 + x, 6 + y),
+						Position = new(22 + x, 6 + y + off),
 						Height = 1,
 						TileIndexes = new Point[] { new(7, 23) { C = Color.Brown } },
 						IsInTab = true,
 						AppearOnTab = uniqueID,
 						IsUI = true,
-						Name = "chest-slot"
+						Name = "storage-slot"
 					});
 				}
 		}
@@ -85,11 +100,11 @@ namespace RPG1bit
 						Close();
 					if (playerHasKey == false)
 					{
-						PlayerStats.Open("This chest is locked.");
+						PlayerStats.Open($"This {Name.ToLower()} is locked.");
 						return;
 					}
 				}
-				NavigationPanel.Tab.Open(UniqueID, "chest");
+				NavigationPanel.Tab.Open(UniqueID, Name.ToLower());
 				Screen.ScheduleDisplay();
 
 				if (opened)

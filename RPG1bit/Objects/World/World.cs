@@ -335,13 +335,19 @@ namespace RPG1bit
 		public static bool PositionHasWaterAsHighest(Point worldPos)
 		{
 			var highest = new Point();
+			var hasWater = false;
 			for (int i = 0; i < 3; i++)
 			{
 				var tile = ChunkManager.GetTile(worldPos, i);
 				if (tile != new Point())
+				{
+					if (WorldEditor.Tiles["water"].Contains(tile))
+						hasWater = true;
 					highest = tile;
+				}
 			}
-			return WorldEditor.Tiles["water"].Contains(highest);
+			var isBoat = hasWater && WorldEditor.Tiles[nameof(Boat)].Contains(highest);
+			return WorldEditor.Tiles["water"].Contains(highest) || isBoat;
 		}
 	}
 }

@@ -124,8 +124,7 @@ namespace RPG1bit
 					IsDragable = true,
 					IsRightClickable = true,
 					IsLeftClickable = true,
-				})
-				{ Positives = new double[] { 1, 0 } };
+				});
 				var bag = new Bag("bag", new()
 				{
 					Name = "Bag",
@@ -136,8 +135,7 @@ namespace RPG1bit
 					IsDragable = true,
 					IsRightClickable = true,
 					IsLeftClickable = true,
-				})
-				{ Positives = new double[] { 2, 0 } };
+				});
 				var pile = new ItemPile("item-pile", new()
 				{
 					Position = new Point(7, 0),
@@ -145,6 +143,10 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(8, 23) },
 					Name = "item-pile",
 				});
+
+				quiver.Stats["slots"] = 1;
+				bag.Stats["slots"] = 2;
+
 				pile.AddItem(key);
 				pile.AddItem(quiver);
 				pile.AddItem(bag);

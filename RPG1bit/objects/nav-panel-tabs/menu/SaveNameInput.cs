@@ -30,7 +30,7 @@ namespace RPG1bit
 						var slot = new Assets.DataSlot($"sessions\\{name}.session");
 						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
 
-						SaveAll<Chest>(); SaveAll<ItemPile>(); SaveAll<Bag>(); SaveAll<Key>(); SaveAll<Quiver>(); SaveAll<Map>();
+						SaveAll<Storage>(); SaveAll<ItemPile>(); SaveAll<Bag>(); SaveAll<Key>(); SaveAll<Quiver>(); SaveAll<Map>();
 
 						slot.SetValue("world-name", World.CurrentWorldName);
 

@@ -87,7 +87,7 @@ namespace RPG1bit
 				for (int x = 0; x < (int)Size.W; x++)
 				{
 					if (Objects.Count < y) { y = 1000; break; }
-					Screen.EditCell(Position + new Point(x, y), new Point(1, 22), 0,
+					Screen.EditCell(Position + new Point(x, y), new Point(y == 0 ? 12 : 1, 22), 0,
 						y == 0 || y == Size.H ? Color.Brown / 2 : (y + scrollIndex) % 2 == 0 ? Color.Brown / 1.3 : Color.Brown);
 				}
 			for (int i = 0; i < Objects.Count; i++)

@@ -10,7 +10,7 @@ namespace RPG1bit
 		{
 			if (Gate.EnterOnceWhile("create-item-info-tab", true))
 			{
-				new ItemStats("strength", new()
+				new ItemStats("item-stats", new()
 				{
 					Position = new(19, 9),
 					Height = 1,
@@ -18,29 +18,7 @@ namespace RPG1bit
 					IsInTab = true,
 					AppearOnTab = "item-info",
 					IsUI = true,
-					Name = "positives",
-					IsKeptBetweenSessions = true,
-				});
-				new ItemStats("weakness", new()
-				{
-					Position = new(19, 12),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "item-info",
-					IsUI = true,
-					Name = "negatives",
-					IsKeptBetweenSessions = true,
-				});
-				new ItemSlotInfo("able-to-carry-in", new()
-				{
-					Position = new(31, 2),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "item-info",
-					IsUI = true,
-					Name = "able-to-carry",
+					Name = "stats",
 					IsKeptBetweenSessions = true,
 				});
 			}
@@ -90,7 +68,7 @@ namespace RPG1bit
 			player.PreviousPosition = player.Position;
 			World.IsShowingRoofs = World.TileHasRoof(player.Position) == false;
 
-			LoadAll<Chest>(); LoadAll<ItemPile>(); LoadAll<Bag>(); LoadAll<Quiver>(); LoadAll<Key>(); LoadAll<Map>();
+			LoadAll<Storage>(); LoadAll<ItemPile>(); LoadAll<Bag>(); LoadAll<Quiver>(); LoadAll<Key>(); LoadAll<Map>();
 
 			void LoadAll<T>()
 			{
@@ -106,7 +84,7 @@ namespace RPG1bit
 		{
 			Door.TryToCreate();
 			Boat.TryToCreate();
-			Chest.TryToCreate();
+			Storage.TryToCreate();
 
 			var player = (Player)Thing.PickByUniqueID(nameof(Player));
 			var objsToDestroy = new List<Object>();

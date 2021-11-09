@@ -44,7 +44,8 @@ namespace RPG1bit
 		{
 			var id = $"chunk-{GetChunkCenterFromPosition(position)}";
 			var chunk = (Chunk)PickByUniqueID(id);
-			return UniqueIDsExists(id) == false || chunk.Data.ContainsKey(position) == false ? default : chunk.Data[position][height];
+			var tile = UniqueIDsExists(id) == false || chunk.Data.ContainsKey(position) == false ? default : chunk.Data[position][height];
+			return tile;
 		}
 		public static Point GetChunkCenterFromPosition(Point position)
 		{

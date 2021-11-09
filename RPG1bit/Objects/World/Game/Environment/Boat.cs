@@ -10,7 +10,7 @@ namespace RPG1bit
 		{
 			var player = (Player)Object.PickByUniqueID(nameof(Player));
 			var pos = player.Position;
-			var type = nameof(Boat).ToLower();
+			var type = nameof(Boat);
 
 			for (int i = 0; i < 3; i++)
 			{

@@ -12,7 +12,7 @@ namespace RPG1bit
 		{
 			var player = (Player)PickByUniqueID(nameof(Player));
 			var pos = player.Position;
-			var type = nameof(Door).ToLower();
+			var type = nameof(Door);
 
 			for (int i = 0; i < 3; i++)
 			{

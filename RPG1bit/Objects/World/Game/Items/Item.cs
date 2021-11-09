@@ -1,11 +1,17 @@
 ﻿using Newtonsoft.Json;
 using SMPL.Data;
 using SMPL.Gear;
+using System.Collections.Generic;
 
 namespace RPG1bit
 {
 	public class Item : Object, ITypeTaggable
 	{
+		private static readonly Dictionary<string, string> singles = new()
+		{
+			{ "slots", "slot" }, { "items", "item" }
+		};
+
 		[JsonProperty]
 		public string OwnerUID { get; set; }
 		[JsonProperty]
@@ -13,9 +19,7 @@ namespace RPG1bit
 		[JsonProperty]
 		public uint MaxQuantity { get; set; } = 1;
 		[JsonProperty]
-		public double[] Positives { get; set; } = new double[2];
-		[JsonProperty]
-		public double[] Negatives { get; set; } = new double[2];
+		public Dictionary<string, int> Stats { get; set; } = new();
 		[JsonProperty]
 		public bool CanWearOnHead { get; set; }
 		[JsonProperty]
@@ -65,7 +69,7 @@ namespace RPG1bit
 		public override void OnDragStart()
 		{
 			if (this is SlotsExtender se && (OwnerUID.Contains("carry") || OwnerUID.Contains("hand")))
-				for (int i = 0; i < se.Positives[0]; i++)
+				for (int i = 0; i < se.Stats["slots"]; i++)
 				{
 					var pos = se.SlotsPosition + new Point(0, i);
 					var objs = objects.ContainsKey(pos) ? objects[pos] : new();
@@ -145,6 +149,11 @@ namespace RPG1bit
 			item.Quantity = (uint)Number.Round((double)quantity / 2, toward: Number.RoundToward.Down);
 			Quantity = (uint)Number.Round((double)quantity / 2, toward: Number.RoundToward.Up);
 			return item;
+		}
+
+		public static string GetStatName(string stat, int value)
+		{
+			return value == 1 && singles.ContainsKey(stat) ? singles[stat] : stat;
 		}
 
 		public virtual Item OnSplit() => default;

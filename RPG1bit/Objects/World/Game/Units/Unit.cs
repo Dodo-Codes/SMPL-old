@@ -13,8 +13,13 @@ namespace RPG1bit
 		public List<string> EffectUIDs { get; set; } = new();
 		[JsonProperty]
 		public int[] Health { get; set; } = new int[2] { 30, 30 };
+		public Point PreviousPosition { get; set; }
 
-		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { AddTags(nameof(Unit)); }
+		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		{
+			PreviousPosition = Position;
+			AddTags(nameof(Unit));
+		}
 
 		public void ApplyEffect(Effect effect)
 		{
@@ -25,8 +30,10 @@ namespace RPG1bit
 		public bool Move(Point movement)
 		{
 			var futurePos = Position + movement;
-			if (CanMoveIntoCell(futurePos) == false) return false;
+			if (CanMoveIntoCell(futurePos) == false)
+				return false;
 
+			PreviousPosition = Position;
 			Position = futurePos;
 			if (UniqueID == nameof(Player) && MoveCamera.IsAnchored)
 				World.CameraPosition += movement;
@@ -52,8 +59,16 @@ namespace RPG1bit
 
 			var isVoid = true;
 			for (int i = 0; i < 4; i++)
-				if (ChunkManager.GetTile(cell, i) != new Point())
+			{
+				var tile = ChunkManager.GetTile(cell, i);
+				if (tile == default && objects.ContainsKey(cell))
+					for (int j = 0; j < objects[cell].Count; j++)
+						if (objects[cell][j].Height == i)
+							tile = objects[cell][j].TileIndexes;
+
+				if (tile != new Point())
 					isVoid = false;
+			}
 				
 			return isVoid == false && ChunkManager.GetTile(cell, 3) != World.TileBarrier && CellIsInReach(cell);
 		}
