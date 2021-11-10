@@ -12,9 +12,9 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
-			var result = mousePos == Position ? "[ENTER] Save the current session." : "Type anything...";
-			if (World.CurrentSession == World.Session.None) result = "There is no currently ongoing\n   session that can be saved.";
-			else if (Value.Trim() == "") result = "Type a name before saving.";
+			var result = mousePos == Position ? "[ENTER] Save the current session" : "Type anything...";
+			if (World.CurrentSession == World.Session.None) result = "There is no currently ongoing\n   session that can be saved";
+			else if (Value.Trim() == "") result = "Type a name before saving";
 			NavigationPanel.Info.Textbox.Text = result;
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}

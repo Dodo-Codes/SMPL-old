@@ -11,16 +11,16 @@ namespace RPG1bit
 		{
 			UpdateTab();
 		}
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\nsingleplayer game session.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\nsingleplayer game session";
 		public override void OnLeftClicked() => UpdateTab();
 		public static void UpdateTab()
 		{
 			CreateTab();
 
 			var noWorldsStr = ObjectList.Lists.ContainsKey("load-world-list") == false ||
-			ObjectList.Lists["load-world-list"].Objects.Count == 0 ? "No worlds were found." : "";
+			ObjectList.Lists["load-world-list"].Objects.Count == 0 ? "No worlds were found" : "";
 			NavigationPanel.Tab.Texts["single"] =
-				$" Choose a world to start a\nnew singleplayer session on.\n\n\n\n    {noWorldsStr}";
+				$" Choose a world to start a\nnew singleplayer session on\n\n\n\n    {noWorldsStr}";
 			NavigationPanel.Tab.Open("single", "singleplayer");
 		}
 

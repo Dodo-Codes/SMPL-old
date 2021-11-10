@@ -69,36 +69,56 @@ namespace RPG1bit
 			new(17, 01) { C = Color.Gray + 50 },
 
 			// signs
-			new(01, 07) { C = Color.Wood }, new(00, 07) { C = Color.Wood }, new(02, 07) { C = Color.Wood },
-			new(), new(),
+			new(01, 07) { C = Color.Wood }, new(0, 7) { C = Color.Wood }, new(2, 7) { C = Color.Wood }, new(01, 08) { C = Color.Wood },
+			new(00, 08) { C = Color.Wood },
+			new(), new(), new(), new(),
 
 			// fences
 			new(00, 03) { C = Color.Wood - 30 }, new(01, 03) { C = Color.Wood - 30 }, new(02, 03) { C = Color.Wood - 30 },
 			new(03, 03) { C = Color.Wood },
+			new(), new(), new(), new(), new(),
 			new(05, 03) { C = Color.Gray }, new(06, 03) { C = Color.Gray }, new(00, 04) { C = Color.Gray + 50},
 			new(), new(), new(06, 05) { C = Color.Gray }, new(02, 04) { C = Color.Gray },
 			new(05, 04) { C = Color.Gray + 50 }, new(03, 04) { C = Color.Gray + 50 },
 
 			// roofs
-			new(28, 22) { C = new(165, 75, 75) }, new(29, 22) { C = new(165, 75, 75) }, new(30, 22) { C = new(165, 75, 75) },
-			new(31, 22) { C = new(165, 75, 75) }, new(32, 22) { C = new(165, 75, 75) },
-			new(37, 22) { C = Color.Wood - 30 },
-			new(), new(), new(),
+			new(28, 22) { C = Color.Brick - 30 }, new(29, 22) { C = Color.Brick - 30 }, new(30, 22) { C = Color.Brick - 30 },
+			new(31, 22) { C = Color.Brick }, new(),
+			new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 },
+			new(37, 22) { C = Color.Wood - 50 },
+			new(28, 23) { C = Color.Brick - 30 }, new(29, 23) { C = Color.Brick - 30 }, new(30, 23) { C = Color.Brick - 30 },
+			new(30, 23) { C = Color.Brick - 30 }, new(),
+			new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 },
+			new(37, 22) { C = Color.Wood - 50 },
 
 			// walls / floors
-			new(33, 22) { C = new(188, 74, 60) }, // brick
+			new(33, 22) { C = Color.Brick }, new(24, 23) { C = Color.Brick }, new(25, 23) { C = Color.Brick },
+			new(26, 23) { C = Color.Brick }, new(),
 			new(34, 22) { C = Color.Wood - 30 }, new(35, 22) { C = Color.Wood - 30 },
 			new(36, 22) { C = Color.Wood - 30 }, new(37, 23) { C = Color.Wood - 30 },
-			new(), new(), new(), new(),
+
+			// windows
+			new(31, 23), new(32, 23), new(33, 23), new(34, 23), new(35, 23), new(36, 23),
+			new(), new(), new(),
 
 			// doors
 			new(40, 22) { C = Color.Wood - 30 }, new(38, 22) { C = Color.Wood - 30 }, new(42, 22) { C = Color.Wood - 30 },
 			new(44, 22) { C = Color.Wood - 30 }, new(46, 22) { C = Color.Gray + 50 },
-			new(), new(21, 24) { C = Color.Wood - 30 }, new(), new(), // chest
+			new(), new(), new(), new(),
 			// locked doors
 			new(40, 23) { C = Color.Wood - 30 }, new(38, 23) { C = Color.Wood - 30 }, new(42, 23) { C = Color.Wood - 30 },
 			new(44, 23) { C = Color.Wood - 30 }, new(46, 23) { C = Color.Gray + 50 },
-			new(), new(21, 23) { C = Color.Wood - 30 }, new(), new(), // chest
+			new(), new(), new(), new(),
+
+			// storages
+			new(21, 23) { C = Color.Wood - 30 }, new(21, 24) { C = Color.Wood - 30 }, // chest
+			new(05, 07) { C = Color.Wood }, new(07, 07) { C = Color.Wood }, // drawer
+			new(), new(), new(), new(), new(),
+
+			// interiors
+			new(03, 07) { C = Color.Wood }, new(04, 07) { C = Color.Wood }, // shelf
+			new(09, 07) { C = Color.Wood }, new(10, 07) { C = Color.Wood }, // counter
+			new(), new(), new(), new(), new(),
 
 			// boats
 			new(08, 19) { C = Color.Wood - 30 }, new(09, 19) { C = Color.Wood - 30 }, new(10, 19) { C = Color.Wood - 30 },
@@ -135,7 +155,7 @@ namespace RPG1bit
 
 		public WorldEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t world edit session.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t world edit session";
 		public override void OnLeftClicked()
 		{
 			DestroyAllSessionObjects();
@@ -163,7 +183,7 @@ namespace RPG1bit
 					IsUI = true,
 					IsKeptBetweenSessions = true,
 				}, new(9, 11));
-				for (int i = 0; i < 20; i++)
+				for (int i = 0; i < 40; i++)
 				{
 					list.Objects.Add(new TileRowValue($"tile-row-{i}", new()
 					{

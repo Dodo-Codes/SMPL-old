@@ -21,7 +21,7 @@ namespace RPG1bit
 				case "g": str = "green"; break;
 				case "b": str = "blue"; break;
 			}
-			NavigationPanel.Info.Textbox.Text = $"[LEFT HOLD] Adjust the amount of {str}.";
+			NavigationPanel.Info.Textbox.Text = $"[LEFT HOLD] Adjust the amount of {str}";
 		}
 
 		protected override void OnIndexValueChanged()

@@ -12,7 +12,7 @@ namespace RPG1bit
 			: base(uniqueID, creationDetails, size, isVertical) { IndexValue = -1; }
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"[LEFT HOLD] Pick a color sample.";
+			NavigationPanel.Info.Textbox.Text = $"[LEFT HOLD] Pick a color sample";
 		}
 		protected override void OnIndexValueChanged()
 		{

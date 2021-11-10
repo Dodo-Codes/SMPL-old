@@ -10,7 +10,7 @@ namespace RPG1bit
 			Value = true;
 			OnValueChanged();
 		}
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Toggle roofs visibility.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Toggle roofs visibility";
 		public override void OnValueChanged()
 		{
 			World.IsShowingRoofs = Value;

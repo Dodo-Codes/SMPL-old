@@ -7,7 +7,7 @@ namespace RPG1bit
 	public class SaveLoad : Object
 	{
 		public SaveLoad(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Save/Load a session.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Save/Load a session";
 		public override void OnLeftClicked()
 		{
 			UpdateTab();
@@ -24,10 +24,10 @@ namespace RPG1bit
 			CreateTab();
 
 			var noSessionsStr = ObjectList.Lists.ContainsKey("load-list") == false ||
-			ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found." : "";
+			ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found" : "";
 			NavigationPanel.Tab.Texts["save-load"] =
-				$"Load a previously saved session.\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
-				$"    Save the current session.";
+				$"Load a previously saved session\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
+				$"    Save the current session";
 
 			NavigationPanel.Tab.Open("save-load", "save or load");
 		}

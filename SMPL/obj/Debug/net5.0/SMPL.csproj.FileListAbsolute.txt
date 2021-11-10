@@ -120,3 +120,4 @@ G:\SFML\SMPL\obj\Debug\net5.0\ref\SMPL.dll
 G:\SFML\SMPL\obj\Debug\net5.0\SMPL.pdb
 G:\SFML\SMPL\obj\Debug\net5.0\SMPL.genruntimeconfig.cache
 D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.csproj.AssemblyReference.cache
+D:\code\SFML\SMPL\SMPL\obj\Debug\net5.0\SMPL.csproj.CopyComplete

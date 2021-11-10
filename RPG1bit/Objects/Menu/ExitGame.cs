@@ -11,6 +11,6 @@ namespace RPG1bit
 			ChunkManager.DestroyAllChunks(false, true);
 			Window.Close();
 		}
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Exit the game.";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Exit the game";
 	}
 }

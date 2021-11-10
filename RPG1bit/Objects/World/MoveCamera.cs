@@ -49,11 +49,11 @@ namespace RPG1bit
 
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $" [{Key}] Move the view: {CurrentType}.";
+			NavigationPanel.Info.Textbox.Text = $" [{Key}] Move the view: {CurrentType}";
 			if (CurrentType == Type.Center)
 			{
 				var anchorStr = IsAnchored ? "detach it from" : "attach it to";
-				NavigationPanel.Info.Textbox.Text = $" [{Key.ToString().ToUpper()}] Center the view and\n  {anchorStr} the character.";
+				NavigationPanel.Info.Textbox.Text = $" [{Key.ToString().ToUpper()}] Center the view and\n  {anchorStr} the character";
 			}
 		}
 		public override void OnLeftClicked()

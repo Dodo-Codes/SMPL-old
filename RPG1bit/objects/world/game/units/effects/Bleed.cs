@@ -14,7 +14,7 @@ namespace RPG1bit
 		{
 			NavigationPanel.Info.Textbox.Text =
 				$"Bleeding: This unit's state changes by {Value}\n" +
-				$"\teach turn for the next {Duration[1] - Duration[0]} turns.";
+				$"\teach turn for the next {Duration[1] - Duration[0]} turns";
 		}
 		public override void Destroy()
 		{

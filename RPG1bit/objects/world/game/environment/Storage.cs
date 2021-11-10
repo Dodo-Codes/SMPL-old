@@ -73,7 +73,7 @@ namespace RPG1bit
 						IsInTab = true,
 						AppearOnTab = uniqueID,
 						IsUI = true,
-						Name = "storage-slot"
+						Name = Name
 					});
 				}
 		}

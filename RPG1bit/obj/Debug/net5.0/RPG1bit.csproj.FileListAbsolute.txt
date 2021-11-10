@@ -156,3 +156,4 @@ D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_princess.ogg
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_tavern.ogg
 D:\code\SFML\SMPL\RPG1bit\bin\Debug\net5.0\Assets\Audio\Music\JRPG_temple.ogg
 D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.csproj.AssemblyReference.cache
+D:\code\SFML\SMPL\RPG1bit\obj\Debug\net5.0\RPG1bit.csproj.CopyComplete

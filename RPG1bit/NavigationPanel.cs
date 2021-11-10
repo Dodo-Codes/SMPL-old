@@ -123,7 +123,7 @@ namespace RPG1bit
 
 				if (World.TileHasRoof(worldPos) && World.IsShowingRoofs)
 				{
-					Textbox.Text = "Roof.";
+					Textbox.Text = "Roof";
 					return;
 				}
 				for (int i = 0; i < 4; i++)
@@ -135,12 +135,12 @@ namespace RPG1bit
 					var isWorldEdit = World.CurrentSession == World.Session.WorldEdit;
 
 					if (Textbox.Text == "" && isPanel)
-						description = "Game navigation panel.";
+						description = "Game navigation panel";
 
 					if (key == World.TileBarrier)
-						description = isWorldEdit ? "Unwalkable terrain." : "(Unwalkable terrain)\n";
+						description = isWorldEdit ? "Unwalkable terrain" : "(Unwalkable terrain)\n";
 					else if (key == World.TilePlayer)
-						description = isWorldEdit ? "Player tile." : "Self.";
+						description = isWorldEdit ? "Player tile" : "Self";
 
 					if (Textbox.Text != "" && description == descriptions[new(0, 0)])
 						continue;

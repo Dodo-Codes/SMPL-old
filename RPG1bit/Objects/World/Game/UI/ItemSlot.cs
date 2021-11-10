@@ -9,10 +9,8 @@ namespace RPG1bit
 
 		public override void OnHovered()
 		{
-			if (Name != "chest-slot")
-				return;
-
-			HoveredInfo = "...in the chest.";
+			if (Name == "chest")
+				HoveredInfo = "...in the chest";
 		}
 		public override void OnDroppedUpon()
 		{
