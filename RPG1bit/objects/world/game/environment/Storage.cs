@@ -8,7 +8,7 @@ namespace RPG1bit
 	{
 		private static readonly Dictionary<string, int> sizes = new()
 		{
-			{ "chest", 7 }
+			{ "chest", 7 }, { "big drawer", 5 }, { "small drawer", 3 }
 		};
 
 		[JsonProperty]
@@ -23,6 +23,8 @@ namespace RPG1bit
 			var positions = new Point[] { pos + new Point(0, 1), pos + new Point(0, -1), pos + new Point(1, 0), pos + new Point(-1, 0) };
 
 			Try("chest");
+			Try("big drawer");
+			Try("small drawer");
 
 			void Try(string type)
 			{

@@ -125,6 +125,23 @@ namespace RPG1bit
 
 			{ new(21, 23), "Locked chest" }, { new(22, 23), "Unlocked chest" },
 			{ new(21, 24), "Closed chest" }, { new(22, 24), "Opened chest" },
+			{ new(05, 07), "Drawer" }, { new(06, 07), "Drawer" }, { new(07, 07), "Drawer" }, { new(08, 07), "Drawer" },
+
+			{ new(31, 23), "Window" }, { new(32, 23), "Window" }, { new(33, 23), "Window" }, { new(34, 23), "Window" },
+			{ new(35, 23), "Window" }, { new(36, 23), "Window" },
+
+			{ new(11, 07), "Table" }, { new(12, 07), "Table" }, { new(13, 07), "Table" }, { new(14, 07), "Table" },
+			{ new(15, 07), "Table" }, { new(16, 07), "Table" }, { new(13, 08), "Table" }, { new(13, 09), "Table" },
+			{ new(13, 10), "Table" },
+
+			{ new(10, 08), "Chair" }, { new(11, 08), "Chair" }, { new(12, 08), "Chair" },
+
+			{ new(04, 08), "Bed" }, { new(05, 08), "Bed" }, { new(06, 08), "Bed" },
+
+			{ new(03, 07), "Shelf" }, { new(04, 07), "Shelf" },
+			{ new(09, 07), "Counter" }, { new(10, 07), "Counter" },
+
+			{ new(07, 08), "Fireplace" }, { new(08, 08), "Fireplace" }, { new(09, 08), "Fireplace" },
 		};
 		public static Object HoldingObject { get; set; }
 

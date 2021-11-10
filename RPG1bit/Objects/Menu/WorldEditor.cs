@@ -112,13 +112,25 @@ namespace RPG1bit
 
 			// storages
 			new(21, 23) { C = Color.Wood - 30 }, new(21, 24) { C = Color.Wood - 30 }, // chest
-			new(05, 07) { C = Color.Wood }, new(07, 07) { C = Color.Wood }, // drawer
+			new(05, 07) { C = Color.Wood - 30 }, new(07, 07) { C = Color.Wood - 30 }, // drawer
 			new(), new(), new(), new(), new(),
 
 			// interiors
-			new(03, 07) { C = Color.Wood }, new(04, 07) { C = Color.Wood }, // shelf
-			new(09, 07) { C = Color.Wood }, new(10, 07) { C = Color.Wood }, // counter
-			new(), new(), new(), new(), new(),
+			new(03, 07) { C = Color.Wood - 30 }, new(04, 07) { C = Color.Wood - 30 }, // shelf
+			new(09, 07) { C = Color.Wood - 30 }, new(10, 07) { C = Color.Wood - 30 }, // counter
+			new(), new(),
+			new(07, 08) { C = Color.Fire }, new(8, 8) { C = Color.Fire }, new(9, 8) { C = Color.Fire }, // fireplace
+
+			// tables
+			new(11, 07) { C = Color.Wood - 30 }, new(12, 7) { C = Color.Wood - 30 }, new(13, 7) { C = Color.Wood - 30 },
+			new(14, 07) { C = Color.Wood - 30 }, new(15, 7) { C = Color.Wood - 30 }, new(16, 7) { C = Color.Wood - 30 },
+			new(13, 08) { C = Color.Wood - 30 }, new(), new(),
+			new(10, 08) { C = Color.Wood - 30 }, new(11, 8) { C = Color.Wood - 30 }, new(12, 8) { C = Color.Wood - 30 }, // chair
+			new(), new(), new(), new(13, 9) { C = Color.Wood - 30 }, new(), new(),
+			new(04, 08) { C = Color.Wood + 70 }, new(5, 8) { C = Color.Wood + 70 }, new(6, 8) { C = Color.Wood + 70 }, // bed
+			new(), new(), new(), new(13, 10) { C = Color.Wood - 30 },
+			// bed
+			new(), new(), 
 
 			// boats
 			new(08, 19) { C = Color.Wood - 30 }, new(09, 19) { C = Color.Wood - 30 }, new(10, 19) { C = Color.Wood - 30 },
@@ -150,6 +162,8 @@ namespace RPG1bit
 				new(11, 4), new(12, 4), new(13, 4), new(14, 4), new(7, 5), new(8, 5), new(9, 5), new(10, 5), new(11, 5)
 			} },
 			{ "chest", new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24) } },
+			{ "big drawer", new() { new(05, 07), new(06, 07) } },
+			{ "small drawer", new() { new(07, 07), new(08, 07) } },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 
