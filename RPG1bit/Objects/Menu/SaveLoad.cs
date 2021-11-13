@@ -7,7 +7,7 @@ namespace RPG1bit
 	public class SaveLoad : Object
 	{
 		public SaveLoad(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Save/Load a session";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to save or load a session";
 		public override void OnLeftClicked()
 		{
 			UpdateTab();
@@ -67,7 +67,7 @@ namespace RPG1bit
 					worldList.Objects.Add(new LoadWorldValue($"world--{worlds[i]}", new CreationDetails()
 					{
 						Name = worlds[i].Replace("worlds\\", ""),
-						Position = new(-10, 0),
+						Position = new(-20, 0),
 						TileIndexes = new Point[] { new Point(47, 06) },
 						Height = 1,
 						IsUI = true,
@@ -81,7 +81,7 @@ namespace RPG1bit
 					worldList.Objects.Add(new LoadSingleSessionValue($"session--{sessions[i]}", new CreationDetails()
 					{
 						Name = sessions[i].Replace("sessions\\", "").Replace(".session", ""),
-						Position = new(-10, 0),
+						Position = new(-20, 0),
 						TileIndexes = new Point[] { new Point(14, 10) },
 						Height = 1,
 						IsUI = true,

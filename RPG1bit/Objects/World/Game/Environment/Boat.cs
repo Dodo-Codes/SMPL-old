@@ -39,6 +39,9 @@ namespace RPG1bit
 			if (player.PreviousPosition != Position && player.Position != Position)
 				return;
 
+			if (player.PreviousPosition == player.Position)
+				return;
+
 			var prevIsWater = World.PositionHasWaterAsHighest(player.PreviousPosition);
 			var currIsWater = World.PositionHasWaterAsHighest(player.Position);
 			var changingBoats = false;

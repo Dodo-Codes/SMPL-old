@@ -45,7 +45,8 @@ namespace RPG1bit
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"World Edit session: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load\n[RIGHT CLICK] Delete";
+			NavigationPanel.Info.Textbox.Text =
+				$"World Edit session: '{Name.ToUpper()}'\n\n[LEFT CLICK] to load\n[RIGHT CLICK] to delete";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 			NavigationPanel.Info.ShowRightClickableIndicator();
 		}

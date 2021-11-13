@@ -86,8 +86,7 @@ namespace RPG1bit
 			if (player.Position == Position)
 			{
 				player.Position = player.PreviousPosition;
-				if (MoveCamera.IsAnchored)
-					World.CameraPosition = player.Position;
+				World.CameraPosition = player.Position;
 
 				if (Locked)
 				{

@@ -13,7 +13,7 @@ namespace RPG1bit
 		}
 		public override void OnHovered()
 		{
-			NavigationPanel.Info.Textbox.Text = $"World: '{Name.ToUpper()}'\n\n[LEFT CLICK] Load";
+			NavigationPanel.Info.Textbox.Text = $"World: '{Name.ToUpper()}'\n\n[LEFT CLICK] to load";
 			NavigationPanel.Info.ShowLeftClickableIndicator();
 		}
 		public override void OnDisplay(Point screenPos)

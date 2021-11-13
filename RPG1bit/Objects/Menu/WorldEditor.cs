@@ -169,7 +169,7 @@ namespace RPG1bit
 
 		public WorldEditor(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\n\t world edit session";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to start a new\n\t world edit session";
 		public override void OnLeftClicked()
 		{
 			DestroyAllSessionObjects();
@@ -201,7 +201,7 @@ namespace RPG1bit
 				{
 					list.Objects.Add(new TileRowValue($"tile-row-{i}", new()
 					{
-						Position = new(-10, 0),
+						Position = new(-20, 0),
 						Height = 1,
 						AppearOnTab = "world-editor",
 						IsInTab = true,

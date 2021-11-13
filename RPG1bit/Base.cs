@@ -82,7 +82,7 @@ namespace RPG1bit
 				var map = new Map("item-map", new()
 				{
 					Name = "Map",
-					Position = new(-10, 0),
+					Position = new(-20, 0),
 					Height = 2,
 					TileIndexes = new Point[] { new(32, 15) { C = Color.Wood + 60 } },
 					IsUI = true,
@@ -93,7 +93,7 @@ namespace RPG1bit
 				var map2 = new Map("item-map2", new()
 				{
 					Name = "Map",
-					Position = new(-10, 0),
+					Position = new(-20, 0),
 					Height = 2,
 					TileIndexes = new Point[] { new(32, 15) { C = Color.Wood + 60 } },
 					IsUI = true,
@@ -104,7 +104,7 @@ namespace RPG1bit
 				var key = new Key("item-key", new()
 				{
 					Name = "Key",
-					Position = new(-10, 0),
+					Position = new(-20, 0),
 					Height = 2,
 					TileIndexes = new Point[]
 				{ new(32, 11) { C = Color.Gray }, new(33, 11) { C = Color.Gray }, new(34, 11) { C = Color.Gray } },
@@ -117,7 +117,7 @@ namespace RPG1bit
 				var quiver = new Quiver("quiver", new()
 				{
 					Name = "Quiver",
-					Position = new(-10, 0),
+					Position = new(-20, 0),
 					Height = 2,
 					TileIndexes = new Point[] { new(42, 6) { C = Color.Brown + 30 } },
 					IsUI = true,
@@ -128,7 +128,7 @@ namespace RPG1bit
 				var bag = new Bag("bag", new()
 				{
 					Name = "Bag",
-					Position = new(-10, 0),
+					Position = new(-20, 0),
 					Height = 2,
 					TileIndexes = new Point[] { new(44, 4) { C = Color.Brown + 30 } },
 					IsUI = true,
@@ -157,7 +157,7 @@ namespace RPG1bit
 			{
 				var bleed = new Bleed($"bleed-{Performance.FrameCount}", new()
 				{
-					Position = new(-10, 0),
+					Position = new(-20, 0),
 					Height = 1,
 					TileIndexes = new Point[] { new() },
 					Name = "bleed",

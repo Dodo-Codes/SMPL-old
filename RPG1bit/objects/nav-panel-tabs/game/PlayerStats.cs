@@ -37,13 +37,22 @@ namespace RPG1bit
 			Screen.DisplayText(new(20, 5), 1, Color.White, $"state {hp} {player.Health[1]}");
 			Screen.EditCell(new(20 + $"state {hp}".Length, 5), new(39, 20), 1, Color.White);
 
+			if (player.Skills.Objects.Count == 0)
+			{
+				Screen.DisplayText(new(21, 8), 1, Color.Gray, "no skills");
+				Screen.DisplayText(new(22, 9), 1, Color.Gray, "learned");
+			}
+
 			var pos = new Point();
 			for (int i = 1; i < player.EffectUIDs.Count + 1; i++)
 			{
-				if (i == 19)
-					return;
+				if (pos.Y == 2)
+				{
+					Screen.EditCell(new(31, 13), new(41, 20), 1, Color.White);
+					continue;
+				}
 				var effect = (Effect)PickByUniqueID(player.EffectUIDs[i - 1]);
-				effect.Position = new(20 + pos.X, 7 + pos.Y);
+				effect.Position = new(20 + pos.X, 12 + pos.Y);
 				pos.X += 2 + $"{effect.Duration[1] - effect.Duration[0]}".Length;
 				if (pos.X >= 10)
 				{

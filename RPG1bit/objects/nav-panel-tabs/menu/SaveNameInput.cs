@@ -50,7 +50,7 @@ namespace RPG1bit
 							var value = (Object)new LoadSingleSessionValue(uid, new CreationDetails()
 							{
 								Name = name,
-								Position = new(-10, 0) { C = new() },
+								Position = new(-20, 0) { C = new() },
 								TileIndexes = new Point[] { new Point(14, 10) },
 								Height = 1,
 								IsUI = true,
@@ -101,7 +101,7 @@ namespace RPG1bit
 							var value = (Object)new LoadWorldValue(uid, new CreationDetails()
 							{
 								Name = name,
-								Position = new(-10, 0),
+								Position = new(-20, 0),
 								TileIndexes = new Point[] { new Point(47, 06) },
 								Height = 1,
 								IsUI = true,
@@ -118,7 +118,7 @@ namespace RPG1bit
 								value = new StartSingleOnWorld(uid2, new CreationDetails()
 								{
 									Name = name,
-									Position = new(-10, 0),
+									Position = new(-20, 0),
 									TileIndexes = new Point[] { new Point(32, 15) },
 									Height = 1,
 									IsUI = true,

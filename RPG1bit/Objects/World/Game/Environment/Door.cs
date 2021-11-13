@@ -60,15 +60,12 @@ namespace RPG1bit
 		{
 			var player = (Player)PickByUniqueID(nameof(Player));
 
-			// can't peak inside for a single frame when door is locked
 			if (player.Position == Position && Locked && PlayerHasKey(player) == false)
 			{
 				player.Position = player.PreviousPosition;
-				if (MoveCamera.IsAnchored)
-					World.CameraPosition = player.PreviousPosition;
+				World.CameraPosition = player.PreviousPosition;
 				PlayerStats.Open("This door is locked.");
 			}
-
 			update = true;
 		}
 		private static bool PlayerHasKey(Player player)

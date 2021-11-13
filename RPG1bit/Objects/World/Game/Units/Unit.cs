@@ -35,7 +35,7 @@ namespace RPG1bit
 
 			PreviousPosition = Position;
 			Position = futurePos;
-			if (UniqueID == nameof(Player) && MoveCamera.IsAnchored)
+			if (UniqueID == nameof(Player))
 				World.CameraPosition += movement;
 			return true;
 		}

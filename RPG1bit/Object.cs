@@ -40,14 +40,14 @@ namespace RPG1bit
 			{ new(02, 22), "Game navigation panel" }, { new(03, 22), "Game navigation panel" },
 			{ new(01, 23), "Information box" },
 
-			{ new(42, 12), "[LEFT CLICK] Wait..." },
-			{ new(13, 22), "[LEFT CLICK] Type anything..." },
+			{ new(42, 12), "[ENTER] to wait..." },
+			{ new(13, 22), "[LEFT CLICK] to start typing..." },
 
 			{ new(44, 16), "Start a new multiplayer game session\n  (not available in this game version)" },
 
-			{ new(41, 13), "          [LEFT DRAG] Paint a tile\n[SHIFT + LEFT DRAG] Paint multiple tiles" },
-			{ new(42, 13), "          [RIGHT DRAG] Erase a tile\n[SHIFT + RIGHT DRAG] Erase multiple tiles" },
-			{ new(43, 13), "[MIDDLE CLICK] Pick a brush from the tile\n\t\tat that particular height" },
+			{ new(41, 13), "\t\tAbove the world...\n\t[LEFT DRAG] to paint a tile\n+[HOLD SHIFT] to paint a square" },
+			{ new(42, 13), "\t\tAbove the world...\n\t[RIGHT DRAG] to erase a tile\n+[HOLD SHIFT] to erase a square" },
+			{ new(43, 13), "[MIDDLE CLICK] above the world\n to pick a brush at that height" },
 			{ new(06, 23), "Roofs visibility." },
 
 			{ new(04, 00), "Grass" }, { new(05, 00), "Grass" }, { new(06, 00), "Grass" }, { new(07, 00), "Grass" },
@@ -113,9 +113,9 @@ namespace RPG1bit
 			{ new(08, 23), "Small pile of items" }, { new(9, 23), "Pile of items" }, { new(10, 23), "Big pile of items" },
 			{ new(11, 23), "Huge pile of items" },
 
-			{ new(04, 23), "[LEFT CLICK/W/A/S/D]\n  Move the character" },
-			{ new(05, 23), "\t\tOn items...\n\n[LEFT CLICK] Info\n[LEFT DRAG] Pickup/Drop\n" +
-				"[RIGHT CLICK] Split" },
+			{ new(04, 23), "[LEFT CLICK around self] or\n[W/A/S/D] to move self" },
+			{ new(05, 23), "\t\tOn items...\n\n[LEFT CLICK] to display info\n[LEFT DRAG] to move\n" +
+				"[RIGHT CLICK] to split" },
 
 			{ new(25, 00), "Self" }, { new(16, 23), "Self" }, { new(17, 23), "Self" }, { new(18, 23), "Self" },
 			{ new(19, 23), "Self" }, { new(20, 23), "Self" },
@@ -315,7 +315,7 @@ namespace RPG1bit
 						leftClicked = true;
 						NavigationPanel.Info.Textbox.Text = "A session is currently ongoing.\n" +
 							"Any unsaved progress will be lost.\n" +
-							"[LEFT CLICK] Continue";
+							"[LEFT CLICK] to continue";
 					}
 					else
 					{

@@ -1,6 +1,5 @@
 ﻿using SMPL.Data;
 using SMPL.Gear;
-using System;
 using System.IO;
 
 namespace RPG1bit
@@ -11,7 +10,10 @@ namespace RPG1bit
 		{
 			UpdateTab();
 		}
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Start a new\nsingleplayer game session";
+		public override void OnHovered()
+		{
+			NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to start a new\n singleplayer game session";
+		}
 		public override void OnLeftClicked() => UpdateTab();
 		public static void UpdateTab()
 		{
@@ -46,7 +48,7 @@ namespace RPG1bit
 					worldList.Objects.Add(new StartSingleOnWorld($"worldp--{worlds[i]}", new CreationDetails()
 					{
 						Name = worlds[i].Replace("worlds\\", ""),
-						Position = new(-10, 0) { C = new() },
+						Position = new(-20, 0) { C = new() },
 						TileIndexes = new Point[] { new Point(32, 15) },
 						Height = 1,
 						IsUI = true,

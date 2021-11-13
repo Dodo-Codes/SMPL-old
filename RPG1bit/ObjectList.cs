@@ -39,13 +39,13 @@ namespace RPG1bit
 				{
 					if (mousePos == new Point(Position.X + (int)Size.W / 2, Position.Y) && scrollIndex > 0)
 					{
-						NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Scroll up the list";
+						NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to scroll up the list";
 						NavigationPanel.Info.ShowLeftClickableIndicator();
 					}
 					else if (mousePos == new Point(Position.X + (int)Size.W / 2, Position.Y + Size.H) &&
 						scrollIndex < Objects.Count - (int)Size.H + 1)
 					{
-						NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Scroll down the list";
+						NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to scroll down the list";
 						NavigationPanel.Info.ShowLeftClickableIndicator();
 					}
 				}
@@ -132,7 +132,7 @@ namespace RPG1bit
 		{
 			if (AppearOnTab != NavigationPanel.Tab.CurrentTabType) return false;
 			var mousePos = Screen.GetCellAtCursorPosition();
-			return mousePos.X >= Position.X && mousePos.X <= Position.X + Size.W &&
+			return mousePos.X >= Position.X && mousePos.X <= Position.X + Size.W - 1 &&
 				mousePos.Y >= Position.Y + 1 && mousePos.Y <= Position.Y + Size.H - 1;
 		}
 	}

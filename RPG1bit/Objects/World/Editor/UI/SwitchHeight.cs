@@ -8,7 +8,7 @@ namespace RPG1bit
 		public static int BrushHeight { get; private set; }
 
 		public SwitchHeight(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
-		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] Change the brush height";
+		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to change the brush height";
 		public override void OnLeftClicked()
 		{
 			BrushHeight++;

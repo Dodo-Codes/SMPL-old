@@ -76,55 +76,20 @@ namespace RPG1bit
 
 		public static void CreateUIButtons()
 		{
-			// these are not creating multiple times cuz they are destroyed beforehand
-			new MoveCamera("camera-move-up", new()
+			if (Gate.EnterOnceWhile("camera-controls"))
 			{
-				Name = "camera-move-up",
-				Position = new(0, 1),
-				TileIndexes = new Point[] { new(19, 20) { C = Color.Gray } },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Up };
-			new MoveCamera("camera-move-down", new()
-			{
-				Name = "camera-move-down",
-				Position = new(0, 2),
-				TileIndexes = new Point[] { new(21, 20) { C = Color.Gray } },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Down };
-			new MoveCamera("camera-move-left", new()
-			{
-				Name = "camera-move-left",
-				Position = new(1, 0),
-				TileIndexes = new Point[] { new(22, 20) { C = Color.Gray } },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Left };
-			new MoveCamera("camera-move-right", new()
-			{
-				Name = "camera-move-right",
-				Position = new(2, 0),
-				TileIndexes = new Point[] { new(20, 20) { C = Color.Gray } },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Right };
-
+				new MoveCamera("camera", new()
+				{
+					Name = "camera",
+					Position = new(0, 0),
+					TileIndexes = new Point[] { new(19, 14) { C = Color.Gray } },
+					Height = 1,
+					IsUI = true,
+					IsKeptBetweenSessions = true
+				});
+			}
 			if (CurrentSession == Session.Single)
 			{
-				new MoveCamera("camera-center", new()
-			{
-				Name = "camera-center",
-				Position = new(0, 0),
-				TileIndexes = new Point[] { new(19, 14) { C = Color.Gray } },
-				Height = 1,
-				IsUI = true,
-				IsLeftClickable = true,
-			}) { CurrentType = MoveCamera.Type.Center };
 				new ItemSlot("slot-head", new()
 				{
 					Name = "On your head:",
@@ -182,16 +147,6 @@ namespace RPG1bit
 					TileIndexes = new Point[] { new(11, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
-				});
-
-				new Wait("wait", new()
-				{
-					Position = new(6, 0),
-					Height = 1,
-					TileIndexes = new Point[] { new(42, 12) { C = Color.Gray } },
-					IsLeftClickable = true,
-					IsUI = true,
-					Name = "wait",
 				});
 
 				for (int i = 0; i < ItemPile.MAX_COUNT; i++)
@@ -289,6 +244,7 @@ namespace RPG1bit
 			{
 				Screen.EditCell(new(4, 0), new(4, 23), 1, Color.Gray);
 				Screen.EditCell(new(5, 0), new(5, 23), 1, Color.Gray);
+				Screen.EditCell(new(6, 0), new(42, 12), 1, Color.Gray);
 
 				for (int i = 0; i < 8; i++)
 					Screen.EditCell(new(10 + i, 0), new(), 1, new());
