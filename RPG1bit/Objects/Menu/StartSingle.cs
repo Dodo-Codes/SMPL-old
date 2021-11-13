@@ -24,15 +24,9 @@ namespace RPG1bit
 			NavigationPanel.Tab.Open("single", "singleplayer");
 		}
 
-		public override void OnMouseButtonRelease(Mouse.Button button)
-		{
-			base.OnMouseButtonRelease(button);
-			if (World.CurrentSession == World.Session.Single && World.IsHovered())
-				PlayerStats.Open();
-		}
 		private static void CreateTab()
 		{
-			if (Gate.EnterOnceWhile("create-single-tab", true))
+			if (Gate.EnterOnceWhile("create-single-tab"))
 			{
 				var worldList = new ObjectList("load-world-list", new CreationDetails()
 				{

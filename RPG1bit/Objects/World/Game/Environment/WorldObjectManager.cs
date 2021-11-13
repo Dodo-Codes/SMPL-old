@@ -38,7 +38,7 @@ namespace RPG1bit
 			}
 			PlayerStats.Open();
 
-			var freeTile = new Point(0, 0);
+			var freeTiles = new List<Point>();
 			var playerTiles = new List<Point>();
 			var playerWasLoaded = Thing.UniqueIDsExists(nameof(Player));
 			var chunks = Thing.PickByTag(nameof(Chunk));
@@ -49,19 +49,20 @@ namespace RPG1bit
 					if (playerWasLoaded == false && chunk.Data[pos][3] == World.TilePlayer)
 						playerTiles.Add(pos);
 					else if (chunk.Data[pos][3] == new Point(0, 0))
-						freeTile = pos;
+						freeTiles.Add(pos);
 				}
 
 			var randPoint = playerTiles.Count > 0 ?
-				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] : freeTile;
+				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] :
+				freeTiles[(int)Probability.Randomize(new(0, freeTiles.Count - 1))];
 
 			var player = playerWasLoaded ? (Player)Thing.PickByUniqueID(nameof(Player)) :
 				new Player(nameof(Player), new Object.CreationDetails()
 				{
-					Name = nameof(Player),
+					Name = "Self",
 					Position = randPoint,
 					Height = 3,
-					TileIndexes = new Point[] { new(25, 0) }
+					TileIndexes = new Point[] { World.PositionHasWaterAsHighest(randPoint) ? new(20, 23) : new(25, 0) }
 				});
 
 			World.CameraPosition = player.Position;

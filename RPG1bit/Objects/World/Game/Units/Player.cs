@@ -15,10 +15,10 @@ namespace RPG1bit
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
 			var dir = new Point();
-			if (key == Keyboard.Key.LeftArrow) dir = new(-1, 0);
-			else if (key == Keyboard.Key.RightArrow) dir = new(1, 0);
-			else if (key == Keyboard.Key.UpArrow) dir = new(0, -1);
-			else if (key == Keyboard.Key.DownArrow) dir = new(0, 1);
+			if (key == Keyboard.Key.A) dir = new(-1, 0);
+			else if (key == Keyboard.Key.D) dir = new(1, 0);
+			else if (key == Keyboard.Key.W) dir = new(0, -1);
+			else if (key == Keyboard.Key.S) dir = new(0, 1);
 
 			TryMove(dir);
 		}
@@ -74,6 +74,7 @@ namespace RPG1bit
 		{
 			if (movement != new Point() && Move(movement))
 			{
+				PlayerStats.Open();
 				AdvanceTime();
 				TileIndexes = World.PositionHasWaterAsHighest(Position) ? new(20, 23) : new(25, 0);
 

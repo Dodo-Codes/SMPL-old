@@ -13,7 +13,7 @@ namespace RPG1bit
 			Percent += 10;
 			if (Percent == 110) Percent = 0;
 			var c = Number.Map(Percent, new Number.Range(0, 100), new Number.Range(100, 255));
-			Screen.EditCell(Position, TileIndexes, 1, new Color(c, c, c));
+			TileIndexes = new(TileIndexes.X, TileIndexes.Y) { C = new(c, c, c) };
 			NavigationPanel.Info.Textbox.Text = $"{Name} volume: {Percent}%";
 			ValueChanged();
 		}

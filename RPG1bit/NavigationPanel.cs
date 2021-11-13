@@ -55,7 +55,6 @@ namespace RPG1bit
 				CurrentTabType = type;
 				Title = title;
 				Textbox.Text = Texts.ContainsKey(type) ? Texts[type] : "";
-				Screen.ScheduleDisplay();
 			}
 			public static bool IsHovered()
 			{

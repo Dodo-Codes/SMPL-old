@@ -24,7 +24,7 @@ namespace SMPL.Gear
 				NotFound(uniqueID) ? double.NaN :
 				(gateEntries.ContainsKey(uniqueID) ? gateEntries[uniqueID] : 0);
 		}
-		public static bool EnterOnceWhile(string uniqueID, bool condition, uint maxEntries = uint.MaxValue)
+		public static bool EnterOnceWhile(string uniqueID, bool condition = true, uint maxEntries = uint.MaxValue)
 		{
 			if (gates.ContainsKey(uniqueID) == false && condition == false) return false;
 			else if (gates.ContainsKey(uniqueID) == false && condition == true)

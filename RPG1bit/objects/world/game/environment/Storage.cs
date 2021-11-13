@@ -127,7 +127,6 @@ namespace RPG1bit
 			{
 				TileIndexes -= new Point(1, 0);
 				opened = false;
-				PlayerStats.Open();
 			}
 		}
 	}

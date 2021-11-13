@@ -19,10 +19,10 @@ namespace RPG1bit
 				switch (CurrentType)
 				{
 					case Type.Center: Key = Keyboard.Key.Space; break;
-					case Type.Left: Key = Keyboard.Key.A; break;
-					case Type.Right: Key = Keyboard.Key.D; break;
-					case Type.Up: Key = Keyboard.Key.W; break;
-					case Type.Down: Key = Keyboard.Key.S; break;
+					case Type.Left: Key = Keyboard.Key.ArrowLeft; break;
+					case Type.Right: Key = Keyboard.Key.ArrowRight; break;
+					case Type.Up: Key = Keyboard.Key.ArrowUp; break;
+					case Type.Down: Key = Keyboard.Key.ArrowDown; break;
 				}
 			}
 		}
@@ -36,15 +36,8 @@ namespace RPG1bit
 
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
-			if (TextInputField.Typing || World.CurrentSession != World.Session.Single ||
-				key != Keyboard.Key.Space) return;
-			Execute();
-		}
-		public override void OnKeyboardTextInput(Keyboard.TextInput textInput)
-		{
-			if (TextInputField.Typing || World.CurrentSession == World.Session.None ||
-				textInput.Value.ToLower() != Key.ToString().ToLower()) return;
-			Execute();
+			if (TextInputField.Typing == false && World.CurrentSession != World.Session.None && key == Key)
+				Execute();
 		}
 
 		public override void OnHovered()

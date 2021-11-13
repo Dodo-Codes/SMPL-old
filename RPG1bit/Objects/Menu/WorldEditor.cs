@@ -147,8 +147,8 @@ namespace RPG1bit
 		};
 		public static readonly Dictionary<string, List<Point>> Tiles = new()
 		{
-			{ "special", new() { new(00, 22), new(24, 08) } },
-			{ "roof", new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(32, 22), new(37, 22) } },
+			{ "special", new() { new(0, 22), new(25, 0) } },
+			{ "roof", new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(28, 23), new(29, 23), new(30, 23) } },
 			{ nameof(Door), new()
 			{
 				new(05, 04), new(3, 4), new(0, 4), new(3, 3), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22), new(40, 23),
@@ -295,7 +295,7 @@ namespace RPG1bit
 			if (TileIsSign(Brush) == false)
 			{
 				var isSpecial = Tiles["special"].Contains(Brush);
-				if (Keyboard.KeyIsPressed(Keyboard.Key.LeftShift) && clickPos != pos && isSpecial == false)
+				if (Keyboard.KeyIsPressed(Keyboard.Key.ShiftLeft) && clickPos != pos && isSpecial == false)
 				{
 					var dirY = pos.Y > clickPos.Y ? 1 : -1;
 					var dirX = pos.X > clickPos.X ? 1 : -1;

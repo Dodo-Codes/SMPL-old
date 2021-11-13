@@ -113,12 +113,12 @@ namespace RPG1bit
 			{ new(08, 23), "Small pile of items" }, { new(9, 23), "Pile of items" }, { new(10, 23), "Big pile of items" },
 			{ new(11, 23), "Huge pile of items" },
 
-			{ new(04, 23), "[LEFT CLICK] Move the character" },
+			{ new(04, 23), "[LEFT CLICK/W/A/S/D]\n  Move the character" },
 			{ new(05, 23), "\t\tOn items...\n\n[LEFT CLICK] Info\n[LEFT DRAG] Pickup/Drop\n" +
 				"[RIGHT CLICK] Split" },
 
-			{ new(25, 00), "Player" }, { new(16, 23), "Player" }, { new(17, 23), "Player" }, { new(18, 23), "Player" },
-			{ new(19, 23), "Player" }, { new(20, 23), "Player" },
+			{ new(25, 00), "Self" }, { new(16, 23), "Self" }, { new(17, 23), "Self" }, { new(18, 23), "Self" },
+			{ new(19, 23), "Self" }, { new(20, 23), "Self" },
 
 			{ new(08, 19), "Boat" }, { new(09, 19), "Boat" }, { new(10, 19), "Boat" }, { new(11, 19), "Boat" },
 			{ new(12, 23), "Boat" }, { new(13, 23), "Boat" }, { new(14, 23), "Boat" }, { new(15, 23), "Boat" },

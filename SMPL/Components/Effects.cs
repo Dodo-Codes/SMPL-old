@@ -70,7 +70,8 @@ namespace SMPL.Components
 			try { shader = new("shaders.vert", null, "shaders.frag"); }
 			catch (Exception)
 			{
-				Window.PopUp($"Some of the {nameof(Visual)} {nameof(Effects)} in this game will not work on this PC!",
+				if (Gate.EnterOnceWhile("shader-crash"))
+					Window.PopUp($"Some of the {nameof(Visual)} {nameof(Effects)} in this game will not work on this hardware!",
 					Window.Title, Window.PopUpIcon.Error);
 			}
 			shader?.SetUniform("OutlineRed", 0f);
