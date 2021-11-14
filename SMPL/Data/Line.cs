@@ -22,66 +22,30 @@ namespace SMPL.Data
 			StartPosition = startPosition;
 			EndPosition = endPosition;
 		}
-		internal static void GetCrossPointOfTwoLines(Point startA, Point endA, Point startB, Point endB,
-			 out bool lines_intersect, out bool segments_intersect,
-			 out Point intersection,
-			 out Point close_p1, out Point close_p2)
+		internal static Point CrossPoint(Point A, Point B, Point C, Point D)
 		{
-			// Find the point of intersection between
-			// the lines p1 --> p2 and p3 --> p4.
+			var a1 = B.Y - A.Y;
+			var b1 = A.X - B.X;
+			var c1 = a1 * (A.X) + b1 * (A.Y);
+			var a2 = D.Y - C.Y;
+			var b2 = C.X - D.X;
+			var c2 = a2 * (C.X) + b2 * (C.Y);
+			var determinant = a1 * b2 - a2 * b1;
 
-			intersection = Point.Invalid;
-			// Get the segments' parameters.
-			var dx12 = endA.X - startA.X;
-			var dy12 = endA.Y - startA.Y;
-			var dx34 = endB.X - startB.X;
-			var dy34 = endB.Y - startB.Y;
-
-			// Solve for t1 and t2
-			var denominator = (dy12 * dx34 - dx12 * dy34);
-
-			var t1 = ((startA.X - startB.X) * dy34 + (startB.Y - startA.Y) * dx34) / denominator;
-			if (double.IsInfinity(t1))
+			if (determinant == 0)
+				return Point.Invalid;
+			else
 			{
-				// The lines are parallel (or close enough to it).
-				lines_intersect = false;
-				segments_intersect = false;
-				close_p1 = Point.Invalid;
-				close_p2 = Point.Invalid;
-				return;
+				var x = (b2 * c1 - b1 * c2) / determinant;
+				var y = (a1 * c2 - a2 * c1) / determinant;
+				return new Point(x, y);
 			}
-			lines_intersect = true;
-
-			var t2 = ((startB.X - startA.X) * dy12 + (startA.Y - startB.Y) * dx12) / -denominator;
-
-			// Find the point of intersection.
-			intersection = new Point(startA.X + dx12 * t1, startA.Y + dy12 * t1);
-
-			// The segments intersect if t1 and t2 are between 0 and 1.
-			segments_intersect = ((t1 >= 0) && (t1 <= 1) && (t2 >= 0) && (t2 <= 1));
-
-			// Find the closest points on the segments.
-			if (t1 < 0) t1 = 0;
-			else if (t1 > 1) t1 = 1;
-
-			if (t2 < 0) t2 = 0;
-			else if (t2 > 1) t2 = 1;
-
-			close_p1 = new Point(startA.X + dx12 * t1, startA.Y + dy12 * t1);
-			close_p2 = new Point(startB.X + dx34 * t2, startB.Y + dy34 * t2);
 		}
 
 		public Point CrossPoint(Line line)
 		{
-			var segmentsCross = false;
-			var linesCross = false;
-			var intersection = new Point(0, 0);
-			var closestCrossPointToMe = new Point(0, 0);
-			var closestCrossPointToLine = new Point(0, 0);
-
-			GetCrossPointOfTwoLines(startPosition, EndPosition, line.StartPosition, line.EndPosition,
-				out linesCross, out segmentsCross, out intersection, out closestCrossPointToMe, out closestCrossPointToLine);
-			return segmentsCross ? intersection : Point.Invalid;
+			var p = CrossPoint(StartPosition, EndPosition, line.StartPosition, line.EndPosition);
+			return ContainsPoint(p) ? p : Point.Invalid;
 		}
 		public bool ContainsPoint(Point point)
 		{
@@ -98,10 +62,10 @@ namespace SMPL.Data
 			if (Window.DrawNotAllowed()) return;
 
 			width /= 2;
-			var startLeft = Point.MoveAtAngle(StartPosition, Angle - 90, width, Time.Unit.Tick);
-			var startRight = Point.MoveAtAngle(StartPosition, Angle + 90, width, Time.Unit.Tick);
-			var endLeft = Point.MoveAtAngle(EndPosition, Angle - 90, width, Time.Unit.Tick);
-			var endRight = Point.MoveAtAngle(EndPosition, Angle + 90, width, Time.Unit.Tick);
+			var startLeft = Point.MoveAtAngle(StartPosition, Angle - 90, width, Time.Unit.Frame);
+			var startRight = Point.MoveAtAngle(StartPosition, Angle + 90, width, Time.Unit.Frame);
+			var endLeft = Point.MoveAtAngle(EndPosition, Angle - 90, width, Time.Unit.Frame);
+			var endRight = Point.MoveAtAngle(EndPosition, Angle + 90, width, Time.Unit.Frame);
 
 			var vert = new Vertex[]
 			{

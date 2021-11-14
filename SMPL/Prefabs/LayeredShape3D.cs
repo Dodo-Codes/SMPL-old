@@ -87,10 +87,10 @@ namespace SMPL.Prefabs
 			for (int i = 0; i < LayerStackCount; i++)
 			{
 				AddQuad(i,
-					Point.MoveAtAngle(tl, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Tick),
-					Point.MoveAtAngle(tr, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Tick),
-					Point.MoveAtAngle(br, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Tick),
-					Point.MoveAtAngle(bl, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Tick));
+					Point.MoveAtAngle(tl, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Frame),
+					Point.MoveAtAngle(tr, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Frame),
+					Point.MoveAtAngle(br, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Frame),
+					Point.MoveAtAngle(bl, LayerStackAngle, i * LayerStackSpacing, Gear.Time.Unit.Frame));
 			}
 
 			Draw();

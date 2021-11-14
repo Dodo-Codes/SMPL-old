@@ -37,6 +37,7 @@ namespace RPG1bit
 			Position = futurePos;
 			if (UniqueID == nameof(Player))
 				World.CameraPosition += movement;
+
 			return true;
 		}
 		public bool CellIsInReach(Point cell)

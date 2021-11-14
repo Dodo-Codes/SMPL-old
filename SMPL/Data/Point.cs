@@ -32,10 +32,10 @@ namespace SMPL.Data
 			if (Window.DrawNotAllowed()) return;
 
 			width /= 2;
-			var topLeft = MoveAtAngle(this, 225, width, Time.Unit.Tick);
-			var topRight = MoveAtAngle(this, 315, width, Time.Unit.Tick);
-			var botLeft = MoveAtAngle(this, 135, width, Time.Unit.Tick);
-			var botRight = MoveAtAngle(this, 45, width, Time.Unit.Tick);
+			var topLeft = MoveAtAngle(this, 225, width, Time.Unit.Frame);
+			var topRight = MoveAtAngle(this, 315, width, Time.Unit.Frame);
+			var botLeft = MoveAtAngle(this, 135, width, Time.Unit.Frame);
+			var botRight = MoveAtAngle(this, 45, width, Time.Unit.Frame);
 
 			var vert = new Vertex[]
 			{
@@ -55,8 +55,7 @@ namespace SMPL.Data
 		{
 			return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
 		}
-		public static Point MoveAtAngle(Point point, double angle, double speed,
-			Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
+		public static Point MoveAtAngle(Point point, double angle, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			if (timeUnit == Gear.Time.Unit.Second) speed *= Performance.DeltaTime;
 			var dir = Number.AngleToDirection(angle);
@@ -65,8 +64,7 @@ namespace SMPL.Data
 			point.Y += dir.Y * speed;
 			return point;
 		}
-		public static Point MoveTowardTarget(Point point, Point targetPoint, double speed,
-			Gear.Time.Unit timeUnit = Gear.Time.Unit.Second)
+		public static Point MoveTowardTarget(Point point, Point targetPoint, double speed, Time.Unit timeUnit = Time.Unit.Second)
 		{
 			var ang = Number.AngleBetweenPoints(point, targetPoint);
 			return MoveAtAngle(point, ang, speed, timeUnit);
@@ -76,6 +74,42 @@ namespace SMPL.Data
 			var x = Number.FromPercent(percent.W, new Number.Range(point.X, targetPoint.X));
 			var y = Number.FromPercent(percent.H, new Number.Range(point.Y, targetPoint.Y));
 			return new Point(x, y) { C = point.C };
+		}
+		public static Point Pathfind(Point pointA, Point pointB, uint tries, params Line[] lines)
+		{
+			if (Crosses(pointA, pointB, pointB) == false)
+				return pointB;
+
+			var bestPoint = Invalid;
+			var bestDist = double.MaxValue;
+			var dist = Probability.Randomize(new (0, Distance(pointA, pointB) * 2));
+			for (int i = 0; i < tries; i++)
+			{
+				var randPoint = MoveAtAngle(pointA, Probability.Randomize(new(0, 359)), dist, Time.Unit.Frame);
+				var sumDist = Distance(pointA, randPoint) + Distance(randPoint, pointB);
+				if (Crosses(pointA, randPoint, pointB) == false && sumDist < bestDist)
+				{
+					bestDist = sumDist;
+					bestPoint = randPoint;
+				}
+			}
+
+			for (int i = 0; i < 10; i++)
+			{
+				var curP = PercentTowardTarget(pointA, bestPoint, new(i * 10, i * 10));
+				if (Crosses(curP, pointB, pointB) == false)
+					return curP;
+			}
+
+			return bestPoint;
+
+			bool Crosses(Point p1, Point p2, Point p3)
+			{
+				for (int i = 0; i < lines.Length; i++)
+					if (lines[i].Crosses(new Line(p1, p2)) || lines[i].Crosses(new Line(p2, p3)))
+						return true;
+				return false;
+			}
 		}
 
 		internal static double Magnitude(Point p) => Number.SquareRoot(p.X * p.X + p.Y * p.Y);

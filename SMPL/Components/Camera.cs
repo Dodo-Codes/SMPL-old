@@ -192,7 +192,7 @@ namespace SMPL.Components
 				var first = AreaCheck(area.UniqueID);
 				var prevPos = area.Position;
 				area.Position = Point.MoveAtAngle(area.Position, ls3d.LayerStackAngle, ls3d.LayerStackCount * ls3d.LayerStackSpacing,
-					Gear.Time.Unit.Tick);
+					Gear.Time.Unit.Frame);
 				var second = AreaCheck(area.UniqueID);
 				area.Position = prevPos;
 				return first || second;

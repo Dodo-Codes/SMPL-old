@@ -206,3 +206,4 @@ G:\SFML\Test Game\obj\Debug\net5.0\ref\Test Game.dll
 G:\SFML\Test Game\obj\Debug\net5.0\Test Game.pdb
 G:\SFML\Test Game\obj\Debug\net5.0\Test Game.genruntimeconfig.cache
 D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csproj.AssemblyReference.cache
+D:\code\SFML\SMPL\Test Game\obj\Debug\net5.0\Test Game.csproj.CopyComplete

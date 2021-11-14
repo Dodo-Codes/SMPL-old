@@ -142,6 +142,12 @@ namespace RPG1bit
 			{ new(09, 07), "Counter" }, { new(10, 07), "Counter" },
 
 			{ new(07, 08), "Fireplace" }, { new(08, 08), "Fireplace" }, { new(09, 08), "Fireplace" },
+
+			{ new(06, 17), "Chariot" }, { new(07, 17), "Chariot" }, { new(08, 17), "Chariot" }, { new(09, 17), "Chariot" },
+			{ new(08, 18), "Cart" }, { new(09, 18), "Cart" },
+
+			{ new(06, 16), "Wheelbarrow" }, { new(07, 16), "Wheelbarrow" }, { new(08, 16), "Wheelbarrow" },
+			{ new(09, 16), "Wheelbarrow" },
 		};
 		public static Object HoldingObject { get; set; }
 

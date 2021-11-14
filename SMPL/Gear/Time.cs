@@ -50,7 +50,7 @@ namespace SMPL.Gear
 		}
 		public enum Unit
 		{
-			Tick, Second
+			Frame, Second
 		}
 
 		internal static Clock time;

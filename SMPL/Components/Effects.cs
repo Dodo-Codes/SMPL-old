@@ -183,7 +183,7 @@ namespace SMPL.Components
 					var dist = Point.Distance(tArea.Position, ownerArea.Position);
 					var atAng = Number.AngleBetweenPoints(ownerArea.Position, tArea.Position);
 					var pos = Point.From(Point.MoveAtAngle(
-						ownerArea.Position, atAng - ownerArea.Angle, dist, Gear.Time.Unit.Tick));
+						ownerArea.Position, atAng - ownerArea.Angle, dist, Gear.Time.Unit.Frame));
 					var ownerOrOff = Point.From(new Point(rend.Size.X * o.X, rend.Size.Y * o.Y));
 
 					t.UpdateAllData();

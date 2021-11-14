@@ -292,7 +292,7 @@ namespace SMPL.Components
 		public static double AngleToParallax(double angle, double parallaxPercent, Camera camera)
 		{
 			parallaxPercent /= 100;
-			return Number.MoveTowardAngle(angle, camera.Angle, (camera.Angle - angle) * parallaxPercent, Gear.Time.Unit.Tick);
+			return Number.MoveTowardAngle(angle, camera.Angle, (camera.Angle - angle) * parallaxPercent, Gear.Time.Unit.Frame);
 		}
 		public static Size SizeToParallax(Size size, Size parallaxPercent, Camera camera)
 		{

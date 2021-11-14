@@ -129,12 +129,25 @@ namespace RPG1bit
 			new(), new(), new(), new(13, 9) { C = Color.Wood - 30 }, new(), new(),
 			new(04, 08) { C = Color.Wood + 70 }, new(5, 8) { C = Color.Wood + 70 }, new(6, 8) { C = Color.Wood + 70 }, // bed
 			new(), new(), new(), new(13, 10) { C = Color.Wood - 30 },
-			// bed
 			new(), new(), 
 
 			// boats
 			new(08, 19) { C = Color.Wood - 30 }, new(09, 19) { C = Color.Wood - 30 }, new(10, 19) { C = Color.Wood - 30 },
 			new(11, 19) { C = Color.Wood - 30 },
+			new(), new(), new(),
+
+			// cart
+			new(08, 18) { C = Color.Wood - 30 }, new(9, 18) { C = Color.Wood - 30 },
+
+			// wheelbarrow
+			new(06, 16) { C = Color.Wood - 30 }, new(07, 16) { C = Color.Wood - 30 }, new(08, 16) { C = Color.Wood - 30 },
+			new(09, 16) { C = Color.Wood - 30 },
+			new(),
+
+			// chariot
+			new(06, 17) { C = Color.Wood - 30 }, new(07, 17) { C = Color.Wood - 30 }, new(08, 17) { C = Color.Wood - 30 },
+			new(09, 17) { C = Color.Wood - 30 },
+
 		};
 		public static readonly Dictionary<Point, Point[]> RandomTiles = new()
 		{
