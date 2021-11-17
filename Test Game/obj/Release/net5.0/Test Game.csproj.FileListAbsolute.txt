@@ -92,7 +92,6 @@ D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\Accessibility.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\System.Deployment.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\System.Runtime.Serialization.Formatters.Soap.dll
 D:\code\SFML\SMPL\Test Game\bin\Release\net5.0\SMPL.pdb
-D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.csprojAssemblyReference.cache
 D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.GeneratedMSBuildEditorConfig.editorconfig
 D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.AssemblyInfoInputs.cache
 D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.AssemblyInfo.cs
@@ -102,3 +101,4 @@ D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\ref\Test Game.dll
 D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.pdb
 D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.genruntimeconfig.cache
+D:\code\SFML\SMPL\Test Game\obj\Release\net5.0\Test Game.csproj.AssemblyReference.cache

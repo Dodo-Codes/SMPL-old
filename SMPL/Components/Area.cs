@@ -49,7 +49,7 @@ namespace SMPL.Components
 			sprite.Position = Point.From(Position);
 			sprite.Rotation = (float)Angle;
 
-			var off = ChunkSize / 2;
+			var off = ChunkSize * 0.5;
 			var newChunkPos = new Point((int)((Position.X + off) / ChunkSize), (int)((Position.Y + off) / ChunkSize)) * ChunkSize;
 
 			if (ChunkPosition == newChunkPos) return;

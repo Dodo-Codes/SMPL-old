@@ -16,6 +16,8 @@ namespace SMPL.Gear
 		private static readonly Dictionary<Guid, string> clientRealIDs = new();
 		private static readonly List<string> clientIDs = new();
 		private static readonly int serverPort = 1234;
+		private static Guid id;
+		private static Udp udp;
 
 		private static string MessageToString(Message message)
 		{
@@ -26,7 +28,8 @@ namespace SMPL.Gear
 				$"{message.ReceiverUniqueID}{Message.COMP_SEP}" +
 				$"{(int)message.Receivers}{Message.COMP_SEP}" +
 				$"{message.Tag}{Message.COMP_SEP}" +
-				$"{message.Content}";
+				$"{message.Content}{Message.COMP_SEP}" +
+				$"{message.Unreliable}";
 		}
 		private static List<Message> StringToMessages(string message)
 		{
@@ -43,7 +46,8 @@ namespace SMPL.Gear
 					ReceiverUniqueID = comps[2],
 					Receivers = (Message.Toward)int.Parse(comps[3]),
 					Tag = comps[4],
-					Content = comps[5]
+					Content = comps[5],
+					Unreliable = bool.Parse(comps[6])
 				});
 			}
 			return result;
@@ -76,7 +80,7 @@ namespace SMPL.Gear
 									msg.SenderUniqueID = ChangeID(msg.SenderUniqueID);
 									// Send a message back with a free one toward the same ID so the client can recognize it's for him
 									var freeUidMsg = new Message(
-										Message.Toward.Client, null, msg.Content, msg.SenderUniqueID)
+										Message.Toward.Client, null, msg.Content, receiverClientUniqueID: msg.SenderUniqueID)
 									{ type = Message.Type.ChangeID };
 									messageBack += MessageToString(freeUidMsg);
 
@@ -95,7 +99,7 @@ namespace SMPL.Gear
 								clientIDs.Add(msg.SenderUniqueID);
 
 								// Sticking another message to update the newcoming client about online clients
-								var onlineMsg = new Message(Message.Toward.Client, null, null, msg.SenderUniqueID)
+								var onlineMsg = new Message(Message.Toward.Client, null, null, receiverClientUniqueID: msg.SenderUniqueID)
 								{ type = Message.Type.ClientOnline };
 								for (int j = 0; j < clientIDs.Count; j++)
 								{
@@ -247,11 +251,80 @@ namespace SMPL.Gear
 
 		//=================
 
+		internal class Udp
+		{
+			private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+			private const int bufSize = 8 * 1024;
+			private readonly State state = new();
+			private EndPoint epFrom = new IPEndPoint(IPAddress.Any, 0);
+			private AsyncCallback recv = null;
+
+			public class State
+			{
+				public byte[] buffer = new byte[bufSize];
+			}
+
+			public void Server()
+			{
+				try
+				{
+					_socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.ReuseAddress, true);
+					_socket.Bind(new IPEndPoint(IPAddress.Any, serverPort));
+					Receive();
+				}
+				catch (Exception ex)
+				{
+					Console.Log($"ERROR: {ex.Message}");
+				}
+			}
+			public void Client(string address, int port)
+			{
+				try
+				{
+					_socket.Connect(IPAddress.Parse(address), port);
+					Receive();
+				}
+				catch (Exception ex)
+				{
+					Console.Log($"ERROR: {ex.Message}");
+				}
+			}
+			public void Send(string text)
+			{
+				try
+				{
+					var data = Encoding.ASCII.GetBytes(text);
+					_socket.BeginSend(data, 0, data.Length, SocketFlags.None, (ar) =>
+					{
+						var so = (State)ar.AsyncState;
+						int bytes = _socket.EndSend(ar);
+					}, state);
+				}
+				catch (Exception ex)
+				{
+					Console.Log($"ERROR: {ex.Message}");
+				}
+			}
+			private void Receive()
+			{
+				_socket.BeginReceiveFrom(state.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv = (ar) =>
+				{
+					var so = (State)ar.AsyncState;
+					int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
+					_socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
+					DecodeMessages(id, Encoding.ASCII.GetString(so.buffer, 0, bytes));
+				}, state);
+			}
+			public void Disconnect()
+			{
+				_socket.Disconnect(true);
+			}
+		}
 		internal class Session : TcpSession
 		{
 			public Session(TcpServer server) : base(server) { }
 
-			protected override void OnConnected() { }
+			protected override void OnConnected() { id = Id; }
 			protected override void OnDisconnected()
 			{
 				var disconnectedClient = clientRealIDs[Id];
@@ -296,6 +369,7 @@ namespace SMPL.Gear
 			}
 			protected override void OnConnected()
 			{
+				id = Id;
 				ClientIsConnected = true;
 				clientIDs.Add(ClientUniqueID);
 				var ip = client.Socket.RemoteEndPoint.ToString().Split(':')[0];
@@ -357,14 +431,16 @@ namespace SMPL.Gear
 			public string ReceiverUniqueID { get; set; }
 			public string SenderUniqueID { get; internal set; }
 			public Toward Receivers { get; set; }
+			public bool Unreliable { get; set; }
 			internal Type type;
 
-			public Message(Toward receivers, string tag, string content, string receiverClientUniqueID = null)
+			public Message(Toward receivers, string tag, string content, bool unreliable = false, string receiverClientUniqueID = null)
 			{
 				Content = content;
 				Tag = tag;
 				ReceiverUniqueID = receiverClientUniqueID;
 				SenderUniqueID = ClientUniqueID;
+				Unreliable = unreliable;
 				Receivers = receivers;
 				type = receivers switch
 				{
@@ -375,14 +451,14 @@ namespace SMPL.Gear
 					_ => Type.None,
 				};
 			}
-
 			public override string ToString()
 			{
 				var send = SenderUniqueID == null || SenderUniqueID == "" ? "from the Server" : $"from Client '{SenderUniqueID}'";
+				var reliable = Unreliable ? "Unreliable" : "Reliable";
 				var rec = Receivers == Toward.Client ?
 					$"to Client '{ReceiverUniqueID}'" : $"to {Receivers}";
 				return
-					$"Multiplayer Message {send} {rec}\n" +
+					$"{reliable} Multiplayer Message {send} {rec}\n" +
 					$"Tag: {Tag}\n" +
 					$"Content: {Content}";
 			}
@@ -436,40 +512,22 @@ namespace SMPL.Gear
 
 				OpenPort();
 
+				udp = new();
+				udp.Server();
 				server = new Server(IPAddress.Any, serverPort);
 				server.Start();
 				ServerIsRunning = true;
 
-				var hostName = Dns.GetHostName();
-				var hostEntry = Dns.GetHostEntry(hostName);
-				var connectToServerInfo =
-					"Clients can connect through those IPs if they are in the same network\n" +
-					"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
-					$"Same device: {SameDeviceIP}";
-
-				for (int i = 0; i < hostEntry.AddressList.Length; i++)
-				{
-					if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
-
-					var ipParts = hostEntry.AddressList[i].ToString().Split('.');
-					var isRouter = ipParts[0] == "192" && ipParts[1] == "168";
-					var ipType = isRouter ? "Same router: " : "Same VPN: ";
-					connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
-				}
-
-				Console.Log($"Started a {Window.Title} LAN Server.\n{connectToServerInfo}\n");
+				Console.Log($"Started a {Window.Title} LAN Server.\n{GetServerConnectInfo()}\n");
 				Events.Notify(Events.Type.ServerStop);
 			}
 			catch (Exception ex)
 			{
 				ServerIsRunning = false;
 				if (ex.Message.Contains("Access is denied"))
-				{
-					Debug.LogError(1, $"In order to start the {Window.Title} Multiplayer Server, run the game as an Administrator.\n" +
-						$"Right click on the game's .exe/shortcut -> Properties -> Compatibility -> Run this program as Administrator.",
-						true);
-				}
-				else Debug.LogError(1, ex.Message, true);
+					Debug.LogError(1, $"In order to start the {Window.Title} Multiplayer Server, run the game as an Administrator.", true);
+				else
+					Debug.LogError(1, ex.Message, true);
 				Events.Notify(Events.Type.ServerStop);
 			}
 		}
@@ -480,6 +538,7 @@ namespace SMPL.Gear
 				if (ServerIsRunning == false) { Debug.LogError(1, "Server is not running.\n", true); return; }
 				if (ClientIsConnected) { Debug.LogError(1, "Cannot stop a server while a client.\n", true); return; }
 				ServerIsRunning = false;
+				udp.Disconnect();
 				server.Stop();
 				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
 				Events.Notify(Events.Type.ServerStop);
@@ -518,6 +577,7 @@ namespace SMPL.Gear
 				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
 				return;
 			}
+			udp.Disconnect();
 			client.DisconnectAndStop();
 		}
 
@@ -525,9 +585,35 @@ namespace SMPL.Gear
 		{
 			if (MessageDisconnected()) return;
 			if (ServerIsRunning && message.Receivers == Message.Toward.Server) return;
+
 			var msgStr = MessageToString(message);
-			if (ClientIsConnected) client.SendAsync(msgStr);
-			else server.Multicast(msgStr);
+			if (message.Unreliable)
+				udp.Send(msgStr);
+			else
+			{
+				if (ClientIsConnected) client.SendAsync(msgStr);
+				else server.Multicast(msgStr);
+			}
+		}
+		private static string GetServerConnectInfo()
+		{
+			var hostName = Dns.GetHostName();
+			var hostEntry = Dns.GetHostEntry(hostName);
+			var connectToServerInfo =
+				"Clients can connect through those IPs if they are in the same network\n" +
+				"(device / router / Virtual Private Network programs like Hamachi or Radmin):\n" +
+				$"Same device: {SameDeviceIP}";
+
+			for (int i = 0; i < hostEntry.AddressList.Length; i++)
+			{
+				if (hostEntry.AddressList[i].AddressFamily != AddressFamily.InterNetwork) continue;
+
+				var ipParts = hostEntry.AddressList[i].ToString().Split('.');
+				var isRouter = ipParts[0] == "192" && ipParts[1] == "168";
+				var ipType = isRouter ? "Same router: " : "Same VPN: ";
+				connectToServerInfo = $"{connectToServerInfo}\n{ipType}{hostEntry.AddressList[i]}";
+			}
+			return connectToServerInfo;
 		}
 	}
 }

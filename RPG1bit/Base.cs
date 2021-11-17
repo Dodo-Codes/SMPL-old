@@ -74,8 +74,11 @@ namespace RPG1bit
 		public override void OnMouseButtonPress(Mouse.Button button)
 		{
 			var mousePos = Screen.GetCellAtCursorPosition();
-			if (button == Mouse.Button.Left) LeftClickPosition = mousePos;
-			if (button == Mouse.Button.Right) RightClickPosition = mousePos;
+
+			if (button == Mouse.Button.Left)
+				LeftClickPosition = mousePos;
+			if (button == Mouse.Button.Right)
+				RightClickPosition = mousePos;
 
 			if (button == Mouse.Button.ExtraButton1)
 			{

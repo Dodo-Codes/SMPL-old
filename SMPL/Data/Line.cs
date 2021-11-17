@@ -45,15 +45,12 @@ namespace SMPL.Data
 		public Point CrossPoint(Line line)
 		{
 			var p = CrossPoint(StartPosition, EndPosition, line.StartPosition, line.EndPosition);
-			return ContainsPoint(p) ? p : Point.Invalid;
+			return ContainsPoint(p) && line.ContainsPoint(p) ? p : Point.Invalid;
 		}
 		public bool ContainsPoint(Point point)
 		{
-			var AB = Length;
-			var AP = Point.Distance(StartPosition, point);
-			var PB = Point.Distance(EndPosition, point);
-			var sum = AP + PB;
-			return Number.IsBetween(sum, new Number.Range(AB - 0.01, AB + 0.01));
+			var sum = Point.Distance(StartPosition, point) + Point.Distance(EndPosition, point);
+			return Number.IsBetween(sum, new Number.Range(Length - 0.01, Length + 0.01));
 		}
 		public bool Crosses(Line line) => CrossPoint(line).IsInvalid() == false;
 

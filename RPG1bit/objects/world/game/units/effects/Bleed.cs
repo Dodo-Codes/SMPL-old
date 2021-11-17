@@ -18,13 +18,13 @@ namespace RPG1bit
 		}
 		public override void Destroy()
 		{
-			Gate.Remove($"{UniqueID}-trail");
+			Gate.Remove($"{OwnerUID}-trail");
 			base.Destroy();
 		}
 		public override void OnTrigger()
 		{
 			var unit = (Unit)PickByUniqueID(OwnerUID);
-			if (Gate.EnterOnceWhile($"{UniqueID}-trail", true))
+			if (Gate.EnterOnceWhile($"{OwnerUID}-trail", true))
 			{
 				new Trail($"{UniqueID}-trail", new()
 				{

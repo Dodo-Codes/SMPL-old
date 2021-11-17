@@ -12,8 +12,6 @@ namespace SMPL.Gear
 {
    public abstract class Game : Thing
    {
-      private static Random rng = new Random();
-
       ///<summary>
       ///text, <paramref name="param"/>, <see cref="char"/>, <typeparamref name="Type"/>
       ///</summary>

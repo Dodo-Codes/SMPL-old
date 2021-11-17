@@ -16,4 +16,4 @@ D:\code\SFML\SMPL\SMPL\obj\Release\net5.0\SMPL.csproj.CopyComplete
 D:\code\SFML\SMPL\SMPL\obj\Release\net5.0\SMPL.dll
 D:\code\SFML\SMPL\SMPL\obj\Release\net5.0\ref\SMPL.dll
 D:\code\SFML\SMPL\SMPL\obj\Release\net5.0\SMPL.pdb
-D:\code\SFML\SMPL\SMPL\obj\Release\net5.0\SMPL.csprojAssemblyReference.cache
+D:\code\SFML\SMPL\SMPL\obj\Release\net5.0\SMPL.csproj.AssemblyReference.cache

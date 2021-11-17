@@ -77,15 +77,17 @@ namespace SMPL.Data
 		}
 		public static Point Pathfind(Point pointA, Point pointB, uint tries, params Line[] lines)
 		{
+			if (tries == 0)
+				return Invalid;
+
 			if (Crosses(pointA, pointB, pointB) == false)
 				return pointB;
 
 			var bestPoint = Invalid;
 			var bestDist = double.MaxValue;
-			var dist = Probability.Randomize(new (0, Distance(pointA, pointB) * 2));
 			for (int i = 0; i < tries; i++)
 			{
-				var randPoint = MoveAtAngle(pointA, Probability.Randomize(new(0, 359)), dist, Time.Unit.Frame);
+				var randPoint = MoveAtAngle(pointA, i * (360 / tries), Distance(pointA, pointB), Time.Unit.Frame);
 				var sumDist = Distance(pointA, randPoint) + Distance(randPoint, pointB);
 				if (Crosses(pointA, randPoint, pointB) == false && sumDist < bestDist)
 				{
@@ -94,9 +96,9 @@ namespace SMPL.Data
 				}
 			}
 
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < tries; i++)
 			{
-				var curP = PercentTowardTarget(pointA, bestPoint, new(i * 10, i * 10));
+				var curP = PercentTowardTarget(pointA, bestPoint, new(100 / tries * i, 100 / tries * i));
 				if (Crosses(curP, pointB, pointB) == false)
 					return curP;
 			}
@@ -106,8 +108,12 @@ namespace SMPL.Data
 			bool Crosses(Point p1, Point p2, Point p3)
 			{
 				for (int i = 0; i < lines.Length; i++)
-					if (lines[i].Crosses(new Line(p1, p2)) || lines[i].Crosses(new Line(p2, p3)))
+				{
+					var cross1 = lines[i].Crosses(new Line(p1, p2));
+					var cross2 = lines[i].Crosses(new Line(p2, p3));
+					if (cross1 || cross2)
 						return true;
+				}
 				return false;
 			}
 		}

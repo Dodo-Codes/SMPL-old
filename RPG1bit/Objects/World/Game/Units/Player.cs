@@ -26,6 +26,17 @@ namespace RPG1bit
 				AppearOnTab = "player-stats",
 				IsKeptBetweenSessions = true,
 			}, new(13, 5));
+
+			SetSkill("goalkeep", 10, "penka");
+			SetSkill("goalkeep2", 10, "penka");
+			SetSkill("goalkeep3", 10, "penka");
+			SetSkill("goalkeep4", 10, "penka");
+			SetSkill("goalkeep5", 10, "penka");
+			SetSkill("goalkeep6", 10, "penka");
+			SetSkill("goalkeep7", 10, "penka");
+			SetSkill("goalkeep8", 10, "penka");
+			SetSkill("goalkeep9", 10, "penka");
+			SetSkill("goalkeep10", 10, "penka");
 		}
 
 		public override void Destroy()
@@ -113,6 +124,10 @@ namespace RPG1bit
 				return;
 
 			var mousePos = Screen.GetCellAtCursorPosition();
+
+			if (World.CurrentSession == World.Session.Single && mousePos.X < 18)
+				PlayerStats.Open();
+
 			if (Base.LeftClickPosition != mousePos)
 				return;
 
