@@ -24,36 +24,76 @@ namespace RPG1bit
 		{
 			NavigationPanel.Tab.Open("player-stats", "self");
 			NavigationPanel.Tab.Textbox.Scale = new(0.35, 0.35);
-			NavigationPanel.Tab.Textbox.Text = say == null ? "\n. . ." : $"\n\"{say}\"";
+			NavigationPanel.Tab.Textbox.Text = say == null ? ". . ." : $"\"{say}\"";
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (player != null && player.Health[0] <= 0)
-				NavigationPanel.Tab.Textbox.Text = "All your senses weakened as\nyou took your final breath...";
+				NavigationPanel.Tab.Textbox.Text = "You died.";
 		}
 		public override void OnDisplay(Point screenPos)
 		{
+			for (int y = 0; y < 6; y++)
+				for (int x = 0; x < 13; x++)
+					Screen.EditCell(new(19 + x, 4 + y), new Point(12, 22), 0, Color.Brown * 0.7);
+
 			var player = (Player)PickByUniqueID(nameof(Player));
-			var hp = Number.Limit(player.Health[0], new(0, player.Health[1]));
+			var hp = $"{Number.Limit(player.Health[0], new(0, player.Health[1]))}";
+			var maxHp = $"{player.Health[1]}";
+			var maxHpStr = maxHp.Length == 1 ? $"0{maxHp}" : maxHp;
+			var hpStr = hp.Length == 1 ? $"0{hp}" : hp;
+			var skills = PickByTag(nameof(PlayerSkill));
 
-			Screen.DisplayText(new(20, 5), 1, Color.White, $"state {hp} {player.Health[1]}");
-			Screen.EditCell(new(20 + $"state {hp}".Length, 5), new(39, 20), 1, Color.White);
+			Screen.DisplayText(new(19, 3), 1, Color.White, $"health {hpStr} {maxHpStr}");
+			Screen.EditCell(new(28, 3), new(39, 20), 1, Color.White);
 
-			if (player.Skills.Objects.Count == 0)
+			if (skills.Length == 0)
 			{
-				Screen.DisplayText(new(21, 8), 1, Color.Gray, "no skills");
-				Screen.DisplayText(new(22, 9), 1, Color.Gray, "learned");
+				Screen.DisplayText(new(21, 6), 1, Color.Gray, "no skills");
+				Screen.DisplayText(new(22, 7), 1, Color.Gray, "learned");
+			}
+			else
+				Screen.DisplayText(new(19, 4), 1, Color.White, "skills");
+
+			if (player.EffectUIDs.Count == 0)
+			{
+				Screen.DisplayText(new(21, 11), 1, Color.Gray, "no status");
+				Screen.DisplayText(new(22, 12), 1, Color.Gray, "effects");
+			}
+			else
+				Screen.DisplayText(new(19, 10), 1, Color.White, "effects");
+		}
+		public static void UpdateContent()
+		{
+			var player = (Player)PickByUniqueID(nameof(Player));
+			var skills = PickByTag(nameof(PlayerSkill));
+			var p = new Point();
+			for (int i = 1; i < skills.Length + 1; i++)
+			{
+				if (p.Y == 5)
+				{
+					Screen.EditCell(new(31, 9), new(41, 20), 1, Color.White);
+					continue;
+				}
+				var skill = (PlayerSkill)skills[i - 1];
+				skill.Position = new(20 + p.X, 5 + p.Y);
+				p.X += 4;
+				if (p.X >= 10)
+				{
+					p.X = 0;
+					p.Y++;
+				}
 			}
 
 			var pos = new Point();
 			for (int i = 1; i < player.EffectUIDs.Count + 1; i++)
 			{
-				if (pos.Y == 2)
+				if (pos.Y == 3)
 				{
 					Screen.EditCell(new(31, 13), new(41, 20), 1, Color.White);
 					continue;
 				}
 				var effect = (Effect)PickByUniqueID(player.EffectUIDs[i - 1]);
-				effect.Position = new(20 + pos.X, 12 + pos.Y);
-				pos.X += 2 + $"{effect.Duration[1] - effect.Duration[0]}".Length;
+				effect.Position = new(20 + pos.X, 11 + pos.Y);
+				pos.X += 4;
 				if (pos.X >= 10)
 				{
 					pos.X = 0;

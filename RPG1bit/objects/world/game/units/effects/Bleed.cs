@@ -16,16 +16,17 @@ namespace RPG1bit
 				$"Bleeding: This unit's state changes by {Value}\n" +
 				$"\teach turn for the next {Duration[1] - Duration[0]} turns";
 		}
-		public override void Destroy()
-		{
-			Gate.Remove($"{OwnerUID}-trail");
-			base.Destroy();
-		}
 		public override void OnTrigger()
 		{
 			var unit = (Unit)PickByUniqueID(OwnerUID);
-			if (Gate.EnterOnceWhile($"{OwnerUID}-trail", true))
+			if (Gate.EnterOnceWhile($"{OwnerUID}-trail", Duration[0] > 0))
 			{
+				if (UniqueIDsExists($"{UniqueID}-trail"))
+				{
+					var trail = (Trail)PickByUniqueID($"{UniqueID}-trail");
+					trail.Duration = Duration[1];
+					return;
+				}
 				new Trail($"{UniqueID}-trail", new()
 				{
 					Position = unit.Position,

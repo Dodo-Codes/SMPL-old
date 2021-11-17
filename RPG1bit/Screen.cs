@@ -46,12 +46,12 @@ namespace RPG1bit
 		public override void OnGameLateUpdate()
 		{
 			if (display == false) return;
+			display = false;
 
 			World.Display();
 			World.DisplayNavigationPanel();
 			NavigationPanel.Display();
 			Object.DisplayAllObjects();
-			display = false;
 		}
 		public static void ScheduleDisplay() => display = true;
 

@@ -21,6 +21,7 @@ namespace SMPL.Gear
 
 		private static string MessageToString(Message message)
 		{
+			var unr = message.Unreliable ? "0" : "1";
 			return
 				$"{Message.SEP}" +
 				$"{(int)message.type}{Message.COMP_SEP}" +
@@ -29,7 +30,7 @@ namespace SMPL.Gear
 				$"{(int)message.Receivers}{Message.COMP_SEP}" +
 				$"{message.Tag}{Message.COMP_SEP}" +
 				$"{message.Content}{Message.COMP_SEP}" +
-				$"{message.Unreliable}";
+				$"{unr}";
 		}
 		private static List<Message> StringToMessages(string message)
 		{
@@ -47,7 +48,7 @@ namespace SMPL.Gear
 					Receivers = (Message.Toward)int.Parse(comps[3]),
 					Tag = comps[4],
 					Content = comps[5],
-					Unreliable = bool.Parse(comps[6])
+					Unreliable = comps[6] == "1"
 				});
 			}
 			return result;

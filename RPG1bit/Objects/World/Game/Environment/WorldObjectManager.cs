@@ -71,6 +71,8 @@ namespace RPG1bit
 
 			LoadAll<Storage>(); LoadAll<ItemPile>(); LoadAll<Bag>(); LoadAll<Quiver>(); LoadAll<Key>(); LoadAll<Map>();
 
+			Screen.ScheduleDisplay();
+
 			void LoadAll<T>()
 			{
 				if (Assets.ValuesAreLoaded(typeof(T).Name))

@@ -38,7 +38,6 @@ namespace RPG1bit
 				
 				ChunkManager.UpdateChunks();
 				Screen.ScheduleDisplay();
-				OnHovered();
 			}
 		}
 

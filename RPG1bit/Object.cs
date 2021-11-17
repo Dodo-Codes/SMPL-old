@@ -247,10 +247,20 @@ namespace RPG1bit
 		}
 		public static void DisplayAllObjects()
 		{
-			var objs = GetObjectList();
+			var objs = GetObjectListCopy();
+			var units = new List<Object>();
+
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					kvp.Value[i].Display();
+				{
+					if (kvp.Value[i] is Unit)
+						units.Add(kvp.Value[i]);
+					else
+						kvp.Value[i].Display();
+				}
+
+			for (int i = 0; i < units.Count; i++)
+				units[i].Display();
 		}
 		public static void DestroyAllSessionObjects()
 		{
@@ -360,7 +370,7 @@ namespace RPG1bit
 		}
 		public static void AdvanceTime()
 		{
-			var objs = GetObjectList();
+			var objs = GetObjectListCopy();
 
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
@@ -381,7 +391,7 @@ namespace RPG1bit
 			Hoverer.CursorColor = Color.White;
 			NavigationPanel.Info.ScheduleUpdate();
 		}
-		public static Dictionary<Point, List<Object>> GetObjectList()
+		public static Dictionary<Point, List<Object>> GetObjectListCopy()
 		{
 			var objs = new Dictionary<Point, List<Object>>();
 			foreach (var kvp in objects)

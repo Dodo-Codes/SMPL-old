@@ -16,7 +16,9 @@ namespace RPG1bit
 
 		public override void OnDisplay(Point screenPos)
 		{
-			Screen.DisplayText(screenPos + new Point(1, 0), 1, Value < 0 ? Color.Red : Color.Green, $"{Duration[1] - Duration[0]}");
+			var value = $"{Duration[1] - Duration[0]}";
+			value = value.Length == 1 ? $"0{value}" : value;
+			Screen.DisplayText(screenPos + new Point(1, 0), 1, Value < 0 ? Color.Red : Color.Green, value);
 			Screen.EditCell(screenPos, new(37, 21), 1, Color.Gray);
 			Screen.EditCell(screenPos, TileIndexes, 2, TileIndexes.C);
 		}

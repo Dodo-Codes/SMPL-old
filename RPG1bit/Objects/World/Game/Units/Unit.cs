@@ -25,6 +25,8 @@ namespace RPG1bit
 		{
 			EffectUIDs.Add(effect.UniqueID);
 			effect.OwnerUID = UniqueID;
+			if (this is Player)
+				PlayerStats.UpdateContent();
 			Screen.ScheduleDisplay();
 		}
 		public bool Move(Point movement)

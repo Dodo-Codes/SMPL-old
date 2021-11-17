@@ -7,73 +7,53 @@ namespace RPG1bit
 {
 	public class Player : Unit
 	{
-		[JsonProperty]
-		public ObjectList Skills { get; set; }
-
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 			World.IsShowingRoofs = World.TileHasRoof(Position) == false;
 
-			Skills = new("player-skills", new()
-			{
-				Name = "player-skills",
-				Height = 1,
-				Position = new(19, 6),
-				TileIndexes = new Point[] { new() },
-				IsUI = true,
-				IsInTab = true,
-				AppearOnTab = "player-stats",
-				IsKeptBetweenSessions = true,
-			}, new(13, 5));
-
-			SetSkill("goalkeep", 10, "penka");
-			SetSkill("goalkeep2", 10, "penka");
-			SetSkill("goalkeep3", 10, "penka");
-			SetSkill("goalkeep4", 10, "penka");
-			SetSkill("goalkeep5", 10, "penka");
-			SetSkill("goalkeep6", 10, "penka");
-			SetSkill("goalkeep7", 10, "penka");
-			SetSkill("goalkeep8", 10, "penka");
-			SetSkill("goalkeep9", 10, "penka");
-			SetSkill("goalkeep10", 10, "penka");
+			CreateSkill("goalkeep", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep1", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep2", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep3", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep4", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep5", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep6", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep7", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep8", 10, "penka", new(25, 0));
+			CreateSkill("goalkeep9", 10, "penka", new(25, 0));
 		}
 
-		public override void Destroy()
+		public static void CreateSkill(string name, int value, string description, Point tileIndexes)
 		{
-			Skills.Destroy();
-			base.Destroy();
-		}
-		public void SetSkill(string name, int value, string description)
-		{
-			var skill = new PlayerSkill($"player-skill-{name}", new()
+			new PlayerSkill($"player-skill-{name}", new()
 			{
 				Name = name,
 				Position = new(-20, 0),
-				TileIndexes = new Point[] { new() },
+				Height = 1,
+				TileIndexes = new Point[] { tileIndexes },
 				IsUI = true,
+				IsInTab = true,
 				AppearOnTab = "player-stats",
 			})
 			{
 				Value = value,
 				Description = description
 			};
-			Skills.Objects.Add(skill);
+			PlayerStats.UpdateContent();
+			Screen.ScheduleDisplay();
 		}
-		public void RemoveSkill(string name)
+		public static PlayerSkill GetSkill(string name)
 		{
 			var skill = (PlayerSkill)PickByUniqueID($"player-skill-{name}");
-			Skills.Objects.Remove(skill);
-			skill.Destroy();
-		}
-		public int GetSkill(string name)
-		{
-			var skill = (PlayerSkill)PickByUniqueID($"player-skill-{name}");
-			return skill.Value;
+			return skill;
 		}
 
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
+			if (Health[0] <= 0)
+				return;
+
 			var dir = new Point();
 			if (key == Keyboard.Key.A) dir = new(-1, 0);
 			else if (key == Keyboard.Key.D) dir = new(1, 0);
@@ -83,7 +63,7 @@ namespace RPG1bit
 			{
 				PreviousPosition = Position;
 				AdvanceTime();
-				NavigationPanel.Tab.Textbox.Text = "\nSome time passes...";
+				NavigationPanel.Tab.Textbox.Text = "Some time passes...";
 				return;
 			}
 

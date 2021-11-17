@@ -47,7 +47,6 @@ namespace RPG1bit
 				Textbox.Scale = new(0.4, 0.4);
 				Textbox.OriginPercent = new(50, 0);
 				Textbox.Text = "";
-				Screen.ScheduleDisplay();
 			}
 			public static void Open(string type, string title)
 			{
@@ -55,6 +54,7 @@ namespace RPG1bit
 				CurrentTabType = type;
 				Title = title;
 				Textbox.Text = Texts.ContainsKey(type) ? Texts[type] : "";
+				Screen.ScheduleDisplay();
 			}
 			public static bool IsHovered()
 			{
