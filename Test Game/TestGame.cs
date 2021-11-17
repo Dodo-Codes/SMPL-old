@@ -12,12 +12,13 @@ namespace TestGame
 
 		public override void OnGameCreate()
 		{
-			Multiplayer.Event.Subscribe.ServerStart(UniqueID);
-			Multiplayer.StartServer();
+			Event.Subscribe.Update(UniqueID);
+			Multiplayer.ConnectClient("test", "192.168.1.10");
 		}
-		public override void OnMultiplayerServerStart()
+		public override void OnGameUpdate()
 		{
-			Multiplayer.SendMessage(new(Multiplayer.Message.Toward.AllClients, "test", "this is a test message", true));
+			if (Performance.FrameCount == 3000)
+				Multiplayer.SendMessage(new(Multiplayer.Message.Toward.Server, "test", "this is a test message", true));
 		}
 	}
 }

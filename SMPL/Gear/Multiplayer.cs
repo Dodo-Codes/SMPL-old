@@ -254,10 +254,13 @@ namespace SMPL.Gear
 		internal class Udp
 		{
 			private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+			private readonly Socket _sendSocket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 			private const int bufSize = 8 * 1024;
 			private readonly State state = new();
 			private EndPoint epFrom = new IPEndPoint(IPAddress.Any, 0);
+			private EndPoint epTo;
 			private AsyncCallback recv = null;
+			private AsyncCallback send = null;
 
 			public class State
 			{
@@ -270,19 +273,19 @@ namespace SMPL.Gear
 				{
 					_socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.ReuseAddress, true);
 					_socket.Bind(new IPEndPoint(IPAddress.Any, serverPort));
-					Receive();
+					InitSocket();
 				}
 				catch (Exception ex)
 				{
 					Console.Log($"ERROR: {ex.Message}");
 				}
 			}
-			public void Client(string address, int port)
+			public void Client(IPAddress ip)
 			{
 				try
 				{
-					_socket.Connect(IPAddress.Parse(address), port);
-					Receive();
+					_socket.Connect(ip, serverPort);
+					InitSocket();
 				}
 				catch (Exception ex)
 				{
@@ -305,7 +308,7 @@ namespace SMPL.Gear
 					Console.Log($"ERROR: {ex.Message}");
 				}
 			}
-			private void Receive()
+			private void InitSocket()
 			{
 				_socket.BeginReceiveFrom(state.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv = (ar) =>
 				{
@@ -315,9 +318,20 @@ namespace SMPL.Gear
 					DecodeMessages(id, Encoding.ASCII.GetString(so.buffer, 0, bytes));
 				}, state);
 			}
+			private void InitSend(IPAddress ip)
+			{
+				var epTo = new IPEndPoint(ip, serverPort);
+				_socket.BeginSendTo(state.buffer, 0, bufSize, SocketFlags.None, epTo, send = (ar) =>
+				{
+					var so = (State)ar.AsyncState;
+					int bytes = _socket.EndSendTo(ar);
+					_socket.BeginSendTo(so.buffer, 0, bufSize, SocketFlags.None, epTo, send, so);
+				}, state);
+			}
+
 			public void Disconnect()
 			{
-				_socket.Disconnect(true);
+				_socket.Close();
 			}
 		}
 		internal class Session : TcpSession
@@ -559,12 +573,15 @@ namespace SMPL.Gear
 			try
 			{
 				client = new Client(serverIP, serverPort);
+				udp = new();
+				udp.Client(IPAddress.Parse(serverIP));
 			}
 			catch (Exception)
 			{
 				Debug.LogError(1, $"The IP '{serverIP}' is invalid.\n", true);
 				return;
 			}
+
 			client.ConnectAsync();
 			ClientUniqueID = clientUniqueID;
 			ClientIsConnected = true;
