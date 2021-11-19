@@ -2,6 +2,7 @@
 using SMPL.Data;
 using SMPL.Gear;
 using SMPL.Prefabs;
+using System.Collections.Generic;
 
 namespace TestGame
 {
@@ -12,12 +13,7 @@ namespace TestGame
 
 		public override void OnGameCreate()
 		{
-			Event.Subscribe.Update(UniqueID);
-			Multiplayer.ConnectClient("test", "26.83.150.225");
-		}
-		public override void OnGameUpdate()
-		{
-			Multiplayer.SendMessage(new(Multiplayer.Message.Toward.Server, "test", "this is a test message"));
+
 		}
 	}
 }

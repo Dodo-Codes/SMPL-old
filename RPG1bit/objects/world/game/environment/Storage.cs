@@ -9,14 +9,14 @@ namespace RPG1bit
 	{
 		[JsonProperty]
 		public bool Locked { get; set; }
-		private bool opened, justCreated;
+		private bool opened, justCreated, canBeOpened;
 
 		public Storage(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Locked = TileIndexes.Y == 23;
 
-			NavigationPanel.Tab.Texts[uniqueID] = $"\nThe dusty storage cracks open\n" +
-				$" to reveal all of its contents...";
+			NavigationPanel.Tab.Texts[uniqueID] = $"\nThe storage reveals\n" +
+				$"all of its contents...";
 
 			if (UniqueIDsExists($"{uniqueID}-item-slot-info"))
 				return;
@@ -28,11 +28,19 @@ namespace RPG1bit
 			if (justCreated)
 			{
 				justCreated = false;
+				canBeOpened = false;
 				var size = 7;
 				Name = "chest";
 
-				if (TileIndexes == new Point(5, 7)) { Name = "big drawer"; size = 5; }
-				else if (TileIndexes == new Point(7, 7)) { Name = "small drawer"; size = 3; }
+				if (Is(5, 7)) { Name = "big drawer"; size = 5; canBeOpened = true; }
+				else if (Is(7, 7)) { Name = "small drawer"; size = 3; canBeOpened = true; }
+				else if (Is(8, 18) || Is(9, 18)) { Name = "cart"; size = 7; }
+				else if (Is(6, 17) || Is(7, 17) || Is(8, 17) || Is(9, 17)) { Name = "chariot"; size = 5; }
+				else if (Is(6, 16) || Is(7, 16) || Is(8, 16) || Is(9, 16)) { Name = "wheelbarrow"; size = 3; }
+				else canBeOpened = true;
+
+				bool Is(int x, int y) => TileIndexes == new Point(x, y);
+
 
 				for (int y = 0; y < size; y++)
 					for (int x = 0; x < 7; x++)
@@ -63,7 +71,7 @@ namespace RPG1bit
 				player.Position = player.PreviousPosition;
 				World.CameraPosition = player.Position;
 
-				if (Locked)
+				if (canBeOpened && Locked)
 				{
 					var playerHasKey = false;
 					for (int i = 0; i < player.ItemUIDs.Count; i++)
@@ -83,13 +91,16 @@ namespace RPG1bit
 				NavigationPanel.Tab.Open(UniqueID, Name.ToLower());
 				Screen.ScheduleDisplay();
 
-				if (opened)
+				if (canBeOpened && opened)
 					return;
 
-				TileIndexes += new Point(1, 0);
-				opened = true;
+				if (canBeOpened)
+				{
+					TileIndexes += new Point(1, 0);
+					opened = true;
+				}
 			}
-			else if (opened)
+			else if (canBeOpened && opened)
 			{
 				var pos = player.Position;
 				player.Position = player.PreviousPosition;

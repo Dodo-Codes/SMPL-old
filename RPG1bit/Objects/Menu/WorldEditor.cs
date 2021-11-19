@@ -174,7 +174,10 @@ namespace RPG1bit
 			} },
 			{ nameof(Storage), new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24), // chest
 				new(05, 07), new(06, 07), // big drawer
-				new(07, 07), new(08, 07) // small drawer
+				new(07, 07), new(08, 07), // small drawer
+				new(08, 18), new(09, 18), // cart
+				new(06, 16), new(07, 16), new(08, 16), new(09, 16), // wheelbarrow
+				new(06, 17), new(07, 17), new(08, 17), new(09, 17), // chariot
 			} },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
