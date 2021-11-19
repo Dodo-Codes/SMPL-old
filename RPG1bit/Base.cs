@@ -147,8 +147,8 @@ namespace RPG1bit
 					Name = "item-pile",
 				});
 
-				quiver.Stats["slots"] = 1;
-				bag.Stats["slots"] = 2;
+				quiver.Stats["slots"] = 2;
+				bag.Stats["slots"] = 4;
 
 				pile.AddItem(key);
 				pile.AddItem(quiver);

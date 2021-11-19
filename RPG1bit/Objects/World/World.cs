@@ -93,7 +93,7 @@ namespace RPG1bit
 				new ItemSlot("slot-head", new()
 				{
 					Name = "On your head:",
-					Position = new(0, 7),
+					Position = new(0, 5),
 					TileIndexes = new Point[] { new(5, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
@@ -101,7 +101,7 @@ namespace RPG1bit
 				new ItemSlot("slot-body", new()
 				{
 					Name = "On your body:",
-					Position = new(0, 8),
+					Position = new(0, 6),
 					TileIndexes = new Point[] { new(6, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
@@ -109,25 +109,25 @@ namespace RPG1bit
 				new ItemSlot("slot-feet", new()
 				{
 					Name = "On your feet:",
-					Position = new(0, 9),
+					Position = new(0, 7),
 					TileIndexes = new Point[] { new(7, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 
-				new ItemSlot("hand-left", new()
-				{
-					Name = "In your left hand:",
-					Position = new(0, 5),
-					TileIndexes = new Point[] { new(8, 22) { C = Color.Gray } },
-					Height = 1,
-					IsUI = true
-				});
 				new ItemSlot("hand-right", new()
 				{
 					Name = "In your right hand:",
-					Position = new(0, 4),
+					Position = new(0, 2),
 					TileIndexes = new Point[] { new(9, 22) { C = Color.Gray } },
+					Height = 1,
+					IsUI = true
+				});
+				new ItemSlot("hand-left", new()
+				{
+					Name = "In your left hand:",
+					Position = new(0, 3),
+					TileIndexes = new Point[] { new(8, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -135,7 +135,7 @@ namespace RPG1bit
 				new ItemSlot("carry-back", new()
 				{
 					Name = "On your back:",
-					Position = new(0, 11),
+					Position = new(0, 9),
 					TileIndexes = new Point[] { new(10, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
@@ -143,7 +143,7 @@ namespace RPG1bit
 				new ItemSlot("carry-waist", new()
 				{
 					Name = "On your waist:",
-					Position = new(0, 12),
+					Position = new(0, 10),
 					TileIndexes = new Point[] { new(11, 22) { C = Color.Gray } },
 					Height = 1,
 					IsUI = true
@@ -205,9 +205,12 @@ namespace RPG1bit
 					{
 						var color = chunk.Data[pos][z].C;
 						if (chunk.Data[pos][z] != new Point(0, 0)) tilesInCoord++;
-						if ((IsShowingRoofs == false && WorldEditor.Tiles["roof"].Contains(chunk.Data[pos][z])) ||
-							((chunk.Data[pos][z] == TilePlayer || chunk.Data[pos][z] == TileBarrier) && CurrentSession == Session.Single))
+						if ((chunk.Data[pos][z] == TilePlayer || chunk.Data[pos][z] == TileBarrier) &&
+							CurrentSession == Session.Single)
 							color = new();
+
+						if (IsShowingRoofs == false && chunk.Data[pos][z].C.A == 254)
+							color.A = 100;
 
 						Screen.EditCell(WorldToScreenPosition(pos), chunk.Data[pos][z], z, color);
 					}
@@ -283,7 +286,7 @@ namespace RPG1bit
 			for (int i = 0; i < 3; i++)
 			{
 				var tile = ChunkManager.GetTile(worldPos, i);
-				if (WorldEditor.Tiles["roof"].Contains(tile))
+				if (tile != default && tile != new Point(0, 0) && tile.C.A != 255)
 					return true;
 			}
 			return false;

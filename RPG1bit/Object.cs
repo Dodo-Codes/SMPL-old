@@ -33,66 +33,27 @@ namespace RPG1bit
 				"Music by opengameart.org/users/yubatake\n" +
 				"Music by opengameart.org/users/avgvsta\n" +
 				$"Game {NavigationPanel.Info.GameVersion} & SFX(software: Bfxr) by dodo" },
-			{ new(00, 00), "The Unknown?" },
+			{ new(00, 00), "" }, // void
 			{ new(01, 22), "" }, // background color
-			{ new(04, 22), "Game navigation panel" }, { new(00, 23), "Game navigation panel" },
-			{ new(29, 15), "Game navigation panel" }, { new(30, 15), "Game navigation panel" },
-			{ new(02, 22), "Game navigation panel" }, { new(03, 22), "Game navigation panel" },
-			{ new(01, 23), "Information box" },
+			{ new(04, 22), "" }, { new(00, 23), "" }, { new(29, 15), "" }, { new(30, 15), "" }, { new(02, 22), "" },
+			{ new(03, 22), "" },	// nav panel
 
-			{ new(42, 12), "[ENTER] to wait..." },
 			{ new(13, 22), "[LEFT CLICK] to start typing..." },
 
 			{ new(44, 16), "Start a new multiplayer game session\n  (not available in this game version)" },
 
-			{ new(41, 13), "\t\tAbove the world...\n\t[LEFT DRAG] to paint a tile\n+[HOLD SHIFT] to paint a square" },
-			{ new(42, 13), "\t\tAbove the world...\n\t[RIGHT DRAG] to erase a tile\n+[HOLD SHIFT] to erase a square" },
+			{ new(41, 13), "\t\tAbove the world...\n\t[LEFT DRAG] to paint a tile\n+[LEFT SHIFT] to paint a square\n" +
+				"   +[LEFT ALT] to paint a roof" },
+			{ new(42, 13), "\t\tAbove the world...\n\t[RIGHT DRAG] to erase a tile\n+[LEFT SHIFT] to erase a square" },
 			{ new(43, 13), "[MIDDLE CLICK] above the world\n to pick a brush at that height" },
 			{ new(06, 23), "Roofs visibility." },
 
-			{ new(04, 00), "Grass" }, { new(05, 00), "Grass" }, { new(06, 00), "Grass" }, { new(07, 00), "Grass" },
-			{ new(00, 01), "Tree" }, { new(1, 1), "Tree" }, { new(2, 1), "Trees" }, { new(3, 1), "Trees" }, { new(4, 1), "Tree" },
-			{ new(05, 01), "Tree" }, { new(6, 1), "Tree" }, { new(7, 1), "Tree" },
-			{ new(05, 02), "Cactuses" }, { new(6, 2), "Cactus" },
-			{ new(07, 02), "Palm" },
-			{ new(04, 02), "Rocks" },
-			{ new(00, 02), "Bush" }, { new(1, 2), "Bush" }, { new(2, 2), "Bush" }, { new(3, 2), "Bush" },
-
-			{ new(15, 3), "Flowers" }, { new(16, 3), "Flowers" },
-
-			{ new(07, 03), "Water" }, { new(8, 3), "Water" }, { new(9, 3), "Water" }, { new(10, 3), "Water" },
-			{ new(11, 03), "Water" }, { new(12, 3), "Water" }, { new(7, 4), "Water" }, { new(8, 4), "Water" },
-			{ new(09, 04), "Water" }, { new(10, 4), "Water" }, { new(11, 4), "Water" }, { new(12, 4), "Water" },
-			{ new(13, 04), "Water" }, { new(14, 4), "Water" }, { new(7, 5), "Water" }, { new(8, 5), "Water" },
-			{ new(09, 05), "Water" }, { new(10, 5), "Water" }, { new(11, 5), "Water" },
-
-			{ new(12, 05), "Bridge" }, { new(13, 5), "Bridge" }, { new(14, 5), "Broken bridge" }, { new(15, 5), "Bridge" },
-			{ new(16, 5), "Bridge" },
-
-			{ new(09, 00), "Dirt road" }, { new(10, 0), "Dirt road" }, { new(11, 0), "Dirt road" }, { new(12, 0), "Dirt road" },
-			{ new(13, 00), "Dirt road" }, { new(14, 0), "Dirt road" }, { new(15, 0), "Dirt road" }, { new(9, 1), "Dirt road" },
-			{ new(10, 01), "Dirt road" }, { new(11, 1), "Dirt road" }, { new(12, 1), "Dirt road" }, { new(13, 1), "Dirt road" },
-			{ new(14, 01), "Dirt road" }, { new(8, 0), "Dirt road" }, { new(8, 1), "Dirt road" },
-
-			{ new(15, 01), "Stone road" }, { new(16, 1), "Stone road" }, { new(17, 1), "Stone road" }, { new(8, 2), "Stone road" },
-			{ new(09, 02), "Stone road" }, { new(10, 2), "Stone road" }, { new(11, 2), "Stone road" }, { new(12, 2), "Stone road" },
-			{ new(13, 02), "Stone road" }, { new(14, 2), "Stone road" }, { new(15, 2), "Stone road" }, { new(16, 2), "Stone road" },
-			{ new(17, 02), "Stone road" }, { new(13, 3), "Stone road" }, { new(14, 3), "Stone road" },
-
 			{ new(01, 07), "Sign" }, { new(0, 7),	"Sign" }, { new(2, 7), "Sign" }, { new(1, 8), "Sign" }, { new(0, 8), "Sign" },
 
-			{ new(00, 03), "Fence" }, { new(01, 03), "Fence" }, { new(02, 03), "Fence" }, { new(05, 03), "Fence" },
-			{ new(06, 03), "Fence" }, { new(03, 04), "Closed fence gate" }, { new(02, 04), "Fence" },
-			{ new(03, 03), "Closed fence gate" }, { new(05, 04), "Closed fence gate" }, { new(04, 04), "Closed fence gate" },
-			{ new(00, 04), "Closed fence gate" }, { new(04, 03), "Opened fence gate" }, { new(06, 04), "Opened fence gate" },
-			{ new(06, 05), "Fence" }, { new(01, 04), "Opened fence gate" },
-
-			{ new(28, 22), "Roof" }, { new(29, 22), "Roof" }, { new(30, 22), "Roof" }, { new(28, 23), "Roof" },
-			{ new(29, 23), "Roof" }, { new(30, 23), "Roof" }, { new(37, 22), "Roof" },
-			{ new(31, 22), "Chimney" },
-
-			{ new(33, 22), "Structure" }, { new(34, 22), "Structure" }, { new(35, 22), "Structure" }, { new(36, 22), "Structure" },
-			{ new(37, 23), "Structure" }, { new(24, 23), "Structure" }, { new(25, 23), "Structure" }, { new(26, 23), "Structure" },
+			{ new(03, 03), "Closed fence gate" }, { new(04, 03), "Opened fence gate" },
+			{ new(00, 04), "Closed fence gate" }, { new(01, 04), "Opened fence gate" },
+			{ new(03, 04), "Closed fence gate" }, { new(04, 04), "Opened fence gate" },
+			{ new(05, 04), "Closed fence gate" }, { new(06, 04), "Opened fence gate" },
 
 			{ new(38, 22), "Closed door" }, { new(39, 22), "Opened door" }, { new(40, 22), "Closed door" },
 			{ new(41, 22), "Opened door" }, { new(42, 22), "Closed door" }, { new(43, 22), "Opened door" },
@@ -104,19 +65,6 @@ namespace RPG1bit
 			{ new(44, 23), "Locked door" }, { new(45, 23), "Unlocked door" }, { new(46, 23), "Locked door" },
 			{ new(47, 23), "Unlocked door" },
 
-			// single
-			{ new(07, 23), "...on the ground" }, { new(05, 22), "...on your head" }, { new(06, 22), "...on your body" },
-			{ new(07, 22), "...on your feet" }, { new(08, 22), "...in your left hand" }, { new(09, 22), "...in your right hand" },
-			{ new(10, 22), "...on your back" }, { new(11, 22), "...on your waist" }, { new(43, 06), "...in your quiver" },
-			{ new(45, 04), "...in your bag" },
-
-			{ new(08, 23), "Small pile of items" }, { new(9, 23), "Pile of items" }, { new(10, 23), "Big pile of items" },
-			{ new(11, 23), "Huge pile of items" },
-
-			{ new(04, 23), "[LEFT CLICK around self] or\n[W/A/S/D] to move self" },
-			{ new(05, 23), "\t\tOn items...\n\n[LEFT CLICK] to display info\n[LEFT DRAG] to move\n" +
-				"[RIGHT CLICK] to split" },
-
 			{ new(25, 00), "Self" }, { new(16, 23), "Self" }, { new(17, 23), "Self" }, { new(18, 23), "Self" },
 			{ new(19, 23), "Self" }, { new(20, 23), "Self" },
 
@@ -127,28 +75,28 @@ namespace RPG1bit
 			{ new(21, 24), "Closed chest" }, { new(22, 24), "Opened chest" },
 			{ new(05, 07), "Drawer" }, { new(06, 07), "Drawer" }, { new(07, 07), "Drawer" }, { new(08, 07), "Drawer" },
 
-			{ new(31, 23), "Window" }, { new(32, 23), "Window" }, { new(33, 23), "Window" }, { new(34, 23), "Window" },
-			{ new(35, 23), "Window" }, { new(36, 23), "Window" },
-
-			{ new(11, 07), "Table" }, { new(12, 07), "Table" }, { new(13, 07), "Table" }, { new(14, 07), "Table" },
-			{ new(15, 07), "Table" }, { new(16, 07), "Table" }, { new(13, 08), "Table" }, { new(13, 09), "Table" },
-			{ new(13, 10), "Table" },
-
-			{ new(10, 08), "Chair" }, { new(11, 08), "Chair" }, { new(12, 08), "Chair" },
-
 			{ new(04, 08), "Bed" }, { new(05, 08), "Bed" }, { new(06, 08), "Bed" },
-
-			{ new(03, 07), "Shelf" }, { new(04, 07), "Shelf" },
-			{ new(09, 07), "Counter" }, { new(10, 07), "Counter" },
-
-			{ new(07, 08), "Fireplace" }, { new(08, 08), "Fireplace" }, { new(09, 08), "Fireplace" },
 
 			{ new(06, 17), "Chariot" }, { new(07, 17), "Chariot" }, { new(08, 17), "Chariot" }, { new(09, 17), "Chariot" },
 			{ new(08, 18), "Cart" }, { new(09, 18), "Cart" },
 
 			{ new(06, 16), "Wheelbarrow" }, { new(07, 16), "Wheelbarrow" }, { new(08, 16), "Wheelbarrow" },
 			{ new(09, 16), "Wheelbarrow" },
+
+			// single
+			{ new(07, 23), "...on the ground" }, { new(05, 22), "...on your head" }, { new(06, 22), "...on your body" },
+			{ new(07, 22), "...on your feet" }, { new(08, 22), "...in your left hand" }, { new(09, 22), "...in your right hand" },
+			{ new(10, 22), "...on your back" }, { new(11, 22), "...on your waist" }, { new(43, 06), "...in your quiver" },
+			{ new(45, 04), "...in your bag" },
+
+			{ new(08, 23), "Small pile of items" }, { new(9, 23), "Pile of items" }, { new(10, 23), "Big pile of items" },
+			{ new(11, 23), "Huge pile of items" },
+
+			{ new(42, 12), "[ENTER] to wait..." },
+			{ new(04, 23), "[LEFT CLICK around self] or\n\t[W/A/S/D] to move" },
+			{ new(05, 23), "\t\t  On items...\n\n[LEFT CLICK] to display info\n   [LEFT DRAG] to move\n   [RIGHT CLICK] to split" },
 		};
+
 		public static Object HoldingObject { get; set; }
 
 		[JsonProperty]

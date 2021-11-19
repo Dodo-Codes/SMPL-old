@@ -82,12 +82,11 @@ namespace RPG1bit
 				}
 			}
 		}
-
 		public static void OnAdvanceTime()
 		{
-			Door.TryToCreate();
-			Boat.TryToCreate();
-			Storage.TryToCreate();
+			TryToCreateObject<Door>();
+			TryToCreateObject<Boat>();
+			TryToCreateObject<Storage>();
 
 			var player = (Player)Thing.PickByUniqueID(nameof(Player));
 			var objsToDestroy = new List<Object>();
@@ -100,6 +99,31 @@ namespace RPG1bit
 			{
 				ChunkManager.SetTile(objsToDestroy[i].Position, objsToDestroy[i].Height, objsToDestroy[i].TileIndexes);
 				objsToDestroy[i].Destroy();
+			}
+		}
+		private static void TryToCreateObject<T>()
+		{
+			var player = (Player)Thing.PickByUniqueID(nameof(Player));
+			var pos = player.Position;
+			var type = typeof(T).Name;
+
+			for (int i = 0; i < 3; i++)
+			{
+				var tile = ChunkManager.GetTile(pos, i);
+				var id = $"{type}-{pos}-{i}";
+				if (WorldEditor.Tiles[type].Contains(tile) && Thing.UniqueIDsExists(id) == false)
+				{
+					var obj = default(Object);
+					if (typeof(T) == typeof(Door)) obj = new Door(id, new() { Name = "-" });
+					else if (typeof(T) == typeof(Boat)) obj = new Boat(id, new() { Name = "-" });
+					else if (typeof(T) == typeof(Storage)) obj = new Storage(id, new() { Name = "-" });
+
+					obj.Position = pos;
+					obj.Height = i;
+					obj.TileIndexes = tile;
+					obj.OnAdvanceTime();
+					ChunkManager.SetTile(pos, i, new());
+				}
 			}
 		}
 	}

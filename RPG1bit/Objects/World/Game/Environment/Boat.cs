@@ -6,30 +6,6 @@ namespace RPG1bit
 	{
 		private int index;
 
-		public static void TryToCreate()
-		{
-			var player = (Player)Object.PickByUniqueID(nameof(Player));
-			var pos = player.Position;
-			var type = nameof(Boat);
-
-			for (int i = 0; i < 3; i++)
-			{
-				var tile = ChunkManager.GetTile(pos, i);
-				var id = $"{type}-{pos}-{i}";
-				if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExists(id) == false)
-				{
-					var obj = new Boat(id, new()
-					{
-						Position = pos,
-						Height = i,
-						Name = "-",
-						TileIndexes = new Point[] { tile }
-					});
-					obj.OnAdvanceTime();
-					ChunkManager.SetTile(pos, i, new());
-				}
-			}
-		}
 		public Boat(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnAdvanceTime()
@@ -59,6 +35,7 @@ namespace RPG1bit
 			if ((prevIsWater && currIsWater == false) || changingBoats)
 			{
 				TileIndexes = new(8 + index, 19) { C = TileIndexes.C };
+				Position = player.PreviousPosition;
 				return;
 			}
 			Position = player.Position;

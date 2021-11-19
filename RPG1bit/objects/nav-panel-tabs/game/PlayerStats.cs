@@ -23,7 +23,6 @@ namespace RPG1bit
 		public static void Open(string say = null)
 		{
 			NavigationPanel.Tab.Open("player-stats", "self");
-			NavigationPanel.Tab.Textbox.Scale = new(0.35, 0.35);
 			NavigationPanel.Tab.Textbox.Text = say == null ? ". . ." : $"\"{say}\"";
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (player != null && player.Health[0] <= 0)
@@ -36,14 +35,18 @@ namespace RPG1bit
 					Screen.EditCell(new(19 + x, 4 + y), new Point(12, 22), 0, Color.Brown * 0.7);
 
 			var player = (Player)PickByUniqueID(nameof(Player));
-			var hp = $"{Number.Limit(player.Health[0], new(0, player.Health[1]))}";
+			var hpValue = Number.Limit(player.Health[0], new(0, player.Health[1]));
+			var hp = $"{hpValue}";
 			var maxHp = $"{player.Health[1]}";
 			var maxHpStr = maxHp.Length == 1 ? $"0{maxHp}" : maxHp;
 			var hpStr = hp.Length == 1 ? $"0{hp}" : hp;
 			var skills = PickByTag(nameof(PlayerSkill));
+			var hpRed = Number.Map(hpValue, new(0, player.Health[1]), new(255, 0));
+			var hpGreen = Number.Map(hpValue, new(0, player.Health[1]), new(0, 255));
+			var col = new Color(hpRed, hpGreen, 0);
 
-			Screen.DisplayText(new(19, 3), 1, Color.White, $"health {hpStr} {maxHpStr}");
-			Screen.EditCell(new(28, 3), new(39, 20), 1, Color.White);
+			Screen.DisplayText(new(19, 3), 1, col, $"health {hpStr} {maxHpStr}");
+			Screen.EditCell(new(28, 3), new(39, 20), 1, col);
 
 			if (skills.Length == 0)
 			{
@@ -51,7 +54,7 @@ namespace RPG1bit
 				Screen.DisplayText(new(22, 7), 1, Color.Gray, "learned");
 			}
 			else
-				Screen.DisplayText(new(19, 4), 1, Color.White, "skills");
+				Screen.DisplayText(new(19, 4), 1, Color.Gray, "skills");
 
 			if (player.EffectUIDs.Count == 0)
 			{
@@ -59,7 +62,7 @@ namespace RPG1bit
 				Screen.DisplayText(new(22, 12), 1, Color.Gray, "effects");
 			}
 			else
-				Screen.DisplayText(new(19, 10), 1, Color.White, "effects");
+				Screen.DisplayText(new(19, 10), 1, Color.Gray, "effects");
 		}
 		public static void UpdateContent()
 		{

@@ -22,7 +22,7 @@ namespace RPG1bit
 			var noWorldsStr = ObjectList.Lists.ContainsKey("load-world-list") == false ||
 			ObjectList.Lists["load-world-list"].Objects.Count == 0 ? "No worlds were found" : "";
 			NavigationPanel.Tab.Texts["single"] =
-				$" Choose a world to start a\nnew singleplayer session on\n\n\n\n    {noWorldsStr}";
+				$"Choose a world to start a\nnew singleplayer session on\n\n\n\n    {noWorldsStr}";
 			NavigationPanel.Tab.Open("single", "singleplayer");
 		}
 

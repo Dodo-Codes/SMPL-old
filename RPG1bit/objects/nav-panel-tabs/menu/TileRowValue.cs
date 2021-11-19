@@ -14,8 +14,7 @@ namespace RPG1bit
 			if (Screen.GetCellIndexesAtPosition(Screen.GetCellAtCursorPosition(), 1) == new Point(1, 22))
 				descr = "Background color";
 
-			if (descr != "Game navigation panel")
-				NavigationPanel.Info.Textbox.Text = $"[MIDDLE CLICK] Pick a brush from tile:\n{descr}";
+			NavigationPanel.Info.Textbox.Text = $"[MIDDLE CLICK] Pick a brush from tile\n{descr}";
 		}
 		public override void OnDisplay(Point screenPos)
 		{

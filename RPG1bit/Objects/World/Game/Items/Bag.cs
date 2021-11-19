@@ -7,7 +7,7 @@ namespace RPG1bit
 		public Bag(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			CanCarryOnBack = true;
-			SlotsPosition = new Point(0, 14);
+			SlotsPosition = new Point(0, 12);
 		}
 
 		public override void OnItemInfoDisplay()

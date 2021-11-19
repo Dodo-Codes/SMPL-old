@@ -40,19 +40,13 @@ namespace RPG1bit
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			var units = PickByTag(nameof(Unit));
 			for (int i = 0; i < points.Count; i++)
-				for (int u = 0; u < units.Length; u++)
-				{
-					if (World.TileHasRoof(World.ScreenToWorldPosition(points[i])) && World.IsShowingRoofs)
-						continue;
+			{
+				if (World.TileHasRoof(points[i]) && World.IsShowingRoofs)
+					continue;
 
-					var tile = TileIndexes;
-					var unit = (Unit)units[u];
-					if (unit.Position == points[i])
-						tile = unit.TileIndexes;
-					Screen.EditCell(World.WorldToScreenPosition(points[i]), tile, 3, tile.C);
-				}
+				Screen.EditCell(World.WorldToScreenPosition(points[i]), TileIndexes, 3, TileIndexes.C);
+			}
 		}
 	}
 }

@@ -55,6 +55,14 @@ namespace RPG1bit
 		}
 		public static void ScheduleDisplay() => display = true;
 
+		public static Point ScreenToRealPosition(Point cell)
+		{
+			return cell * 60 - new Point(960, 540) + new Point(30, 30);
+		}
+		public static Point RealPositionToScreen(Point realPos)
+		{
+			return (realPos + new Point(960, 540) - new Point(30, 30)) / 60;
+		}
 		public static Point GetCellAtCursorPosition()
 		{
 			var size = new Point(Camera.WorldCamera.Size.W, Camera.WorldCamera.Size.H);

@@ -8,30 +8,6 @@ namespace RPG1bit
 		public bool Locked { get; set; }
 		private bool update;
 
-		public static void TryToCreate()
-		{
-			var player = (Player)PickByUniqueID(nameof(Player));
-			var pos = player.Position;
-			var type = nameof(Door);
-
-			for (int i = 0; i < 3; i++)
-			{
-				var tile = ChunkManager.GetTile(pos, i);
-				var id = $"{type}-{pos}-{i}";
-				if (WorldEditor.Tiles[type].Contains(tile) && UniqueIDsExists(id) == false)
-				{
-					var obj = new Door(id, new()
-					{
-						Position = pos,
-						Height = i,
-						Name = "-",
-						TileIndexes = new Point[] { tile }
-					});
-					obj.OnAdvanceTime();
-					ChunkManager.SetTile(pos, i, new());
-				}
-			}
-		}
 		public Door(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Locked = TileIndexes.Y == 23;

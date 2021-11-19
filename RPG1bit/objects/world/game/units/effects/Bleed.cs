@@ -13,8 +13,8 @@ namespace RPG1bit
 		public override void OnHovered()
 		{
 			NavigationPanel.Info.Textbox.Text =
-				$"Bleeding: This unit's state changes by {Value}\n" +
-				$"\teach turn for the next {Duration[1] - Duration[0]} turns";
+				$"Bleeding: This unit loses {Number.Sign(Value, false)} health\n" +
+				$"each turn for the next {Duration[1] - Duration[0]} turns";
 		}
 		public override void OnTrigger()
 		{

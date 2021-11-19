@@ -23,11 +23,22 @@ namespace RPG1bit
 
 		public void ApplyEffect(Effect effect)
 		{
+			Screen.ScheduleDisplay();
+			for (int i = 0; i < EffectUIDs.Count; i++)
+			{
+				var eff = (Effect)PickByUniqueID(EffectUIDs[i]);
+				if (eff.GetType() == effect.GetType())
+				{
+					eff.Duration[1] += effect.Duration[1];
+					effect.Destroy();
+					return;
+				}
+			}
+
 			EffectUIDs.Add(effect.UniqueID);
 			effect.OwnerUID = UniqueID;
 			if (this is Player)
 				PlayerStats.UpdateContent();
-			Screen.ScheduleDisplay();
 		}
 		public bool Move(Point movement)
 		{

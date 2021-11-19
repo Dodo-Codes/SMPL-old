@@ -147,7 +147,6 @@ namespace RPG1bit
 			// chariot
 			new(06, 17) { C = Color.Wood - 30 }, new(07, 17) { C = Color.Wood - 30 }, new(08, 17) { C = Color.Wood - 30 },
 			new(09, 17) { C = Color.Wood - 30 },
-
 		};
 		public static readonly Dictionary<Point, Point[]> RandomTiles = new()
 		{
@@ -161,7 +160,6 @@ namespace RPG1bit
 		public static readonly Dictionary<string, List<Point>> Tiles = new()
 		{
 			{ "special", new() { new(0, 22), new(25, 0) } },
-			{ "roof", new() { new(28, 22), new(29, 22), new(30, 22), new(31, 22), new(28, 23), new(29, 23), new(30, 23) } },
 			{ nameof(Door), new()
 			{
 				new(05, 04), new(3, 4), new(0, 4), new(3, 3), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22), new(40, 23),
@@ -174,9 +172,10 @@ namespace RPG1bit
 				new(7, 3), new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(7, 4), new(8, 4), new(9, 4), new(10, 4),
 				new(11, 4), new(12, 4), new(13, 4), new(14, 4), new(7, 5), new(8, 5), new(9, 5), new(10, 5), new(11, 5)
 			} },
-			{ "chest", new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24) } },
-			{ "big drawer", new() { new(05, 07), new(06, 07) } },
-			{ "small drawer", new() { new(07, 07), new(08, 07) } },
+			{ nameof(Storage), new() { new(21, 23), new(22, 23), new(21, 24), new(22, 24), // chest
+				new(05, 07), new(06, 07), // big drawer
+				new(07, 07), new(08, 07) // small drawer
+			} },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 
@@ -347,7 +346,10 @@ namespace RPG1bit
 		}
 		public static Point GetRandomBrushTile()
 		{
-			if (RandomTiles.ContainsKey(Brush) == false) return Brush;
+			Brush = new(Brush.X, Brush.Y)
+				{ C = new(Brush.C.R, Brush.C.G, Brush.C.B, Keyboard.KeyIsPressed(Keyboard.Key.AltLeft) ? 254 : 255) };
+			if (RandomTiles.ContainsKey(Brush) == false)
+				return Brush;
 
 			var randomTile = RandomTiles[Brush][(int)Probability.Randomize(new(0, RandomTiles[Brush].Length - 1))];
 			randomTile.C = Brush.C;

@@ -119,30 +119,22 @@ namespace RPG1bit
 				var mousePosObjs = objects.ContainsKey(mousePos) ? objects[mousePos] : new();
 				var worldPos = World.ScreenToWorldPosition(mousePos);
 				var worldObjs = objects.ContainsKey(worldPos) ? objects[worldPos] : new();
+				var hasTile = false;
 
-				if (World.TileHasRoof(worldPos) && World.IsShowingRoofs)
-				{
-					Textbox.Text = "Roof";
-					return;
-				}
 				for (int i = 0; i < 4; i++)
 				{
 					var key = Screen.GetCellIndexesAtPosition(mousePos, i);
 					var description = descriptions.ContainsKey(key) ? descriptions[key] : "";
 					var sep = i != 0 && description != "" && Textbox.Text != "" ? "\n" : "";
-					var isPanel = mousePos.X > 18 && key == new Point();
 					var isWorldEdit = World.CurrentSession == World.Session.WorldEdit;
 
-					if (Textbox.Text == "" && isPanel)
-						description = "Game navigation panel";
-
 					if (key == World.TileBarrier)
-						description = isWorldEdit ? "Unwalkable terrain" : "(Unwalkable terrain)\n";
+						description = "Unwalkable terrain";
 					else if (key == World.TilePlayer)
 						description = isWorldEdit ? "Player tile" : "Self";
 
-					if (Textbox.Text != "" && description == descriptions[new(0, 0)])
-						continue;
+					if (key != new Point(0, 0))
+						hasTile = true;
 
 					for (int j = 0; j < mousePosObjs.Count; j++)
 						if (mousePosObjs[j] is not ObjectList)
@@ -170,6 +162,8 @@ namespace RPG1bit
 							description = obj.HoveredInfo + (string.IsNullOrEmpty(obj.HoveredInfo) ? "" : "\n");
 					}
 				}
+				if (hasTile == false && World.IsHovered())
+					Textbox.Text = "The Unknown?";
 			}
 			public static void ScheduleUpdate()
 			{

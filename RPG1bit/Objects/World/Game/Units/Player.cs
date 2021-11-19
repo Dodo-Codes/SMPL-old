@@ -10,7 +10,6 @@ namespace RPG1bit
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Keyboard.Event.Subscribe.KeyPress(uniqueID);
-			World.IsShowingRoofs = World.TileHasRoof(Position) == false;
 
 			CreateSkill("goalkeep", 10, "penka", new(25, 0));
 			CreateSkill("goalkeep1", 10, "penka", new(25, 0));
@@ -136,14 +135,7 @@ namespace RPG1bit
 						TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
 					}
 			}
-			UpdateRoofs();
-		}
-		public void UpdateRoofs()
-		{
-			if (World.TileHasRoof(Position) == false && World.TileHasRoof(PreviousPosition))
-				World.IsShowingRoofs = true;
-			else if (World.TileHasRoof(Position) && World.TileHasRoof(PreviousPosition) == false)
-				World.IsShowingRoofs = false;
+			World.IsShowingRoofs = World.TileHasRoof(Position) == false;
 		}
 	}
 }
