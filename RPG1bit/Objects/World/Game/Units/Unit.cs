@@ -21,6 +21,20 @@ namespace RPG1bit
 			AddTags(nameof(Unit));
 		}
 
+		public bool HasItem(string typeName)
+		{
+			for (int i = 0; i < ItemUIDs.Count; i++)
+				if (ItemUIDs[i].GetType().Name == typeName)
+					return true;
+			return false;
+		}
+		public bool HasItem<T>()
+		{
+			for (int i = 0; i < ItemUIDs.Count; i++)
+				if (PickByUniqueID(ItemUIDs[i]) is T)
+					return true;
+			return false;
+		}
 		public void ApplyEffect(Effect effect)
 		{
 			Screen.ScheduleDisplay();

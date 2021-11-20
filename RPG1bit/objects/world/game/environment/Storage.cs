@@ -5,10 +5,11 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Storage : PlayerFollower, IInteractable, ITypeTaggable
+	public class Storage : Object, IInteractable, ITypeTaggable
 	{
 		[JsonProperty]
 		public bool Locked { get; set; }
+		[JsonProperty]
 		private bool opened, justCreated, canBeOpened;
 
 		public Storage(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
@@ -23,24 +24,25 @@ namespace RPG1bit
 
 			justCreated = true;
 		}
+
 		public override void OnAdvanceTime()
 		{
 			if (justCreated)
 			{
 				justCreated = false;
 				canBeOpened = false;
+				IsPullableByUnit = true;
 				var size = 7;
 				Name = "chest";
 
-				if (Is(5, 7)) { Name = "big drawer"; size = 5; canBeOpened = true; }
-				else if (Is(7, 7)) { Name = "small drawer"; size = 3; canBeOpened = true; }
+				if (Is(5, 7)) { Name = "big drawer"; size = 5; canBeOpened = true; IsPullableByUnit = false; }
+				else if (Is(7, 7)) { Name = "small drawer"; size = 3; canBeOpened = true; IsPullableByUnit = false; }
 				else if (Is(8, 18) || Is(9, 18)) { Name = "cart"; size = 7; }
 				else if (Is(6, 17) || Is(7, 17) || Is(8, 17) || Is(9, 17)) { Name = "chariot"; size = 5; }
 				else if (Is(6, 16) || Is(7, 16) || Is(8, 16) || Is(9, 16)) { Name = "wheelbarrow"; size = 3; }
-				else canBeOpened = true;
+				else { canBeOpened = true; IsPullableByUnit = false; } // chest
 
 				bool Is(int x, int y) => TileIndexes == new Point(x, y);
-
 
 				for (int y = 0; y < size; y++)
 					for (int x = 0; x < 7; x++)
@@ -62,9 +64,6 @@ namespace RPG1bit
 					}
 			}
 
-			if (Keyboard.KeyIsPressed(Keyboard.Key.ControlLeft))
-				base.OnAdvanceTime();
-
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (player.Position == Position)
 			{
@@ -73,13 +72,7 @@ namespace RPG1bit
 
 				if (canBeOpened && Locked)
 				{
-					var playerHasKey = false;
-					for (int i = 0; i < player.ItemUIDs.Count; i++)
-						if (PickByUniqueID(player.ItemUIDs[i]) is Key)
-						{
-							playerHasKey = true;
-							break;
-						}
+					var playerHasKey = player.HasItem<Key>();
 					if (opened)
 						Close();
 					if (playerHasKey == false)
@@ -108,6 +101,19 @@ namespace RPG1bit
 					Close();
 				player.Position = pos;
 			}
+			if (PulledByUnitUID != null)
+			{
+				var angle = (int)Number.AngleBetweenPoints(Position, player.PreviousPosition);
+				var angles = new Dictionary<string, Dictionary<int, Point>>()
+				{
+					{ "cart", new() { { 90, new(8, 18) }, { 270, new(8, 18) }, { 0, new(9, 18) }, { 180, new(9, 18) } } },
+					{ "chariot", new() { { 90, new(6, 17) }, { 270, new(7, 17) }, { 0, new(8, 17) }, { 180, new(9, 17) } } },
+					{ "wheelbarrow", new() { { 90, new(8, 16) }, { 270, new(9, 16) }, { 0, new(7, 16) }, { 180, new(6, 16) } } },
+				};
+				var tile = angles[Name][angle];
+				TileIndexes = new Point(tile.X, tile.Y) { C = TileIndexes.C };
+			}
+
 			void Close()
 			{
 				TileIndexes -= new Point(1, 0);

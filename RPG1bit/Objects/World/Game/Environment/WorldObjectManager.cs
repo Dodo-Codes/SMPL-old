@@ -104,27 +104,34 @@ namespace RPG1bit
 		private static void TryToCreateObject<T>()
 		{
 			var player = (Player)Thing.PickByUniqueID(nameof(Player));
-			var pos = player.Position;
+			var positions = new List<Point>()
+			{
+				player.Position + new Point(1, 0),
+				player.Position - new Point(1, 0),
+				player.Position + new Point(0, 1),
+				player.Position - new Point(0, 1),
+			};
 			var type = typeof(T).Name;
 
-			for (int i = 0; i < 3; i++)
-			{
-				var tile = ChunkManager.GetTile(pos, i);
-				var id = $"{type}-{pos}-{i}";
-				if (WorldEditor.Tiles[type].Contains(tile) && Thing.UniqueIDsExists(id) == false)
+			for (int p = 0; p < positions.Count; p++)
+				for (int i = 0; i < 3; i++)
 				{
-					var obj = default(Object);
-					if (typeof(T) == typeof(Door)) obj = new Door(id, new() { Name = "-" });
-					else if (typeof(T) == typeof(Boat)) obj = new Boat(id, new() { Name = "-" });
-					else if (typeof(T) == typeof(Storage)) obj = new Storage(id, new() { Name = "-" });
+					var tile = ChunkManager.GetTile(positions[p], i);
+					var id = $"{type}-{positions[p]}-{i}";
+					if (WorldEditor.Tiles[type].Contains(tile) && Thing.UniqueIDsExists(id) == false)
+					{
+						var obj = default(Object);
+						if (typeof(T) == typeof(Door)) obj = new Door(id, new() { Name = "-" });
+						else if (typeof(T) == typeof(Boat)) obj = new Boat(id, new() { Name = "-" });
+						else if (typeof(T) == typeof(Storage)) obj = new Storage(id, new() { Name = "-" });
 
-					obj.Position = pos;
-					obj.Height = i;
-					obj.TileIndexes = tile;
-					obj.OnAdvanceTime();
-					ChunkManager.SetTile(pos, i, new());
+						obj.Position = positions[p];
+						obj.Height = i;
+						obj.TileIndexes = tile;
+						obj.OnAdvanceTime();
+						ChunkManager.SetTile(positions[p], i, new());
+					}
 				}
-			}
 		}
 	}
 }

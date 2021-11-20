@@ -11,7 +11,6 @@ namespace RPG1bit
 		public MoveCamera(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
 			Keyboard.Event.Subscribe.TextInput(uniqueID);
-			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 		}
 
 		public override void OnKeyboardKeyPress(Keyboard.Key key)

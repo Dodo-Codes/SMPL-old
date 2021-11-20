@@ -118,9 +118,13 @@ namespace RPG1bit
 		[JsonProperty]
 		public bool IsInTab { get; set; }
 		[JsonProperty]
+		public string AppearOnTab { get; set; }
+		[JsonProperty]
 		public bool IsKeptBetweenSessions { get; set; }
 		[JsonProperty]
-		public string AppearOnTab { get; set; }
+		public bool IsPullableByUnit { get; set; }
+		[JsonProperty]
+		public string PullRequiredItemType { get; set; }
 
 		private Point position;
 		[JsonProperty]
@@ -144,6 +148,9 @@ namespace RPG1bit
 			}
 		}
 
+		public string PulledByUnitUID { get; set; }
+		public string PullingUID { get; set; }
+
 		private bool leftClicked;
 		private string hoveredInfo;
 		public string HoveredInfo
@@ -158,6 +165,8 @@ namespace RPG1bit
 
 		public Object(string uniqueID, CreationDetails creationDetails) : base(uniqueID)
 		{
+			Keyboard.Event.Subscribe.KeyPress(uniqueID);
+			Keyboard.Event.Subscribe.KeyRelease(uniqueID);
 			Mouse.Event.Subscribe.ButtonRelease(uniqueID);
 			Game.Event.Subscribe.Update(uniqueID);
 
@@ -182,6 +191,20 @@ namespace RPG1bit
 			AppearOnTab = creationDetails.AppearOnTab;
 			IsInTab = creationDetails.IsInTab;
 		}
+		public void Display()
+		{
+			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
+
+			var worldPos = World.WorldToScreenPosition(Position);
+			if (Screen.CellIsOnScreen(Position, IsUI) == false) return;
+
+			if (Position != new Point(-10, 0))
+			{
+				Screen.EditCell(IsUI ? Position : worldPos, TileIndexes, Height, TileIndexes.C);
+				OnDisplay(IsUI ? Position : worldPos);
+			}
+		}
+
 		public override void Destroy()
 		{
 			if (IsDestroyed)
@@ -193,45 +216,6 @@ namespace RPG1bit
 				HoldingObject = null;
 			base.Destroy();
 		}
-		public static void DisplayAllObjects()
-		{
-			var objs = GetObjectListCopy();
-			var units = new List<Object>();
-
-			foreach (var kvp in objs)
-				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					if (kvp.Value[i] is Unit)
-						units.Add(kvp.Value[i]);
-					else
-						kvp.Value[i].Display();
-				}
-
-			for (int i = 0; i < units.Count; i++)
-				units[i].Display();
-		}
-		public static void DestroyAllSessionObjects()
-		{
-			if (World.CurrentSession == World.Session.None)
-				return;
-
-			var objsToDestroy = new List<Object>();
-			foreach (var kvp in objects)
-				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					if (kvp.Value[i].IsKeptBetweenSessions)
-						continue;
-					objsToDestroy.Add(kvp.Value[i]);
-				}
-
-			for (int i = 0; i < objsToDestroy.Count; i++)
-				objsToDestroy[i].Destroy();
-		}
-		public static List<Object> PickByPosition(Point position)
-		{
-			return objects.ContainsKey(position) ? objects[position] : new List<Object>();
-		}
-
 		public override void OnGameUpdate()
 		{
 			if (Screen.Sprite == null || NavigationPanel.Info.Textbox == null || Window.CurrentState == Window.State.Minimized)
@@ -261,8 +245,14 @@ namespace RPG1bit
 					OnDragStart();
 				}
 			}
-		}
 
+			if (PulledByUnitUID != null)
+			{
+				var player = (Player)PickByUniqueID(nameof(Player));
+				if (player.Position != player.PreviousPosition)
+					Position = player.PreviousPosition;
+			}
+		}
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
 			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
@@ -303,18 +293,65 @@ namespace RPG1bit
 				OnRightClicked();
 			}
 		}
-		public void Display()
+		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
-			if (IsInTab && AppearOnTab != NavigationPanel.Tab.CurrentTabType) return;
-
-			var worldPos = World.WorldToScreenPosition(Position);
-			if (Screen.CellIsOnScreen(Position, IsUI) == false) return;
-
-			if (Position != new Point(-10, 0))
+			var player = (Player)PickByUniqueID(nameof(Player));
+			if (key == Keyboard.Key.ControlLeft && IsPullableByUnit &&
+				(player.HasItem(PullRequiredItemType) || PullRequiredItemType == null) &&
+				player.CellIsInReach(Position) && player.PullingUID == null)
 			{
-				Screen.EditCell(IsUI ? Position : worldPos, TileIndexes, Height, TileIndexes.C);
-				OnDisplay(IsUI ? Position : worldPos);
+				PulledByUnitUID = player.UniqueID;
+				player.PullingUID = UniqueID;
 			}
+		}
+		public override void OnKeyboardKeyRelease(Keyboard.Key key)
+		{
+			var player = (Player)PickByUniqueID(nameof(Player));
+			if (key == Keyboard.Key.ControlLeft && UniqueID == player.PullingUID &&
+				PulledByUnitUID == player.UniqueID)
+			{
+				PulledByUnitUID = null;
+				player.PullingUID = null;
+			}
+		}
+
+		public static void DisplayAllObjects()
+		{
+			var objs = GetObjectListCopy();
+			var units = new List<Object>();
+
+			foreach (var kvp in objs)
+				for (int i = 0; i < kvp.Value.Count; i++)
+				{
+					if (kvp.Value[i] is Unit)
+						units.Add(kvp.Value[i]);
+					else
+						kvp.Value[i].Display();
+				}
+
+			for (int i = 0; i < units.Count; i++)
+				units[i].Display();
+		}
+		public static void DestroyAllSessionObjects()
+		{
+			if (World.CurrentSession == World.Session.None)
+				return;
+
+			var objsToDestroy = new List<Object>();
+			foreach (var kvp in objects)
+				for (int i = 0; i < kvp.Value.Count; i++)
+				{
+					if (kvp.Value[i].IsKeptBetweenSessions)
+						continue;
+					objsToDestroy.Add(kvp.Value[i]);
+				}
+
+			for (int i = 0; i < objsToDestroy.Count; i++)
+				objsToDestroy[i].Destroy();
+		}
+		public static List<Object> PickByPosition(Point position)
+		{
+			return objects.ContainsKey(position) ? objects[position] : new List<Object>();
 		}
 		public static void AdvanceTime()
 		{

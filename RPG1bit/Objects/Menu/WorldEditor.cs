@@ -83,17 +83,15 @@ namespace RPG1bit
 
 			// roofs
 			new(28, 22) { C = Color.Brick - 30 }, new(29, 22) { C = Color.Brick - 30 }, new(30, 22) { C = Color.Brick - 30 },
-			new(31, 22) { C = Color.Brick }, new(),
-			new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 },
-			new(37, 22) { C = Color.Wood - 50 },
+			new(31, 22) { C = Color.Brick }, new(32, 22) { C = Color.Brick },
+			new(), new(), new(), new(),
 			new(28, 23) { C = Color.Brick - 30 }, new(29, 23) { C = Color.Brick - 30 }, new(30, 23) { C = Color.Brick - 30 },
-			new(30, 23) { C = Color.Brick - 30 }, new(),
-			new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 }, new(37, 22) { C = Color.Wood - 50 },
-			new(37, 22) { C = Color.Wood - 50 },
+			new(30, 23) { C = Color.Brick - 30 }, new(30, 23) { C = Color.Brick - 30 },
+			new(), new(), new(), new(),
 
 			// walls / floors
 			new(33, 22) { C = Color.Brick }, new(24, 23) { C = Color.Brick }, new(25, 23) { C = Color.Brick },
-			new(26, 23) { C = Color.Brick }, new(),
+			new(26, 23) { C = Color.Brick }, new(33, 22) { C = Color.Brick },
 			new(34, 22) { C = Color.Wood - 30 }, new(35, 22) { C = Color.Wood - 30 },
 			new(36, 22) { C = Color.Wood - 30 }, new(37, 23) { C = Color.Wood - 30 },
 

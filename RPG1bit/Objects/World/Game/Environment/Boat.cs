@@ -6,7 +6,10 @@ namespace RPG1bit
 	{
 		private int index;
 
-		public Boat(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public Boat(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		{
+			IsPullableByUnit = true;
+		}
 
 		public override void OnAdvanceTime()
 		{
@@ -20,6 +23,10 @@ namespace RPG1bit
 
 			var prevIsWater = World.PositionHasWaterAsHighest(player.PreviousPosition);
 			var currIsWater = World.PositionHasWaterAsHighest(player.Position);
+
+			if (prevIsWater == false && currIsWater == false)
+				return;
+
 			var changingBoats = false;
 			var objs = objects[player.Position];
 

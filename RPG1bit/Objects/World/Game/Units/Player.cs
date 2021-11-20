@@ -9,8 +9,6 @@ namespace RPG1bit
 	{
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			Keyboard.Event.Subscribe.KeyPress(uniqueID);
-
 			CreateSkill("goalkeep", 10, "penka", new(25, 0));
 			CreateSkill("goalkeep1", 10, "penka", new(25, 0));
 			CreateSkill("goalkeep2", 10, "penka", new(25, 0));
@@ -126,14 +124,18 @@ namespace RPG1bit
 			{
 				PlayerStats.Open();
 				AdvanceTime();
-				TileIndexes = World.PositionHasWaterAsHighest(Position) ? new(20, 23) : new(25, 0);
+				TileIndexes = new(25, 0);
 
-				for (int i = 0; i < objects[Position].Count; i++)
-					if (objects[Position][i] is Boat boat)
-					{
-						var tile = boat.GetPlayerTile();
-						TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
-					}
+				if (World.PositionHasWaterAsHighest(Position))
+				{
+					TileIndexes = new(20, 23);
+					for (int i = 0; i < objects[Position].Count; i++)
+						if (objects[Position][i] is Boat boat)
+						{
+							var tile = boat.GetPlayerTile();
+							TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
+						}
+				}
 			}
 			World.IsShowingRoofs = World.TileHasRoof(Position) == false;
 		}

@@ -14,7 +14,8 @@ namespace SMPL.Data
 			//Radians to Angle: radians * (180 / Math.PI)
 
 			var rad = (double)Math.Atan2(direction.Y, direction.X);
-			return (float)(rad * (180 / Math.PI));
+			var result = rad * (180 / Math.PI);
+			return To360(result);
 		}
 		internal static Vector2f AngleToDirection(double angle)
 		{
