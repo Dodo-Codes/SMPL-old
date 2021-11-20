@@ -124,7 +124,7 @@ namespace RPG1bit
 		[JsonProperty]
 		public bool IsPullableByUnit { get; set; }
 		[JsonProperty]
-		public string PullRequiredItemType { get; set; }
+		public string PullRequiredType { get; set; }
 
 		private Point position;
 		[JsonProperty]
@@ -173,7 +173,8 @@ namespace RPG1bit
 			if (this is ITypeTaggable)
 				AddTags(GetType().Name);
 
-			if (creationDetails.TileIndexes == null && creationDetails.Name == null && creationDetails.Height == 0)
+			if (creationDetails.TileIndexes == default && creationDetails.Name == default && creationDetails.Height == default &&
+				creationDetails.Position == default)
 				return;
 
 			Name = creationDetails.Name;
@@ -245,13 +246,6 @@ namespace RPG1bit
 					OnDragStart();
 				}
 			}
-
-			if (PulledByUnitUID != null)
-			{
-				var player = (Player)PickByUniqueID(nameof(Player));
-				if (player.Position != player.PreviousPosition)
-					Position = player.PreviousPosition;
-			}
 		}
 		public override void OnMouseButtonRelease(Mouse.Button button)
 		{
@@ -297,7 +291,7 @@ namespace RPG1bit
 		{
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (key == Keyboard.Key.ControlLeft && IsPullableByUnit &&
-				(player.HasItem(PullRequiredItemType) || PullRequiredItemType == null) &&
+				(player.HasItem(PullRequiredType) || PullRequiredType == null) &&
 				player.CellIsInReach(Position) && player.PullingUID == null)
 			{
 				PulledByUnitUID = player.UniqueID;
@@ -356,10 +350,9 @@ namespace RPG1bit
 		public static void AdvanceTime()
 		{
 			var objs = GetObjectListCopy();
-
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					objs[kvp.Key][i].OnAdvanceTime();
+						kvp.Value[i].OnAdvanceTime();
 
 			WorldObjectManager.OnAdvanceTime();
 			Screen.ScheduleDisplay();

@@ -116,7 +116,7 @@ namespace RPG1bit
 			// interiors
 			new(03, 07) { C = Color.Wood - 30 }, new(04, 07) { C = Color.Wood - 30 }, // shelf
 			new(09, 07) { C = Color.Wood - 30 }, new(10, 07) { C = Color.Wood - 30 }, // counter
-			new(), new(),
+			new(), new(14, 10) { C = Color.Fire },
 			new(07, 08) { C = Color.Fire }, new(8, 8) { C = Color.Fire }, new(9, 8) { C = Color.Fire }, // fireplace
 
 			// tables

@@ -10,7 +10,12 @@ namespace RPG1bit
 		[JsonProperty]
 		private List<string> ItemUIDs { get; set; } = new();
 
-		public ItemPile(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public ItemPile(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		{
+			Height = 3;
+			TileIndexes = new(8, 23);
+			Name = "item-pile";
+		}
 
 		public void AddItem(Item item)
 		{

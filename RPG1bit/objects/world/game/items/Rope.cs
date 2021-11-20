@@ -3,13 +3,14 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class Key : Item
+	public class Rope : Item
 	{
-		public Key(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		public Rope(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			TileIndexes = new(32 + Probability.Randomize(new(0, 2)), 11) { C = Color.Gray };
-			MaxQuantity = 6;
+			TileIndexes = new(11, 14) { C = Color.Brown + 50 };
+			MaxQuantity = 2;
 			CanCarryOnWaist = true;
+			CanCarryOnBack = true;
 			CanCarryInBag = true;
 			CanCarryInQuiver = true;
 		}
@@ -17,7 +18,7 @@ namespace RPG1bit
 		public override void OnItemInfoDisplay()
 		{
 			NavigationPanel.Tab.Texts["item-info"] =
-				$"\t\t\t\t{nameof(Key)} x{Quantity}/{MaxQuantity}\n\nGreat for unlocking locked things.";
+				$"\t   {nameof(Rope)} x{Quantity}/{MaxQuantity}\n\nUseful for pulling things.";
 		}
 	}
 }

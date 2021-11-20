@@ -35,7 +35,15 @@ namespace RPG1bit
 		[JsonProperty]
 		public bool CanCarryInQuiver { get; set; }
 
-		public Item(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
+		public Item(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
+		{
+			Position = new(-20, 0);
+			Height = 2;
+			IsUI = true;
+			IsDragable = true;
+			IsRightClickable = true;
+			IsLeftClickable = true;
+		}
 
 		public override void OnDisplay(Point screenPos)
 		{

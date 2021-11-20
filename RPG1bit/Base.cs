@@ -82,70 +82,19 @@ namespace RPG1bit
 
 			if (button == Mouse.Button.ExtraButton1)
 			{
-				var map = new Map("item-map", new()
+				var map = new Map("item-map", new());
+				var map2 = new Map("item-map2", new());
+				var key = new Key("item-key", new())
 				{
-					Name = "Map",
-					Position = new(-20, 0),
-					Height = 2,
-					TileIndexes = new Point[] { new(32, 15) { C = Color.Wood + 60 } },
-					IsUI = true,
-					IsDragable = true,
-					IsRightClickable = true,
-					IsLeftClickable = true,
-				});
-				var map2 = new Map("item-map2", new()
+					Quantity = 8
+				};
+				var quiver = new Quiver("quiver", new());
+				var bag = new Bag("bag", new());
+				var rope = new Rope("rope", new());
+				var pile = new ItemPile("item-pile", new())
 				{
-					Name = "Map",
-					Position = new(-20, 0),
-					Height = 2,
-					TileIndexes = new Point[] { new(32, 15) { C = Color.Wood + 60 } },
-					IsUI = true,
-					IsDragable = true,
-					IsRightClickable = true,
-					IsLeftClickable = true,
-				});
-				var key = new Key("item-key", new()
-				{
-					Name = "Key",
-					Position = new(-20, 0),
-					Height = 2,
-					TileIndexes = new Point[]
-				{ new(32, 11) { C = Color.Gray }, new(33, 11) { C = Color.Gray }, new(34, 11) { C = Color.Gray } },
-					IsUI = true,
-					IsDragable = true,
-					IsRightClickable = true,
-					IsLeftClickable = true,
-				})
-				{ Quantity = 8 };
-				var quiver = new Quiver("quiver", new()
-				{
-					Name = "Quiver",
-					Position = new(-20, 0),
-					Height = 2,
-					TileIndexes = new Point[] { new(42, 6) { C = Color.Brown + 30 } },
-					IsUI = true,
-					IsDragable = true,
-					IsRightClickable = true,
-					IsLeftClickable = true,
-				});
-				var bag = new Bag("bag", new()
-				{
-					Name = "Bag",
-					Position = new(-20, 0),
-					Height = 2,
-					TileIndexes = new Point[] { new(44, 4) { C = Color.Brown + 30 } },
-					IsUI = true,
-					IsDragable = true,
-					IsRightClickable = true,
-					IsLeftClickable = true,
-				});
-				var pile = new ItemPile("item-pile", new()
-				{
-					Position = new Point(7, 0),
-					Height = 3,
-					TileIndexes = new Point[] { new(8, 23) },
-					Name = "item-pile",
-				});
+					Position = new Point(-1, 0),
+				};
 
 				quiver.Stats["slots"] = 2;
 				bag.Stats["slots"] = 4;
@@ -155,6 +104,7 @@ namespace RPG1bit
 				pile.AddItem(bag);
 				pile.AddItem(map);
 				pile.AddItem(map2);
+				pile.AddItem(rope);
 			}
 			else if (button == Mouse.Button.ExtraButton2)
 			{

@@ -23,8 +23,10 @@ namespace RPG1bit
 
 		public bool HasItem(string typeName)
 		{
+			if (typeName == null)
+				return false;
 			for (int i = 0; i < ItemUIDs.Count; i++)
-				if (ItemUIDs[i].GetType().Name == typeName)
+				if (PickByUniqueID(ItemUIDs[i]).GetType().Name == typeName)
 					return true;
 			return false;
 		}
@@ -64,6 +66,13 @@ namespace RPG1bit
 			Position = futurePos;
 			if (UniqueID == nameof(Player))
 				World.CameraPosition += movement;
+
+			if (PullingUID != null)
+			{
+				var obj = (Object)PickByUniqueID(PullingUID);
+				if (Position != PreviousPosition)
+					obj.Position = PreviousPosition;
+			}
 
 			return true;
 		}

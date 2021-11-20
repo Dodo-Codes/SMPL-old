@@ -19,8 +19,8 @@ namespace RPG1bit
 		{
 			Camera.Event.Subscribe.Display(uniqueID, 2);
 
+			TileIndexes = new(32, 15) { C = Color.Wood + 60 };
 			MaxQuantity = 9;
-
 			CanCarryInBag = true;
 			CanCarryInQuiver = true;
 
