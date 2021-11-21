@@ -16,12 +16,9 @@ namespace SMPL.Gear
 		private static readonly Dictionary<Guid, string> clientRealIDs = new();
 		private static readonly List<string> clientIDs = new();
 		private static readonly int serverPort = 1234;
-		private static Guid id;
-		private static Udp udp;
 
 		private static string MessageToString(Message message)
 		{
-			var unr = message.Unreliable ? "0" : "1";
 			return
 				$"{Message.SEP}" +
 				$"{(int)message.type}{Message.COMP_SEP}" +
@@ -29,8 +26,7 @@ namespace SMPL.Gear
 				$"{message.ReceiverUniqueID}{Message.COMP_SEP}" +
 				$"{(int)message.Receivers}{Message.COMP_SEP}" +
 				$"{message.Tag}{Message.COMP_SEP}" +
-				$"{message.Content}{Message.COMP_SEP}" +
-				$"{unr}";
+				$"{message.Content}";
 		}
 		private static List<Message> StringToMessages(string message)
 		{
@@ -48,7 +44,6 @@ namespace SMPL.Gear
 					Receivers = (Message.Toward)int.Parse(comps[3]),
 					Tag = comps[4],
 					Content = comps[5],
-					Unreliable = comps[6] == "1"
 				});
 			}
 			return result;
@@ -252,94 +247,11 @@ namespace SMPL.Gear
 
 		//=================
 
-		internal class Udp
-		{
-			private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-			private readonly Socket _sendSocket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-			private const int bufSize = 8 * 1024;
-			private readonly State state = new();
-			private EndPoint epFrom = new IPEndPoint(IPAddress.Any, 0);
-			private EndPoint epTo;
-			private AsyncCallback recv = null;
-			private AsyncCallback send = null;
-
-			public class State
-			{
-				public byte[] buffer = new byte[bufSize];
-			}
-
-			public void Server()
-			{
-				try
-				{
-					_socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.ReuseAddress, true);
-					_socket.Bind(new IPEndPoint(IPAddress.Any, serverPort));
-					InitSocket();
-				}
-				catch (Exception ex)
-				{
-					Console.Log($"ERROR: {ex.Message}");
-				}
-			}
-			public void Client(IPAddress ip)
-			{
-				try
-				{
-					_socket.Connect(ip, serverPort);
-					InitSocket();
-				}
-				catch (Exception ex)
-				{
-					Console.Log($"ERROR: {ex.Message}");
-				}
-			}
-			public void Send(string text)
-			{
-				try
-				{
-					var data = Encoding.ASCII.GetBytes(text);
-					_socket.BeginSend(data, 0, data.Length, SocketFlags.None, (ar) =>
-					{
-						var so = (State)ar.AsyncState;
-						int bytes = _socket.EndSend(ar);
-					}, state);
-				}
-				catch (Exception ex)
-				{
-					Console.Log($"ERROR: {ex.Message}");
-				}
-			}
-			private void InitSocket()
-			{
-				_socket.BeginReceiveFrom(state.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv = (ar) =>
-				{
-					var so = (State)ar.AsyncState;
-					int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
-					_socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
-					DecodeMessages(id, Encoding.ASCII.GetString(so.buffer, 0, bytes));
-				}, state);
-			}
-			private void InitSend(IPAddress ip)
-			{
-				var epTo = new IPEndPoint(ip, serverPort);
-				_socket.BeginSendTo(state.buffer, 0, bufSize, SocketFlags.None, epTo, send = (ar) =>
-				{
-					var so = (State)ar.AsyncState;
-					int bytes = _socket.EndSendTo(ar);
-					_socket.BeginSendTo(so.buffer, 0, bufSize, SocketFlags.None, epTo, send, so);
-				}, state);
-			}
-
-			public void Disconnect()
-			{
-				_socket.Close();
-			}
-		}
 		internal class Session : TcpSession
 		{
 			public Session(TcpServer server) : base(server) { }
 
-			protected override void OnConnected() { id = Id; }
+			protected override void OnConnected() { }
 			protected override void OnDisconnected()
 			{
 				var disconnectedClient = clientRealIDs[Id];
@@ -384,7 +296,6 @@ namespace SMPL.Gear
 			}
 			protected override void OnConnected()
 			{
-				id = Id;
 				ClientIsConnected = true;
 				clientIDs.Add(ClientUniqueID);
 				var ip = client.Socket.RemoteEndPoint.ToString().Split(':')[0];
@@ -446,7 +357,6 @@ namespace SMPL.Gear
 			public string ReceiverUniqueID { get; set; }
 			public string SenderUniqueID { get; internal set; }
 			public Toward Receivers { get; set; }
-			public bool Unreliable { get; set; }
 			internal Type type;
 
 			public Message(Toward receivers, string tag, string content, bool unreliable = false, string receiverClientUniqueID = null)
@@ -455,7 +365,6 @@ namespace SMPL.Gear
 				Tag = tag;
 				ReceiverUniqueID = receiverClientUniqueID;
 				SenderUniqueID = ClientUniqueID;
-				Unreliable = unreliable;
 				Receivers = receivers;
 				type = receivers switch
 				{
@@ -469,11 +378,10 @@ namespace SMPL.Gear
 			public override string ToString()
 			{
 				var send = SenderUniqueID == null || SenderUniqueID == "" ? "from the Server" : $"from Client '{SenderUniqueID}'";
-				var reliable = Unreliable ? "Unreliable" : "Reliable";
 				var rec = Receivers == Toward.Client ?
 					$"to Client '{ReceiverUniqueID}'" : $"to {Receivers}";
 				return
-					$"{reliable} Multiplayer Message {send} {rec}\n" +
+					$"Multiplayer Message {send} {rec}\n" +
 					$"Tag: {Tag}\n" +
 					$"Content: {Content}";
 			}
@@ -527,8 +435,6 @@ namespace SMPL.Gear
 
 				OpenPort();
 
-				udp = new();
-				udp.Server();
 				server = new Server(IPAddress.Any, serverPort);
 				server.Start();
 				ServerIsRunning = true;
@@ -553,7 +459,6 @@ namespace SMPL.Gear
 				if (ServerIsRunning == false) { Debug.LogError(1, "Server is not running.\n", true); return; }
 				if (ClientIsConnected) { Debug.LogError(1, "Cannot stop a server while a client.\n", true); return; }
 				ServerIsRunning = false;
-				udp.Disconnect();
 				server.Stop();
 				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
 				Events.Notify(Events.Type.ServerStop);
@@ -571,12 +476,7 @@ namespace SMPL.Gear
 		{
 			if (ClientIsConnected) { Debug.LogError(1, "Already connecting/connected.\n", true); return; }
 			if (ServerIsRunning) { Debug.LogError(1, "Cannot connect as Client while hosting a Server.\n", true); return; }
-			try
-			{
-				client = new Client(serverIP, serverPort);
-				udp = new();
-				udp.Client(IPAddress.Parse(serverIP));
-			}
+			try { client = new Client(serverIP, serverPort); }
 			catch (Exception)
 			{
 				Debug.LogError(1, $"The IP '{serverIP}' is invalid.\n", true);
@@ -595,7 +495,6 @@ namespace SMPL.Gear
 				Debug.LogError(1, "Cannot disconnect when not connected as Client.\n", true);
 				return;
 			}
-			udp.Disconnect();
 			client.DisconnectAndStop();
 		}
 
@@ -605,13 +504,8 @@ namespace SMPL.Gear
 			if (ServerIsRunning && message.Receivers == Message.Toward.Server) return;
 
 			var msgStr = MessageToString(message);
-			if (message.Unreliable)
-				udp.Send(msgStr);
-			else
-			{
-				if (ClientIsConnected) client.SendAsync(msgStr);
-				else server.Multicast(msgStr);
-			}
+			if (ClientIsConnected) client.SendAsync(msgStr);
+			else server.Multicast(msgStr);
 		}
 		private static string GetServerConnectInfo()
 		{

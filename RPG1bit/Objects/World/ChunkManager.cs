@@ -142,14 +142,16 @@ namespace RPG1bit
 				queueSave.RemoveAt(0);
 				return;
 			}
-			var signs = chunk.SignsJSON;
-			foreach (var kvp in signs)
+
+			var objs = new List<Object>();
+			for (int i = 0; i < chunk.ObjectUIDs.Count; i++)
 			{
-				var sign = (Sign)PickByUniqueID(kvp.Key);
-				chunk.SignsJSON[sign.UniqueID] = Text.ToJSON(sign.GetSavableData());
+				var obj = (Object)PickByUniqueID(chunk.ObjectUIDs[i]);
+				objs.Add(obj);
 				if (destroy)
-					sign.Destroy();
+					obj.Destroy();
 			}
+			chunk.ObjectsJSON = Text.ToJSON(objs);
 
 			var slot = new Assets.DataSlot($"chunks\\{chunk.Center}.chunkdata");
 			slot.SetValue("chunk-data", Text.ToJSON(chunk.GetSavableData()));
@@ -207,17 +209,7 @@ namespace RPG1bit
 				chunk.Data[key] = value;
 			}
 
-			foreach (var kvp in chunk.SignsJSON)
-			{
-				var signData = Text.FromJSON<CompactSignData>(kvp.Value);
-				new Sign(kvp.Key, new()
-				{
-					Position = signData.P,
-					TileIndexes = new Point[] { signData.I },
-					Height = (int)signData.P.C.R,
-				})
-				{ Text = signData.T };
-			}
+			Text.FromJSON<List<Object>>(chunk.ObjectsJSON);
 
 			Assets.UnloadValues("chunk", "chunk-data");
 			World.Display();

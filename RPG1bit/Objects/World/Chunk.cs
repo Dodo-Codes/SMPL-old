@@ -14,7 +14,9 @@ namespace RPG1bit
 		// since the json is confused with the point struct and casts it ToString() rather than to a json format :D
 		public Dictionary<Point, Point[]> Data { get; } = new();
 		[JsonProperty]
-		public Dictionary<string, string> SignsJSON { get; } = new();
+		public string ObjectsJSON { get; set; }
+
+		public List<string> ObjectUIDs { get; } = new();
 
 		public Chunk(string uniqueID) : base(uniqueID)
 		{

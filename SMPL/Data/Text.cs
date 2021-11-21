@@ -60,12 +60,10 @@ namespace SMPL.Data
 		{
 			try
 			{
-				return JsonConvert.DeserializeObject<T>(JSON);
+				var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+				return JsonConvert.DeserializeObject<T>(JSON, settings);
 			}
-			catch (Exception)
-			{
-				return default;
-			}
+			catch (Exception) { return default; }
 		}
 		/// <summary>
 		/// Tries to convert <typeparamref name="T"/> <paramref name="instance"/> into a <paramref name="JSON"/> <see cref="string"/> 
@@ -76,7 +74,8 @@ namespace SMPL.Data
 		/// </summary>
 		public static string ToJSON(object instance)
 		{
-			return JsonConvert.SerializeObject(instance);
+			var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+			return JsonConvert.SerializeObject(instance, settings);
 		}
 		public static string Compress(string text)
 		{

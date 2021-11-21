@@ -291,7 +291,7 @@ namespace RPG1bit
 					var sign = (Sign)signs[i];
 					if (sign.Position != pos || sign.Height != SwitchHeight.BrushHeight)
 						continue;
-					ChunkManager.GetOrCreateChunk(pos).SignsJSON.Remove(sign.UniqueID);
+					ChunkManager.GetOrCreateChunk(pos).ObjectUIDs.Remove(sign.UniqueID);
 					sign.Destroy();
 				}
 			}
@@ -305,7 +305,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { Brush },
 				});
 				sign.OnHovered();
-				ChunkManager.GetOrCreateChunk(pos).SignsJSON[sign.UniqueID] = "";
+				ChunkManager.GetOrCreateChunk(pos).ObjectUIDs.Add(sign.UniqueID);
 			}
 
 			if (TileIsSign(Brush) == false)
