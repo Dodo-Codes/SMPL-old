@@ -177,6 +177,9 @@ namespace RPG1bit
 				new(06, 16), new(07, 16), new(08, 16), new(09, 16), // wheelbarrow
 				new(06, 17), new(07, 17), new(08, 17), new(09, 17), // chariot
 			} },
+			{ nameof(Mount), new() { new(27, 07), new(28, 07), // horse
+
+			} },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 
@@ -288,7 +291,7 @@ namespace RPG1bit
 					var sign = (Sign)signs[i];
 					if (sign.Position != pos || sign.Height != SwitchHeight.BrushHeight)
 						continue;
-					ChunkManager.RemoveSignJSON(pos, sign.UniqueID);
+					ChunkManager.GetOrCreateChunk(pos).SignsJSON.Remove(sign.UniqueID);
 					sign.Destroy();
 				}
 			}
@@ -302,7 +305,7 @@ namespace RPG1bit
 					TileIndexes = new Point[] { Brush },
 				});
 				sign.OnHovered();
-				ChunkManager.SetSignJSON(pos, sign.UniqueID, "");
+				ChunkManager.GetOrCreateChunk(pos).SignsJSON[sign.UniqueID] = "";
 			}
 
 			if (TileIsSign(Brush) == false)

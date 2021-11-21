@@ -13,7 +13,6 @@ namespace RPG1bit
 		public List<string> EffectUIDs { get; set; } = new();
 		[JsonProperty]
 		public int[] Health { get; set; } = new int[2] { 30, 30 };
-		public Point PreviousPosition { get; set; }
 
 		public Unit(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{

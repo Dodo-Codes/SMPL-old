@@ -23,16 +23,6 @@ namespace RPG1bit
 			DestroyAllChunks(false, true);
 		}
 
-		public static void SetSignJSON(Point position, string uniqueID, string json)
-		{
-			var chunk = GetOrCreateChunk(position);
-			chunk.SignsJSON[uniqueID] = json;
-		}
-		public static void RemoveSignJSON(Point position, string uniqueID)
-		{
-			var chunk = GetOrCreateChunk(position);
-			chunk.SignsJSON.Remove(uniqueID);
-		}
 		public static void SetTile(Point position, int height, Point tile)
 		{
 			var chunk = GetOrCreateChunk(position);
@@ -51,7 +41,7 @@ namespace RPG1bit
 		{
 			return new Point(Number.Round(position.X / SIZE) * SIZE, Number.Round(position.Y / SIZE) * SIZE);
 		}
-		private static Chunk GetOrCreateChunk(Point position)
+		public static Chunk GetOrCreateChunk(Point position)
 		{
 			var chunkCenter = GetChunkCenterFromPosition(position);
 			var id = $"chunk-{chunkCenter}";

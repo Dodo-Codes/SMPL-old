@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Storage : Object, IInteractable, ITypeTaggable
+	public class Storage : Object, IInteractable, ITypeTaggable, ISolid
 	{
 		[JsonProperty]
 		public bool Locked { get; set; }
@@ -67,9 +67,6 @@ namespace RPG1bit
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (player.Position == Position)
 			{
-				player.Position = player.PreviousPosition;
-				World.CameraPosition = player.Position;
-
 				if (canBeOpened && Locked)
 				{
 					var playerHasKey = player.HasItem<Key>();

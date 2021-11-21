@@ -87,6 +87,7 @@ namespace RPG1bit
 			TryToCreateObject<Door>();
 			TryToCreateObject<Boat>();
 			TryToCreateObject<Storage>();
+			TryToCreateObject<Mount>();
 
 			var player = (Player)Thing.PickByUniqueID(nameof(Player));
 			var objsToDestroy = new List<Object>();
@@ -124,6 +125,14 @@ namespace RPG1bit
 						if (typeof(T) == typeof(Door)) obj = new Door(id, new() { Name = "-" });
 						else if (typeof(T) == typeof(Boat)) obj = new Boat(id, new() { Name = "-" });
 						else if (typeof(T) == typeof(Storage)) obj = new Storage(id, new() { Name = "-" });
+						else if (typeof(T) == typeof(Mount))
+						{
+							var names = new Dictionary<Point, string>()
+							{
+								{ new(27, 7), "Horse" }, { new(28, 7), "Horse" },
+							};
+							obj = new Mount(id, new() { Name = names[tile] });
+						}
 
 						obj.Position = positions[p];
 						obj.Height = i;

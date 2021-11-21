@@ -9,6 +9,14 @@ namespace RPG1bit
 	{
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
+			new Mount("mount", new()
+			{
+				Position = new(-1, 0),
+				Height = 2,
+				TileIndexes = new Point[] { new(27, 7) { C = Color.Brown + 30 } },
+				Name = "Horse",
+			});
+
 			CreateSkill("goalkeep", 10, "penka", new(25, 0));
 			CreateSkill("goalkeep1", 10, "penka", new(25, 0));
 			CreateSkill("goalkeep2", 10, "penka", new(25, 0));
@@ -125,16 +133,16 @@ namespace RPG1bit
 				PlayerStats.Open();
 				AdvanceTime();
 				TileIndexes = new(25, 0);
+				var isInWater = World.PositionHasWaterAsHighest(Position);
 
-				if (World.PositionHasWaterAsHighest(Position))
-				{
+				if (isInWater)
 					TileIndexes = new(20, 23);
-					for (int i = 0; i < objects[Position].Count; i++)
-						if (objects[Position][i] is Boat boat)
-						{
-							var tile = boat.GetPlayerTile();
-							TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
-						}
+				for (int i = 0; i < objects[Position].Count; i++)
+				{
+					var tile = TileIndexes;
+					if (isInWater && objects[Position][i] is Boat boat) tile = boat.GetPlayerTile();
+					else if (objects[Position][i] is Mount mount) tile = mount.GetPlayerTile();
+					TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
 				}
 			}
 			World.IsShowingRoofs = World.TileHasRoof(Position) == false;

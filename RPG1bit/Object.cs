@@ -148,6 +148,7 @@ namespace RPG1bit
 			}
 		}
 
+		public Point PreviousPosition { get; set; }
 		public string PulledByUnitUID { get; set; }
 		public string PullingUID { get; set; }
 
@@ -291,11 +292,14 @@ namespace RPG1bit
 		{
 			var player = (Player)PickByUniqueID(nameof(Player));
 			if (key == Keyboard.Key.ControlLeft && IsPullableByUnit &&
-				(player.HasItem(PullRequiredType) || PullRequiredType == null) &&
 				player.CellIsInReach(Position) && player.PullingUID == null)
 			{
-				PulledByUnitUID = player.UniqueID;
-				player.PullingUID = UniqueID;
+				if (player.HasItem(PullRequiredType) || PullRequiredType == null)
+				{
+					PulledByUnitUID = player.UniqueID;
+					player.PullingUID = UniqueID;
+				}
+				else PlayerStats.Open($"I need {PullRequiredType.ToLower()} to pull that.");
 			}
 		}
 		public override void OnKeyboardKeyRelease(Keyboard.Key key)
@@ -353,6 +357,21 @@ namespace RPG1bit
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
 						kvp.Value[i].OnAdvanceTime();
+
+			var player = (Player)PickByUniqueID(nameof(Player));
+			var objsBeneathPlayer = objects[player.position];
+			for (int i = 0; i < objsBeneathPlayer.Count; i++)
+			{
+				if (objsBeneathPlayer[i] is ISolid)
+				{
+					for (int j = 0; j < objsBeneathPlayer.Count; j++)
+						if (objsBeneathPlayer[j] is IRidable)
+							objsBeneathPlayer[j].Position = player.PreviousPosition;
+					player.Position = player.PreviousPosition;
+					World.CameraPosition = player.Position;
+				}
+			}
+
 
 			WorldObjectManager.OnAdvanceTime();
 			Screen.ScheduleDisplay();

@@ -1,8 +1,9 @@
 ﻿using SMPL.Data;
+using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class Boat : Object, IDeletableWhenFar
+	public class Boat : Object, IDeletableWhenFar, IRidable
 	{
 		private int index;
 
@@ -24,22 +25,23 @@ namespace RPG1bit
 			var prevIsWater = World.PositionHasWaterAsHighest(player.PreviousPosition);
 			var currIsWater = World.PositionHasWaterAsHighest(player.Position);
 
-			if (prevIsWater == false && currIsWater == false)
+			if ((prevIsWater == false && currIsWater == false))
 				return;
 
-			var changingBoats = false;
+			var changingRidable = false;
 			var objs = objects[player.Position];
 
 			for (int i = 0; i < objs.Count; i++)
-				if (objs[i] != this && objs[i] is Boat)
-					changingBoats = true;
+				if (objs[i] != this && objs[i] is IRidable)
+					changingRidable = true;
 
 			index = 0;
 			if (player.Position.Y > player.PreviousPosition.Y) index = 1;
 			else if (player.Position.X < player.PreviousPosition.X) index = 2;
 			else if (player.Position.X > player.PreviousPosition.X) index = 3;
 
-			if ((prevIsWater && currIsWater == false) || changingBoats)
+			if ((prevIsWater && currIsWater == false) || changingRidable ||
+				(Keyboard.KeyIsPressed(Keyboard.Key.ShiftLeft) && player.PullingUID == null))
 			{
 				TileIndexes = new(8 + index, 19) { C = TileIndexes.C };
 				Position = player.PreviousPosition;
