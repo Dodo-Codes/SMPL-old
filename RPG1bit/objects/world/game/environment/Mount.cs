@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class Mount : Object, IDeletableWhenFar, IRidable
+	public class Mount : GameObject, IRecreatable, IRidable
 	{
 		private int index;
 		private Point baseTileIndexes;
@@ -47,7 +47,7 @@ namespace RPG1bit
 				return;
 			}
 			Position = player.Position;
-			TileIndexes = new(baseTileIndexes.X + index, baseTileIndexes.Y) { C = TileIndexes.C };
+			TileIndexes = new(baseTileIndexes.X + index, baseTileIndexes.Y) { Color = TileIndexes.Color };
 		}
 		public Point GetPlayerTile() => new(18 + index, 23);
 	}

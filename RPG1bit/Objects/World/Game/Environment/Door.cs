@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class Door : Object, IDeletableWhenFar
+	public class Door : GameObject, IRecreatable
 	{
 		public bool Locked { get; set; }
 		private bool update;

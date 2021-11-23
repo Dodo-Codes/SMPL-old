@@ -6,7 +6,7 @@ namespace RPG1bit
 	{
 		public Bag(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			TileIndexes = new(44, 4) { C = Color.Brown + 30 };
+			TileIndexes = new(44, 4) { Color = Color.Brown + 30 };
 			CanCarryOnBack = true;
 			SlotsPosition = new Point(0, 12);
 		}

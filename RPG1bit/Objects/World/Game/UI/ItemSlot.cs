@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class ItemSlot : Object
+	public class ItemSlot : GameObject
 	{
 		public ItemSlot(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 

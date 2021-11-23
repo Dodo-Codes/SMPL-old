@@ -2,7 +2,7 @@
 
 namespace RPG1bit
 {
-	public class MinimizeGame : Object
+	public class MinimizeGame : GameObject
 	{
 		public MinimizeGame(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnLeftClicked() => Window.CurrentState = Window.State.Minimized;

@@ -66,10 +66,10 @@ namespace SMPL.Data
 
 			var vert = new Vertex[]
 			{
-				new(Point.From(startLeft), Color.From(StartPosition.C)),
-				new(Point.From(startRight), Color.From(StartPosition.C)),
-				new(Point.From(endRight), Color.From(EndPosition.C)),
-				new(Point.From(endLeft), Color.From(EndPosition.C)),
+				new(Point.From(startLeft), Color.From(StartPosition.Color)),
+				new(Point.From(startRight), Color.From(StartPosition.Color)),
+				new(Point.From(endRight), Color.From(EndPosition.Color)),
+				new(Point.From(endLeft), Color.From(EndPosition.Color)),
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 			Performance.DrawCallsPerFrame++;

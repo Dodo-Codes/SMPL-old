@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class PlayerFollower : Object
+	public class PlayerFollower : GameObject
 	{
 		public bool Following { get; set; }
 

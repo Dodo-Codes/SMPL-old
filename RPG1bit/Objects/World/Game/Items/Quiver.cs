@@ -6,7 +6,7 @@ namespace RPG1bit
 	{
 		public Quiver(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			TileIndexes = new(42, 6) { C = Color.Brown + 30 };
+			TileIndexes = new(42, 6) { Color = Color.Brown + 30 };
 			CanCarryOnWaist = true;
 			SlotsPosition = new Point(0, 16);
 		}

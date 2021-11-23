@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class TextInputField : Object
+	public class TextInputField : GameObject
 	{
 		public const int MAX_SYMBOLS = 12;
 

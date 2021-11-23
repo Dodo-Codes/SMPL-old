@@ -26,7 +26,7 @@ namespace RPG1bit
 				{
 					Position = SlotsPosition + new Point(0, i),
 					Height = 1,
-					TileIndexes = new Point[] { new Point(TileIndexes.X + 1, TileIndexes.Y) { C = Color.Gray } },
+					TileIndexes = new Point[] { new Point(TileIndexes.X + 1, TileIndexes.Y) { Color = Color.Gray } },
 					IsUI = true,
 					Name = $"extra-slot-{i}"
 				});

@@ -13,7 +13,7 @@ namespace RPG1bit
 			{
 				Position = new(-1, 0),
 				Height = 2,
-				TileIndexes = new Point[] { new(27, 7) { C = Color.Brown + 30 } },
+				TileIndexes = new Point[] { new(27, 7) { Color = Color.Brown + 30 } },
 				Name = "Horse",
 			});
 
@@ -142,7 +142,7 @@ namespace RPG1bit
 					var tile = TileIndexes;
 					if (isInWater && objects[Position][i] is Boat boat) tile = boat.GetPlayerTile();
 					else if (objects[Position][i] is Mount mount) tile = mount.GetPlayerTile();
-					TileIndexes = new(tile.X, tile.Y) { C = TileIndexes.C };
+					TileIndexes = new(tile.X, tile.Y) { Color = TileIndexes.Color };
 				}
 			}
 			World.IsShowingRoofs = World.TileHasRoof(Position) == false;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Trail : Object
+	public class Trail : GameObject
 	{
 		private readonly List<Point> points = new();
 
@@ -25,7 +25,7 @@ namespace RPG1bit
 			Duration--;
 			if (UniqueIDsExists(OwnerUID))
 			{
-				var owner = (Object)PickByUniqueID(OwnerUID);
+				var owner = (GameObject)PickByUniqueID(OwnerUID);
 				if (Duration > 0)
 				{
 					Position = owner.Position;
@@ -45,7 +45,7 @@ namespace RPG1bit
 				if (World.TileHasRoof(points[i]) && World.IsShowingRoofs)
 					continue;
 
-				Screen.EditCell(World.WorldToScreenPosition(points[i]), TileIndexes, 3, TileIndexes.C);
+				Screen.EditCell(World.WorldToScreenPosition(points[i]), TileIndexes, 3, TileIndexes.Color);
 			}
 		}
 	}

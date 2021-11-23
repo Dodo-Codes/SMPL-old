@@ -7,7 +7,7 @@ namespace RPG1bit
 	{
 		public Key(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			TileIndexes = new(32 + Probability.Randomize(new(0, 2)), 11) { C = Color.Gray };
+			TileIndexes = new(32 + Probability.Randomize(new(0, 2)), 11) { Color = Color.Gray };
 			MaxQuantity = 6;
 			CanCarryOnWaist = true;
 			CanCarryInBag = true;

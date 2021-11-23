@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class StartSingleOnWorld : Object
+	public class StartSingleOnWorld : GameObject
 	{
 		public StartSingleOnWorld(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 

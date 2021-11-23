@@ -8,7 +8,7 @@ namespace SMPL.Data
 		public Point Position { get; set; }
 		public Point TextureCoordinate { get; set; }
 		internal Vertex Vertex =>
-			new(Point.From(Position), Color.From(Position.C), Point.From(TextureCoordinate));
+			new(Point.From(Position), Color.From(Position.Color), Point.From(TextureCoordinate));
 
 		public Corner(Point position, Point textureCoordinate = default)
 		{

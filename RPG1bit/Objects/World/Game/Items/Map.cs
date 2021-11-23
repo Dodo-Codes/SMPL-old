@@ -19,7 +19,7 @@ namespace RPG1bit
 		{
 			Camera.Event.Subscribe.Display(uniqueID, 2);
 
-			TileIndexes = new(32, 15) { C = Color.Wood + 60 };
+			TileIndexes = new(32, 15) { Color = Color.Wood + 60 };
 			MaxQuantity = 9;
 			CanCarryInBag = true;
 			CanCarryInQuiver = true;
@@ -62,7 +62,7 @@ namespace RPG1bit
 							var tile = ChunkManager.GetTile(new(x, y), i);
 							if (tile != default && IsNot(nameof(Boat)))
 							{
-								pixels[px, py] = tile.C;
+								pixels[px, py] = tile.Color;
 								break;
 							}
 

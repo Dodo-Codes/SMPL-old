@@ -2,7 +2,7 @@
 
 namespace RPG1bit
 {
-	public class ItemStats : Object
+	public class ItemStats : GameObject
 	{
 		public static string DisplayedItemUID { get; set; }
 

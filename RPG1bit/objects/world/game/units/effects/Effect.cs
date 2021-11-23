@@ -3,7 +3,7 @@ using SMPL.Data;
 
 namespace RPG1bit
 {
-	public abstract class Effect : Object
+	public abstract class Effect : GameObject
 	{
 		[JsonProperty]
 		public string OwnerUID { get; set; }
@@ -20,7 +20,7 @@ namespace RPG1bit
 			value = value.Length == 1 ? $"0{value}" : value;
 			Screen.DisplayText(screenPos + new Point(1, 0), 1, Value < 0 ? Color.Red : Color.Green, value);
 			Screen.EditCell(screenPos, new(37, 21), 1, Color.Gray);
-			Screen.EditCell(screenPos, TileIndexes, 2, TileIndexes.C);
+			Screen.EditCell(screenPos, TileIndexes, 2, TileIndexes.Color);
 		}
 		public override void OnAdvanceTime()
 		{

@@ -57,7 +57,7 @@ namespace RPG1bit
 				freeTiles[(int)Probability.Randomize(new(0, freeTiles.Count - 1))];
 
 			var player = playerWasLoaded ? (Player)Thing.PickByUniqueID(nameof(Player)) :
-				new Player(nameof(Player), new Object.CreationDetails()
+				new Player(nameof(Player), new GameObject.CreationDetails()
 				{
 					Name = "Self",
 					Position = randPoint,
@@ -84,16 +84,15 @@ namespace RPG1bit
 		}
 		public static void OnAdvanceTime()
 		{
-			TryToCreateObject<Door>();
-			TryToCreateObject<Boat>();
-			TryToCreateObject<Storage>();
-			TryToCreateObject<Mount>();
+			foreach (var kvp in WorldEditor.Tiles)
+				if (char.IsUpper(kvp.Key[0]))
+					TryToCreate(kvp.Key);
 
 			var player = (Player)Thing.PickByUniqueID(nameof(Player));
-			var objsToDestroy = new List<Object>();
-			foreach (var kvp in Object.objects)
+			var objsToDestroy = new List<GameObject>();
+			foreach (var kvp in GameObject.objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					if (kvp.Value[i] is IDeletableWhenFar && Point.Distance(player.Position, kvp.Value[i].Position) > 5)
+					if (kvp.Value[i] is IRecreatable && Point.Distance(player.Position, kvp.Value[i].Position) > 5)
 						objsToDestroy.Add(kvp.Value[i]);
 
 			for (int i = 0; i < objsToDestroy.Count; i++)
@@ -102,7 +101,7 @@ namespace RPG1bit
 				objsToDestroy[i].Destroy();
 			}
 		}
-		private static void TryToCreateObject<T>()
+		private static void TryToCreate(string type)
 		{
 			var player = (Player)Thing.PickByUniqueID(nameof(Player));
 			var positions = new List<Point>()
@@ -112,7 +111,6 @@ namespace RPG1bit
 				player.Position + new Point(0, 1),
 				player.Position - new Point(0, 1),
 			};
-			var type = typeof(T).Name;
 
 			for (int p = 0; p < positions.Count; p++)
 				for (int i = 0; i < 3; i++)
@@ -121,11 +119,11 @@ namespace RPG1bit
 					var id = $"{type}-{positions[p]}-{i}";
 					if (WorldEditor.Tiles[type].Contains(tile) && Thing.UniqueIDsExists(id) == false)
 					{
-						var obj = default(Object);
-						if (typeof(T) == typeof(Door)) obj = new Door(id, new() { Name = "-" });
-						else if (typeof(T) == typeof(Boat)) obj = new Boat(id, new() { Name = "-" });
-						else if (typeof(T) == typeof(Storage)) obj = new Storage(id, new() { Name = "-" });
-						else if (typeof(T) == typeof(Mount))
+						var obj = default(GameObject);
+						if (type == typeof(Door).Name) obj = new Door(id, new() { Name = "-" });
+						else if (type == typeof(Boat).Name) obj = new Boat(id, new() { Name = "-" });
+						else if (type == typeof(Storage).Name) obj = new Storage(id, new() { Name = "-" });
+						else if (type == typeof(Mount).Name)
 						{
 							var names = new Dictionary<Point, string>()
 							{

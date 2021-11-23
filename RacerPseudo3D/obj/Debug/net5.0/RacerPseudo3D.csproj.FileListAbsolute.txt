@@ -103,3 +103,4 @@ D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.genruntimeconfig.
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\road.jpg
 D:\code\SFML\SMPL\RacerPseudo3D\bin\Debug\net5.0\border.png
 D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.csproj.AssemblyReference.cache
+D:\code\SFML\SMPL\RacerPseudo3D\obj\Debug\net5.0\RacerPseudo3D.csproj.CopyComplete

@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class Boat : Object, IDeletableWhenFar, IRidable
+	public class Boat : GameObject, IRecreatable, IRidable
 	{
 		private int index;
 
@@ -43,12 +43,12 @@ namespace RPG1bit
 			if ((prevIsWater && currIsWater == false) || changingRidable ||
 				(Keyboard.KeyIsPressed(Keyboard.Key.ShiftLeft) && player.PullingUID == null))
 			{
-				TileIndexes = new(8 + index, 19) { C = TileIndexes.C };
+				TileIndexes = new(8 + index, 19) { Color = TileIndexes.Color };
 				Position = player.PreviousPosition;
 				return;
 			}
 			Position = player.Position;
-			TileIndexes = new(12 + index, 23) { C = TileIndexes.C };
+			TileIndexes = new(12 + index, 23) { Color = TileIndexes.Color };
 		}
 		public Point GetPlayerTile() => new(16 + index, 23);
 	}

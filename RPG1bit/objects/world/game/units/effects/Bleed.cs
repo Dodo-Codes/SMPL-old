@@ -7,7 +7,7 @@ namespace RPG1bit
 	{
 		public Bleed(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			TileIndexes = new(27, 22) { C = Color.Blood };
+			TileIndexes = new(27, 22) { Color = Color.Blood };
 		}
 
 		public override void OnHovered()
@@ -32,7 +32,7 @@ namespace RPG1bit
 					Position = unit.Position,
 					Height = 3,
 					Name = "trail",
-					TileIndexes = new Point[] { new(23, 23) { C = Color.Blood } }
+					TileIndexes = new Point[] { new(23, 23) { Color = Color.Blood } }
 				})
 				{
 					OwnerUID = OwnerUID,

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace RPG1bit
 {
-	public class SaveLoad : Object
+	public class SaveLoad : GameObject
 	{
 		public SaveLoad(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 		public override void OnHovered() => NavigationPanel.Info.Textbox.Text = "[LEFT CLICK] to save or load a session";
@@ -23,8 +23,8 @@ namespace RPG1bit
 		{
 			CreateTab();
 
-			var noSessionsStr = ObjectList.Lists.ContainsKey("load-list") == false ||
-			ObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found" : "";
+			var noSessionsStr = GameObjectList.Lists.ContainsKey("load-list") == false ||
+			GameObjectList.Lists["load-list"].Objects.Count == 0 ? "No saved sessions were found" : "";
 			NavigationPanel.Tab.Texts["save-load"] =
 				$"Load a previously saved session\n\n\n\n {noSessionsStr}\n\n\n\n\n\n\n\n" +
 				$"    Save the current session";
@@ -48,7 +48,7 @@ namespace RPG1bit
 					AppearOnTab = "save-load",
 					IsKeptBetweenSessions = true,
 				});
-				var worldList = new ObjectList("load-list", new CreationDetails()
+				var worldList = new GameObjectList("load-list", new CreationDetails()
 				{
 					Name = "load-list",
 					Position = new(19, 3),

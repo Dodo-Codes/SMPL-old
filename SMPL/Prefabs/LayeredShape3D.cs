@@ -110,10 +110,10 @@ namespace SMPL.Prefabs
 			}
 			void AddQuad(int layer, Point tl, Point tr, Point br, Point bl)
 			{
-				tl = new Point(tl.X, tl.Y) { C = colors[layer] };
-				tr = new Point(tr.X, tr.Y) { C = colors[layer] };
-				br = new Point(br.X, br.Y) { C = colors[layer] };
-				bl = new Point(bl.X, bl.Y) { C = colors[layer] };
+				tl = new Point(tl.X, tl.Y) { Color = colors[layer] };
+				tr = new Point(tr.X, tr.Y) { Color = colors[layer] };
+				br = new Point(br.X, br.Y) { Color = colors[layer] };
+				bl = new Point(bl.X, bl.Y) { Color = colors[layer] };
 				quads.Add($"{layer}", new Quad(
 					new Corner(tl, new Point(texCoords[layer][0].X, texCoords[layer][0].Y)),
 					new Corner(tr, new Point(texCoords[layer][1].X, texCoords[layer][0].Y)),

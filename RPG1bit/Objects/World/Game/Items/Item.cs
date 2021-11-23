@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Item : Object, ITypeTaggable
+	public class Item : GameObject, ITypeTaggable, ISavable
 	{
 		private static readonly Dictionary<string, string> singles = new()
 		{
@@ -148,7 +148,7 @@ namespace RPG1bit
 			{
 				if (itemSlot == null) return;
 				itemSlot.TileIndexes = new Point(itemSlot.TileIndexes.X, itemSlot.TileIndexes.Y)
-					{ C = holding ? (canCarry && itemSlot.HasItem() == false ? Color.Green : Color.Red) : Color.Gray };
+					{ Color = holding ? (canCarry && itemSlot.HasItem() == false ? Color.Green : Color.Red) : Color.Gray };
 			}
 		}
 		public Item Split(Item item, ItemSlot slot, uint quantity)

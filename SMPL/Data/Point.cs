@@ -9,16 +9,16 @@ namespace SMPL.Data
 {
 	public struct Point
 	{
-		public static Point Invalid => new(double.NaN, double.NaN) { C = Color.Invalid };
+		public static Point Invalid => new(double.NaN, double.NaN) { Color = Color.Invalid };
 		public static Point One => new(1, 1);
 
 		public double X { get; set; }
 		public double Y { get; set; }
-		public Color C { get; set; }
+		public Color Color { get; set; }
 
 		public Point(double x, double y)
 		{
-			C = Color.White;
+			Color = Color.White;
 			if (x == -0)
 				x = 0;
 			if (y == -0)
@@ -39,10 +39,10 @@ namespace SMPL.Data
 
 			var vert = new Vertex[]
 			{
-				new(From(topLeft), Color.From(C)),
-				new(From(topRight), Color.From(C)),
-				new(From(botRight), Color.From(C)),
-				new(From(botLeft), Color.From(C)),
+				new(From(topLeft), Color.From(Color)),
+				new(From(topRight), Color.From(Color)),
+				new(From(botRight), Color.From(Color)),
+				new(From(botLeft), Color.From(Color)),
 			};
 			camera.rendTexture.Draw(vert, PrimitiveType.Quads);
 			Performance.DrawCallsPerFrame++;
@@ -73,7 +73,7 @@ namespace SMPL.Data
 		{
 			var x = Number.FromPercent(percent.W, new Number.Range(point.X, targetPoint.X));
 			var y = Number.FromPercent(percent.H, new Number.Range(point.Y, targetPoint.Y));
-			return new Point(x, y) { C = point.C };
+			return new Point(x, y) { Color = point.Color };
 		}
 		public static Point Pathfind(Point pointA, Point pointB, uint tries, params Line[] lines)
 		{
@@ -122,18 +122,18 @@ namespace SMPL.Data
 		internal static Point Normalize(Point p)
 		{
 			var m = Magnitude(p);
-			var result = new Point(p.X / m, p.Y / m) { C = p.C };
+			var result = new Point(p.X / m, p.Y / m) { Color = p.Color };
 			return result.IsInvalid() ? Invalid : result;
 		}
 
-		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y) { C = a.C };
-		public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y) { C = a.C };
-		public static Point operator *(Point a, Point b) => new(a.X * b.X, a.Y * b.Y) { C = a.C };
-		public static Point operator /(Point a, Point b) => new(a.X / b.X, a.Y / b.Y) { C = a.C };
+		public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y) { Color = a.Color };
+		public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y) { Color = a.Color };
+		public static Point operator *(Point a, Point b) => new(a.X * b.X, a.Y * b.Y) { Color = a.Color };
+		public static Point operator /(Point a, Point b) => new(a.X / b.X, a.Y / b.Y) { Color = a.Color };
 		public static bool operator ==(Point a, Point b) => a.X == b.X && a.Y == b.Y;
 		public static bool operator !=(Point a, Point b) => a.X != b.X || a.Y != b.Y;
-		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b) { C = a.C };
-		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b) { C = a.C };
+		public static Point operator /(Point a, double b) => new(a.X / b, a.Y / b) { Color = a.Color };
+		public static Point operator *(Point a, double b) => new(a.X * b, a.Y * b) { Color = a.Color };
 
 		public override bool Equals(object obj) => obj.GetType() == typeof(Point) && (Point)obj == this;
 		public override int GetHashCode() => base.GetHashCode();

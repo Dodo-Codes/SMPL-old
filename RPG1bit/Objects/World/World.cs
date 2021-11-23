@@ -82,7 +82,7 @@ namespace RPG1bit
 				{
 					Name = "camera",
 					Position = new(0, 0),
-					TileIndexes = new Point[] { new(19, 14) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(19, 14) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true,
 					IsKeptBetweenSessions = true
@@ -94,7 +94,7 @@ namespace RPG1bit
 				{
 					Name = "On your head:",
 					Position = new(0, 5),
-					TileIndexes = new Point[] { new(5, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(5, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -102,7 +102,7 @@ namespace RPG1bit
 				{
 					Name = "On your body:",
 					Position = new(0, 6),
-					TileIndexes = new Point[] { new(6, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(6, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -110,7 +110,7 @@ namespace RPG1bit
 				{
 					Name = "On your feet:",
 					Position = new(0, 7),
-					TileIndexes = new Point[] { new(7, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(7, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -119,7 +119,7 @@ namespace RPG1bit
 				{
 					Name = "In your right hand:",
 					Position = new(0, 2),
-					TileIndexes = new Point[] { new(9, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(9, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -127,7 +127,7 @@ namespace RPG1bit
 				{
 					Name = "In your left hand:",
 					Position = new(0, 3),
-					TileIndexes = new Point[] { new(8, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(8, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -136,7 +136,7 @@ namespace RPG1bit
 				{
 					Name = "On your back:",
 					Position = new(0, 9),
-					TileIndexes = new Point[] { new(10, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(10, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
@@ -144,18 +144,18 @@ namespace RPG1bit
 				{
 					Name = "On your waist:",
 					Position = new(0, 10),
-					TileIndexes = new Point[] { new(11, 22) { C = Color.Gray } },
+					TileIndexes = new Point[] { new(11, 22) { Color = Color.Gray } },
 					Height = 1,
 					IsUI = true
 				});
 
 				for (int i = 0; i < ItemPile.MAX_COUNT; i++)
 				{
-					var slot = new ItemSlot($"ground-slot-{i}", new Object.CreationDetails()
+					var slot = new ItemSlot($"ground-slot-{i}", new GameObject.CreationDetails()
 					{
 						Name = "On the ground:",
 						Position = new(10 + i, 0),
-						TileIndexes = new Point[] { new(7, 23) { C = Color.Brown } },
+						TileIndexes = new Point[] { new(7, 23) { Color = Color.Brown } },
 						Height = 0,
 						IsUI = true
 					});
@@ -175,14 +175,13 @@ namespace RPG1bit
 				new ShowRoofs("show-roofs", new()
 				{
 					Name = "show-roofs",
-					Position = new(0, 8) { C = Color.Gray },
+					Position = new(0, 8) { Color = Color.Gray },
 					Height = 1,
 					IsUI = true,
 					IsLeftClickable = true,
 				});
 			}
 		}
-		
 		public static void Display()
 		{
 			for (double y = CameraPosition.Y - 8; y < CameraPosition.Y + 9; y++)
@@ -203,13 +202,13 @@ namespace RPG1bit
 					var tilesInCoord = 0;
 					for (int z = 0; z < 4; z++)
 					{
-						var color = chunk.Data[pos][z].C;
+						var color = chunk.Data[pos][z].Color;
 						if (chunk.Data[pos][z] != new Point(0, 0)) tilesInCoord++;
 						if ((chunk.Data[pos][z] == TilePlayer || chunk.Data[pos][z] == TileBarrier) &&
 							CurrentSession == Session.Single)
 							color = new();
 
-						if (IsShowingRoofs == false && chunk.Data[pos][z].C.A == 254)
+						if (IsShowingRoofs == false && chunk.Data[pos][z].Color.A == 254)
 							color.A = 100;
 
 						Screen.EditCell(WorldToScreenPosition(pos), chunk.Data[pos][z], z, color);
@@ -236,7 +235,7 @@ namespace RPG1bit
 			}
 			if (CurrentSession == Session.WorldEdit)
 			{
-				Screen.EditCell(new(0, 4), WorldEditor.Brush, 1, WorldEditor.Brush.C);
+				Screen.EditCell(new(0, 4), WorldEditor.Brush, 1, WorldEditor.Brush.Color);
 				Screen.EditCell(new(0, 7), new(6, 23), 1, Color.Gray);
 
 				Screen.EditCell(new(9, 0), new(41, 13), 1, Color.Gray);
@@ -255,9 +254,9 @@ namespace RPG1bit
 		}
 		public static void LoadWorld(Session session, string name)
 		{
-			Object.DestroyAllSessionObjects();
+			GameObject.DestroyAllSessionObjects();
 			ChunkManager.DestroyAllChunks(true, true);
-			NavigationPanel.Info.Textbox.Text = Object.descriptions[new(0, 23)];
+			NavigationPanel.Info.Textbox.Text = GameObject.descriptions[new(0, 23)];
 
 			CurrentSession = session;
 			CurrentWorldName = name;
@@ -286,7 +285,7 @@ namespace RPG1bit
 			for (int i = 0; i < 3; i++)
 			{
 				var tile = ChunkManager.GetTile(worldPos, i);
-				if (tile != default && tile != new Point(0, 0) && tile.C.A != 255)
+				if (tile != default && tile != new Point(0, 0) && tile.Color.A != 255)
 					return true;
 			}
 			return false;

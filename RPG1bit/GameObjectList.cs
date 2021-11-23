@@ -4,16 +4,16 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class ObjectList : Object
+	public class GameObjectList : GameObject
 	{
-		public static Dictionary<string, ObjectList> Lists { get; } = new();
+		public static Dictionary<string, GameObjectList> Lists { get; } = new();
 
 		public Size Size { get; private set; }
-		public List<Object> Objects { get; set; } = new();
+		public List<GameObject> Objects { get; set; } = new();
 		public int scrollIndex;
 		private Point lastMousePos;
 
-		public ObjectList(string uniqueID, CreationDetails creationDetails, Size size) : base(uniqueID, creationDetails)
+		public GameObjectList(string uniqueID, CreationDetails creationDetails, Size size) : base(uniqueID, creationDetails)
 		{
 			Lists[uniqueID] = this;
 			Mouse.Event.Subscribe.WheelScroll(uniqueID);

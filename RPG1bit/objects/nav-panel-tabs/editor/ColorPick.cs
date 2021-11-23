@@ -28,14 +28,14 @@ namespace RPG1bit
 		{
 			var indicatorTile = Screen.GetCellIndexesAtPosition(new(0, 4), 1);
 			var value = GetColorValue(IndexValue);
-			var color = WorldEditor.Brush.C;
+			var color = WorldEditor.Brush.Color;
 			switch (Name)
 			{
 				case "r": color.R = value; break;
 				case "g": color.G = value; break;
 				case "b": color.B = value; break;
 			}
-			WorldEditor.Brush = new Point(WorldEditor.Brush.X, WorldEditor.Brush.Y) { C = color };
+			WorldEditor.Brush = new Point(WorldEditor.Brush.X, WorldEditor.Brush.Y) { Color = color };
 			Screen.EditCell(new(0, 4), indicatorTile, 1, color);
 		}
 		protected override void OnDisplayStep(Point screenPos, int step)
@@ -59,7 +59,7 @@ namespace RPG1bit
 			var pickerG = (ColorPick)PickByUniqueID("brush-g");
 			var pickerB = (ColorPick)PickByUniqueID("brush-b");
 
-			var color = WorldEditor.Brush.C;
+			var color = WorldEditor.Brush.Color;
 			pickerR.IndexValue = (int)Number.Map(color.R, new(0, 255), new(0, pickerR.Size - 1));
 			pickerG.IndexValue = (int)Number.Map(color.G, new(0, 255), new(0, pickerG.Size - 1));
 			pickerB.IndexValue = (int)Number.Map(color.B, new(0, 255), new(0, pickerB.Size - 1));

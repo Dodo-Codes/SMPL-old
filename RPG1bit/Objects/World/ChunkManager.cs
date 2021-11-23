@@ -143,10 +143,10 @@ namespace RPG1bit
 				return;
 			}
 
-			var objs = new List<Object>();
+			var objs = new List<GameObject>();
 			for (int i = 0; i < chunk.ObjectUIDs.Count; i++)
 			{
-				var obj = (Object)PickByUniqueID(chunk.ObjectUIDs[i]);
+				var obj = (GameObject)PickByUniqueID(chunk.ObjectUIDs[i]);
 				objs.Add(obj);
 				if (destroy)
 					obj.Destroy();
@@ -209,7 +209,7 @@ namespace RPG1bit
 				chunk.Data[key] = value;
 			}
 
-			Text.FromJSON<List<Object>>(chunk.ObjectsJSON);
+			Text.FromJSON<List<GameObject>>(chunk.ObjectsJSON);
 
 			Assets.UnloadValues("chunk", "chunk-data");
 			World.Display();

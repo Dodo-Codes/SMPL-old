@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace RPG1bit
 {
-	public class Object : Thing
+	public class GameObject : Thing
 	{
 		public struct CreationDetails
 		{
@@ -25,7 +25,7 @@ namespace RPG1bit
 			public string AppearOnTab { get; set; }
 		}
 
-		public static readonly Dictionary<Point, List<Object>> objects = new();
+		public static readonly Dictionary<Point, List<GameObject>> objects = new();
 		public static readonly Dictionary<Point, string> descriptions = new()
 		{
 			{ new(33, 15), "Graphics 1-Bit Pack by kenney.nl\n" +
@@ -97,7 +97,7 @@ namespace RPG1bit
 			{ new(05, 23), "\t\t  On items...\n\n[LEFT CLICK] to display info\n   [LEFT DRAG] to move\n   [RIGHT CLICK] to split" },
 		};
 
-		public static Object HoldingObject { get; set; }
+		public static GameObject HoldingObject { get; set; }
 
 		[JsonProperty]
 		public string Name { get; set; }
@@ -141,7 +141,7 @@ namespace RPG1bit
 				position = value;
 				if (objects.ContainsKey(value) == false)
 				{
-					objects.Add(value, new List<Object>() { this });
+					objects.Add(value, new List<GameObject>() { this });
 					return;
 				}
 				objects[value].Add(this);
@@ -164,7 +164,7 @@ namespace RPG1bit
 			}
 		}
 
-		public Object(string uniqueID, CreationDetails creationDetails) : base(uniqueID)
+		public GameObject(string uniqueID, CreationDetails creationDetails) : base(uniqueID)
 		{
 			Keyboard.Event.Subscribe.KeyPress(uniqueID);
 			Keyboard.Event.Subscribe.KeyRelease(uniqueID);
@@ -202,7 +202,7 @@ namespace RPG1bit
 
 			if (Position != new Point(-10, 0))
 			{
-				Screen.EditCell(IsUI ? Position : worldPos, TileIndexes, Height, TileIndexes.C);
+				Screen.EditCell(IsUI ? Position : worldPos, TileIndexes, Height, TileIndexes.Color);
 				OnDisplay(IsUI ? Position : worldPos);
 			}
 		}
@@ -232,7 +232,7 @@ namespace RPG1bit
 			if (Gate.EnterOnceWhile($"on-hover-{UniqueID}", curPos == Position))
 			{
 				leftClicked = false;
-				if (this is not ObjectList)
+				if (this is not GameObjectList)
 					OnHovered();
 			}
 			if (Gate.EnterOnceWhile($"on-unhover-{UniqueID}", curPos != Position))
@@ -243,7 +243,7 @@ namespace RPG1bit
 				{
 					HoldingObject = this;
 					Hoverer.CursorTileIndexes = TileIndexes;
-					Hoverer.CursorColor = Position.C == Color.White ? TileIndexes.C : Position.C;
+					Hoverer.CursorColor = Position.Color == Color.White ? TileIndexes.Color : Position.Color;
 					OnDragStart();
 				}
 			}
@@ -316,7 +316,7 @@ namespace RPG1bit
 		public static void DisplayAllObjects()
 		{
 			var objs = GetObjectListCopy();
-			var units = new List<Object>();
+			var units = new List<GameObject>();
 
 			foreach (var kvp in objs)
 				for (int i = 0; i < kvp.Value.Count; i++)
@@ -335,7 +335,7 @@ namespace RPG1bit
 			if (World.CurrentSession == World.Session.None)
 				return;
 
-			var objsToDestroy = new List<Object>();
+			var objsToDestroy = new List<GameObject>();
 			foreach (var kvp in objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
 				{
@@ -347,9 +347,9 @@ namespace RPG1bit
 			for (int i = 0; i < objsToDestroy.Count; i++)
 				objsToDestroy[i].Destroy();
 		}
-		public static List<Object> PickByPosition(Point position)
+		public static List<GameObject> PickByPosition(Point position)
 		{
-			return objects.ContainsKey(position) ? objects[position] : new List<Object>();
+			return objects.ContainsKey(position) ? objects[position] : new List<GameObject>();
 		}
 		public static void AdvanceTime()
 		{
@@ -388,12 +388,21 @@ namespace RPG1bit
 			Hoverer.CursorColor = Color.White;
 			NavigationPanel.Info.ScheduleUpdate();
 		}
-		public static Dictionary<Point, List<Object>> GetObjectListCopy()
+		public static Dictionary<Point, List<GameObject>> GetObjectListCopy()
 		{
-			var objs = new Dictionary<Point, List<Object>>();
+			var objs = new Dictionary<Point, List<GameObject>>();
 			foreach (var kvp in objects)
 				objs[kvp.Key] = new(kvp.Value);
 			return objs;
+		}
+		public static List<string> GetSavableObjects()
+		{
+			var result = new List<string>();
+			foreach (var kvp in objects)
+				for (int i = 0; i < kvp.Value.Count; i++)
+					if (kvp.Value[i] is ISavable)
+						result.Add(kvp.Value[i].UniqueID);
+			return result;
 		}
 
 		public virtual void OnAdvanceTime() { }

@@ -12,7 +12,7 @@ namespace RPG1bit
 		public string T { get; set; } // text
 	}
 
-	public class Sign : Object, ITypeTaggable
+	public class Sign : GameObject, ITypeTaggable
 	{
 		public const int CHAR_LIMIT = 400;
 		[JsonProperty]
@@ -50,7 +50,7 @@ namespace RPG1bit
 		{
 			return new CompactSignData()
 			{
-				P = new(Position.X, Position.Y) { C = new(Height, 0, 0, 0) },
+				P = new(Position.X, Position.Y) { Color = new(Height, 0, 0, 0) },
 				I = TileIndexes,
 				T = Text
 			};

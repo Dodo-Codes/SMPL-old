@@ -53,10 +53,10 @@ namespace SMPL.Data
 		}
 		public void SetColor(Color colorCornerA, Color colorCornerB, Color colorCornerC, Color colorCornerD)
 		{
-			CornerA = new(new Point(CornerA.Position.X, CornerA.Position.Y) { C = colorCornerA }, CornerA.TextureCoordinate);
-			CornerB = new(new Point(CornerB.Position.X, CornerB.Position.Y) { C = colorCornerB }, CornerB.TextureCoordinate);
-			CornerC = new(new Point(CornerC.Position.X, CornerC.Position.Y) { C = colorCornerC }, CornerC.TextureCoordinate);
-			CornerD = new(new Point(CornerD.Position.X, CornerD.Position.Y) { C = colorCornerD }, CornerD.TextureCoordinate);
+			CornerA = new(new Point(CornerA.Position.X, CornerA.Position.Y) { Color = colorCornerA }, CornerA.TextureCoordinate);
+			CornerB = new(new Point(CornerB.Position.X, CornerB.Position.Y) { Color = colorCornerB }, CornerB.TextureCoordinate);
+			CornerC = new(new Point(CornerC.Position.X, CornerC.Position.Y) { Color = colorCornerC }, CornerC.TextureCoordinate);
+			CornerD = new(new Point(CornerD.Position.X, CornerD.Position.Y) { Color = colorCornerD }, CornerD.TextureCoordinate);
 		}
 	}
 }

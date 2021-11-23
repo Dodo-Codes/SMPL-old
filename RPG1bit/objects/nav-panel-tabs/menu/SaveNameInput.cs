@@ -30,6 +30,8 @@ namespace RPG1bit
 						var slot = new Assets.DataSlot($"sessions\\{name}.session");
 						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
 
+						slot.ThingUniqueIDs = GetSavableObjects();
+
 						SaveAll<Storage>(); SaveAll<ItemPile>(); SaveAll<Bag>(); SaveAll<Key>(); SaveAll<Quiver>(); SaveAll<Map>();
 
 						slot.SetValue("world-name", World.CurrentWorldName);
@@ -39,18 +41,18 @@ namespace RPG1bit
 						slot.IsCompressed = true;
 						slot.Save();
 
-						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
+						if (GameObjectList.Lists.ContainsKey("load-list")) AddToList(GameObjectList.Lists["load-list"]);
 
 						break;
-						void AddToList(ObjectList list)
+						void AddToList(GameObjectList list)
 						{
 							var uid = $"{name}-{Performance.FrameCount}-2";
 							if (UniqueIDsExists(uid))
 								return;
-							var value = (Object)new LoadSingleSessionValue(uid, new CreationDetails()
+							var value = (GameObject)new LoadSingleSessionValue(uid, new CreationDetails()
 							{
 								Name = name,
-								Position = new(-20, 0) { C = new() },
+								Position = new(-20, 0) { Color = new() },
 								TileIndexes = new Point[] { new Point(14, 10) },
 								Height = 1,
 								IsUI = true,
@@ -88,17 +90,17 @@ namespace RPG1bit
 						slot.IsCompressed = true;
 						slot.Save();
 
-						if (ObjectList.Lists.ContainsKey("load-world-list")) AddToList(ObjectList.Lists["load-world-list"]);
-						if (ObjectList.Lists.ContainsKey("load-list")) AddToList(ObjectList.Lists["load-list"]);
+						if (GameObjectList.Lists.ContainsKey("load-world-list")) AddToList(GameObjectList.Lists["load-world-list"]);
+						if (GameObjectList.Lists.ContainsKey("load-list")) AddToList(GameObjectList.Lists["load-list"]);
 
 						break;
 
-						void AddToList(ObjectList list)
+						void AddToList(GameObjectList list)
 						{
 							var uid = $"{name}-{list.UniqueID}";
 							if (UniqueIDsExists(uid))
 								return;
-							var value = (Object)new LoadWorldValue(uid, new CreationDetails()
+							var value = (GameObject)new LoadWorldValue(uid, new CreationDetails()
 							{
 								Name = name,
 								Position = new(-20, 0),
@@ -141,7 +143,7 @@ namespace RPG1bit
 			SaveLoad.UpdateTab();
 			Screen.ScheduleDisplay();
 
-			bool Contains(List<Object> list, Object obj)
+			bool Contains(List<GameObject> list, GameObject obj)
 			{
 				for (int i = 0; i < list.Count; i++)
 					if (list[i].Name == obj.Name && list[i].GetType() == obj.GetType())

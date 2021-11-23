@@ -4,7 +4,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class MoveCamera : Object
+	public class MoveCamera : GameObject
 	{
 		private readonly Point[] directions = new Point[] { new(), new(-1, 0), new(1, 0), new(0, -1), new(0, 1) };
 
@@ -23,7 +23,7 @@ namespace RPG1bit
 						{
 							if (World.CurrentSession == World.Session.Single)
 							{
-								var player = ((Object)PickByUniqueID(nameof(Player)));
+								var player = ((GameObject)PickByUniqueID(nameof(Player)));
 								World.CameraPosition = player.Position;
 							}
 							break;

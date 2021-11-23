@@ -226,10 +226,10 @@ namespace SMPL.Components
 			var tr = Point.To(sprite.Transform.TransformPoint(Point.From(Position + new Point(Size.W, 0))));
 			var br = Point.To(sprite.Transform.TransformPoint(Point.From(Position + new Point(Size.W, Size.H))));
 			var bl = Point.To(sprite.Transform.TransformPoint(Point.From(Position + new Point(0, Size.H))));
-			tl.C = color;
-			tr.C = color;
-			br.C = color;
-			bl.C = color;
+			tl.Color = color;
+			tr.Color = color;
+			br.Color = color;
+			bl.Color = color;
 			new Line(tl, tr).Display(camera, width);
 			new Line(tr, br).Display(camera, width);
 			new Line(br, bl).Display(camera, width);
@@ -260,15 +260,15 @@ namespace SMPL.Components
 				{
 					var curX = (camera.Position.X - borderOffset) - (camera.Position.X % ChunkSize + x * ChunkSize) + cameraSquareSize / 2;
 					var curY = (camera.Position.Y - borderOffset) - (camera.Position.Y % ChunkSize + y * ChunkSize) + cameraSquareSize / 2;
-					var top = new Point(curX, topY + curY) { C = color };
-					var bot = new Point(curX, botY + curY) { C = color };
-					var left = new Point(leftX + curX, curY) { C = color };
-					var right = new Point(rightX + curX, curY) { C = color };
+					var top = new Point(curX, topY + curY) { Color = color };
+					var bot = new Point(curX, botY + curY) { Color = color };
+					var left = new Point(leftX + curX, curY) { Color = color };
+					var right = new Point(rightX + curX, curY) { Color = color };
 					var off = ChunkSize / 2;
 
 					new Line(top, bot).Display(camera, bordersWidth);
 					new Line(left, right).Display(camera, bordersWidth);
-					new Point(curX + off, curY + off) { C = color }.Display(camera, bordersWidth * 4);
+					new Point(curX + off, curY + off) { Color = color }.Display(camera, bordersWidth * 4);
 
 					if (coordinatesFont == null || Assets.fonts.ContainsKey(coordinatesFont) == false) continue;
 					coordinatesText.Font = Assets.fonts[coordinatesFont];

@@ -121,10 +121,10 @@ namespace SMPL.Prefabs
 
 				void AddSideQuad(Side side, Line l, Line r, double distOffset)
 				{
-					l.EndPosition = new Point(l.EndPosition.X, l.EndPosition.Y) { C = colors[side] }; // top left
-					r.EndPosition = new Point(r.EndPosition.X, r.EndPosition.Y) { C = colors[side] }; // top right
-					r.StartPosition = new Point(r.StartPosition.X, r.StartPosition.Y) { C = colors[side] }; // bottom right
-					l.StartPosition = new Point(l.StartPosition.X, l.StartPosition.Y) { C = colors[side] }; // bottom left
+					l.EndPosition = new Point(l.EndPosition.X, l.EndPosition.Y) { Color = colors[side] }; // top left
+					r.EndPosition = new Point(r.EndPosition.X, r.EndPosition.Y) { Color = colors[side] }; // top right
+					r.StartPosition = new Point(r.StartPosition.X, r.StartPosition.Y) { Color = colors[side] }; // bottom right
+					l.StartPosition = new Point(l.StartPosition.X, l.StartPosition.Y) { Color = colors[side] }; // bottom left
 					if (skippedSides.Contains(side) == false)
 					{
 						dists.Add(99_999_999.0 - Point.Distance(camera.Position,
@@ -140,10 +140,10 @@ namespace SMPL.Prefabs
 				{
 					if (skippedSides.Contains(side) == false)
 					{
-						tl = new Point(tl.X, tl.Y) { C = colors[side] };
-						tr = new Point(tr.X, tr.Y) { C = colors[side] };
-						br = new Point(br.X, br.Y) { C = colors[side] };
-						bl = new Point(bl.X, bl.Y) { C = colors[side] };
+						tl = new Point(tl.X, tl.Y) { Color = colors[side] };
+						tr = new Point(tr.X, tr.Y) { Color = colors[side] };
+						br = new Point(br.X, br.Y) { Color = colors[side] };
+						bl = new Point(bl.X, bl.Y) { Color = colors[side] };
 						quads.Add(side == Side.Far ? "_" : "z", new Quad( // "_" & "z" alphabetic quad sort
 							new Corner(tl, new Point(texCoords[side][0].X, texCoords[side][0].Y)),
 							new Corner(tr, new Point(texCoords[side][1].X, texCoords[side][0].Y)),

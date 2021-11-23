@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class ItemPile : Object, ITypeTaggable
+	public class ItemPile : GameObject, ITypeTaggable, ISavable
 	{
 		public const int MAX_COUNT = 8;
 		[JsonProperty]

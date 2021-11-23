@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Slider : Object
+	public class Slider : GameObject
 	{
 		public int IndexValue { get; set; }
 		public int Size { get; set; }
@@ -46,7 +46,7 @@ namespace RPG1bit
 						  : i == Size - 1
                          ? IsVertical ? IndexValue == i ? 24 : 26 : (IndexValue = IndexValue == i ? 20 : 18)
                          : IsVertical ? IndexValue == i ? 23 : 22 : (IndexValue = IndexValue == i ? 17 : 16), 22);
-				Screen.EditCell(pos, tile, 1, Position.C);
+				Screen.EditCell(pos, tile, 1, Position.Color);
 				OnDisplayStep(pos, i);
 			}
 		}

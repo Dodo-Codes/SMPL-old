@@ -4,7 +4,7 @@ using System.IO;
 
 namespace RPG1bit
 {
-	public class LoadWorldValue : Object
+	public class LoadWorldValue : GameObject
 	{
 		public LoadWorldValue(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
@@ -26,12 +26,12 @@ namespace RPG1bit
 					File.Move($"worlds\\{Name}\\{Name}.worlddata", $"worlds\\{Name}\\{Path.GetFileName(name)}.worlddata");
 			Directory.Move($"worlds\\{Name}", name);
 
-			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
-			if (ObjectList.Lists.ContainsKey("load-world-list")) RemoveFromList(ObjectList.Lists["load-world-list"]);
+			if (GameObjectList.Lists.ContainsKey("load-list")) RemoveFromList(GameObjectList.Lists["load-list"]);
+			if (GameObjectList.Lists.ContainsKey("load-world-list")) RemoveFromList(GameObjectList.Lists["load-world-list"]);
 			StartSingle.UpdateTab();
 			SaveLoad.UpdateTab();
 
-			void RemoveFromList(ObjectList list)
+			void RemoveFromList(GameObjectList list)
 			{
 				for (int i = 0; i < list.Objects.Count; i++)
 				{

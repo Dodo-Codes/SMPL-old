@@ -2,7 +2,7 @@
 using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
-using static RPG1bit.Object;
+using static RPG1bit.GameObject;
 
 namespace RPG1bit
 {
@@ -137,7 +137,7 @@ namespace RPG1bit
 						hasTile = true;
 
 					for (int j = 0; j < mousePosObjs.Count; j++)
-						if (mousePosObjs[j] is not ObjectList)
+						if (mousePosObjs[j] is not GameObjectList)
 						{
 							if (mousePosObjs[j].IsUI == false || mousePosObjs[j].Height != i)
 								continue;
@@ -152,7 +152,7 @@ namespace RPG1bit
 
 					Textbox.Text = $"{description}{sep}{Textbox.Text}";
 
-					void ShowInfoIndicators(Object obj)
+					void ShowInfoIndicators(GameObject obj)
 					{
 						if (obj.IsLeftClickable || obj.IsDragable)
 							ShowLeftClickableIndicator(obj.IsLeftClickable, obj.IsDragable);
@@ -198,7 +198,7 @@ namespace RPG1bit
 			{
 				Name = "start-singleplayer",
 				Position = new(19, 0),
-				TileIndexes = new Point[] { new(43, 16) { C = Color.Gray } },
+				TileIndexes = new Point[] { new(43, 16) { Color = Color.Gray } },
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,
@@ -208,7 +208,7 @@ namespace RPG1bit
 			{
 				Name = "start-multiplayer",
 				Position = new(20, 0),
-				TileIndexes = new Point[] { new(44, 16) { C = Color.Gray / 1.2 } },
+				TileIndexes = new Point[] { new(44, 16) { Color = Color.Gray / 1.2 } },
 				Height = 1,
 				IsUI = true,
 				IsKeptBetweenSessions = true,
@@ -217,7 +217,7 @@ namespace RPG1bit
 			{
 				Name = "save-load",
 				Position = new(23, 0),
-				TileIndexes = new Point[] { new(42, 16) { C = Color.Gray } },
+				TileIndexes = new Point[] { new(42, 16) { Color = Color.Gray } },
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,
@@ -227,7 +227,7 @@ namespace RPG1bit
 			{
 				Name = "world-editor",
 				Position = new(21, 0),
-				TileIndexes = new Point[] { new(47, 06) { C = Color.Gray } },
+				TileIndexes = new Point[] { new(47, 06) { Color = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsConfirmingClick = true,
@@ -239,7 +239,7 @@ namespace RPG1bit
 			{
 				Name = "Sound effects",
 				Position = new(26, 0),
-				TileIndexes = new Point[] { new(38, 16) { C = new Color(175, 175, 175) } },
+				TileIndexes = new Point[] { new(38, 16) { Color = new Color(175, 175, 175) } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -249,7 +249,7 @@ namespace RPG1bit
 			{
 				Name = "Music",
 				Position = new(27, 0),
-				TileIndexes = new Point[] { new(39, 16) { C = new Color(175, 175, 175) } },
+				TileIndexes = new Point[] { new(39, 16) { Color = new Color(175, 175, 175) } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -260,7 +260,7 @@ namespace RPG1bit
 			{
 				Name = "-",
 				Position = new(30, 0),
-				TileIndexes = new Point[] { new(37, 20) { C = Color.Gray } },
+				TileIndexes = new Point[] { new(37, 20) { Color = Color.Gray } },
 				Height = 1,
 				IsUI = true,
 				IsLeftClickable = true,
@@ -270,7 +270,7 @@ namespace RPG1bit
 			{
 				Name = "x",
 				Position = new(31, 0),
-				TileIndexes = new Point[] { new(40, 13) { C = Color.Red - 50 } },
+				TileIndexes = new Point[] { new(40, 13) { Color = Color.Red - 50 } },
 				Height = 1,
 				IsLeftClickable = true,
 				IsUI = true,

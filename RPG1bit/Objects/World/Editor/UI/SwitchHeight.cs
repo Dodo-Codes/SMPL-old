@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class SwitchHeight : Object
+	public class SwitchHeight : GameObject
 	{
 		public static int BrushHeight { get; private set; }
 

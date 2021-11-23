@@ -5,7 +5,7 @@ using System.IO;
 
 namespace RPG1bit
 {
-	public class LoadSingleSessionValue : Object
+	public class LoadSingleSessionValue : GameObject
 	{
 		public LoadSingleSessionValue(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
@@ -26,11 +26,11 @@ namespace RPG1bit
 		{
 			File.Move($"sessions\\{Name}.session", $"deleted\\{Name}.session");
 
-			if (ObjectList.Lists.ContainsKey("load-list")) RemoveFromList(ObjectList.Lists["load-list"]);
+			if (GameObjectList.Lists.ContainsKey("load-list")) RemoveFromList(GameObjectList.Lists["load-list"]);
 			StartSingle.UpdateTab();
 			SaveLoad.UpdateTab();
 
-			void RemoveFromList(ObjectList list)
+			void RemoveFromList(GameObjectList list)
 			{
 				for (int i = 0; i < list.Objects.Count; i++)
 				{

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Unit : Object, IInteractable
+	public class Unit : GameObject, IInteractable, ISavable
 	{
 		[JsonProperty]
 		public List<string> ItemUIDs { get; set; } = new();
@@ -68,7 +68,7 @@ namespace RPG1bit
 
 			if (PullingUID != null)
 			{
-				var obj = (Object)PickByUniqueID(PullingUID);
+				var obj = (GameObject)PickByUniqueID(PullingUID);
 				if (Position != PreviousPosition)
 					obj.Position = PreviousPosition;
 			}

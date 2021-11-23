@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Storage : Object, IInteractable, ITypeTaggable, ISolid
+	public class Storage : GameObject, IInteractable, ITypeTaggable, ISolid, ISavable
 	{
 		[JsonProperty]
 		public bool Locked { get; set; }
@@ -55,7 +55,7 @@ namespace RPG1bit
 						{
 							Position = new(22 + x, 6 + y + off),
 							Height = 1,
-							TileIndexes = new Point[] { new(7, 23) { C = Color.Brown } },
+							TileIndexes = new Point[] { new(7, 23) { Color = Color.Brown } },
 							IsInTab = true,
 							AppearOnTab = UniqueID,
 							IsUI = true,
@@ -117,7 +117,7 @@ namespace RPG1bit
 					{ "wheelbarrow", new() { { 90, new(8, 16) }, { 270, new(9, 16) }, { 0, new(7, 16) }, { 180, new(6, 16) } } },
 				};
 				var tile = angles[Name][angle];
-				TileIndexes = new Point(tile.X, tile.Y) { C = TileIndexes.C };
+				TileIndexes = new Point(tile.X, tile.Y) { Color = TileIndexes.Color };
 			}
 
 			void Close()

@@ -3,7 +3,7 @@ using SMPL.Gear;
 
 namespace RPG1bit
 {
-	public class PlayerStats : Object
+	public class PlayerStats : GameObject
 	{
 		private static readonly string[] thoughts = new string[]
 		{

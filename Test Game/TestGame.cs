@@ -13,7 +13,22 @@ namespace TestGame
 
 		public override void OnGameCreate()
 		{
+			var instance = new List<Test>() { new Test("uid"), new Test("2") };
+			var json = Text.ToJSON(instance);
 
+			instance[0].Destroy();
+			instance[1].Destroy();
+
+			var loaded = Text.FromJSON<List<Test>>(json);
 		}
+	}
+
+	public class Test : Thing
+	{
+		public Test(string uniqueID) : base(uniqueID) { }
+
+		public bool Bool;
+		public string String;
+		public int Int;
 	}
 }

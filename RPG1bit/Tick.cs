@@ -2,7 +2,7 @@
 
 namespace RPG1bit
 {
-	public class Tick : Object
+	public class Tick : GameObject
 	{
 		public bool Value { get; protected set; }
 
@@ -15,7 +15,7 @@ namespace RPG1bit
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			Screen.EditCell(screenPos, new(Value ? 40 : 39, 14), 1, Position.C);
+			Screen.EditCell(screenPos, new(Value ? 40 : 39, 14), 1, Position.Color);
 		}
 		public virtual void OnValueChanged() { }
 	}

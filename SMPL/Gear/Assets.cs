@@ -22,34 +22,22 @@ namespace SMPL.Gear
 
 			[JsonProperty]
 			internal Dictionary<string, string> values;
+			[JsonProperty]
+			internal List<Thing> things;
+			
 			public string FilePath { get; set; }
 			public bool IsCompressed { get; set; }
 
-			public Area[] Areas { get; set; }
-			public Audio[] Audios { get; set; }
-			public Camera[] Cameras { get; set; }
-			public Effects[] Effects { get; set; }
-			public Family[] Families { get; set; }
-			public Hitbox[] Hitboxes { get; set; }
-			public Components.Sprite[] Sprites { get; set; }
-			public Textbox[] Textboxes { get; set; }
-			public Components.Timer[] Timers { get; set; }
-
-			public Cloth[] Clothes { get; set; }
-			public Ropes[] Ropes { get; set; }
-			public SegmentedLine[] SegmentedLines { get; set; }
-
-			public Probability.Table[] ProbabilityTables { get; set; }
+			public List<string> ThingUniqueIDs { get; set; }
 
 			public DataSlot(string filePath)
 			{
-				values = default; Areas = default; Audios = default; Cameras = default; Effects = default; Families = default;
-				Hitboxes = default; Sprites = default; Textboxes = default; Timers = default; Clothes = default; Ropes = default;
-				SegmentedLines = default; ProbabilityTables = default;
+				values = default;
+				things = new();
+				ThingUniqueIDs = new();
 				FilePath = filePath;
 				IsCompressed = default;
 			}
-
 			public static class Event
 			{
 				public static class Subscribe
@@ -74,6 +62,10 @@ namespace SMPL.Gear
 
 			public void Save()
 			{
+				if (ThingUniqueIDs != null)
+					for (int i = 0; i < ThingUniqueIDs.Count; i++)
+						things.Add(Thing.PickByUniqueID(ThingUniqueIDs[i]));
+
 				queuedSaveSlots.Add(this);
 			}
 			public void SetValue(string key, string value)

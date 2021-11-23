@@ -7,7 +7,7 @@ namespace RPG1bit
 	{
 		public Rope(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
-			TileIndexes = new(11, 14) { C = Color.Brown + 50 };
+			TileIndexes = new(11, 14) { Color = Color.Brown + 50 };
 			MaxQuantity = 2;
 			CanCarryOnWaist = true;
 			CanCarryOnBack = true;
