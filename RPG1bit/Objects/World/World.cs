@@ -46,7 +46,7 @@ namespace RPG1bit
 				var chunks = Directory.GetFiles($"worlds\\{CurrentWorldName}");
 				for (int i = 0; i < chunks.Length; i++)
 					if (chunks[i].Contains("worlddata") == false)
-						File.Copy(chunks[i], $"chunks\\{Path.GetFileName(chunks[i])}");
+						File.Copy(chunks[i], $"cache\\{Path.GetFileName(chunks[i])}");
 
 				ChunkManager.ScheduleLoadVisibleChunks();
 				ChunkManager.UpdateChunks();

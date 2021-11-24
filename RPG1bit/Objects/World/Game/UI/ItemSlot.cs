@@ -5,12 +5,14 @@ namespace RPG1bit
 {
 	public class ItemSlot : GameObject
 	{
+		public Point WorldPosition { get; set; }
+
 		public ItemSlot(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails) { }
 
 		public override void OnHovered()
 		{
-			if (Name == "chest")
-				HoveredInfo = "...in the chest";
+			if (UniqueID.Contains("storage"))
+				HoveredInfo = $"...in the {Name}";
 		}
 		public override void OnDroppedUpon()
 		{
@@ -25,9 +27,11 @@ namespace RPG1bit
 			else if (UniqueID == "carry-waist" && item.CanCarryOnWaist) Equip(item);
 			else if (UniqueID == "extra-slot-0" && item.CanCarryInBag) Equip(item);
 			else if (UniqueID == "extra-slot-1" && item.CanCarryInBag) Equip(item);
-			else if (UniqueID == "extra-slot-2" && item.CanCarryInQuiver) Equip(item);
-			else if (UniqueID == "extra-slot-3" && item.CanCarryInQuiver) Equip(item);
-			else if (UniqueID.Contains("ground") || UniqueID.Contains("chest")) Equip(item);
+			else if (UniqueID == "extra-slot-2" && item.CanCarryInBag) Equip(item);
+			else if (UniqueID == "extra-slot-3" && item.CanCarryInBag) Equip(item);
+			else if (UniqueID == "extra-slot-4" && item.CanCarryInQuiver) Equip(item);
+			else if (UniqueID == "extra-slot-5" && item.CanCarryInQuiver) Equip(item);
+			else if (UniqueID.Contains("ground") || UniqueID.Contains("storage")) Equip(item);
 		}
 		public void Equip(Item item)
 		{
@@ -65,7 +69,7 @@ namespace RPG1bit
 				newPile.AddItem(item);
 				item.OnDrop();
 			}
-			else if (UniqueID.Contains("chest"))
+			else if (UniqueID.Contains("storage"))
 			{
 				if (player.ItemUIDs.Contains(item.UniqueID))
 					player.ItemUIDs.Remove(item.UniqueID);

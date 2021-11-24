@@ -129,7 +129,7 @@ namespace RPG1bit
 			var chunkCenter = GetChunkCenterFromPosition(World.CameraPosition);
 			var pos = chunkCenter + offset * SIZE;
 			var id = $"chunk-{pos}";
-			if (UniqueIDsExists(id) || File.Exists($"chunks\\{pos}.chunkdata") == false)
+			if (UniqueIDsExists(id) || File.Exists($"cache\\{pos}.chunkdata") == false)
 				return;
 
 			queueLoad.Add(pos);
@@ -153,7 +153,7 @@ namespace RPG1bit
 			}
 			chunk.ObjectsJSON = Text.ToJSON(objs);
 
-			var slot = new Assets.DataSlot($"chunks\\{chunk.Center}.chunkdata");
+			var slot = new Assets.DataSlot($"cache\\{chunk.Center}.chunkdata");
 			slot.SetValue("chunk-data", Text.ToJSON(chunk.GetSavableData()));
 			slot.SetValue("chunk", Text.ToJSON(chunk));
 			slot.IsCompressed = true;
@@ -163,7 +163,7 @@ namespace RPG1bit
 		}
 		public static void LoadChunk(Point center)
 		{
-			Assets.Load(Assets.Type.DataSlot, $"chunks\\{center}.chunkdata");
+			Assets.Load(Assets.Type.DataSlot, $"cache\\{center}.chunkdata");
 		}
 		public static void DestroyAllChunks(bool runtime, bool savedData)
 		{
@@ -175,7 +175,7 @@ namespace RPG1bit
 			}
 			if (savedData)
 			{
-				var chunkNames = Directory.GetFiles("chunks");
+				var chunkNames = Directory.GetFiles("cache");
 				for (int i = 0; i < chunkNames.Length; i++)
 					File.Delete(chunkNames[i]);
 			}
@@ -186,7 +186,7 @@ namespace RPG1bit
 		public override void OnAssetsDataSlotSaveEnd()
 		{
 			for (int i = 0; i < queueSave.Count; i++)
-				if (File.Exists($"chunks\\{queueSave[i]}.chunkdata"))
+				if (File.Exists($"cache\\{queueSave[i]}.chunkdata"))
 				{
 					queueSave.Remove(queueSave[i]);
 					break;

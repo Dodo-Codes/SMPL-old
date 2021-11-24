@@ -5,12 +5,13 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Storage : GameObject, IInteractable, ITypeTaggable, ISolid, ISavable
+	public class Storage : GameObject, IInteractable, ITypeTaggable, ISolid, IRecreatable
 	{
 		[JsonProperty]
 		public bool Locked { get; set; }
 		[JsonProperty]
 		private bool opened, justCreated, canBeOpened;
+		private int size;
 
 		public Storage(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
@@ -25,6 +26,20 @@ namespace RPG1bit
 			justCreated = true;
 		}
 
+		public override void Destroy()
+		{
+			for (int y = 0; y < size; y++)
+				for (int x = 0; x < 7; x++)
+				{
+					if ((x + y) % 2 == 0)
+						continue;
+
+					var id = $"{UniqueID}-{x}-{y}";
+					if (UniqueIDsExists(id))
+						PickByUniqueID(id).Destroy();
+				}
+			base.Destroy();
+		}
 		public override void OnAdvanceTime()
 		{
 			if (justCreated)
@@ -32,7 +47,7 @@ namespace RPG1bit
 				justCreated = false;
 				canBeOpened = false;
 				IsPullableByUnit = true;
-				var size = 7;
+				size = 7;
 				Name = "chest";
 
 				if (Is(5, 7)) { Name = "big drawer"; size = 5; canBeOpened = true; IsPullableByUnit = false; }
@@ -60,7 +75,7 @@ namespace RPG1bit
 							AppearOnTab = UniqueID,
 							IsUI = true,
 							Name = Name
-						});
+						}) { WorldPosition = Position };
 					}
 			}
 

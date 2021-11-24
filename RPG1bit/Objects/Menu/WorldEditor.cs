@@ -158,45 +158,23 @@ namespace RPG1bit
 		public static readonly Dictionary<string, List<Point>> Tiles = new()
 		{
 			{ "special", new() { new(0, 22), new(25, 0) } },
-			{ "water", new()
-				{
-					new(7, 3), new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(7, 4), new(8, 4), new(9, 4), new(10, 4),
-					new(11, 4), new(12, 4), new(13, 4), new(14, 4), new(7, 5), new(8, 5), new(9, 5), new(10, 5), new(11, 5)
-				}
-			},
-			{
-				nameof(Door), new()
-				{
-					new(5, 4), new(3, 4), new(0, 4), new(3, 3), new(40, 22), new(38, 22), new(42, 22), new(44, 22), new(46, 22),
-					new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23)
-				}
-			},
-			{
-				nameof(Boat), new()
-				{
-					new(8, 19), new(9, 19), new(10, 19), new(11, 19), new(12, 23), new(13, 23), new(14, 23), new(15, 23)
-				}
-			},
-			{
-				nameof(Storage),
-				new()
-				{
+			{ "water", new() { new(7, 3), new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(7, 4), new(8, 4), new(9, 4),
+				new(10, 4), new(11, 4), new(12, 4), new(13, 4), new(14, 4), new(7, 5), new(8, 5), new(9, 5), new(10, 5), new(11, 5) } },
+			{ nameof(Door), new() { new(5, 4), new(3, 4), new(0, 4), new(3, 3), new(40, 22), new(38, 22), new(42, 22), new(44, 22),
+				new(46, 22), new(40, 23), new(38, 23), new(42, 23), new(44, 23), new(46, 23) } },
+			{ nameof(Boat), new() { new(8, 19), new(9, 19), new(10, 19), new(11, 19), new(12, 23), new(13, 23), new(14, 23),
+				new(15, 23) } },
+			{ nameof(Storage), new() {
 					new(21, 23), new(22, 23), new(21, 24), new(22, 24), // chest
 					new(05, 07), new(06, 07), // big drawer
 					new(07, 07), new(08, 07), // small drawer
 					new(08, 18), new(09, 18), // cart
 					new(06, 16), new(07, 16), new(08, 16), new(09, 16), // wheelbarrow
-					new(06, 17), new(07, 17), new(08, 17), new(09, 17), // chariot
-				}
-			},
-			{
-				nameof(Mount),
-				new()
-				{
+					new(06, 17), new(07, 17), new(08, 17), new(09, 17) // chariot
+			} },
+			{ nameof(Mount), new() {
 					new(27, 07), new(28, 07), // horse
-
-				}
-			},
+			} },
 		};
 		public static Point Brush { get; set; } = new(1, 22);
 

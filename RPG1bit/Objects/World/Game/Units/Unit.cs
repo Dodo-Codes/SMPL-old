@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Unit : GameObject, IInteractable, ISavable
+	public class Unit : GameObject, IInteractable, ISavable, ICachable
 	{
 		[JsonProperty]
 		public List<string> ItemUIDs { get; set; } = new();

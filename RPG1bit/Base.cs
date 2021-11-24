@@ -22,7 +22,7 @@ namespace RPG1bit
 			Window.CurrentState = Window.State.Fullscreen;
 			Mouse.Cursor.IsHidden = true;
 
-			Directory.CreateDirectory("chunks");
+			Directory.CreateDirectory("cache");
 			Directory.CreateDirectory("deleted");
 			Directory.CreateDirectory("sessions");
 			Directory.CreateDirectory("worlds");
@@ -44,6 +44,7 @@ namespace RPG1bit
 				new Hoverer("hoverer");
 				new World("world");
 				new ChunkManager("chunk-manager");
+				new WorldObjectManager("world-obj-manager");
 				Screen.ScheduleDisplay();
 			}
 		}
@@ -93,7 +94,7 @@ namespace RPG1bit
 				var rope = new Rope("rope", new());
 				var pile = new ItemPile("item-pile", new())
 				{
-					Position = new Point(-1, 0),
+					Position = new Point(0, -5),
 				};
 
 				quiver.Stats["slots"] = 2;

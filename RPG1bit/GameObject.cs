@@ -83,7 +83,8 @@ namespace RPG1bit
 			{ new(06, 16), "Wheelbarrow" }, { new(07, 16), "Wheelbarrow" }, { new(08, 16), "Wheelbarrow" },
 			{ new(09, 16), "Wheelbarrow" },
 
-			// single
+			{ new(27, 07), "Horse" }, { new(28, 07), "Horse" },
+
 			{ new(07, 23), "...on the ground" }, { new(05, 22), "...on your head" }, { new(06, 22), "...on your body" },
 			{ new(07, 22), "...on your feet" }, { new(08, 22), "...in your left hand" }, { new(09, 22), "...in your right hand" },
 			{ new(10, 22), "...on your back" }, { new(11, 22), "...on your waist" }, { new(43, 06), "...in your quiver" },
@@ -395,12 +396,12 @@ namespace RPG1bit
 				objs[kvp.Key] = new(kvp.Value);
 			return objs;
 		}
-		public static List<string> GetSavableObjects()
+		public static List<string> GetObjects<T>()
 		{
 			var result = new List<string>();
 			foreach (var kvp in objects)
 				for (int i = 0; i < kvp.Value.Count; i++)
-					if (kvp.Value[i] is ISavable)
+					if (kvp.Value[i] is T)
 						result.Add(kvp.Value[i].UniqueID);
 			return result;
 		}

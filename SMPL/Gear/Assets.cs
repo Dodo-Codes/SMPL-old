@@ -16,6 +16,7 @@ namespace SMPL.Gear
 {
 	public static class Assets
 	{
+		[JsonObject(MemberSerialization.OptIn)]
 		public struct DataSlot
 		{
 			public const string DIRECTORY = "SavedData";
@@ -295,84 +296,91 @@ namespace SMPL.Gear
 				assetLoadBegin = true;
 				slotSaveStart = true;
 
-				if (queuedAssets != null && queuedAssets.Count > 0)
+				try
 				{
-					// thread-safe local list in case the main thread queues something while this one foreaches the list
-					var curQueuedAssets = new List<QueuedAsset>(queuedAssets);
-					for (int i = 0; i < curQueuedAssets.Count; i++)
+					if (queuedAssets != null && queuedAssets.Count > 0)
 					{
-						var asset = curQueuedAssets[i].asset;
-						var path = curQueuedAssets[i].path;
-						try
+						// thread-safe local list in case the main thread queues something while this one foreaches the list
+						var curQueuedAssets = new List<QueuedAsset>(queuedAssets);
+						for (int i = 0; i < curQueuedAssets.Count; i++)
 						{
-							switch (asset)
+							var asset = curQueuedAssets[i].asset;
+							var path = curQueuedAssets[i].path;
+							try
 							{
-								case Type.Texture: textures[path] = new Texture(path); break;
-								case Type.Font: fonts[path] = new Font(path); break;
-								case Type.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
-								case Type.Music: music[path] = new Music(path); break;
-								case Type.DataSlot:
-									{
-										var str = "";
-										try
+								switch (asset)
+								{
+									case Type.Texture: textures[path] = new Texture(path); break;
+									case Type.Font: fonts[path] = new Font(path); break;
+									case Type.Sound: sounds[path] = new Sound(new SoundBuffer(path)); break;
+									case Type.Music: music[path] = new Music(path); break;
+									case Type.DataSlot:
 										{
-											str = File.ReadAllText(path);
-											if (str[0] != '{')
-												str = Data.Text.Decompress(str);
-											var slot = JsonConvert.DeserializeObject<DataSlot>(str);
+											var str = "";
+											try
+											{
+												str = File.ReadAllText(path);
+												if (str[0] != '{')
+													str = Data.Text.Decompress(str);
+												var slot = JsonConvert.DeserializeObject<DataSlot>(str);
 
-											if (slot.values == null) continue;
-											foreach (var kvp in slot.values)
-												values[kvp.Key] = kvp.Value;
+												if (slot.values == null) continue;
+												foreach (var kvp in slot.values)
+													values[kvp.Key] = kvp.Value;
+											}
+											catch (System.Exception)
+											{
+												Debug.LogError(1, $"Error loading {nameof(DataSlot)} from file '{path}'.");
+												continue;
+											}
+											break;
 										}
-										catch (System.Exception)
-										{
-											Debug.LogError(1, $"Error loading {nameof(DataSlot)} from file '{path}'.");
-											continue;
-										}
-										break;
-									}
+								}
 							}
+							catch (Exception)
+							{
+								Debug.LogError(-1, $"Failed to load asset {asset} from file '{path}'.");
+								continue;
+							}
+							UpdateCounter();
+							queuedAssets.Remove(curQueuedAssets[i]);
+							Thread.Sleep(1);
 						}
-						catch (Exception)
-						{
-							Debug.LogError(-1, $"Failed to load asset {asset} from file '{path}'.");
-							continue;
-						}
-						UpdateCounter();
-						queuedAssets.Remove(curQueuedAssets[i]);
-						Thread.Sleep(1);
+						assetLoadBegin = false;
+						assetLoadUpdate = false;
+						assetLoadEnd = true;
 					}
-					assetLoadBegin = false;
-					assetLoadUpdate = false;
-					assetLoadEnd = true;
-				}
-				if (queuedSaveSlots != null && queuedSaveSlots.Count > 0)
-				{
-					var curQueuedSaveSlots = new List<DataSlot>(queuedSaveSlots);
-					for (int i = 0; i < curQueuedSaveSlots.Count; i++)
+					if (queuedSaveSlots != null && queuedSaveSlots.Count > 0)
 					{
-						var path = curQueuedSaveSlots[i].FilePath;
-						try
+						var curQueuedSaveSlots = new List<DataSlot>(queuedSaveSlots);
+						for (int i = 0; i < curQueuedSaveSlots.Count; i++)
 						{
-							Directory.CreateDirectory(Path.GetDirectoryName(path));
-							var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i], Formatting.Indented);
-							if (curQueuedSaveSlots[i].IsCompressed)
-								str = Data.Text.Compress(str);
-							File.WriteAllText(path, str);
+							var path = curQueuedSaveSlots[i].FilePath;
+							try
+							{
+								Directory.CreateDirectory(Path.GetDirectoryName(path));
+								var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i], Formatting.Indented);
+								if (curQueuedSaveSlots[i].IsCompressed)
+									str = Data.Text.Compress(str);
+								File.WriteAllText(path, str);
+							}
+							catch (Exception)
+							{
+								Debug.LogError(-1, $"Failed to save {nameof(DataSlot)} asset in file '{path}'.");
+								continue;
+							}
+							UpdateCounter();
+							queuedSaveSlots.Remove(curQueuedSaveSlots[i]);
+							Thread.Sleep(1);
 						}
-						catch (Exception)
-						{
-							Debug.LogError(-1, $"Failed to save {nameof(DataSlot)} asset in file '{path}'.");
-							continue;
-						}
-						UpdateCounter();
-						queuedSaveSlots.Remove(curQueuedSaveSlots[i]);
-						Thread.Sleep(1);
+						slotSaveEnd = true;
 					}
-					slotSaveEnd = true;
 				}
-
+				catch (Exception)
+				{
+					Debug.LogError(-1, $"Could not save or load some of the queued {nameof(Assets)}.");
+					return;
+				}
 				void UpdateCounter()
 				{
 					loadedCount++;

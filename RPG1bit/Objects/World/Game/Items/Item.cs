@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class Item : GameObject, ITypeTaggable, ISavable
+	public class Item : GameObject, ITypeTaggable, ICachable
 	{
 		private static readonly Dictionary<string, string> singles = new()
 		{
@@ -140,8 +140,10 @@ namespace RPG1bit
 			SetTileIndex((ItemSlot)PickByUniqueID("carry-waist"), item.CanCarryOnWaist);
 			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-0"), item.CanCarryInBag);
 			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-1"), item.CanCarryInBag);
-			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-2"), item.CanCarryInQuiver);
-			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-3"), item.CanCarryInQuiver);
+			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-2"), item.CanCarryInBag);
+			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-3"), item.CanCarryInBag);
+			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-4"), item.CanCarryInQuiver);
+			SetTileIndex((ItemSlot)PickByUniqueID("extra-slot-5"), item.CanCarryInQuiver);
 			Screen.ScheduleDisplay();
 
 			void SetTileIndex(ItemSlot itemSlot, bool canCarry)

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace RPG1bit
 {
-	public class ItemPile : GameObject, ITypeTaggable, ISavable
+	public class ItemPile : GameObject, ITypeTaggable, ISavable, ICachable
 	{
 		public const int MAX_COUNT = 8;
 		[JsonProperty]
-		private List<string> ItemUIDs { get; set; } = new();
+		public List<string> ItemUIDs { get; set; } = new();
 
 		public ItemPile(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
@@ -28,6 +28,12 @@ namespace RPG1bit
 			item.OwnerUID = null;
 		}
 		public override void OnAdvanceTime() => UpdateItems();
+		public override void Destroy()
+		{
+			if (ItemUIDs.Count > 0)
+				ChunkManager.SetTile(Position, 3, TileIndexes);
+			base.Destroy();
+		}
 
 		public void UpdateItems()
 		{
@@ -38,13 +44,14 @@ namespace RPG1bit
 			for (int i = 0; i < ItemUIDs.Count; i++)
 			{
 				var thing = PickByUniqueID(ItemUIDs[i]);
+				if (thing == null)
+					continue;
 				var item = (Item)thing;
 				item.Position = new Point(Position == player.Position ? 10 + i : -10, 0);
 			}
 		}
 		public override void OnDisplay(Point screenPos)
 		{
-			var hide = World.TileHasRoof(World.ScreenToWorldPosition(screenPos)) && World.IsShowingRoofs;
 			var xOffset = 0;
 			switch (ItemUIDs.Count)
 			{
@@ -52,8 +59,9 @@ namespace RPG1bit
 				case 5: case 6: xOffset = 2; break;
 				case 7: case 8: xOffset = 3; break;
 			}
-			var tile = new Point(8 + xOffset, 23.0);
-			Screen.EditCell(screenPos, hide ? new() : tile, 3, hide ? new() : Color.White);
+			var tile = new Point(8 + xOffset, 23);
+			TileIndexes = tile;
+			Screen.EditCell(screenPos, tile, 3, Color.White);
 		}
 	}
 }

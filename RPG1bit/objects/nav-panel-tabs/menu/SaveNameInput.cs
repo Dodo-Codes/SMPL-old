@@ -27,18 +27,13 @@ namespace RPG1bit
 				case World.Session.None: return;
 				case World.Session.Single:
 					{
-						var slot = new Assets.DataSlot($"sessions\\{name}.session");
+						var slot = new Assets.DataSlot($"sessions\\{name}.session")
+						{
+							ThingUniqueIDs = GetObjects<ISavable>(),
+							IsCompressed = true
+						};
 						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
-
-						slot.ThingUniqueIDs = GetSavableObjects();
-
-						SaveAll<Storage>(); SaveAll<ItemPile>(); SaveAll<Bag>(); SaveAll<Key>(); SaveAll<Quiver>(); SaveAll<Map>();
-
 						slot.SetValue("world-name", World.CurrentWorldName);
-
-						void SaveAll<T>() => slot.SetValue(typeof(T).Name, Text.ToJSON(PickByTag(typeof(T).Name)));
-
-						slot.IsCompressed = true;
 						slot.Save();
 
 						if (GameObjectList.Lists.ContainsKey("load-list")) AddToList(GameObjectList.Lists["load-list"]);
@@ -80,7 +75,7 @@ namespace RPG1bit
 						}
 
 						Directory.CreateDirectory($"worlds\\{name}");
-						var chunkNames = Directory.GetFiles("chunks");
+						var chunkNames = Directory.GetFiles("cache");
 						for (int i = 0; i < chunkNames.Length; i++)
 							File.Copy(chunkNames[i], $"worlds\\{name}\\{Path.GetFileName(chunkNames[i])}");
 
