@@ -98,7 +98,7 @@ namespace RPG1bit
 					var dist = Point.Distance(player.Position, kvp.Value[i].Position);
 					cachePos = kvp.Value[i].Position;
 
-					if (kvp.Value[i] is IRecreatable && dist > 10)
+					if (kvp.Value[i] is IRecreatable && Gate.EnterOnceWhile($"cache-unload-3-{i}-{cachePos}", dist > 10))
 						objsToDestroy.Add(kvp.Value[i]);
 
 					if (kvp.Value[i] is ICachable && kvp.Value[i] is not Player)
@@ -110,13 +110,13 @@ namespace RPG1bit
 
 							var worldPos = ((GameObject)PickByUniqueID(item.OwnerUID)).Position;
 							cachePos = worldPos;
-							if (Point.Distance(player.Position, worldPos) > 10)
+							if (Gate.EnterOnceWhile($"cache-unload-2-{i}-{cachePos}", Point.Distance(player.Position, worldPos) > 10))
 							{
 								cacheUIDs.Add(item.UniqueID);
 								cachedUIDs.Add(item.UniqueID);
 							}
 						}
-						else if (dist > 10)
+						else if (Gate.EnterOnceWhile($"cache-unload-1-{i}-{cachePos}", dist > 10))
 						{
 							cacheUIDs.Add(kvp.Value[i].UniqueID);
 							cachedUIDs.Add(kvp.Value[i].UniqueID);
@@ -147,8 +147,16 @@ namespace RPG1bit
 				objsToDestroy[i].Destroy();
 			}
 
-			var cache = Directory.GetFiles("cache");
-			,
+			var cacheFiles = Directory.GetFiles("cache");
+			for (int i = 0; i < cacheFiles.Length; i++)
+				if (Path.GetExtension(cacheFiles[i]) == ".cache")
+				{
+					var name = Path.GetFileNameWithoutExtension(cacheFiles[i]).Split(' ');
+					var pos = new Point(int.Parse(name[0]), int.Parse(name[1]));
+					var dist = Point.Distance(player.Position, pos);
+					if (Gate.EnterOnceWhile($"cache-load-{cacheFiles[i]}-{i}", dist < 10))
+						Assets.Load(Assets.Type.DataSlot, cacheFiles[i]);
+				}
 		}
 		private static void TryToCreate(string type)
 		{

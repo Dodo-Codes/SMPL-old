@@ -27,16 +27,16 @@ namespace RPG1bit
 				case World.Session.None: return;
 				case World.Session.Single:
 					{
-						var slot = new Assets.DataSlot($"sessions\\{name}.session")
+						var slot = new Assets.DataSlot($"sessions\\{name}\\{name}.session")
 						{
 							ThingUniqueIDs = GetObjects<ISavable>(),
 							IsCompressed = true
 						};
-						slot.SetValue(nameof(Player), Text.ToJSON(PickByUniqueID(nameof(Player))));
 						slot.SetValue("world-name", World.CurrentWorldName);
 						slot.Save();
 
-						if (GameObjectList.Lists.ContainsKey("load-list")) AddToList(GameObjectList.Lists["load-list"]);
+						if (GameObjectList.Lists.ContainsKey("load-list"))
+							AddToList(GameObjectList.Lists["load-list"]);
 
 						break;
 						void AddToList(GameObjectList list)

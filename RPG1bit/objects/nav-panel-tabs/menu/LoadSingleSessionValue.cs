@@ -14,17 +14,17 @@ namespace RPG1bit
 
 		public override void OnAssetsLoadEnd()
 		{
-			if (Assets.ValuesAreLoaded("world-name", nameof(Player)))
+			if (Gate.EnterOnceWhile("load-worlddd", Assets.ValuesAreLoaded("world-name")))
 				World.LoadWorld(World.Session.Single, Assets.GetValue("world-name"));
 		}
 		public override void OnLeftClicked()
 		{
 			DestroyAllSessionObjects();
-			Assets.Load(Assets.Type.DataSlot, $"sessions\\{Name}.session");
+			Assets.Load(Assets.Type.DataSlot, $"sessions\\{Name}\\{Name}.session");
 		}
 		public override void OnRightClicked()
 		{
-			File.Move($"sessions\\{Name}.session", $"deleted\\{Name}.session");
+			File.Move($"sessions\\{Name}\\{Name}.session", $"deleted\\{Name}\\{Name}.session");
 
 			if (GameObjectList.Lists.ContainsKey("load-list")) RemoveFromList(GameObjectList.Lists["load-list"]);
 			StartSingle.UpdateTab();

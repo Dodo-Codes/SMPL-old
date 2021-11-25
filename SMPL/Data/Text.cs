@@ -22,7 +22,6 @@ namespace SMPL.Data
 		{
 			AddTypes(Assembly.GetEntryAssembly().GetTypes());
 			AddTypes(Assembly.GetCallingAssembly().GetTypes());
-			KnownTypes.Add(typeof(Dictionary<string, string>));
 
 			KnownTypes.Add(typeof(bool)); KnownTypes.Add(typeof(char)); KnownTypes.Add(typeof(string)); KnownTypes.Add(typeof(double));
 			KnownTypes.Add(typeof(float)); KnownTypes.Add(typeof(decimal)); KnownTypes.Add(typeof(long)); KnownTypes.Add(typeof(ulong));
@@ -30,7 +29,7 @@ namespace SMPL.Data
 			KnownTypes.Add(typeof(int)); KnownTypes.Add(typeof(uint));
 
 			KnownTypes.Add(typeof(Point)); KnownTypes.Add(typeof(Color)); KnownTypes.Add(typeof(Corner)); KnownTypes.Add(typeof(Line));
-			KnownTypes.Add(typeof(Quad)); KnownTypes.Add(typeof(Size));
+			KnownTypes.Add(typeof(Quad)); KnownTypes.Add(typeof(Size)); KnownTypes.Add(typeof(Assets.DataSlot));
 
 			var types = new List<Type>(KnownTypes);
 			for (int i = 0; i < types.Count; i++)
@@ -40,6 +39,14 @@ namespace SMPL.Data
 				KnownTypes.Add(listType);
 				KnownTypes.Add(arrType);
 			}
+			KnownTypes.Add(typeof(Dictionary<string, string>)); KnownTypes.Add(typeof(Dictionary<string, int>));
+			KnownTypes.Add(typeof(Dictionary<string, bool>)); KnownTypes.Add(typeof(Dictionary<string, double>));
+			KnownTypes.Add(typeof(Dictionary<bool, string>)); KnownTypes.Add(typeof(Dictionary<bool, int>));
+			KnownTypes.Add(typeof(Dictionary<bool, bool>)); KnownTypes.Add(typeof(Dictionary<bool, double>));
+			KnownTypes.Add(typeof(Dictionary<int, string>)); KnownTypes.Add(typeof(Dictionary<int, int>));
+			KnownTypes.Add(typeof(Dictionary<int, bool>)); KnownTypes.Add(typeof(Dictionary<int, double>));
+			KnownTypes.Add(typeof(Dictionary<double, string>)); KnownTypes.Add(typeof(Dictionary<double, int>));
+			KnownTypes.Add(typeof(Dictionary<double, bool>)); KnownTypes.Add(typeof(Dictionary<double, double>));
 
 			void AddTypes(Type[] types)
 			{
@@ -135,15 +142,16 @@ namespace SMPL.Data
 		/// - <see cref="bool"/>, <see cref="char"/>, <see cref="string"/>, <see cref="sbyte"/>, <see cref="byte"/>, <see cref="short"/>,
 		/// <see cref="ushort"/>, <see cref="int"/>, <see cref="uint"/>, <see cref="long"/>, <see cref="ulong"/>, <see cref="float"/>,
 		/// <see cref="double"/>, <see cref="decimal"/> (can be in a <see cref="List{T}"/> or <see cref="Array"/>)<br></br>
-		/// - <see cref="Point"/>, <see cref="Color"/>, <see cref="Size"/>, <see cref="Line"/>, <see cref="Corner"/>, <see cref="Quad"/>
-		/// (can be in a <see cref="List{T}"/> or <see cref="Array"/>)<br></br>
-		/// - <see cref="Dictionary{TKey, TValue}"/> (<typeparamref name="TKey"/> = <see cref="string"/>, <typeparamref name="TValue"/>
-		/// = <see cref="string"/>), <paramref name="JSON"/> <see cref="string"/>s can be used if more <see cref="Type"/>s are
-		/// needed. <br></br>
+		/// - <see cref="Point"/>, <see cref="Color"/>, <see cref="Size"/>, <see cref="Line"/>, <see cref="Corner"/>, <see cref="Quad"/>,
+		/// <see cref="Assets.DataSlot"/> (can be in a <see cref="List{T}"/> or <see cref="Array"/>)<br></br>
+		/// - <see cref="Dictionary{TKey, TValue}"/> (<typeparamref name="TKey"/> = <see cref="bool"/>, <see cref="string"/>,
+		/// <see cref="int"/>, <see cref="double"/>, <typeparamref name="TValue"/> = <see cref="bool"/>, <see cref="string"/>,
+		/// <see cref="int"/>, <see cref="double"/>), <paramref name="JSON"/> <see cref="string"/>s can be used if more
+		/// <see cref="Type"/>s are needed. <br></br>
 		/// - As well as all of the <paramref name="classes"/> in <see cref="SMPL"/> and the <see cref="Assembly"/> calling this
-		/// function.<br></br><br></br>
-		/// <see cref="FromJSON{T}(string)"/> will return <paramref name="null"/> if the <paramref name="instance"/> or any of its members
-		/// is a <see cref="Type"/> that is not listed above.
+		/// function (can be in a <see cref="List{T}"/> or <see cref="Array"/>).<br></br><br></br>
+		/// <see cref="FromJSON{T}(string)"/> will return <paramref name="null"/> if the <paramref name="instance"/>
+		/// or any of its members is a <see cref="Type"/> that is not listed above.
 		/// </summary>
 		public static string ToJSON(object instance)
 		{

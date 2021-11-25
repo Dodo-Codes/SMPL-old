@@ -322,7 +322,7 @@ namespace SMPL.Gear
 												str = File.ReadAllText(path);
 												if (str[0] != '{')
 													str = Data.Text.Decompress(str);
-												var slot = JsonConvert.DeserializeObject<DataSlot>(str);
+												var slot = Data.Text.FromJSON<DataSlot>(str);
 
 												if (slot.values == null) continue;
 												foreach (var kvp in slot.values)
@@ -359,7 +359,7 @@ namespace SMPL.Gear
 							try
 							{
 								Directory.CreateDirectory(Path.GetDirectoryName(path));
-								var str = JsonConvert.SerializeObject(curQueuedSaveSlots[i], Formatting.Indented);
+								var str = SMPL.Data.Text.ToJSON(curQueuedSaveSlots[i]);
 								if (curQueuedSaveSlots[i].IsCompressed)
 									str = Data.Text.Compress(str);
 								File.WriteAllText(path, str);

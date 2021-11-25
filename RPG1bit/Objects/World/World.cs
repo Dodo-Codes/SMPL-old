@@ -56,11 +56,6 @@ namespace RPG1bit
 
 				Screen.ScheduleDisplay();
 			}
-			if (Assets.ValuesAreLoaded(nameof(Player)))
-			{
-				Text.FromJSON<Player>(Assets.GetValue(nameof(Player)));
-				Assets.UnloadValues(nameof(Player));
-			}
 
 			if (CurrentSession == Session.WorldEdit)
 			{

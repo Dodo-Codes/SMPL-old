@@ -62,7 +62,7 @@ namespace RPG1bit
 				}, new Size(13, 8));
 
 				var worlds = Directory.GetDirectories("worlds");
-				var sessions = Directory.GetFiles("sessions");
+				var sessions = Directory.GetDirectories("sessions");
 				for (int i = 0; i < worlds.Length; i++)
 					worldList.Objects.Add(new LoadWorldValue($"world--{worlds[i]}", new CreationDetails()
 					{
@@ -80,7 +80,7 @@ namespace RPG1bit
 				for (int i = 0; i < sessions.Length; i++)
 					worldList.Objects.Add(new LoadSingleSessionValue($"session--{sessions[i]}", new CreationDetails()
 					{
-						Name = sessions[i].Replace("sessions\\", "").Replace(".session", ""),
+						Name = sessions[i].Replace("sessions\\", ""),
 						Position = new(-20, 0),
 						TileIndexes = new Point[] { new Point(14, 10) },
 						Height = 1,

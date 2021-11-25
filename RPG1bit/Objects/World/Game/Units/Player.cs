@@ -54,6 +54,13 @@ namespace RPG1bit
 			return skill;
 		}
 
+		public override void Destroy()
+		{
+			var skills = PickByTag(nameof(PlayerSkill));
+			for (int i = 0; i < skills.Length; i++)
+				skills[i].Destroy();
+			base.Destroy();
+		}
 		public override void OnKeyboardKeyPress(Keyboard.Key key)
 		{
 			if (Health[0] <= 0)
