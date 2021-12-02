@@ -25,10 +25,6 @@ namespace SMPL.Gear
 			[JsonProperty]
 			private readonly Dictionary<string, Case> cases = new();
 
-			public Table(string uniqueID) : base(uniqueID)
-			{
-				if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
-			}
 			public override void Destroy()
 			{
 				cases.Clear();

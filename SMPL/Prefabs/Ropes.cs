@@ -50,18 +50,10 @@ namespace SMPL.Prefabs
 					}
 			}
 		}
-
-		//========================
-
 		public Size Force { get; set; } = new Size(0, 1);
 		public string TexturePath { get; set; }
 
-		public Ropes(string uniqueID) : base(uniqueID)
-		{
-			ropes.Add(this);
-
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
-		}
+		public Ropes() => ropes.Add(this);
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;

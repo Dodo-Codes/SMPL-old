@@ -1,4 +1,5 @@
-﻿using SMPL.Data;
+﻿using SMPL.Components;
+using SMPL.Data;
 using SMPL.Gear;
 using System.Collections.Generic;
 using System.IO;
@@ -12,73 +13,9 @@ namespace RPG1bit
 		public WorldObjectManager(string uniqueID) : base(uniqueID)
 		{
 			Assets.DataSlot.Event.Subscribe.SaveEnd(uniqueID);
+			Timer.Event.Subscribe.End(uniqueID);
 		}
 
-		public static void InitializeObjects()
-		{
-			if (Gate.EnterOnceWhile("create-item-info-tab", true))
-			{
-				new ItemStats("item-stats", new()
-				{
-					Position = new(19, 9),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "item-info",
-					IsUI = true,
-					Name = "stats",
-					IsKeptBetweenSessions = true,
-				});
-			}
-			if (Gate.EnterOnceWhile("create-player-tab", true))
-			{
-				new PlayerStats("player-stats", new()
-				{
-					Position = new(19, 12),
-					Height = 1,
-					TileIndexes = new Point[] { new() },
-					IsInTab = true,
-					AppearOnTab = "player-stats",
-					IsUI = true,
-					Name = "self",
-					IsKeptBetweenSessions = true,
-				});
-			}
-			PlayerStats.Open();
-
-			var freeTiles = new List<Point>();
-			var playerTiles = new List<Point>();
-			var playerWasLoaded = UniqueIDsExists(nameof(Player));
-			var chunks = PickByTag(nameof(Chunk));
-			foreach (Chunk chunk in chunks)
-				foreach (var kvp in chunk.Data)
-				{
-					var pos = new Point(kvp.Key.X, kvp.Key.Y);
-					if (playerWasLoaded == false && chunk.Data[pos][3] == World.TilePlayer)
-						playerTiles.Add(pos);
-					else if (chunk.Data[pos][3] == new Point(0, 0))
-						freeTiles.Add(pos);
-				}
-
-			var randPoint = playerTiles.Count > 0 ?
-				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] :
-				freeTiles[(int)Probability.Randomize(new(0, freeTiles.Count - 1))];
-
-			var player = playerWasLoaded ? (Player)PickByUniqueID(nameof(Player)) :
-				new Player(nameof(Player), new GameObject.CreationDetails()
-				{
-					Name = "Self",
-					Position = randPoint,
-					Height = 3,
-					TileIndexes = new Point[] { World.PositionHasWaterAsHighest(randPoint) ? new(20, 23) : new(25, 0) }
-				});
-
-			World.CameraPosition = player.Position;
-			player.PreviousPosition = player.Position;
-			World.IsShowingRoofs = World.TileHasRoof(player.Position) == false;
-
-			Screen.ScheduleDisplay();
-		}
 		public static void OnAdvanceTime()
 		{
 			foreach (var kvp in WorldEditor.Tiles)
@@ -136,7 +73,7 @@ namespace RPG1bit
 				var slot = new Assets.DataSlot($"cache\\{kvp.Key}.cache")
 				{
 					ThingUniqueIDs = kvp.Value,
-					IsCompressed = false
+					IsCompressed = true
 				};
 				slot.SetValue("cache", "");
 				slot.Save();
@@ -198,7 +135,73 @@ namespace RPG1bit
 				}
 		}
 
-		public override void OnAssetsDataSlotSaveEnd()
+		public override void OnTimerEnd(Timer timer)
+		{
+			if (timer.UniqueID != "init-world-objects")
+				return;
+
+			if (Gate.EnterOnceWhile("create-item-info-tab", true))
+			{
+				new ItemStats("item-stats", new()
+				{
+					Position = new(19, 9),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "item-info",
+					IsUI = true,
+					Name = "stats",
+					IsKeptBetweenSessions = true,
+				});
+			}
+			if (Gate.EnterOnceWhile("create-player-tab", true))
+			{
+				new PlayerStats("player-stats", new()
+				{
+					Position = new(19, 12),
+					Height = 1,
+					TileIndexes = new Point[] { new() },
+					IsInTab = true,
+					AppearOnTab = "player-stats",
+					IsUI = true,
+					Name = "self",
+					IsKeptBetweenSessions = true,
+				});
+			}
+			PlayerStats.Open();
+
+			var freeTiles = new List<Point>();
+			var playerTiles = new List<Point>();
+			var playerWasLoaded = UniqueIDsExists(nameof(Player));
+			var chunks = PickByTag(nameof(Chunk));
+			foreach (Chunk chunk in chunks)
+				foreach (var kvp in chunk.Data)
+				{
+					var pos = new Point(kvp.Key.X, kvp.Key.Y);
+					if (playerWasLoaded == false && chunk.Data[pos][3] == World.TilePlayer)
+						playerTiles.Add(pos);
+					else if (chunk.Data[pos][3] == new Point(0, 0))
+						freeTiles.Add(pos);
+				}
+
+			var randPoint = playerTiles.Count > 0 ?
+				playerTiles[(int)Probability.Randomize(new(0, playerTiles.Count - 1))] :
+				freeTiles[(int)Probability.Randomize(new(0, freeTiles.Count - 1))];
+
+			var player = playerWasLoaded ? (Player)PickByUniqueID(nameof(Player)) :
+				new Player(nameof(Player), new GameObject.CreationDetails()
+				{
+					Name = "Self",
+					Position = randPoint,
+					Height = 3,
+					TileIndexes = new Point[] { World.PositionHasWaterAsHighest(randPoint) ? new(20, 23) : new(25, 0) }
+				});
+
+			World.CameraPosition = player.Position;
+			player.PreviousPosition = player.Position;
+			World.IsShowingRoofs = World.TileHasRoof(player.Position) == false;
+		}
+		public override void OnAssetDataSlotSaveEnd(string path)
 		{
 			for (int i = 0; i < cachedUIDs.Count; i++)
 				(PickByUniqueID(cachedUIDs[i])).Destroy();

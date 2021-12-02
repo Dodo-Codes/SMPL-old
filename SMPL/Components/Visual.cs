@@ -8,63 +8,62 @@ namespace SMPL.Components
 {
 	public abstract class Visual : Thing
 	{
-		private string areaUID;
-		private string effectsUID;
-		private string familyUID;
-		private bool isHidden;
-
-		// ===========
-
 		[JsonProperty]
-		internal string visualMaskingUID;
+		internal uint visualMaskingUID;
 
-		// ===========
-
+		private uint areaUID;
 		[JsonProperty]
-		public string AreaUniqueID
+		public uint AreaUID
 		{
 			get { return ErrorIfDestroyed() ? default : areaUID; }
 			set
 			{
-				if (ErrorIfDestroyed()) return;
+				if (ErrorIfDestroyed())
+					return;
 				areaUID = value;
-				if (areaUID == null) return;
-				var area = (Area)PickByUniqueID(areaUID);
+				if (areaUID == default)
+					return;
+				var area = (Area)Pick(areaUID);
 				if (area == null) Debug.LogError(1, $"No {nameof(Area)} found with uniqueID '{areaUID}'.");
 			}
 		}
+		private uint effectsUID;
 		[JsonProperty]
-		public string EffectsUniqueID
+		public uint EffectsUID
 		{
 			get { return ErrorIfDestroyed() ? default : effectsUID; }
 			set
 			{
 				if (ErrorIfDestroyed()) return;
 				effectsUID = value;
-				if (effectsUID == null) return;
-				var effects = (Effects)PickByUniqueID(effectsUID);
+				if (effectsUID == default) return;
+				var effects = (Effects)Pick(effectsUID);
 				if (effects == null) { Debug.LogError(1, $"No {nameof(Effects)} found with uniqueID '{effectsUID}'."); return; }
-				effects.visualOwnerUID = UniqueID;
+				effects.visualOwnerUID = UID;
 				if (effects.shader == null) effects.SetDefaults();
 			}
 		}
 		[JsonProperty]
-		public string FamilyUniqueID
+		private uint familyUID;
+		public uint FamilyUID
 		{
 			get { return ErrorIfDestroyed() ? default : familyUID; }
 			set
 			{
-				if (ErrorIfDestroyed()) return;
+				if (ErrorIfDestroyed())
+					return;
 				familyUID = value;
-				if (familyUID == null) return;
-				var family = (Family)PickByUniqueID(familyUID);
+				if (familyUID == default)
+					return;
+				var family = (Family)Pick(familyUID);
 				if (family == null) { Debug.LogError(1, $"No {nameof(Family)} found with uniqueID '{areaUID}'."); return; }
-				var area = (Area)PickByUniqueID(areaUID);
-				family.visualOwnerUID = UniqueID;
+				var area = (Area)Pick(areaUID);
+				family.visualOwnerUID = UID;
 				if (area != null) area.familyUID = familyUID;
 			}
 		}
 
+		private bool isHidden;
 		[JsonProperty]
 		public bool IsHidden
 		{
@@ -72,14 +71,13 @@ namespace SMPL.Components
 			set { if (ErrorIfDestroyed() == false) isHidden = value; }
 		}
 
-		public Visual(string uniqueID) : base(uniqueID) { }
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
-			areaUID = null;
-			effectsUID = null;
-			familyUID = null;
-			visualMaskingUID = null;
+			areaUID = default;
+			effectsUID = default;
+			familyUID = default;
+			visualMaskingUID = default;
 
 			base.Destroy();
 		}

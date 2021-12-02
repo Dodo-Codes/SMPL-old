@@ -69,16 +69,15 @@ namespace SMPL.Components
 					Assets.NotLoadedError(1, Assets.Type.Texture, value);
 					return;
 				}
-				if (prev == null) SetQuadDefault(UniqueID);
+				if (prev == null) SetQuadDefault("default");
 			}
 		}
-		public Quad[] Quads => quads.Values.ToArray();
+		public List<Quad> Quads => quads.Values.ToList();
 
-		public Sprite(string uniqueID) : base(uniqueID)
+		public Sprite()
 		{
-			SetQuadDefault(uniqueID);
+			SetQuadDefault("default");
 			sprites.Add(this);
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
@@ -97,7 +96,7 @@ namespace SMPL.Components
 		{
 			if (ErrorIfDestroyed()) return;
 
-			var area = AreaUniqueID == null ? (Area)PickByUniqueID(AreaUniqueID) : null;
+			var area = (Area)Pick(AreaUID);
 			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
 				(area == null ? new Size(100, 100) : area.Size) :
 				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);
@@ -158,11 +157,11 @@ namespace SMPL.Components
 		public void Display(Camera camera)
 		{
 			if (ErrorIfDestroyed()) return;
-			if (Window.DrawNotAllowed() || visualMaskingUID != null || IsHidden) return;
-			var Area = (Area)PickByUniqueID(AreaUniqueID);
+			if (Window.DrawNotAllowed() || visualMaskingUID != default || IsHidden) return;
+			var Area = (Area)Pick(AreaUID);
 			if (Area == null || Area.IsDestroyed || Area.sprite == null)
 			{
-				Debug.LogError(1, $"Cannot display the sprite instance '{UniqueID}' because it has no Area.\n" +
+				Debug.LogError(1, $"Cannot display the sprite instance '{UID}' because it has no Area.\n" +
 					$"Make sure the sprite instance has an Area before displaying it.");
 				return;
 			}
@@ -170,7 +169,7 @@ namespace SMPL.Components
 			var qtv = QuadsToVerts(quads);
 			var vertArr = qtv.Item1;
 			var verts = qtv.Item2;
-			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
+			var Effects = (Effects)Pick(EffectsUID);
 			var bounds = vertArr.Bounds;
 			var rend = new RenderTexture((uint)bounds.Width, (uint)bounds.Height);
 			var texture = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
@@ -255,7 +254,7 @@ namespace SMPL.Components
 		}
 		private Size GetSize()
 		{
-			var area = (Area)PickByUniqueID(AreaUniqueID);
+			var area = (Area)Pick(AreaUID);
 			var areaSz = area == null ? new Size(100, 100) : area.Size;
 			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ? areaSz :
 				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);

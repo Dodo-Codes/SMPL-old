@@ -12,10 +12,13 @@ namespace RPG1bit
 			Assets.Event.Subscribe.LoadEnd(uniqueID, 0);
 		}
 
-		public override void OnAssetsLoadEnd()
+		public override void OnAssetLoadEnd(string path)
 		{
 			if (Gate.EnterOnceWhile("load-worlddd", Assets.ValuesAreLoaded("world-name")))
+			{
 				World.LoadWorld(World.Session.Single, Assets.GetValue("world-name"));
+				Assets.UnloadValues("world-name");
+			}
 		}
 		public override void OnLeftClicked()
 		{

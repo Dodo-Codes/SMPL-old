@@ -29,43 +29,22 @@ namespace SMPL.Gear
 			public string FilePath { get; set; }
 			public bool IsCompressed { get; set; }
 
-			public List<string> ThingUniqueIDs { get; set; }
+			public List<uint> ThingUIDs { get; set; }
 
 			public DataSlot(string filePath)
 			{
 				values = default;
 				things = new();
-				ThingUniqueIDs = new();
+				ThingUIDs = new();
 				FilePath = filePath;
 				IsCompressed = default;
-			}
-			public static class Event
-			{
-				public static class Subscribe
-				{
-					public static void SaveStart(string thingUID, uint order = uint.MaxValue) =>
-						Events.Enable(Events.Type.DataSlotSaveStart, thingUID, order);
-					public static void SaveUpdate(string thingUID, uint order = uint.MaxValue) =>
-						Events.Enable(Events.Type.DataSlotSaveUpdate, thingUID, order);
-					public static void SaveEnd(string thingUID, uint order = uint.MaxValue) =>
-						Events.Enable(Events.Type.DataSlotSaveEnd, thingUID, order);
-				}
-				public static class Unsubscribe
-				{
-					public static void SaveStart(string thingUID) =>
-						Events.Disable(Events.Type.DataSlotSaveStart, thingUID);
-					public static void SaveUpdate(string thingUID) =>
-						Events.Disable(Events.Type.DataSlotSaveUpdate, thingUID);
-					public static void SaveEnd(string thingUID) =>
-						Events.Disable(Events.Type.DataSlotSaveEnd, thingUID);
-				}
 			}
 
 			public void Save()
 			{
-				if (ThingUniqueIDs != null)
-					for (int i = 0; i < ThingUniqueIDs.Count; i++)
-						things.Add(Thing.PickByUniqueID(ThingUniqueIDs[i]));
+				if (ThingUIDs != null)
+					for (int i = 0; i < ThingUIDs.Count; i++)
+						things.Add(Thing.Pick(ThingUIDs[i]));
 
 				queuedSaveSlots.Add(this);
 			}
@@ -95,32 +74,11 @@ namespace SMPL.Gear
 		internal static Dictionary<string, string> values = new();
 
 		private static Thread loadingThread;
-		private static bool assetLoadBegin, assetLoadUpdate, assetLoadEnd, slotSaveStart, slotSaveUpdate, slotSaveEnd;
+		private static readonly List<string> assetLoadEnd = new(), slotSaveEnd = new();
 		private static readonly List<QueuedAsset> queuedAssets = new();
 		private static readonly List<DataSlot> queuedSaveSlots = new();
 		public static double LoadPercent { get; private set; }
 
-		public static class Event
-		{
-			public static class Subscribe
-			{
-				public static void LoadStart(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.LoadStart, thingUID, order);
-				public static void LoadUpdate(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.LoadUpdate, thingUID, order);
-				public static void LoadEnd(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.LoadEnd, thingUID, order);
-			}
-			public static class Unsubscribe
-			{
-				public static void LoadStart(string thingUID) =>
-					Events.Disable(Events.Type.LoadStart, thingUID);
-				public static void LoadUpdate(string thingUID) =>
-					Events.Disable(Events.Type.LoadUpdate, thingUID);
-				public static void LoadEnd(string thingUID) =>
-					Events.Disable(Events.Type.LoadEnd, thingUID);
-			}
-		}
 		public static void Unload(Type asset, params string[] filePaths)
 		{
 			for (int i = 0; i < filePaths.Length; i++)
@@ -269,22 +227,6 @@ namespace SMPL.Gear
 			loadingThread.IsBackground = true;
 			loadingThread.Start();
 		}
-		private static void UpdateMainThread()
-		{
-			if (assetLoadBegin) Events.Notify(Events.Type.LoadStart, new());
-			if (assetLoadUpdate) Events.Notify(Events.Type.LoadUpdate, new());
-			if (assetLoadEnd) Events.Notify(Events.Type.LoadEnd, new());
-			if (slotSaveStart) Events.Notify(Events.Type.DataSlotSaveStart, new());
-			if (slotSaveUpdate) Events.Notify(Events.Type.DataSlotSaveUpdate, new());
-			if (slotSaveEnd) Events.Notify(Events.Type.DataSlotSaveEnd, new());
-
-			assetLoadBegin = false;
-			assetLoadUpdate = false;
-			assetLoadEnd = false;
-			slotSaveStart = false;
-			slotSaveUpdate = false;
-			slotSaveEnd = false;
-		}
 		private static void WorkOnQueuedResources()
 		{
 			while (Window.window.IsOpen)
@@ -293,8 +235,6 @@ namespace SMPL.Gear
 
 				LoadPercent = 100;
 				var loadedCount = 0;
-				assetLoadBegin = true;
-				slotSaveStart = true;
 
 				try
 				{
@@ -322,7 +262,7 @@ namespace SMPL.Gear
 												str = File.ReadAllText(path);
 												if (str[0] != '{')
 													str = Data.Text.Decompress(str);
-												var slot = Data.Text.FromJSON<DataSlot>(str);
+												var slot = str.ToObject<DataSlot>();
 
 												if (slot.values == null) continue;
 												foreach (var kvp in slot.values)
@@ -344,11 +284,9 @@ namespace SMPL.Gear
 							}
 							UpdateCounter();
 							queuedAssets.Remove(curQueuedAssets[i]);
+							assetLoadEnd.Add(curQueuedAssets[i].path);
 							Thread.Sleep(1);
 						}
-						assetLoadBegin = false;
-						assetLoadUpdate = false;
-						assetLoadEnd = true;
 					}
 					if (queuedSaveSlots != null && queuedSaveSlots.Count > 0)
 					{
@@ -359,7 +297,7 @@ namespace SMPL.Gear
 							try
 							{
 								Directory.CreateDirectory(Path.GetDirectoryName(path));
-								var str = SMPL.Data.Text.ToJSON(curQueuedSaveSlots[i]);
+								var str = curQueuedSaveSlots[i].ToJSON();
 								if (curQueuedSaveSlots[i].IsCompressed)
 									str = Data.Text.Compress(str);
 								File.WriteAllText(path, str);
@@ -370,10 +308,9 @@ namespace SMPL.Gear
 								continue;
 							}
 							UpdateCounter();
-							queuedSaveSlots.Remove(curQueuedSaveSlots[i]);
+							slotSaveEnd.Remove(curQueuedSaveSlots[i].FilePath);
 							Thread.Sleep(1);
 						}
-						slotSaveEnd = true;
 					}
 				}
 				catch (Exception)
@@ -386,10 +323,18 @@ namespace SMPL.Gear
 					loadedCount++;
 					var percent = Number.ToPercent(loadedCount, new Number.Range(0, queuedAssets.Count + queuedSaveSlots.Count));
 					LoadPercent = percent;
-					assetLoadUpdate = queuedAssets.Count > 0;
-					slotSaveUpdate = queuedSaveSlots.Count > 0;
 				}
 			}
+		}
+		private static void UpdateMainThread()
+		{
+			for (int i = 0; i < assetLoadEnd.Count; i++)
+				Events.Notify(Game.Event.AssetLoadEnd, new() { String = new string[] { assetLoadEnd[i] } });
+			for (int i = 0; i < slotSaveEnd.Count; i++)
+				Events.Notify(Game.Event.AssetDataSlotSaveEnd, new() { String = new string[] { slotSaveEnd[i] } });
+
+			assetLoadEnd.Clear();
+			slotSaveEnd.Clear();
 		}
 
 		internal static void Initialize()

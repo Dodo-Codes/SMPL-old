@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using SMPL.Gear;
 using SMPL.Components;
 using System.IO;
+using System.Threading;
 
 namespace RPG1bit
 {
@@ -121,8 +122,7 @@ namespace RPG1bit
 			if (chunk.Data.Count == 0)
 				return;
 
-			queueSave.Add(chunk.Center);
-			startSave = true;
+			SaveChunk(chunk, true);
 		}
 		private static void LoadChunkIfPossible(Point offset)
 		{
@@ -132,8 +132,7 @@ namespace RPG1bit
 			if (UniqueIDsExists(id) || File.Exists($"cache\\{pos}.chunkdata") == false)
 				return;
 
-			queueLoad.Add(pos);
-			startLoad = true;
+			LoadChunk(pos);
 		}
 		public static void SaveChunk(Chunk chunk, bool destroy)
 		{
@@ -183,7 +182,7 @@ namespace RPG1bit
 		public static bool HasQueuedLoad() => queueLoad.Count > 0;
 		public static bool HasQueuedSave() => queueSave.Count > 0;
 
-		public override void OnAssetsDataSlotSaveEnd()
+		public override void OnAssetDataSlotSaveEnd(string path)
 		{
 			for (int i = 0; i < queueSave.Count; i++)
 				if (File.Exists($"cache\\{queueSave[i]}.chunkdata"))
@@ -195,7 +194,7 @@ namespace RPG1bit
 			if (queueSave.Count > 0)
 				SaveChunk((Chunk)PickByUniqueID($"chunk-{queueSave[0]}"), true);
 		}
-		public override void OnAssetsLoadEnd()
+		public override void OnAssetLoadEnd(string path)
 		{
 			if (Assets.ValuesAreLoaded("chunk") == false)
 				return;
@@ -214,6 +213,7 @@ namespace RPG1bit
 			Assets.UnloadValues("chunk", "chunk-data");
 			World.Display();
 			queueLoad.Remove(chunk.Center);
+			Screen.ScheduleDisplay();
 
 			if (queueLoad.Count > 0)
 				LoadChunk(queueLoad[0]);

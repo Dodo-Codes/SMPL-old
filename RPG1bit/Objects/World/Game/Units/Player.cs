@@ -9,6 +9,8 @@ namespace RPG1bit
 	{
 		public Player(string uniqueID, CreationDetails creationDetails) : base(uniqueID, creationDetails)
 		{
+			ChunkManager.UpdateChunks();
+
 			new Mount("mount", new()
 			{
 				Position = new(-1, 0),
@@ -137,6 +139,7 @@ namespace RPG1bit
 		{
 			if (movement != new Point() && Move(movement))
 			{
+				ChunkManager.UpdateChunks();
 				PlayerStats.Open();
 				AdvanceTime();
 				TileIndexes = new(25, 0);

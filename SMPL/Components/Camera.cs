@@ -14,39 +14,23 @@ namespace SMPL.Components
 		private double depth;
 		private Data.Color bgColor;
 
-		internal const string WorldCameraUID = "smpl-world-camera";
-		internal const string WorldCameraAreaUID = "smpl-world-camera-area";
 		internal static SortedDictionary<double, List<Camera>> sortedCameras = new();
 		internal View view;
 		internal SFML.Graphics.Sprite sprite = new();
 		internal RenderTexture rendTexture;
 		internal Size startSize;
-		internal string displayUID;
-
-		public static class Event
-		{
-			public static class Subscribe
-			{
-				public static void Display(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.CameraDisplay, thingUID, order);
-			}
-			public static class Unsubscribe
-			{
-				public static void Display(string thingUID) =>
-					Events.Disable(Events.Type.CameraDisplay, thingUID);
-			}
-		}
+		internal uint displayUID;
 
 		internal static void DrawCameras()
 		{
 			WorldCamera.StartDraw();
-			Events.Notify(Events.Type.CameraDisplay, new() { Camera = WorldCamera });
+			Events.Notify(Game.Event.CameraDisplay, new() { Camera = WorldCamera });
 			foreach (var kvpp in sortedCameras)
 				for (int j = 0; j < kvpp.Value.Count; j++)
 				{
 					if (kvpp.Value[j] == WorldCamera) continue;
 					kvpp.Value[j].StartDraw();
-					Events.Notify(Events.Type.CameraDisplay, new() { Camera = kvpp.Value[j] });
+					Events.Notify(Game.Event.CameraDisplay, new() { Camera = kvpp.Value[j] });
 				}
 			WorldCamera.EndDraw();
 		}
@@ -58,7 +42,7 @@ namespace SMPL.Components
 		internal void EndDraw()
 		{
 			rendTexture.Display();
-			var DisplayArea = (Area)PickByUniqueID(displayUID);
+			var DisplayArea = (Area)Pick(displayUID);
 			var pos = Point.From(DisplayArea.Position);
 			var sz = new Vector2i((int)rendTexture.Size.X, (int)rendTexture.Size.Y);
 			var tsz = rendTexture.Size;
@@ -88,7 +72,7 @@ namespace SMPL.Components
 
 		public static Camera WorldCamera { get; internal set; }
 
-		public string AreaDisplayUniqueID
+		public uint AreaDisplayUID
 		{
 			get { return ErrorIfDestroyed() ? default : displayUID; }
 			set { if (ErrorIfDestroyed() == false) displayUID = value; }
@@ -127,7 +111,7 @@ namespace SMPL.Components
 			set { if (ErrorIfDestroyed() == false) bgColor = value; }
 		}
 
-		public Camera(string uniqueID, Point viewPosition, Size viewSize) : base(uniqueID)
+		public Camera(Point viewPosition, Size viewSize)
 		{
 			if (sortedCameras.ContainsKey(0) == false) sortedCameras[0] = new List<Camera>();
 			sortedCameras[0].Add(this);
@@ -138,19 +122,18 @@ namespace SMPL.Components
 			BackgroundColor = Data.Color.Black;
 			startSize = viewSize;
 			UpdateSprite();
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed() || this == WorldCamera) return;
 			sortedCameras[depth].Remove(this);
 			view.Dispose();
-			view = null;
+			view = default;
 			sprite.Dispose();
-			sprite = null;
+			sprite = default;
 			rendTexture.Dispose();
-			rendTexture = null;
-			AreaDisplayUniqueID = null;
+			rendTexture = default;
+			AreaDisplayUID = default;
 			base.Destroy();
 		}
 
@@ -169,8 +152,8 @@ namespace SMPL.Components
 		public bool Captures(Thing thing)
 		{
 			UpdateSprite();
-			if (thing is Cloth cloth) return RopeCheck(cloth.RopesUniqueID);
-			else if (thing is Ropes) return RopeCheck(thing.UniqueID);
+			if (thing is Cloth cloth) return RopeCheck(cloth.RopesUID);
+			else if (thing is Ropes) return RopeCheck(thing.UID);
 			else if (thing is SegmentedLine sl)
 			{
 				for (int i = 0; i < sl.Points.Length; i++)
@@ -186,32 +169,32 @@ namespace SMPL.Components
 			}
 			else if (thing is LayeredShape3D ls3d)
 			{
-				if (ls3d.AreaUniqueID == null || UniqueIDsExists(ls3d.AreaUniqueID) == false)
+				if (ls3d.AreaUID == default || uids.ContainsKey(ls3d.AreaUID) == false)
 					return false;
-				var area = (Area)PickByUniqueID(ls3d.AreaUniqueID);
-				var first = AreaCheck(area.UniqueID);
+				var area = (Area)Pick(ls3d.AreaUID);
+				var first = AreaCheck(area.UID);
 				var prevPos = area.Position;
 				area.Position = Point.MoveAtAngle(area.Position, ls3d.LayerStackAngle, ls3d.LayerStackCount * ls3d.LayerStackSpacing,
 					Gear.Time.Unit.Frame);
-				var second = AreaCheck(area.UniqueID);
+				var second = AreaCheck(area.UID);
 				area.Position = prevPos;
 				return first || second;
 			}
-			else if (thing is Area) return AreaCheck(thing.UniqueID);
-			else if (thing is Sprite spr) return AreaCheck(spr.AreaUniqueID);
+			else if (thing is Area) return AreaCheck(thing.UID);
+			else if (thing is Sprite spr) return AreaCheck(spr.AreaUID);
 			return false;
 
-			bool RopeCheck(string uniqueID)
+			bool RopeCheck(uint uid)
 			{
-				var rope = (Ropes)PickByUniqueID(uniqueID);
+				var rope = (Ropes)Pick(uid);
 				foreach (var kvp in rope.points)
 					if (ContainsPoint(kvp.Value.Position))
 						return true;
 				return false;
 			}
-			bool AreaCheck(string uniqueID)
+			bool AreaCheck(uint uid)
 			{
-				var area = (Area)PickByUniqueID(uniqueID);
+				var area = (Area)Pick(uid);
 				if (area == null) return false;
 				area.UpdateSprite();
 				return area.sprite.GetGlobalBounds().Intersects(sprite.GetGlobalBounds());

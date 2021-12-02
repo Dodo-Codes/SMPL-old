@@ -7,26 +7,9 @@ namespace SMPL.Components
 {
 	public class Timer : Thing
    {
-      public static class Event
+      public enum Action
       {
-         public static class Subscribe
-         {
-            public static void End(string thingUID, uint order = uint.MaxValue) =>
-               Events.Enable(Events.Type.TimerEnd, thingUID, order);
-            public static void CreateAndStart(string thingUID, uint order = uint.MaxValue) =>
-               Events.Enable(Events.Type.TimerCreateAndStart, thingUID, order);
-            public static void Update(string thingUID, uint order = uint.MaxValue) =>
-               Events.Enable(Events.Type.TimerUpdate, thingUID, order);
-         }
-         public static class Unsubscribe
-         {
-            public static void End(string thingUID) =>
-               Events.Disable(Events.Type.TimerEnd, thingUID);
-            public static void CreateAndStart(string thingUID) =>
-               Events.Disable(Events.Type.TimerCreateAndStart, thingUID);
-            public static void Update(string thingUID) =>
-               Events.Disable(Events.Type.TimerUpdate, thingUID);
-         }
+         CreateAndStart, Update, End
       }
 
       private static readonly List<Timer> timers = new();
@@ -42,13 +25,13 @@ namespace SMPL.Components
             if (timers[i].Countdown < 0) timers[i].Countdown = 0;
             if (timers[i].IsPaused || timers[i].Countdown == 0) continue;
             timers[i].Countdown -= dt;
-            Events.Notify(Events.Type.TimerUpdate, new() { Timer = timers[i] });
+            Events.Notify(Game.Event.TimerUpdate, new() { Timer = timers[i] });
             if (Gate.EnterOnceWhile(timers[i] + "end-as;li3'f2", timers[i].Countdown <= 0) ||
                dt > timers[i].Duration)
             {
                timers[i].EndCount++;
                timers[i].Countdown = 0;
-               Events.Notify(Events.Type.TimerEnd, new() { Timer = timers[i] });
+               Events.Notify(Game.Event.TimerEnd, new() { Timer = timers[i] });
             }
          }
       }
@@ -98,13 +81,12 @@ namespace SMPL.Components
          set { if (ErrorIfDestroyed() == false)  isPaused = value; }
       }
 
-      public Timer(string uniqueID, double durationInSeconds) : base(uniqueID)
+      public Timer(double durationInSeconds)
       {
          timers.Add(this);
          Duration = durationInSeconds;
          Countdown = Duration;
-         Events.Notify(Events.Type.TimerCreateAndStart, new() { Timer = this });
-         if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
+         Events.Notify(Game.Event.TimerCreateAndStart, new() { Timer = this });
       }
 		public override void Destroy()
 		{

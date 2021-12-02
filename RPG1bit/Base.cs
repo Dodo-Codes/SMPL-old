@@ -33,7 +33,7 @@ namespace RPG1bit
 		}
 
 		public override void OnWindowFocus() => Window.CurrentState = Window.State.Fullscreen;
-		public override void OnAssetsLoadEnd()
+		public override void OnAssetLoadEnd(string path)
 		{
 			if (Gate.EnterOnceWhile("graphics-and-font-loaded", Assets.AreLoaded("Assets\\graphics.png", "Assets\\font.ttf")))
 			{

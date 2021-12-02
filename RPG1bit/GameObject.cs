@@ -389,13 +389,7 @@ namespace RPG1bit
 			Hoverer.CursorColor = Color.White;
 			NavigationPanel.Info.ScheduleUpdate();
 		}
-		public static Dictionary<Point, List<GameObject>> GetObjectListCopy()
-		{
-			var objs = new Dictionary<Point, List<GameObject>>();
-			foreach (var kvp in objects)
-				objs[kvp.Key] = new(kvp.Value);
-			return objs;
-		}
+		public static Dictionary<Point, List<GameObject>> GetObjectListCopy() => new(objects);
 		public static List<string> GetObjects<T>()
 		{
 			var result = new List<string>();

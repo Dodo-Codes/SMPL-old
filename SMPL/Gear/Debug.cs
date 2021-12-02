@@ -81,8 +81,8 @@ namespace SMPL.Gear
 			if (Window.DrawNotAllowed()) return;
 			if (Assets.fonts.Count == 0)
 			{
-				LogError(1, "No loaded fonts found. Make sure there is at least one\n" +
-					"loaded font before dislpaying the debug info.");
+				LogError(1, $"No loaded fonts found. Make sure there is at least one loaded font before dislpaying " +
+					$"the {nameof(Debug)} info.");
 				return;
 			}
 			var pressedKeys = "";
@@ -139,14 +139,14 @@ namespace SMPL.Gear
 					$"Hosting server: {Multiplayer.ServerIsRunning}\n" +
 					$"Joined server: {clientStr}\n" +
 					$"\n" +
-					$"Things count: {Thing.uniqueIDs.Count} / tags count: {Thing.tagObjs.Count} / " +
+					$"Things count: {Thing.uids.Count} / tags count: {Thing.uids.Count} / " +
 					$"event subscriptions: {Events.notifications.Count}\n" +
 					$"\n" +
 					$"Gates count: {Gate.gates.Count}";
 			Performance.prevDrawCallsPerFr = 0;
 			foreach (var kvp in Assets.fonts)
 			{
-				var sz = Window.Size / Window.PixelSize;
+				var sz = Camera.WorldCamera.Size;
 				Text.Display(Camera.WorldCamera, output, kvp.Key, new Point(-sz.W + sz.W / 100, -sz.H) / 2);
 				break;
 			}

@@ -13,6 +13,10 @@ namespace SMPL.Gear
 			public string Value { get; set; }
 			public Type CurrentType { get; set; }
 		}
+		public enum KeyAction
+		{
+			Press, Release, Hold
+		}
 		public enum Key
 		{
 			/// <summary>
@@ -61,36 +65,6 @@ namespace SMPL.Gear
 			F2 = 86, F3 = 87, F4 = 88, F5 = 89, F6 = 90, F7 = 91, F8 = 92, F9 = 93, F10 = 94, F11 = 95, F12 = 96, F13 = 97,
 			F14 = 98, F15 = 99, Pause = 100,
 		}
-		public static class Event
-		{
-			public static class Subscribe
-			{
-				public static void KeyPress(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.KeyPress, thingUID, order);
-				public static void KeyHold(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.KeyHold, thingUID, order);
-				public static void KeyRelease(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.KeyRelease, thingUID, order);
-				public static void TextInput(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.TextInput, thingUID, order);
-				public static void LanguageChange(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.LanguageChange, thingUID, order);
-			}
-			public static class Unsubscribe
-			{
-				public static void KeyPress(string thingUID) =>
-					Events.Disable(Events.Type.KeyPress, thingUID);
-				public static void KeyHold(string thingUID) =>
-					Events.Disable(Events.Type.KeyHold, thingUID);
-				public static void KeyRelease(string thingUID) =>
-					Events.Disable(Events.Type.KeyRelease, thingUID);
-				public static void TextInput(string thingUID) =>
-					Events.Disable(Events.Type.TextInput, thingUID);
-				public static void LanguageChange(string thingUID) =>
-					Events.Disable(Events.Type.LanguageChange, thingUID);
-			}
-		}
-
 		public static Key[] KeysPressed { get { return keysHeld.ToArray(); } }
 		internal static List<Key> keysHeld = new();
 
@@ -101,7 +75,7 @@ namespace SMPL.Gear
 		internal static void Update()
 		{
 			for (int i = 0; i < keysHeld.Count; i++)
-				Events.Notify(Events.Type.KeyHold, new Events.EventArgs() { Key = keysHeld[i] });
+				Events.Notify(Game.Event.KeyboardKeyHold, new Events.EventArgs() { Key = keysHeld[i] });
 		}
 		internal static void Initialize()
 		{
@@ -115,7 +89,7 @@ namespace SMPL.Gear
 		internal static void CancelInput()
 		{
 			for (int i = 0; i < keysHeld.Count; i++)
-				Events.Notify(Events.Type.KeyRelease, new Events.EventArgs() { Key = keysHeld[i] });
+				Events.Notify(Game.Event.KeyboardKeyRelease, new Events.EventArgs() { Key = keysHeld[i] });
 			keysHeld.Clear();
 		}
 		internal static void OnKeyPress_(object sender, EventArgs e)
@@ -123,14 +97,14 @@ namespace SMPL.Gear
 			var keyArgs = (SFML.Window.KeyEventArgs)e;
 			var key = (Key)keyArgs.Code;
 			keysHeld.Add(key);
-			Events.Notify(Events.Type.KeyPress, new Events.EventArgs() { Key = key });
+			Events.Notify(Game.Event.KeyboardKeyPress, new Events.EventArgs() { Key = key });
 		}
 		internal static void OnKeyRelease_(object sender, EventArgs e)
 		{
 			var keyArgs = (SFML.Window.KeyEventArgs)e;
 			var key = (Key)keyArgs.Code;
 			keysHeld.Remove(key);
-			Events.Notify(Events.Type.KeyRelease, new Events.EventArgs() { Key = key });
+			Events.Notify(Game.Event.KeyboardKeyRelease, new Events.EventArgs() { Key = key });
 		}
 		internal static void OnTextInput_(object sender, EventArgs e)
 		{
@@ -146,13 +120,13 @@ namespace SMPL.Gear
 			if (isBackSpace) textInput.CurrentType = TextInput.Type.Backspace;
 			else if (isEnter) textInput.CurrentType = TextInput.Type.Enter;
 			else if (isTab) textInput.CurrentType = TextInput.Type.Tab;
-			Events.Notify(Events.Type.TextInput, new() { TextInput = textInput });
+			Events.Notify(Game.Event.KeyboardTextInput, new() { TextInput = textInput });
 		}
 		internal static void OnLanguageChange_(object sender, EventArgs e)
 		{
 			var langArgs = (InputLanguageChangedEventArgs)e;
 			var culture = langArgs.InputLanguage.Culture;
-			Events.Notify(Events.Type.LanguageChange, new()
+			Events.Notify(Game.Event.KeyboardLanguageChange, new()
 			{ String = new string[] { culture.EnglishName, culture.NativeName, culture.Name } });
 		}
 	}

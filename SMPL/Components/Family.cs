@@ -9,36 +9,31 @@ namespace SMPL.Components
 {
 	public class Family : Thing
 	{
-		private string visualParentUID;
+		private uint visualParentUID;
+		internal uint visualOwnerUID;
+		internal List<uint> visualChildrenUIDs = new();
 
-		//============
-
-		internal string visualOwnerUID;
-		internal List<string> visualChildrenUIDs = new();
-
-		//============
-
-		public string VisualParentUniqueID
+		public uint VisualParentUID
 		{
 			get { return ErrorIfDestroyed() ? default : visualParentUID; }
 			set
 			{
 				if (ErrorIfDestroyed()) return;
 
-				var owner = (Visual)PickByUniqueID(visualOwnerUID);
-				var ownerArea = (Area)PickByUniqueID(owner.AreaUniqueID);
+				var owner = (Visual)Pick(visualOwnerUID);
+				var ownerArea = (Area)Pick(owner.AreaUID);
 				var pos = Point.From(ownerArea.LocalPosition);
 				var angle = ownerArea.LocalAngle;
-				var prevPar = (Visual)PickByUniqueID(visualParentUID);
-				var prevParArea = (Area)PickByUniqueID(prevPar.AreaUniqueID);
-				var prevParFamily = (Family)PickByUniqueID(prevPar.FamilyUniqueID);
+				var prevPar = (Visual)Pick(visualParentUID);
+				var prevParArea = (Area)Pick(prevPar.AreaUID);
+				var prevParFamily = (Family)Pick(prevPar.FamilyUID);
 
 				visualParentUID = value;
 
-				var parent = (Visual)PickByUniqueID(visualParentUID);
-				var parentArea = (Area)PickByUniqueID(parent.AreaUniqueID);
-				var parentFamily = (Family)PickByUniqueID(parent.FamilyUniqueID);
-				if (value != null) // parent
+				var parent = (Visual)Pick(visualParentUID);
+				var parentArea = (Area)Pick(parent.AreaUID);
+				var parentFamily = (Family)Pick(parent.FamilyUID);
+				if (value != default) // parent
 				{
 					var parAng = parentArea.LocalAngle;
 					var newPos = parentArea.sprite.InverseTransform.TransformPoint(pos);
@@ -60,9 +55,9 @@ namespace SMPL.Components
 				}
 			}
 		}
-		public string[] ChildrenUniqueIDs => ErrorIfDestroyed() ? default : visualChildrenUIDs.ToArray();
+		public List<uint> ChildrenUIDs => ErrorIfDestroyed() ? new() : new(visualChildrenUIDs);
 
-		public void ParentChildren(params string[] visualChildrenUIDs)
+		public void ParentChildren(params uint[] visualChildrenUIDs)
 		{
 			if (ErrorIfDestroyed()) return;
 			if (visualChildrenUIDs == null) { Debug.LogError(1, "ComponentVisual children cannot be 'null'."); return; }
@@ -70,9 +65,9 @@ namespace SMPL.Components
 			{
 				if (this.visualChildrenUIDs.Contains(visualChildrenUIDs[i])) continue;
 
-				var child = (Visual)PickByUniqueID(visualChildrenUIDs[i]);
-				var childFamily = (Family)PickByUniqueID(child.FamilyUniqueID);
-				if (child.FamilyUniqueID == null)
+				var child = (Visual)Pick(visualChildrenUIDs[i]);
+				var childFamily = (Family)Pick(child.FamilyUID);
+				if (child.FamilyUID == default)
 				{
 					Debug.LogError(1, $"Cannot parent this child instance because it has no Family.\n" +
 						$"Both (parent & child) Visual instances need a Family in order to bond.");
@@ -81,15 +76,15 @@ namespace SMPL.Components
 				childFamily.visualParentUID = visualOwnerUID;
 			}
 		}
-		public void UnparentChildren(params string[] visualChildrenUIDs)
+		public void UnparentChildren(params uint[] visualChildrenUIDs)
 		{
 			if (ErrorIfDestroyed()) return;
 			if (visualChildrenUIDs == null) { Debug.LogError(1, "ComponentVisual children cannot be 'null'."); return; }
 			for (int i = 0; i < visualChildrenUIDs.Length; i++)
 			{
 				if (this.visualChildrenUIDs.Contains(visualChildrenUIDs[i]) == false) continue;
-				var childFamily = (Family)PickByUniqueID(visualChildrenUIDs[i]);
-				childFamily.visualParentUID = null;
+				var childFamily = (Family)Pick(visualChildrenUIDs[i]);
+				childFamily.visualParentUID = default;
 			}
 		}
 		public void UnparentAllChildren()
@@ -97,11 +92,11 @@ namespace SMPL.Components
 			if (ErrorIfDestroyed()) return;
 			for (int i = 0; i < visualChildrenUIDs.Count; i++)
 			{
-				var childFamily = (Family)PickByUniqueID(visualChildrenUIDs[i]);
-				childFamily.visualParentUID = null;
+				var childFamily = (Family)Pick(visualChildrenUIDs[i]);
+				childFamily.visualParentUID = default;
 			}
 		}
-		public bool HasChildren(params string[] visualChildrenUIDs)
+		public bool HasChildren(params uint[] visualChildrenUIDs)
 		{
 			if (visualChildrenUIDs == null)
 			{
@@ -114,16 +109,12 @@ namespace SMPL.Components
 			return true;
 		}
 
-		public Family(string uniqueID) : base(uniqueID)
-		{
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
-		}
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
 			UnparentAllChildren();
-			visualParentUID = null;
-			visualOwnerUID = null;
+			visualParentUID = default;
+			visualOwnerUID = default;
 			base.Destroy();
 		}
 	}

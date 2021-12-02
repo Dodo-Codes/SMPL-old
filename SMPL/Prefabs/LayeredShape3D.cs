@@ -47,14 +47,12 @@ namespace SMPL.Prefabs
 		[JsonProperty]
 		public double LayerStackAngle { get; set; } = 270;
 
-		public LayeredShape3D(string uniqueID) : base(uniqueID)
+		public LayeredShape3D()
 		{
 			for (int i = 0; i < LayerStackCount; i++)
 				texCoords[i] = new Point[] { new Point(0, 0), new Point(100, 100) };
 			for (int i = 0; i < LayerStackCount; i++)
 				colors[i] = Data.Color.White;
-
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
@@ -65,12 +63,12 @@ namespace SMPL.Prefabs
 		public void Display(Camera camera)
 		{
 			if (ErrorIfDestroyed() || Window.DrawNotAllowed()) return;
-			if (visualMaskingUID != null || IsHidden) return;
-			var Area = (Area)PickByUniqueID(AreaUniqueID);
+			if (visualMaskingUID != default || IsHidden) return;
+			var Area = (Area)Pick(AreaUID);
 			if (Area == null || Area.IsDestroyed || Area.sprite == null)
 			{
 				Debug.LogError(1,
-					$"Cannot display the {nameof(LayeredShape3D)} instance '{UniqueID}' because it has no {nameof(Components.Area)}.\n" +
+					$"Cannot display the {nameof(LayeredShape3D)} instance '{UID}' because it has no {nameof(Components.Area)}.\n" +
 					$"Make sure the {nameof(LayeredShape3D)} instance has an {nameof(Components.Area)} before displaying it.");
 				return;
 			}
@@ -175,7 +173,7 @@ namespace SMPL.Prefabs
 		}
 		private Size GetTextureSize()
 		{
-			var area = AreaUniqueID == null ? (Area)PickByUniqueID(AreaUniqueID) : null;
+			var area = (Area)Pick(AreaUID);
 			var sz = TexturePath == null || Assets.textures.ContainsKey(TexturePath) == false ?
 				(area == null ? new Size(100, 100) : area.Size) :
 				new Size(Assets.textures[TexturePath].Size.X, Assets.textures[TexturePath].Size.Y);

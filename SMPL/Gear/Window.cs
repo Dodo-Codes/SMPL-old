@@ -61,45 +61,15 @@ namespace SMPL.Gear
 			Yes = 6,
 			No = 7
 		}
+		public enum Action
+		{
+			Resize, Close, Focus, Unfocus, Maximize, Minimize, Fullscreen
+		}
 
 		private static State currentState;
 		private static Type currentType;
 		private static bool resizable;
 		internal static SFML.Graphics.Sprite world = new();
-
-		public static class Event
-		{
-			public static class Subscribe
-			{
-				public static void Resize(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.Resize, thingUID, order);
-				public static void Close(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.Close, thingUID, order);
-				public static void Focus(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.Focus, thingUID, order);
-				public static void Unfocus(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.Unfocus, thingUID, order);
-				public static void Maximize(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.Maximize, thingUID, order);
-				public static void Minimize(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.Minimize, thingUID, order);
-			}
-			public static class Unsubscribe
-			{
-				public static void Resize(string thingUID) =>
-					Events.Disable(Events.Type.Resize, thingUID);
-				public static void Close(string thingUID) =>
-					Events.Disable(Events.Type.Close, thingUID);
-				public static void Focus(string thingUID) =>
-					Events.Disable(Events.Type.Focus, thingUID);
-				public static void Unfocus(string thingUID) =>
-					Events.Disable(Events.Type.Unfocus, thingUID);
-				public static void Maximize(string thingUID) =>
-					Events.Disable(Events.Type.Maximize, thingUID);
-				public static void Minimize(string thingUID) =>
-					Events.Disable(Events.Type.Minimize, thingUID);
-			}
-		}
 
 		public static State CurrentState
 		{
@@ -199,7 +169,8 @@ namespace SMPL.Gear
 
 		public static void Close()
       {
-			Events.Notify(Events.Type.Close);
+			Events.Notify(Game.Event.WindowClose);
+			Events.Notify(Game.Event.GameStop);
 			window.Close();
 		}
 		public static void RequestFocus() => window.RequestFocus();
@@ -278,9 +249,9 @@ namespace SMPL.Gear
 			var size = new Size(scrSize.Width, scrSize.Height);
 			form.SetBounds(scrSize.Width / 4, scrSize.Height / 4, scrSize.Width / 2, scrSize.Height / 2);
 
-			new Area("smpl-world-camera-area") { Size = size };
-			Camera.WorldCamera = new("smpl-world-camera", new Point(0, 0), size / pixelSize);
-			Camera.WorldCamera.displayUID = "smpl-world-camera-area";
+			var ar = new Area() { Size = size };
+			Camera.WorldCamera = new(new Point(0, 0), size / pixelSize);
+			Camera.WorldCamera.displayUID = ar.UID;
 			window.SetView(Camera.WorldCamera.view);
 
 			CurrentType = Type.Normal;
@@ -298,22 +269,22 @@ namespace SMPL.Gear
 		}
 
 		internal static void OnWindowClose(object sender, EventArgs e) => Close();
-		internal static void OnWindowFocus(object sender, EventArgs e) => Events.Notify(Events.Type.Focus);
+		internal static void OnWindowFocus(object sender, EventArgs e) => Events.Notify(Game.Event.WindowFocus);
 		internal static void OnWindowUnfocus(object sender, EventArgs e)
 		{
 			Mouse.CancelInput();
 			Keyboard.CancelInput();
-			Events.Notify(Events.Type.Unfocus);
+			Events.Notify(Game.Event.WindowUnfocus);
 		}
 		internal static void OnWindowResize(object sender, EventArgs e)
 		{
 			if (CurrentState != State.Fullscreen) CurrentState = (State)form.WindowState;
 			switch (CurrentState)
 			{
-				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); Events.Notify(Events.Type.Resize); break; }
-				case State.Minimized: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Minimize); break; }
-				case State.Maximized: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Maximize); break; }
-				case State.Fullscreen: { Events.Notify(Events.Type.Resize); Events.Notify(Events.Type.Fullscreen); break; }
+				case State.Floating: { Mouse.CancelInput(); Keyboard.CancelInput(); Events.Notify(Game.Event.WindowResize); break; }
+				case State.Minimized: { Events.Notify(Game.Event.WindowResize); Events.Notify(Game.Event.WindowMinimize); break; }
+				case State.Maximized: { Events.Notify(Game.Event.WindowResize); Events.Notify(Game.Event.WindowMaximize); break; }
+				case State.Fullscreen: { Events.Notify(Game.Event.WindowResize); Events.Notify(Game.Event.WindowFullscreen); break; }
 			}
 		}
 	}

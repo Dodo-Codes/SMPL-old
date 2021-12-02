@@ -8,9 +8,9 @@ namespace SMPL.Components
 {
 	public class Effects : Thing
 	{
-		private static void AddMask(List<string> list, string visualComponentUID, string visualOwnerUID, bool add)
+		private static void AddMask(List<uint> list, uint visualComponentUID, uint visualOwnerUID, bool add)
 		{
-			var component = (Visual)PickByUniqueID(visualComponentUID);
+			var component = (Visual)Pick(visualComponentUID);
 			if (add)
 			{
 				if (component == null)
@@ -36,13 +36,13 @@ namespace SMPL.Components
 				if (component is Textbox)
 				{
 					var t = component as Textbox;
-					var textArea = (Area)PickByUniqueID(t.AreaUniqueID);
+					var textArea = (Area)Pick(t.AreaUID);
 					textArea.text.Position = new Vector2f();
 					textArea.text.Rotation = 0;
 					textArea.text.Scale = new Vector2f(1, 1);
 				}
 			}
-			component.visualMaskingUID = add ? visualOwnerUID : null;
+			component.visualMaskingUID = add ? visualOwnerUID : default;
 		}
 
 		private readonly uint creationFrame;
@@ -57,8 +57,8 @@ namespace SMPL.Components
 
 		//================
 
-		internal List<string> visualMaskUIDs = new();
-		internal string visualOwnerUID;
+		internal List<uint> visualMaskUIDs = new();
+		internal uint visualOwnerUID;
 		internal SFML.Graphics.Shader shader;
 
 		internal void SetDefaults()
@@ -133,11 +133,11 @@ namespace SMPL.Components
 		{
 			for (int i = 0; i < visualMaskUIDs.Count; i++)
 			{
-				var mask = (Visual)PickByUniqueID(visualMaskUIDs[i]);
+				var mask = (Visual)Pick(visualMaskUIDs[i]);
 				if (mask.IsHidden) continue;
-				var maskArea = (Area)PickByUniqueID(mask.AreaUniqueID);
-				var owner = (Visual)PickByUniqueID(visualOwnerUID);
-				var ownerArea = (Area)PickByUniqueID(owner.AreaUniqueID);
+				var maskArea = (Area)Pick(mask.AreaUID);
+				var owner = (Visual)Pick(visualOwnerUID);
+				var ownerArea = (Area)Pick(owner.AreaUID);
 
 				var sc = new Vector2f((float)ownerArea.Size.W / rend.Size.X, (float)ownerArea.Size.H / rend.Size.Y);
 				var o = maskArea.OriginPercent / 100;
@@ -145,7 +145,7 @@ namespace SMPL.Components
 				if (mask is Sprite)
 				{
 					var spr = mask as Sprite;
-					var sprArea = (Area)PickByUniqueID(spr.AreaUniqueID);
+					var sprArea = (Area)Pick(spr.AreaUID);
 					var maskQuads = spr.quads;
 					var maskQtv = Sprite.QuadsToVerts(maskQuads);
 					var maskVertArr = maskQtv.Item1;
@@ -179,7 +179,7 @@ namespace SMPL.Components
 				else
 				{
 					var t = mask as Textbox;
-					var tArea = (Area)PickByUniqueID(t.AreaUniqueID);
+					var tArea = (Area)Pick(t.AreaUID);
 					var dist = Point.Distance(tArea.Position, ownerArea.Position);
 					var atAng = Number.AngleBetweenPoints(ownerArea.Position, tArea.Position);
 					var pos = Point.From(Point.MoveAtAngle(
@@ -350,7 +350,7 @@ namespace SMPL.Components
 			{
 				if (ErrorIfDestroyed()) return;
 				outlineColor = value;
-				var owner = (Visual)PickByUniqueID(visualOwnerUID);
+				var owner = (Visual)Pick(visualOwnerUID);
 				if (owner is Textbox) return;
 				shader?.SetUniform("OutlineRed", (float)value.R / 255f);
 				shader?.SetUniform("OutlineGreen", (float)value.G / 255f);
@@ -364,7 +364,7 @@ namespace SMPL.Components
 			set
 			{
 				if (ErrorIfDestroyed()) return;
-				var owner = (Visual)PickByUniqueID(visualOwnerUID);
+				var owner = (Visual)Pick(visualOwnerUID);
 				if (owner is Sprite && creationFrame == Performance.FrameCount) return;
 				fillColor = value;
 				if (owner is Textbox) return;
@@ -381,7 +381,7 @@ namespace SMPL.Components
 			{
 				if (ErrorIfDestroyed()) return;
 				outlineWidth = value;
-				var owner = (Visual)PickByUniqueID(visualOwnerUID);
+				var owner = (Visual)Pick(visualOwnerUID);
 				if (owner is Textbox) return;
 				shader?.SetUniform("OutlineOffset", (float)value / 500f);
 			}
@@ -708,41 +708,38 @@ namespace SMPL.Components
 		//	set { stretchOpacity = value; shader?.SetUniform("StretchOpacity", (float)value / 100f); }
 		//}
 
-		public void AddMasks(params string[] visualMaskUIDs)
+		public void AddMasks(params uint[] visualMaskUIDs)
 		{
 			if (ErrorIfDestroyed() == false)
 				for (int i = 0; i < visualMaskUIDs.Length; i++)
 					AddMask(this.visualMaskUIDs, visualMaskUIDs[i], visualOwnerUID, true);
 		}
-		public void RemoveMasks(params string[] visualMaskUIDs)
+		public void RemoveMasks(params uint[] visualMaskUIDs)
 		{
 			if (ErrorIfDestroyed() == false)
 				for (int i = 0; i < visualMaskUIDs.Length; i++)
 					AddMask(this.visualMaskUIDs, visualMaskUIDs[i], visualOwnerUID, false);
 		}
-		public string[] VisualMaskUIDs => visualMaskUIDs.ToArray();
-		public string VisualMaskTargetUniqueID
+		public List<uint> VisualMaskUIDs => new(visualMaskUIDs);
+		public uint VisualMaskTargetUID
 		{
 			get
 			{
-				var owner = (Visual)PickByUniqueID(visualOwnerUID);
+				var owner = (Visual)Pick(visualOwnerUID);
 				return owner.visualMaskingUID;
 			}
 		}
 
-		public Effects(string uniqueID) : base(uniqueID)
-		{
-			creationFrame = Performance.FrameCount;
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
-		}
+		public Effects() => creationFrame = Performance.FrameCount;
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
 			visualMaskUIDs.Clear();
-			var owner = (Visual)PickByUniqueID(visualOwnerUID);
-			if (owner != null) owner.EffectsUniqueID = null;
-			visualOwnerUID = null;
-			if (shader != null) shader.Dispose();
+			var owner = (Visual)Pick(visualOwnerUID);
+			if (owner != null) owner.EffectsUID = default;
+			visualOwnerUID = default;
+			if (shader != null)
+				shader.Dispose();
 			shader = null;
 			base.Destroy();
 		}

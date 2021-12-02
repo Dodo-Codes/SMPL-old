@@ -14,6 +14,10 @@ namespace SMPL.Gear
 		{
 			Unknown = -1, Left = 0, Right = 1, Middle = 2, ExtraButton1 = 3, ExtraButton2 = 4
 		}
+		public enum ButtonAction
+		{
+			Press, Release, Hold, DoubleClick
+		}
 		public enum Wheel
 		{
 			Vertical, Horizontal
@@ -26,21 +30,9 @@ namespace SMPL.Gear
 				Arrow, ArrowWait, Wait, Text, Hand, SizeHorinzontal, SizeVertical, SizeTopLeftBottomRight, SizeBottomLeftTopRight, SizeAll,
 				Cross, Help, NotAllowed
 			}
-
-			public static class Event
+			public enum Action
 			{
-				public static class Subscrive
-				{
-					public static void WindowEnter(string thingUID, uint order) =>
-						Events.Enable(Events.Type.CursorEnterWindow, thingUID, order);
-					public static void WindowLeave(string thingUID, uint order) =>
-						Events.Enable(Events.Type.CursorLeaveWindow, thingUID, order);
-				}
-				public static class Unsubscribe
-				{
-					public static void WindowEnter(string thingUID) => Events.Disable(Events.Type.CursorEnterWindow, thingUID);
-					public static void WindowLeave(string thingUID) => Events.Disable(Events.Type.CursorLeaveWindow, thingUID);
-				}
+				WindowEnter, WindowLeave, Move
 			}
 
 			internal static Point lastFrameCursorPosScr;
@@ -87,38 +79,9 @@ namespace SMPL.Gear
 			}
 
 			internal static void OnMouseCursorEnterWindow(object sender, EventArgs e) =>
-				Events.Notify(Events.Type.CursorEnterWindow);
+				Events.Notify(Game.Event.MouseCursorEnterWindow);
 			internal static void OnMouseCursorLeaveWindow(object sender, EventArgs e) =>
-				Events.Notify(Events.Type.CursorLeaveWindow);
-		}
-		public static class Event
-		{
-			public static class Subscribe
-			{
-				public static void ButtonDoubleClick(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ButtonDoubleClick, thingUID, order);
-				public static void ButtonPress(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ButtonPress, thingUID, order);
-				public static void ButtonHold(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ButtonHold, thingUID, order);
-				public static void ButtonRelease(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ButtonRelease, thingUID, order);
-				public static void WheelScroll(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.WheelScroll, thingUID, order);
-			}
-			public static class Unsubscribe
-			{
-				public static void ButtonDoubleClick(string thingUID) =>
-					Events.Disable(Events.Type.ButtonDoubleClick, thingUID);
-				public static void ButtonPress(string thingUID) =>
-					Events.Disable(Events.Type.ButtonPress, thingUID);
-				public static void ButtonHold(string thingUID) =>
-					Events.Disable(Events.Type.ButtonHold, thingUID);
-				public static void ButtonRelease(string thingUID) =>
-					Events.Disable(Events.Type.ButtonRelease, thingUID);
-				public static void WheelScroll(string thingUID) =>
-					Events.Disable(Events.Type.WheelScroll, thingUID);
-			}
+				Events.Notify(Game.Event.MouseCursorLeaveWindow);
 		}
 
 		internal static List<Button> buttonsHeld = new();
@@ -141,13 +104,13 @@ namespace SMPL.Gear
 		internal static void Update()
 		{
 			for (int i = 0; i < buttonsHeld.Count; i++)
-				Events.Notify(Events.Type.ButtonHold, new() { Button = buttonsHeld[i] });
+				Events.Notify(Game.Event.MouseButtonHold, new() { Button = buttonsHeld[i] });
 			Cursor.lastFrameCursorPosScr = Cursor.PositionScreen;
 		}
 		internal static void CancelInput()
 		{
 			for (int i = 0; i < buttonsHeld.Count; i++)
-				Events.Notify(Events.Type.ButtonRelease, new() { Button = buttonsHeld[i]});
+				Events.Notify(Game.Event.MouseButtonRelease, new() { Button = buttonsHeld[i]});
 			buttonsHeld.Clear();
 		}
 
@@ -156,7 +119,7 @@ namespace SMPL.Gear
 			var buttonArgs = (MouseButtonEventArgs)e;
 			var button = (Button)buttonArgs.Button;
 			buttonsHeld.Add(button);
-			Events.Notify(Events.Type.ButtonPress, new Events.EventArgs() { Button = button });
+			Events.Notify(Game.Event.MouseButtonPress, new Events.EventArgs() { Button = button });
 			pressEventHappened = true;
 		}
 		internal static void OnMouseButtonRelease(object sender, EventArgs e)
@@ -167,8 +130,8 @@ namespace SMPL.Gear
 			// sometimes the press does press event does not trigger when double clicking but thankfully the release does,
 			// allowing for a dirty workaroundy hacky fixy dixy
 			if (pressEventHappened == false)
-				Events.Notify(Events.Type.ButtonPress, new Events.EventArgs() { Button = button });
-			Events.Notify(Events.Type.ButtonRelease, new Events.EventArgs() { Button = button });
+				Events.Notify(Game.Event.MouseButtonPress, new Events.EventArgs() { Button = button });
+			Events.Notify(Game.Event.MouseButtonRelease, new Events.EventArgs() { Button = button });
 			pressEventHappened = false;
 		}
 		internal static void OnMouseButtonDoubleClick(object sender, EventArgs e)
@@ -183,13 +146,13 @@ namespace SMPL.Gear
 				case MouseButtons.XButton1: button = Button.ExtraButton1; break;
 				case MouseButtons.XButton2: button = Button.ExtraButton2; break;
 			}
-			Events.Notify(Events.Type.ButtonDoubleClick, new Events.EventArgs() { Button = button });
+			Events.Notify(Game.Event.MouseButtonDoubleClick, new Events.EventArgs() { Button = button });
 		}
 		internal static void OnMouseWheelScroll(object sender, EventArgs e)
 		{
 			var arguments = (MouseWheelScrollEventArgs)e;
 			var wheel = (Wheel)arguments.Wheel;
-			Events.Notify(Events.Type.WheelScroll, new() { Wheel = wheel, Double = new double[] { arguments.Delta } });
+			Events.Notify(Game.Event.MouseWheelScroll, new() { Wheel = wheel, Double = new double[] { arguments.Delta } });
 		}
 	}
 }

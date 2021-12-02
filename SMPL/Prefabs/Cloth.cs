@@ -18,20 +18,18 @@ namespace SMPL.Prefabs
 		//=============
 
 		[JsonProperty]
-		public string RopesUniqueID { get; set; }
+		public uint RopesUID { get; set; }
 		[JsonProperty]
 		public string TexturePath { get; set; }
 		[JsonProperty]
 		public Data.Color Color { get; set; }
 
-		public Cloth(string uniqueID, Point position, Size size) : base(uniqueID)
+		public Cloth(Point position, Size size)
 		{
-			uniqueID = $"{uniqueID}-ropes";
-			RopesUniqueID = uniqueID;
-
 			SetTextureCropCoordinates(new Point(0, 0), new Size(100, 100));
 
-			var r = new Ropes(RopesUniqueID);
+			var r = new Ropes();
+			RopesUID = r.UID;
 
 			for (int y = 0; y < FRAGMENTS; y++)
 				for (int x = 0; x < FRAGMENTS; x++)
@@ -50,8 +48,8 @@ namespace SMPL.Prefabs
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
-			((Ropes)PickByUniqueID(RopesUniqueID)).Destroy();
-			RopesUniqueID = null;
+			((Ropes)Pick(RopesUID)).Destroy();
+			RopesUID = default;
 			base.Destroy();
 		}
 
@@ -59,7 +57,7 @@ namespace SMPL.Prefabs
 		{
 			if (ErrorIfDestroyed() || Window.DrawNotAllowed() || ErrorIfNoTexture() || camera.Captures(this) == false) return;
 
-			var r = (Ropes)PickByUniqueID(RopesUniqueID);
+			var r = (Ropes)Pick(RopesUID);
 			var fragSz = size / (FRAGMENTS - 1);
 			var quads = new SortedDictionary<string, Quad>();
 			var sz = GetSize();
@@ -98,7 +96,7 @@ namespace SMPL.Prefabs
 			if (removedQuads.Contains($"{x} {y}")) return;
 			removedQuads.Add($"{x} {y}");
 
-			var rope = (Ropes)PickByUniqueID(RopesUniqueID);
+			var rope = (Ropes)Pick(RopesUID);
 			if (x != 9) rope.RemovePointConnection($"{x} {y} right");
 			if (y != 9) rope.RemovePointConnection($"{x} {y} down");
 

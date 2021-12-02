@@ -20,53 +20,10 @@ namespace RPG1bit
 		public static Point CameraPosition { get; set; }
 		public static Session CurrentSession { get; set; }
 
-		private static bool startingSingle;
-
 		public World(string uniqueID) : base(uniqueID)
 		{
 			Assets.Event.Subscribe.LoadEnd(uniqueID);
 			Game.Event.Subscribe.Update(uniqueID);
-		}
-		public override void OnGameUpdate()
-		{
-			if (startingSingle == false || ChunkManager.HasQueuedLoad())
-				return;
-
-			startingSingle = false;
-			WorldObjectManager.InitializeObjects();
-		}
-		public override void OnAssetsLoadEnd()
-		{
-			if (Assets.ValuesAreLoaded("world-name") && startingSingle == false && Assets.ValuesAreLoaded("chunk") == false)
-			{
-				Assets.UnloadValues("world-name");
-
-				ChunkManager.DestroyAllChunks(true, true);
-
-				var chunks = Directory.GetFiles($"worlds\\{CurrentWorldName}");
-				for (int i = 0; i < chunks.Length; i++)
-					if (chunks[i].Contains("worlddata") == false)
-						File.Copy(chunks[i], $"cache\\{Path.GetFileName(chunks[i])}");
-
-				ChunkManager.ScheduleLoadVisibleChunks();
-				ChunkManager.UpdateChunks();
-
-				if (CurrentSession == Session.Single)
-					startingSingle = true;
-
-				Screen.ScheduleDisplay();
-			}
-
-			if (CurrentSession == Session.WorldEdit)
-			{
-				if (Assets.ValuesAreLoaded("camera-position"))
-				{
-					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
-					Assets.UnloadValues("camera-position");
-				}
-				WorldEditor.CreateTab();
-				NavigationPanel.Tab.Open("world-editor", "edit brush");
-			}
 		}
 
 		public static void CreateUIButtons()
@@ -260,6 +217,41 @@ namespace RPG1bit
 			CreateUIButtons();
 
 			Assets.Load(Assets.Type.DataSlot, $"worlds\\{name}\\{name}.worlddata");
+		}
+		public override void OnAssetLoadEnd(string path)
+		{
+			if (Assets.ValuesAreLoaded("world-name") && Assets.ValuesAreLoaded("chunk") == false)
+			{
+				Assets.UnloadValues("world-name");
+
+				ChunkManager.DestroyAllChunks(true, true);
+
+				var chunkFiles = Directory.GetFiles($"worlds\\{CurrentWorldName}");
+				for (int i = 0; i < chunkFiles.Length; i++)
+					if (chunkFiles[i].Contains("worlddata") == false)
+						File.Copy(chunkFiles[i], $"cache\\{Path.GetFileName(chunkFiles[i])}");
+
+				ChunkManager.ScheduleLoadVisibleChunks();
+				ChunkManager.UpdateChunks();
+
+				if (CurrentSession == Session.Single)
+				{
+					new Timer("init-world-objects", 1);
+				}
+
+				Screen.ScheduleDisplay();
+			}
+
+			if (CurrentSession == Session.WorldEdit)
+			{
+				if (Assets.ValuesAreLoaded("camera-position"))
+				{
+					CameraPosition = Text.FromJSON<Point>(Assets.GetValue("camera-position"));
+					Assets.UnloadValues("camera-position");
+				}
+				WorldEditor.CreateTab();
+				NavigationPanel.Tab.Open("world-editor", "edit brush");
+			}
 		}
 
 		public static bool IsHovered()

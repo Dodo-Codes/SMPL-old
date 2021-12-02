@@ -297,6 +297,13 @@ void main()
 	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 	gl_FrontColor = gl_Color;
 }";
+
+		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
+		internal static void Initialize()
+		{
+			CreateShaderFiles();
+		}
+
 		private static void EditPictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
 			bool fillDiagonals = false, bool fill = false)
 		{
@@ -442,18 +449,6 @@ void main()
 			System.IO.File.WriteAllText("shaders.vert", vert);
 			System.IO.File.WriteAllText("shaders.frag", frag);
 		}
-
-		// =========
-
-		internal static void Initialize()
-		{
-			CreateShaderFiles();
-		}
-
-		// =========
-
-		public static string MainDirectory { get { return AppDomain.CurrentDomain.BaseDirectory; } }
-
 		public static void OutlinePictures(Data.Color color, string directoryPath = "folder/pictures", bool onlyOutline = false,
 			bool fillDiagonals = false)
 		{

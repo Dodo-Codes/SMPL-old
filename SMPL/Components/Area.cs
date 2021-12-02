@@ -11,9 +11,9 @@ namespace SMPL.Components
 	{
 		private static double biggestSize;
 		private static readonly SFML.Graphics.Text coordinatesText = new();
-		private static readonly Dictionary<Point, List<string>> chunks = new();
+		private static readonly Dictionary<Point, List<uint>> chunks = new();
 		[JsonProperty]
-		private readonly List<string> hitboxUIDs = new();
+		private readonly List<uint> hitboxUIDs = new();
 		private Point localPosition, originPercent;
 		private double localAngle;
 		private Size localSize;
@@ -25,7 +25,7 @@ namespace SMPL.Components
 		[JsonProperty]
 		internal SFML.Graphics.Text text = new();
 		[JsonProperty]
-		internal string familyUID;
+		internal uint familyUID;
 
 		internal void UpdateHitboxes()
 		{
@@ -33,7 +33,7 @@ namespace SMPL.Components
 			sprite.Rotation = (float)Angle;
 			for (int i = 0; i < hitboxUIDs.Count; i++)
 			{
-				var hitbox = (Hitbox)PickByUniqueID(hitboxUIDs[i]);
+				var hitbox = (Hitbox)Pick(hitboxUIDs[i]);
 				var lines = hitbox.lines;
 				foreach (var kvp in lines)
 				{
@@ -54,10 +54,10 @@ namespace SMPL.Components
 
 			if (ChunkPosition == newChunkPos) return;
 
-			if (chunks.ContainsKey(ChunkPosition)) chunks[ChunkPosition].Remove(UniqueID);
+			if (chunks.ContainsKey(ChunkPosition)) chunks[ChunkPosition].Remove(UID);
 			ChunkPosition = newChunkPos;
 			if (chunks.ContainsKey(ChunkPosition) == false || chunks[ChunkPosition] == null) chunks[ChunkPosition] = new();
-			chunks[ChunkPosition].Add(UniqueID);
+			chunks[ChunkPosition].Add(UID);
 		}
 		internal void DefaultSprite()
 		{
@@ -81,15 +81,15 @@ namespace SMPL.Components
 
 		//==============
 
-		public string[] NeighbourAreaUniqueIDs
+		public List<uint> NeighbourAreaUIDs
 		{
 			get
 			{
-				var result = new List<string>();
+				var result = new List<uint>();
 				for (int y = -1; y < 2; y++)
 					for (int x = -1; x < 2; x++)
-						result.AddRange(GetAreaUniqueIDsFromChunk(x, y));
-				return result.ToArray();
+						result.AddRange(GetAreaUIDsFromChunk(x, y));
+				return result;
 			}
 		}
 		public static double ChunkSize { get; private set; } = 100;
@@ -128,7 +128,7 @@ namespace SMPL.Components
 				if (ErrorIfDestroyed()) return;
 				localSize = SizeToLocal(value);
 
-				if (UniqueID != Camera.WorldCameraAreaUID)
+				if (Camera.WorldCamera != null && UID != Camera.WorldCamera.UID)
 				{
 					if (value.W > biggestSize) biggestSize = value.W;
 					if (value.H > biggestSize) biggestSize = value.H;
@@ -192,26 +192,22 @@ namespace SMPL.Components
 			}
 		}
 
-		public Area(string uniqueID) : base(uniqueID)
+		public Area()
 		{
 			Size = new Size(100, 100);
 			OriginPercent = new Point(50, 50);
 
-			// trigger the chunk addition
-			if (uniqueID != Camera.WorldCameraAreaUID)
-			{
-				Position = new Point(Area.ChunkSize * 3, 0);
-				Position = new Point(0, 0);
-			}
+			// trigger chunk addition
+			Position = new Point(Area.ChunkSize * 3, 0);
+			Position = new Point(0, 0);
 
 			UpdateHitboxes();
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
 			if (ErrorIfDestroyed()) return;
 			hitboxUIDs.Clear();
-			familyUID = null;
+			familyUID = default;
 			sprite.Dispose();
 			text.Dispose();
 			base.Destroy();
@@ -237,14 +233,14 @@ namespace SMPL.Components
 			Position.Display(camera, width);
 		}
 
-		public string[] GetAreaUniqueIDsFromChunk(int relativeX, int relativeY)
+		public List<uint> GetAreaUIDsFromChunk(int relativeX, int relativeY)
 		{
 			var p = ChunkPosition + new Point(relativeX * ChunkSize, relativeY * ChunkSize);
-			return chunks.ContainsKey(p) == false ? System.Array.Empty<string>() : chunks[p].ToArray();
+			return chunks.ContainsKey(p) == false ? new List<uint>() : chunks[p];
 		}
 		public static void DisplayChunks(Camera camera, double bordersWidth, Data.Color color, string coordinatesFont = null)
 		{
-			var area = (Area)PickByUniqueID(camera.AreaDisplayUniqueID);
+			var area = (Area)Pick(camera.AreaDisplayUID);
 			var cameraSquareSize = camera.Size.W > camera.Size.H ? camera.Size.W : camera.Size.H;
 			var borderAmount = cameraSquareSize / ChunkSize;
 			var topY = area.Position.Y - cameraSquareSize / 2;
@@ -301,7 +297,7 @@ namespace SMPL.Components
 			return size * sc;
 		}
 
-		public void AddHitboxes(params string[] hitboxUniqueIDs)
+		public void AddHitboxes(params uint[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return;
 			if (hitboxUniqueIDs == null)
@@ -313,7 +309,7 @@ namespace SMPL.Components
 				if (hitboxUIDs.Contains(hitboxUniqueIDs[i]) == false)
 					hitboxUIDs.Add(hitboxUniqueIDs[i]);
 		}
-		public void RemoveHitboxes(params string[] hitboxUniqueIDs)
+		public void RemoveHitboxes(params uint[] hitboxUniqueIDs)
 		{
 			if (ErrorIfDestroyed()) return;
 			if (hitboxUniqueIDs == null)
@@ -330,7 +326,7 @@ namespace SMPL.Components
 			if (ErrorIfDestroyed()) return;
 			hitboxUIDs.Clear();
 		}
-		public bool HasHitboxes(params string[] hitboxUniqueIDs)
+		public bool HasHitboxes(params uint[] hitboxUniqueIDs)
 		{
 			if (hitboxUniqueIDs == null)
 			{
@@ -345,54 +341,54 @@ namespace SMPL.Components
 
 		public Point PositionFromLocal(Point localPosition)
 		{
-			var family = (Family)PickByUniqueID(familyUID);
-			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
-			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
+			var family = (Family)Pick(familyUID);
+			var parent = family == null ? null : (Visual)Pick(family.VisualParentUID);
+			var parentArea = parent == null ? null : (Area)Pick(parent.AreaUID);
 			return ErrorIfDestroyed() ? Point.Invalid :
-				family == null || family.VisualParentUniqueID == null ? localPosition :
+				family == null || family.VisualParentUID == default ? localPosition :
 				Point.To(parentArea.sprite.Transform.TransformPoint(Point.From(localPosition)));
 		}
 		public Point PositionToLocal(Point position)
 		{
-			var family = (Family)PickByUniqueID(familyUID);
-			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
-			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
+			var family = (Family)Pick(familyUID);
+			var parent = family == null ? null : (Visual)Pick(family.VisualParentUID);
+			var parentArea = parent == null ? null : (Area)Pick(parent.AreaUID);
 			return ErrorIfDestroyed() ? Point.Invalid :
 				family == null || parent == null ? position :
 				Point.To(parentArea.sprite.InverseTransform.TransformPoint(Point.From(position)));
 		}
 		public double AngleFromLocal(double localAngle)
 		{
-			var family = (Family)PickByUniqueID(familyUID);
-			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
-			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
+			var family = (Family)Pick(familyUID);
+			var parent = family == null ? null : (Visual)Pick(family.VisualParentUID);
+			var parentArea = parent == null ? null : (Area)Pick(parent.AreaUID);
 			return ErrorIfDestroyed() ? double.NaN :
 				family == null || parent == null ? localAngle :
 				parentArea.localAngle + localAngle;
 		}
 		public double AngleToLocal(double angle)
 		{
-			var family = (Family)PickByUniqueID(familyUID);
-			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
-			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
+			var family = (Family)Pick(familyUID);
+			var parent = family == null ? null : (Visual)Pick(family.VisualParentUID);
+			var parentArea = parent == null ? null : (Area)Pick(parent.AreaUID);
 			return ErrorIfDestroyed() ? double.NaN :
 				family == null || parent == null ? angle :
 				-(parentArea.localAngle - angle);
 		}
 		public Size SizeFromLocal(Size localSize)
 		{
-			var family = (Family)PickByUniqueID(familyUID);
-			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
-			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
+			var family = (Family)Pick(familyUID);
+			var parent = family == null ? null : (Visual)Pick(family.VisualParentUID);
+			var parentArea = parent == null ? null : (Area)Pick(parent.AreaUID);
 			return ErrorIfDestroyed() ? Size.Invalid :
 				family == null || parent == null ? localSize :
 				localSize + parentArea.Size;
 		}
 		public Size SizeToLocal(Size size)
 		{
-			var family = (Family)PickByUniqueID(familyUID);
-			var parent = family == null ? null : (Visual)PickByUniqueID(family.VisualParentUniqueID);
-			var parentArea = parent == null ? null : (Area)PickByUniqueID(parent.AreaUniqueID);
+			var family = (Family)Pick(familyUID);
+			var parent = family == null ? null : (Visual)Pick(family.VisualParentUID);
+			var parentArea = parent == null ? null : (Area)Pick(parent.AreaUID);
 			return ErrorIfDestroyed() ? Size.Invalid :
 				family == null || parent == null ? size :
 				size - parentArea.Size;

@@ -21,8 +21,8 @@ namespace SMPL.Components
 		internal void UpdateAllData()
 		{
 			if (Text == null) return;
-			var Area = (Area)PickByUniqueID(AreaUniqueID);
-			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
+			var Area = (Area)Pick(AreaUID);
+			var Effects = (Effects)Pick(EffectsUID);
 			Area.text.Font = FontPath == null || Assets.fonts.ContainsKey(FontPath) == false ? null : Assets.fonts[FontPath];
 			Area.text.DisplayedString = Text;
 			Area.text.CharacterSize = (uint)CharacterSize;
@@ -125,7 +125,7 @@ namespace SMPL.Components
 			set { if (ErrorIfDestroyed() == false) isStrikedThrough = value; }
 		}
 
-		public Textbox(string uniqueID) : base(uniqueID)
+		public Textbox()
 		{
 			texts.Add(this);
 
@@ -134,7 +134,6 @@ namespace SMPL.Components
 			Spacing = new Size(4, 4);
 			Scale = new Size(0.3, 0.3);
 			OriginPercent = new Point(50, 50);
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
@@ -146,18 +145,18 @@ namespace SMPL.Components
 		public void Display(Camera camera)
 		{
 			if (ErrorIfDestroyed()) return;
-			if (Window.DrawNotAllowed() || visualMaskingUID != null || IsHidden) return;
-			var Area = (Area)PickByUniqueID(AreaUniqueID);
+			if (Window.DrawNotAllowed() || visualMaskingUID != default || IsHidden) return;
+			var Area = (Area)Pick(AreaUID);
 			if (Area == null || Area.IsDestroyed || Area.text == null)
 			{
-				Debug.LogError(1, $"Cannot display the textBox instance '{UniqueID}' because it has no Area.\n" +
+				Debug.LogError(1, $"Cannot display the textBox instance '{UID}' because it has no Area.\n" +
 					$"Make sure the textBox instance has an Area before displaying it.");
 				return;
 			}
 
 			UpdateAllData();
 
-			var Effects = (Effects)PickByUniqueID(EffectsUniqueID);
+			var Effects = (Effects)Pick(EffectsUID);
 			var bgc = Effects == null ? new Data.Color() : Effects.BackgroundColor;
 			if (Area.text.Font == null) bgc = Data.Color.White;
 

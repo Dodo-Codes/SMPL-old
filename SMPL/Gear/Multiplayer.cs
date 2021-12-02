@@ -13,6 +13,11 @@ namespace SMPL.Gear
 {
 	public static class Multiplayer
 	{
+		public enum Action
+		{
+			ServerStart, ServerStop, ClientConnect, ClientDisconnect, ClientTakenUID
+		}
+
 		private static readonly Dictionary<Guid, string> clientRealIDs = new();
 		private static readonly List<string> clientIDs = new();
 		private static readonly int serverPort = 1234;
@@ -113,7 +118,7 @@ namespace SMPL.Gear
 								{ type = Message.Type.ClientConnected };
 								messageBack += MessageToString(newComMsg);
 								Console.Log($"Client '{msg.SenderUniqueID}' connected. {ConnectedClients()}\n");
-								Events.Notify(Events.Type.ClientConnect, new() { String = new string[] { msg.SenderUniqueID } });
+								Events.Notify(Game.Event.MultiplayerClientConnect, new() { String = new string[] { msg.SenderUniqueID } });
 								break;
 							}
 						case Message.Type.ClientToAll: // A client wants to send a message to everyone
@@ -128,12 +133,12 @@ namespace SMPL.Gear
 							}
 						case Message.Type.ClientToServer: // A client sent me (the server) a message
 							{
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								break;
 							}
 						case Message.Type.ClientToAllAndServer: // A client is sending me (the server) and all other clients a message
 							{
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								messageBack += MessageToString(msg);
 								break;
 							}
@@ -159,7 +164,7 @@ namespace SMPL.Gear
 									ClientUniqueID = newID;
 
 									Console.Log($"Client Unique ID '{oldID}' is taken. New Client Unique ID is '{newID}'.\n");
-									Events.Notify(Events.Type.ClientTakenUniqueID, new() { String = new string[] { oldID } });
+									Events.Notify(Game.Event.MultiplayerClientTakenUID, new() { String = new string[] { oldID } });
 								}
 								break;
 							}
@@ -169,7 +174,7 @@ namespace SMPL.Gear
 								{
 									clientIDs.Add(msg.Content);
 									Console.Log($"Client '{msg.Content}' connected. {ConnectedClients()}\n");
-									Events.Notify(Events.Type.ClientConnect, new() { String = new string[] { msg.Content } });
+									Events.Notify(Game.Event.MultiplayerClientConnect, new() { String = new string[] { msg.Content } });
 								}
 								// when it's me it's handled in Client.OnConnected overriden method
 								break;
@@ -178,7 +183,7 @@ namespace SMPL.Gear
 							{
 								clientIDs.Remove(msg.Content);
 								Console.Log($"Client '{msg.Content}' disconnected. {ConnectedClients()}\n");
-								Events.Notify(Events.Type.ClientDisconnect, new() { String = new string[] { msg.Content } });
+								Events.Notify(Game.Event.MultiplayerClientDisconnect, new() { String = new string[] { msg.Content } });
 								break;
 							}
 						case Message.Type.ClientOnline: // Someone just connected and is getting updated on who is already online
@@ -197,31 +202,31 @@ namespace SMPL.Gear
 						case Message.Type.ClientToAll: // A client is sending a message to all clients
 							{
 								if (msg.SenderUniqueID == ClientUniqueID) break; // Is this my message coming back to me?
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								break;
 							}
 						case Message.Type.ClientToAllAndServer: // A client is sending a message to the server and all clients
 							{
 								if (msg.SenderUniqueID == ClientUniqueID) break; // Is this my message coming back to me?
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								break;
 							}
 						case Message.Type.ClientToClient: // A client is sending a message to another client
 							{
 								if (msg.ReceiverUniqueID != ClientUniqueID) break; // Not for me? Not interested.
 								if (msg.SenderUniqueID == ClientUniqueID) return; // Is this my message coming back to me? (unlikely)
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								break;
 							}
 						case Message.Type.ServerToAll: // The server sent everyone a message
 							{
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								break;
 							}
 						case Message.Type.ServerToClient: // The server sent some client a message
 							{
 								if (msg.ReceiverUniqueID != ClientUniqueID) return; // Not for me?
-								Events.Notify(Events.Type.MessageReceived, new() { Message = msg });
+								Events.Notify(Game.Event.MultiplayerMessageReceived, new() { Message = msg });
 								break;
 							}
 					}
@@ -262,7 +267,7 @@ namespace SMPL.Gear
 				SendMessage(msg);
 
 				Console.Log($"Client '{disconnectedClient}' disconnected. {ConnectedClients()}\n");
-				Events.Notify(Events.Type.ClientDisconnect, new() { String = new string[] { disconnectedClient } });
+				Events.Notify(Game.Event.MultiplayerClientDisconnect, new() { String = new string[] { disconnectedClient } });
 			}
 			protected override void OnReceived(byte[] buffer, long offset, long size)
 			{
@@ -279,7 +284,7 @@ namespace SMPL.Gear
 			{
 				ServerIsRunning = false;
 				Debug.LogError(-1, $"{error}", true);
-				Events.Notify(Events.Type.ServerStop);
+				Events.Notify(Game.Event.MultiplayerServerStop);
 			}
 		}
 		internal class Client : TcpClient
@@ -301,7 +306,7 @@ namespace SMPL.Gear
 				var ip = client.Socket.RemoteEndPoint.ToString().Split(':')[0];
 				if (ServerIsRunning == false) Console.Log($"Connected as '{ClientUniqueID}' to {Window.Title} LAN Server[{ip}].\n");
 
-				Events.Notify(Events.Type.ClientConnect, new() { String = new string[] { ClientUniqueID } });
+				Events.Notify(Game.Event.MultiplayerClientConnect, new() { String = new string[] { ClientUniqueID } });
 
 				var msg = new Message(Message.Toward.Server, null, Id.ToString()) { type = Message.Type.Connection };
 				client.SendAsync(MessageToString(msg));
@@ -313,7 +318,7 @@ namespace SMPL.Gear
 					ClientIsConnected = false;
 					Console.Log("Disconnected from the LAN Server.\n");
 					clientIDs.Clear();
-					Events.Notify(Events.Type.ClientDisconnect, new() { String = new string[] { ClientUniqueID } });
+					Events.Notify(Game.Event.MultiplayerClientDisconnect, new() { String = new string[] { ClientUniqueID } });
 					if (stop == true) return;
 				}
 
@@ -387,40 +392,6 @@ namespace SMPL.Gear
 			}
 		}
 
-		public static class Event
-		{
-			public static class Subscribe
-			{
-				public static void ServerStart(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ServerStart, thingUID, order);
-				public static void ServerStop(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ServerStop, thingUID, order);
-				public static void ClientConnect(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ClientConnect, thingUID, order);
-				public static void ClientDisconnect(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ClientDisconnect, thingUID, order);
-				public static void ClientTakenUniqueID(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.ClientTakenUniqueID, thingUID, order);
-				public static void MessageReceive(string thingUID, uint order = uint.MaxValue) =>
-					Events.Enable(Events.Type.MessageReceived, thingUID, order);
-			}
-			public static class Unsubscribe
-			{
-				public static void ServerStart(string thingUID) =>
-					Events.Disable(Events.Type.ServerStart, thingUID);
-				public static void ServerStop(string thingUID) =>
-					Events.Disable(Events.Type.ServerStop, thingUID);
-				public static void ClientConnect(string thingUID) =>
-					Events.Disable(Events.Type.ClientConnect, thingUID);
-				public static void ClientDisconnect(string thingUID) =>
-					Events.Disable(Events.Type.ClientDisconnect, thingUID);
-				public static void ClientTakenUniqueID(string thingUID) =>
-					Events.Disable(Events.Type.ClientTakenUniqueID, thingUID);
-				public static void MessageReceive(string thingUID) =>
-					Events.Disable(Events.Type.MessageReceived, thingUID);
-			}
-		}
-
 		public const string SameDeviceIP = "127.0.0.1";
 		public static bool ClientIsConnected { get; private set; }
 		public static bool ServerIsRunning { get; private set; }
@@ -440,7 +411,7 @@ namespace SMPL.Gear
 				ServerIsRunning = true;
 
 				Console.Log($"Started a {Window.Title} LAN Server.\n{GetServerConnectInfo()}\n");
-				Events.Notify(Events.Type.ServerStop);
+				Events.Notify(Game.Event.MultiplayerServerStop);
 			}
 			catch (Exception ex)
 			{
@@ -449,7 +420,7 @@ namespace SMPL.Gear
 					Debug.LogError(1, $"In order to start the {Window.Title} Multiplayer Server, run the game as an Administrator.", true);
 				else
 					Debug.LogError(1, ex.Message, true);
-				Events.Notify(Events.Type.ServerStop);
+				Events.Notify(Game.Event.MultiplayerServerStop);
 			}
 		}
 		public static void StopServer()
@@ -461,13 +432,13 @@ namespace SMPL.Gear
 				ServerIsRunning = false;
 				server.Stop();
 				Console.Log($"The {Window.Title} LAN Server was stopped.\n");
-				Events.Notify(Events.Type.ServerStop);
+				Events.Notify(Game.Event.MultiplayerServerStop);
 			}
 			catch (Exception ex)
 			{
 				ServerIsRunning = false;
 				Debug.LogError(-1, ex.Message, true);
-				Events.Notify(Events.Type.ServerStop);
+				Events.Notify(Game.Event.MultiplayerServerStop);
 				return;
 			}
 		}

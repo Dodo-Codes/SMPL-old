@@ -65,7 +65,7 @@ namespace SMPL.Prefabs
 			set { if (ErrorIfDestroyed() == false) targetPosition = value; Update(); }
 		}
 
-		public SegmentedLine(string uniqueID, Point originPosition, params double[] segmentLengths) : base(uniqueID)
+		public SegmentedLine(Point originPosition, params double[] segmentLengths)
 		{
 			lines.Add(this);
 
@@ -78,7 +78,6 @@ namespace SMPL.Prefabs
 			OriginPosition = originPosition;
 
 			Update();
-			if (cannotCreate) { ErrorAlreadyHasUID(uniqueID); Destroy(); }
 		}
 		public override void Destroy()
 		{
